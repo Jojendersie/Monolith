@@ -1,0 +1,16 @@
+/Debug
+/Release
+/Crinkler
+/doc
+/include/shader
+/Inspirationen
+/screens
+/historicalbinaries
+/SoundTest
+/meshcash
+
+*.sdf
+*.opensdf
+*.suo
+*.zip
+*.user

@@ -1,0 +1,40 @@
+- Rekursiver Aufbau aus kleinen Voxeln
+  - minimale Größe = 1 l (10 x 10 x 10 cm)
+- Es gibt Resourcen und Komponenten
+- Man benötigt Resourcen und Prouktionsanlage um Komponenten zu fertigen
+- Man benötigt Schürfanlagen um Resourcen zu gewinnen.
+- Ein jedes Modul hat eine Energie bei der es zerstört wird. Bei 4 dieser Energie wird die Componente waporisiert
+  - Nach einem Treffer (unter dem Grenzwert) wird die Energie je Sekunde auf 1% gesenkt (-> mehrere schnelle Schüsse können zerstören)
+
+Resourcen
+  - Sind "endlich". D.h. Planeten... können restlos abgebaut werden.
+  - Benötigen 1/4 Platz eines Größe1 Voxels
+  - Metalle, Wasser, Mineralien, Höhere Metalle, Seltenerden
+
+Kombination größerer Module:
+  - Im Editor zu Handlichkeitszwecken (keine Boni)
+  - Durch Forschung:
+    - je 8 Kleine zu einem Größeren
+	- Masse und Materialverbrauch * 8
+	- Eigenschaftsboni 10% auf Vorstufe
+	- Module verschieden hoch kombinierbar
+	
+Upgrades:
+  - Jede Produktionsanlage kann geupgraded werden
+  - Ein Upgrade ist eine Verbesserung genau einer Anlage (Gegensatz Forschung: dort Verbesserung aller)
+  - Helden entsprechen Upgrades -> wieder abziehbar
+  - Upgrades durch Erfahrung (solange noch ein Voxel des Gebäudes/Raumschiffes existiert geht Erfahrung nicht verloren)
+  
+Reparaturen:
+  - Gebäude und Raumschiffe können in Assemblerwerken oder durch mobile Assembler repariert werden
+  - Erfahrung einer Einheit bleibt erhalten
+  
+Sensoren:
+  - Reichweite immer für Größe1 Voxel angegeben
+  - Je Größer ein Objekt, desto weiter ist es sichtbar (Größe2 Voxel -> 2x so weit, 4x, 8x, ...)
+	
+Bauzeiten
+	- Grundzeit * 8 ^ (Größe/2)
+		GS			1			2			3			4			5			6
+		1s			2.8s		8s			22.6s		1min 4s		3min 1s		8min 32s
+	- Die besseren Grundzeiten können durch Upgrades und Forschungen erreicht werden
