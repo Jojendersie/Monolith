@@ -1,13 +1,13 @@
 /Debug
 /Release
 /Crinkler
-/doc
+html/
 /include/shader
 /Inspirationen
 /screens
 /historicalbinaries
 /SoundTest
-/meshcash
+/dependencies
 
 *.sdf
 *.opensdf
