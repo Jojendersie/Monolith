@@ -1,5 +1,7 @@
 #pragma once
 
+#include <chrono>
+
 /// \brief A game state is an instance with a number of handling methods which
 ///		are called by the main loop.
 class IGameState
@@ -44,7 +46,7 @@ private:
 	bool m_bRunning;
 
 	double m_fTime;					///< Total time since run in seconds
-	double m_fTargetRenderFRInv;
+	std::chrono::microseconds m_iMicroSecPerFrame;
 };
 
 /// \brief Game state for the game itself.

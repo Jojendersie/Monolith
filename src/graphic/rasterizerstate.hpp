@@ -28,5 +28,16 @@ namespace Graphic {
 	private:
 		CULL_MODE m_CullMode;
 		FILL_MODE m_FillMode;
+
+		/// \brief Set all states.
+		/// \details This can only be called by the device. Use
+		///		Device::SetRasterizerState() to set a state object.
+		void Apply() const;
+
+		// OpenGL specific values to set the state fast
+		unsigned int m_iCullFace;
+		unsigned int m_iFillMode;
+
+		friend class Device;
 	};
 };
