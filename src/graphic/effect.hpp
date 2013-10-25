@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include "rasterizerstate.hpp"
 #include "samplerstate.hpp"
 #include "blendstate.hpp"
@@ -12,10 +13,10 @@ namespace Graphic {
 	{
 	public:
 		/// \brief Construction with pixel shader and vertex shader only.
-		Effect( const char* _sVSFile, const char* _sPSFile );
+		Effect( const std::string& _sVSFile, const std::string& _sPSFile );
 
 		/// \brief Construction of a program with pixel, vertex and geometry shader.
-		Effect( const char* _sVSFile, const char* _sGSFile, const char* _sPSFile,
+		Effect( const std::string& _sVSFile, const std::string& _sGSFile, const std::string& _sPSFile,
 			RasterizerState::CULL_MODE _CullMode, RasterizerState::FILL_MODE _FillMode );
 
 		~Effect();

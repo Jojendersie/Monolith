@@ -46,16 +46,16 @@ namespace Graphic {
 		return iShaderID;
 	}
 
-	Effect::Effect( const char* _sVSFile, const char* _sGSFile, const char* _sPSFile,
+	Effect::Effect( const std::string& _sVSFile, const std::string& _sGSFile, const std::string& _sPSFile,
 			RasterizerState::CULL_MODE _CullMode, RasterizerState::FILL_MODE _FillMode ) :
 		m_RasterizerState(_CullMode, _FillMode),
 	//	m_SamplerState(),
 		m_BlendState(BlendState::BLEND_OPERATION::DISABLE, BlendState::BLEND::ONE, BlendState::BLEND::ZERO ),
 		m_DepthStencilState(DepthStencilState::COMPARISON_FUNC::LESS, true)
 	{
-		m_iVertexShader = LoadShader( _sVSFile, GL_VERTEX_SHADER );
-		m_iGeometryShader = LoadShader( _sVSFile, GL_FRAGMENT_SHADER );
-		m_iPixelShader = LoadShader( _sVSFile, GL_GEOMETRY_SHADER );
+		m_iVertexShader = LoadShader( _sVSFile.c_str(), GL_VERTEX_SHADER );
+		m_iGeometryShader = LoadShader( _sVSFile.c_str(), GL_FRAGMENT_SHADER );
+		m_iPixelShader = LoadShader( _sVSFile.c_str(), GL_GEOMETRY_SHADER );
 		if( m_iVertexShader == 0 || m_iGeometryShader == 0 || m_iPixelShader == 0 )
 		{
 			std::cout << "[Effect::Effect] One or more shaders were not loaded. Effect will be wrong.\n";

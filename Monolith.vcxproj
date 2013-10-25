@@ -86,9 +86,14 @@
     <ClCompile Include="src\graphic\framebuffer.cpp" />
     <ClCompile Include="src\graphic\rasterizerstate.cpp" />
     <ClCompile Include="src\graphic\samplerstate.cpp" />
-    <ClCompile Include="src\graphic\shader.cpp" />
     <ClCompile Include="src\graphic\texture.cpp" />
+    <ClCompile Include="src\graphic\uniformbuffer.cpp" />
+    <ClCompile Include="src\graphic\vertexbuffer.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\math\matrix.cpp" />
+    <ClCompile Include="src\math\vector2.cpp" />
+    <ClCompile Include="src\math\vector3.cpp" />
+    <ClCompile Include="src\math\vector4.cpp" />
     <ClCompile Include="src\voxel\chunk.cpp" />
     <ClCompile Include="src\voxel\model.cpp" />
   </ItemGroup>
@@ -101,8 +106,16 @@
     <ClInclude Include="src\graphic\framebuffer.hpp" />
     <ClInclude Include="src\graphic\rasterizerstate.hpp" />
     <ClInclude Include="src\graphic\samplerstate.hpp" />
-    <ClInclude Include="src\graphic\shader.hpp" />
     <ClInclude Include="src\graphic\texture.hpp" />
+    <ClInclude Include="src\graphic\uniformbuffer.hpp" />
+    <ClInclude Include="src\graphic\vertexbuffer.hpp" />
+    <ClInclude Include="src\math\math.hpp" />
+    <ClInclude Include="src\math\mathbase.hpp" />
+    <ClInclude Include="src\math\matrix.hpp" />
+    <ClInclude Include="src\math\plane.hpp" />
+    <ClInclude Include="src\math\vector2.hpp" />
+    <ClInclude Include="src\math\vector3.hpp" />
+    <ClInclude Include="src\math\vector4.hpp" />
     <ClInclude Include="src\opengl.hpp" />
     <ClInclude Include="src\voxel\chunk.hpp" />
     <ClInclude Include="src\voxel\model.hpp" />

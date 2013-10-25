@@ -21,13 +21,13 @@
     <Filter Include="Source Files\gamestates">
       <UniqueIdentifier>{83db6cef-38f9-4257-a23f-a5b2b1d04567}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\math">
+      <UniqueIdentifier>{324ed5d3-1e1d-49a0-9762-090fcbcc44b8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\graphic\shader.cpp">
-      <Filter>Source Files\graphic</Filter>
     </ClCompile>
     <ClCompile Include="src\graphic\texture.cpp">
       <Filter>Source Files\graphic</Filter>
@@ -65,15 +65,30 @@
     <ClCompile Include="src\gamestates\gsmain.cpp">
       <Filter>Source Files\gamestates</Filter>
     </ClCompile>
+    <ClCompile Include="src\graphic\uniformbuffer.cpp">
+      <Filter>Source Files\graphic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\vertexbuffer.cpp">
+      <Filter>Source Files\graphic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\matrix.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\vector2.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\vector3.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\vector4.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\graphic\framebuffer.hpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClInclude>
-    <ClInclude Include="src\graphic\shader.hpp">
       <Filter>Source Files\graphic</Filter>
     </ClInclude>
     <ClInclude Include="src\graphic\texture.hpp">
@@ -105,6 +120,33 @@
     </ClInclude>
     <ClInclude Include="src\opengl.hpp">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\uniformbuffer.hpp">
+      <Filter>Source Files\graphic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\vertexbuffer.hpp">
+      <Filter>Source Files\graphic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\matrix.hpp">
+      <Filter>Source Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\plane.hpp">
+      <Filter>Source Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\vector2.hpp">
+      <Filter>Source Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\vector3.hpp">
+      <Filter>Source Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\vector4.hpp">
+      <Filter>Source Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\math.hpp">
+      <Filter>Source Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\mathbase.hpp">
+      <Filter>Source Files\math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
