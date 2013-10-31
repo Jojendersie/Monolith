@@ -2,11 +2,21 @@
 
 #include <chrono>
 
+class Monolith;
+#include "graphic/uniformbuffer.hpp"
+#include "graphic/effect.hpp"
+
+// For test
+namespace Generators { class Asteroid; }
+
+
 /// \brief A game state is an instance with a number of handling methods which
 ///		are called by the main loop.
 class IGameState
 {
 public:
+	virtual ~IGameState() {}
+
 	/// \brief Update the movement, damages... of all objects
 	/// \param [in] _fTime Total time since game start in seconds.
 	/// \param [in] _fDeltaTime Time since last Update call.
@@ -18,6 +28,8 @@ public:
 	virtual void Render( double _fTime, double _fDeltaTime ) = 0;
 
 	// TODO: Input
+
+	Monolith* m_pParent;
 };
 
 typedef IGameState* IGameStateP;
@@ -39,6 +51,14 @@ public:
 	/// \brief Start the game. This method will return after the game closed.
 	void Run();
 
+	/// \brief Global content like fonts and render effects
+	struct _Content {
+		_Content();
+
+		Graphic::Effect VoxelRenderEffect;
+		Graphic::UniformBuffer ObjectUBO;
+		Graphic::UniformBuffer CameraUBO;
+	} Content;
 private:
 	IGameStateP m_ppGameStates[1];	///< MainMenu, NewGame, Main, 
 	int m_iCurrentGameState;
@@ -53,6 +73,12 @@ private:
 class GSMain: public IGameState
 {
 public:
+	/// \brief Create main state specific content.
+	GSMain();
+	~GSMain();
+
 	virtual void Update( double _fTime, double _fDeltaTime );
 	virtual void Render( double _fTime, double _fDeltaTime );
+private:
+	Generators::Asteroid* m_pAstTest;
 };

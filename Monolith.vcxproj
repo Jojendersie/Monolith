@@ -42,7 +42,7 @@
     <LibraryPath>D:\C++\Spiele\Monolith\dependencies\glfw-3.0.3\bin;D:\C++\Spiele\Monolith\dependencies\glew-1.10.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LibraryPath>D:\C++\Spiele\Monolith\dependencies\glfw-3.0.3\bin;D:\C++\Spiele\Monolith\dependencies\glew-1.10.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
+    <LibraryPath>dependencies\glfw-3.0.3\bin;dependencies\glew-1.10.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -73,12 +73,13 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32s.lib;opengl32.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\gamestates\gsmain.cpp" />
+    <ClCompile Include="src\generators\asteroid.cpp" />
     <ClCompile Include="src\graphic\blendstate.cpp" />
     <ClCompile Include="src\graphic\depthstencilstate.cpp" />
     <ClCompile Include="src\graphic\device.cpp" />
@@ -94,11 +95,13 @@
     <ClCompile Include="src\math\vector2.cpp" />
     <ClCompile Include="src\math\vector3.cpp" />
     <ClCompile Include="src\math\vector4.cpp" />
+    <ClCompile Include="src\opengl.cpp" />
     <ClCompile Include="src\voxel\chunk.cpp" />
     <ClCompile Include="src\voxel\model.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game.hpp" />
+    <ClInclude Include="src\generators\asteroid.hpp" />
     <ClInclude Include="src\graphic\blendstate.hpp" />
     <ClInclude Include="src\graphic\depthstencilstate.hpp" />
     <ClInclude Include="src\graphic\device.hpp" />
@@ -119,6 +122,12 @@
     <ClInclude Include="src\opengl.hpp" />
     <ClInclude Include="src\voxel\chunk.hpp" />
     <ClInclude Include="src\voxel\model.hpp" />
+    <ClInclude Include="src\voxel\voxel.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shader\voxel.gs" />
+    <None Include="shader\voxel.ps" />
+    <None Include="shader\voxel.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

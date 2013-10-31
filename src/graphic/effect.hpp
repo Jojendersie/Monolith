@@ -21,6 +21,9 @@ namespace Graphic {
 
 		~Effect();
 
+		/// \brief Get the OpenGL id of this shader program.
+		unsigned GetProgramID() const	{ return m_iProgramID; }
+
 	private:
 		RasterizerState m_RasterizerState;		///< The rasterizer state
 	//	SamplerState m_SamplerState[8];			///< One state for each of 8 texture stages
@@ -31,5 +34,7 @@ namespace Graphic {
 		unsigned m_iGeometryShader;
 		unsigned m_iPixelShader;
 		unsigned m_iProgramID;
+
+		friend class Device;
 	};
 };

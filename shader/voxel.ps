@@ -1,0 +1,10 @@
+#version 330
+
+in vec3 gs_Normal;
+out vec4 fragColor;
+
+void main()
+{
+	float fL = dot(gs_Normal, vec3(0.13557,0.96596,0.2203))*0.5+0.5;
+	fragColor = vec4(fL,fL,fL,1);
+}

@@ -24,6 +24,9 @@
     <Filter Include="Source Files\math">
       <UniqueIdentifier>{324ed5d3-1e1d-49a0-9762-090fcbcc44b8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\generators">
+      <UniqueIdentifier>{282fbc1e-b184-4cef-a11b-76919d91d261}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
@@ -82,6 +85,12 @@
     </ClCompile>
     <ClCompile Include="src\math\vector4.cpp">
       <Filter>Source Files\math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\generators\asteroid.cpp">
+      <Filter>Source Files\generators</Filter>
+    </ClCompile>
+    <ClCompile Include="src\opengl.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -148,5 +157,22 @@
     <ClInclude Include="src\math\mathbase.hpp">
       <Filter>Source Files\math</Filter>
     </ClInclude>
+    <ClInclude Include="src\voxel\voxel.hpp">
+      <Filter>Source Files\voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="src\generators\asteroid.hpp">
+      <Filter>Source Files\generators</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shader\voxel.ps">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shader\voxel.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shader\voxel.gs">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

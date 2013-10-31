@@ -1,0 +1,40 @@
+Struktur
+* Header: allesklein.hpp
+* Source: allesklein.cpp
+* Header und Source immer im gleichen Unterordner
+* Inhaltlich strukturierte Ordner
+* namespace entsprechend der Ordnerstruktur
+  * in Header und Source namespace global aufmachen
+* Wenn möglich pre-declarations gegenüber includes im Header vorziehen
+
+Dokumentation
+* Doxygen Kommentare im Header an public Attributen:
+	/// \brief			immer angeben
+	/// \details		wenn mehr als Kurzbeschreibung sinnvoll
+	/// \param [in]		wenn nur gelesen wird
+	/// \param [out]	wenn nur geschrieben wird
+	/// \param [inout]	bei lese schreib-zugriff
+	/// \return
+* An Membervariablen nur Kurzbeschreibug dahinter: ///< es sei denn mehr ist sinnvoll
+* cpp mit normalen Kommentaren: //
+
+
+
+
+
+
+
+
+
+
+
+Name,GPR,Scratch Reg,Min,Max,Avg,Est Cycles(Bi),ALU:TEX(Bi),Est Cycles(Tri),ALU:TEX(Tri),Est Cycles(Aniso),ALU:TEX(Aniso),BottleNeck(Bi),BottleNeck(Tri),BottleNeck(Aniso),%s\Clock(Bi),%s\Clock(Tri),%s\Clock(Aniso)
+Radeon HD 3870,0,160,6.75,49.00,23.74,23.74,16.96,23.74,16.96,23.74,16.96,Exports,Exports,Exports,0.67,0.67,0.67
+Radeon HD 4670,0,160,3.00,49.00,18.36,18.36,14.55,18.36,12.13,18.36,10.39,Exports,Exports,Exports,0.44,0.44,0.44
+Radeon HD 5670,0,268,4.60,49.00,18.36,18.36,28.60,18.36,23.83,18.36,20.43,Exports,Exports,Exports,0.44,0.44,0.44
+Radeon HD 6670,0,268,3.83,98.00,47.47,47.47,32.27,47.47,26.89,47.47,23.05,Exports,Exports,Exports,0.34,0.34,0.34
+
+Radeon HD 3870,0,160,6.75,49.00,17.47,17.47,17.47,17.47,17.47,17.47,17.47,ALU Ops,ALU Ops,ALU Ops,0.92,0.92,0.92
+Radeon HD 4670,0,160,3.00,49.00,11.40,11.40,14.67,11.40,12.22,11.40,10.48,Exports,Exports,Exports,0.70,0.70,0.70
+Radeon HD 5670,0,527,4.60,49.00,11.54,11.54,28.84,11.54,24.03,11.54,20.60,ALU Ops,ALU Ops,ALU Ops,0.69,0.69,0.69
+Radeon HD 6670,0,527,3.83,98.00,33.32,33.32,33.29,33.32,27.74,33.32,23.78,Exports,Exports,Exports,0.48,0.48,0.48

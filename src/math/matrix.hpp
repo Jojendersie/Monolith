@@ -308,7 +308,7 @@ inline	Matrix	MatrixRotation(const Vec3& v)		{return MatrixRotation(v.x, v.y, v.
 		// Invert matrix
 		Matrix	invert(const Matrix& m);
 		// Transpose matrix
-		Matrix	MatrixTranspose(const Matrix& m);
+		Matrix	transpose(const Matrix& m);
 		// OpenGL perspective projection matrix
 		Matrix	MatrixProjection(const float fFOV, const float fAspect, const float fNearPlane, const float fFarPlane);
 		// OpenGL orthogonal projection matrix

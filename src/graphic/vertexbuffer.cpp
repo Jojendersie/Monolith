@@ -16,22 +16,23 @@ inline int VectorSize(char a)
 	switch(a)
 	{
 	case '4': return 4;
-	case '3':case 'p':case 'n':case 't': return 3;
+	case '3': case 'p': case 'n': case 't': return 3;
 	case '2': return 2;
-	case '1':case 'c': return 1;
+	case '1': case 'c': case 'u': return 1;
 	}
 	return 0;
 }
 
 // Creating a vertex buffer with arbitary interleaved data
-VertexBuffer::VertexBuffer(unsigned _iMaxNumVertices, const char* _pcVD) :
+VertexBuffer::VertexBuffer(unsigned _iMaxNumVertices, const char* _pcVD, PrimitiveType _Type) :
 	m_pData(nullptr),
 	m_iMaxNumVertices(_iMaxNumVertices),
 	m_bDirty(true),
 	m_iCursor(0),
 	m_iPositionOffset(0xffffffff),
 	m_iNormalOffset(0xffffffff),
-	m_iTangentOffset(0xffffffff)
+	m_iTangentOffset(0xffffffff),
+	m_PrimitiveType(_Type)
 {
 	// First step analysing the string
 		// Counting VBO's size and string length
@@ -53,7 +54,7 @@ VertexBuffer::VertexBuffer(unsigned _iMaxNumVertices, const char* _pcVD) :
 		glGenBuffers(1, &m_iVBO);
 		glBindBuffer(GL_ARRAY_BUFFER, m_iVBO);	// Bind VBO to VAO
 		int i=0;
-		int iStride = 0, iBindOff = 0, iColorBindOff = 0;
+		int iStride = 0, iBindOff = 0, iColorBindOff = 0, iUintBindOff = 0;
 		while(_pcVD[i])
 		{
 			int iLocation;
@@ -99,14 +100,22 @@ VertexBuffer::VertexBuffer(unsigned _iMaxNumVertices, const char* _pcVD) :
 				++iBindOff;
 				break;
 			case 'c':
-				if(iColorBindOff>=7) std::cout << "[VertexBuffer::VertexBuffer] Too many 'c' in vertex declaration. The maximum number of color binding points is 8!\n";
+				if(iColorBindOff>=3) std::cout << "[VertexBuffer::VertexBuffer] Too many 'c' in vertex declaration. The maximum number of color binding points is 4!\n";
 				iLocation = int(BindingLocation::COLOR0) + iColorBindOff;
 				glVertexAttribPointer(iLocation, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, (GLvoid*)(iStride));
 				glEnableVertexAttribArray(iLocation);
 				iStride += 4;
 				++iColorBindOff;
 				break;
-			}	   
+			case 'u':
+				if(iUintBindOff>=3) std::cout << "[VertexBuffer::VertexBuffer] Too many 'u' in vertex declaration. The maximum number of uint binding points is 4!\n";
+				iLocation = int(BindingLocation::UINT0) + iUintBindOff;
+				glVertexAttribIPointer(iLocation, 1, GL_UNSIGNED_INT, 0, (GLvoid*)(iStride));
+				glEnableVertexAttribArray(iLocation);
+				iStride += 4;
+				++iUintBindOff;
+				break;
+			}
 			++i;
 		}
 	glBindVertexArray(0);
@@ -129,6 +138,9 @@ VertexBuffer::~VertexBuffer()
 	// Detach and delete array
 	glBindVertexArray(0);
 	glDeleteVertexArrays(1, &m_iVAO);
+
+	free(m_pData);
+	m_pData = nullptr;
 }
 
 // ************************************************************************* //
@@ -205,7 +217,7 @@ void VertexBuffer::FlipNormals()
 }
 
 // ******************************************************************************** //
-void VertexBuffer::Bind()
+void VertexBuffer::Bind() const
 {
 	// Don't use a empty buffer. Call MakeStatic or Commit before.
 	assert( !m_bDirty );

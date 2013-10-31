@@ -39,10 +39,13 @@ namespace Graphic {
 
 		// Determine alignment
 		int iOffset = m_iSize & 0xf;	// modulu 16
-		if( iOffset && (m_iSize/16) == ((m_iSize+int(_Type))/16) )
-			// Variable does not skip a 16 byte alignment border
-			iOffset = 0;
-		else iOffset = 16 - iOffset;
+		if( iOffset )
+		{
+			if( (m_iSize/16) == ((m_iSize+int(_Type))/16) )
+				// Variable does not skip a 16 byte alignment border
+				iOffset = 0;
+			else iOffset = 16 - iOffset;
+		}
 		iOffset += m_iSize;
 
 		// Is there still memory?
@@ -53,7 +56,7 @@ namespace Graphic {
 		m_iSize = int(_Type)+iOffset;
 	}
 
-	void* UniformBuffer::operator [] (const std::string& _sName)
+	UniformBuffer::UniformVar UniformBuffer::operator [] (const std::string& _sName)
 	{
 		// Cannot access unkonw attribute!
 		assert(m_Attributes.find(_sName) != m_Attributes.end());
@@ -84,6 +87,6 @@ namespace Graphic {
 
 		const GLenum ErrorValue = glGetError();
 		if (ErrorValue != GL_NO_ERROR)
-			std::cout << "[UniformBuffer::Commit] : An error in binding and uoloading data occured.\n";
+			std::cout << "[UniformBuffer::Commit] : An error during binding and uploading data occured.\n";
 	}
 };

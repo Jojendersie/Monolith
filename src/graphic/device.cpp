@@ -1,7 +1,9 @@
 #include "device.hpp"
 #include "../opengl.hpp"
+#include "vertexbuffer.hpp"
 #include <cstdio>
 #include <iostream>
+#include <cassert>
 
 namespace Graphic {
 
@@ -31,6 +33,8 @@ namespace Graphic {
 		if (GLEW_OK != GlewInitResult)
 			std::cout << glewGetErrorString(GlewInitResult);
 		else glGetError();	// Sometimes glewInit creates an arrow even if return val correct
+
+		glViewport(0, 0, _iWidth, _iHeight);
 	}
 
 
@@ -88,14 +92,44 @@ namespace Graphic {
 		}
 	}
 
+
+	void Device::SetEffect( const Effect& _Effect )
+	{
+		assert(glGetError() == GL_NO_ERROR);
+		SetRasterizerState( _Effect.m_RasterizerState );
+		//SetSamplerState( 0, _Effect.
+		SetBlendState( _Effect.m_BlendState );
+		SetDepthStencilState( _Effect.m_DepthStencilState );
+		assert(glGetError() == GL_NO_ERROR);
+		glUseProgram( _Effect.m_iProgramID );
+		assert(glGetError() == GL_NO_ERROR);
+	}
+
+
 	void Device::Clear( float _r, float _g, float _b )
 	{
 		glClearColor( _r, _g, _b, 1.0f );
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearDepth( 1.0f );
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	}
 
 	void Device::ClearZ()
 	{
-		glClear(GL_DEPTH_BUFFER_BIT);
+		glClearDepth( 1.0f );
+		glClear( GL_DEPTH_BUFFER_BIT );
+	}
+
+
+	void Device::DrawVertices( const VertexBuffer& _Buffer, int _iFrom, int _iCount )
+	{
+		_Buffer.Bind();
+#ifdef _DEBUG
+		LogGlError("[Device::DrawVertices] Could not bind the vertex buffer");
+#endif
+		glDrawArrays( unsigned(_Buffer.GetPrimitiveType()), _iFrom, _iCount );
+
+#ifdef _DEBUG
+		LogGlError("[Device::DrawVertices] glDrawArrays failed");
+#endif
 	}
 };

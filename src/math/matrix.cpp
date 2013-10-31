@@ -43,10 +43,10 @@ Vec3 operator * (const Matrix& m,
 Vec4 operator * (const Vec4& v,
 				 const Matrix& m)
 {
-	return Vec4( v.x * m.m11 + v.y * m.m21 + v.z * m.m31 + m.m41 ,
-				 v.x * m.m12 + v.y * m.m22 + v.z * m.m32 + m.m42 ,
-				 v.x * m.m13 + v.y * m.m23 + v.z * m.m33 + m.m43 ,
-				 v.x * m.m14 + v.y * m.m24 + v.z * m.m34 + m.m44 );
+	return Vec4( v.x * m.m11 + v.y * m.m21 + v.z * m.m31 + v.w * m.m41 ,
+				 v.x * m.m12 + v.y * m.m22 + v.z * m.m32 + v.w * m.m42 ,
+				 v.x * m.m13 + v.y * m.m23 + v.z * m.m33 + v.w * m.m43 ,
+				 v.x * m.m14 + v.y * m.m24 + v.z * m.m34 + v.w * m.m44 );
 }
 
 // ******************************************************************************** //
@@ -54,10 +54,10 @@ Vec4 operator * (const Vec4& v,
 Vec4 operator * (const Matrix& m,
 				 const Vec4& v)
 {
-	return Vec4( v.x * m.m11 + v.y * m.m12 + v.z * m.m13 + m.m14 ,
-				 v.x * m.m21 + v.y * m.m22 + v.z * m.m23 + m.m24 ,
-				 v.x * m.m31 + v.y * m.m32 + v.z * m.m33 + m.m34 ,
-				 v.x * m.m41 + v.y * m.m42 + v.z * m.m43 + m.m44 );
+	return Vec4( v.x * m.m11 + v.y * m.m12 + v.z * m.m13 + v.w * m.m14 ,
+				 v.x * m.m21 + v.y * m.m22 + v.z * m.m23 + v.w * m.m24 ,
+				 v.x * m.m31 + v.y * m.m32 + v.z * m.m33 + v.w * m.m34 ,
+				 v.x * m.m41 + v.y * m.m42 + v.z * m.m43 + v.w * m.m44 );
 }
 
 // ******************************************************************************** //
@@ -307,7 +307,7 @@ Matrix invert(const Matrix& m)
 
 // ******************************************************************************** //
 // Transpose matrix
-Matrix MatrixTranspose(const Matrix& m)
+Matrix transpose(const Matrix& m)
 {
 	return Matrix(m.m11, m.m21, m.m31, m.m41,
 		          m.m12, m.m22, m.m32, m.m42,
@@ -328,7 +328,7 @@ Matrix MatrixProjection(const float fFOV,
 
 	return Matrix(s / fAspect,	0.0f,  0.0f,									0.0f,
 				  0.0f,			s,	   0.0f,									0.0f,
-				  0.0f,			0.0f, (fNearPlane + fFar)*fFrustumLengthInv,	(2.0f*fNearPlane*fFar)*fFrustumLengthInv,
+				  0.0f,			0.0f, -(fNearPlane + fFar)*fFrustumLengthInv,	-(2.0f*fNearPlane*fFar)*fFrustumLengthInv,
 				  0.0f,			0.0f, -1.0f,									0.0f);
 	// DirectX compatible version:
 /*	const float s = 1.0f / Tan(fFOV * 0.5f);
@@ -388,8 +388,8 @@ Matrix MatrixCamera(const Vec3& vPos,
 	       Matrix(vXAxis.x, vYAxis.x, vZAxis.x, 0.0f,
 		          vXAxis.y, vYAxis.y, vZAxis.y, 0.0f,
 				  vXAxis.z, vYAxis.z, vZAxis.z, 0.0f,
-				  0.0f,     0.0f,     0.0f,     1.0f);// *
-		   //MatrixTranslation(-vPos);
+				  0.0f,     0.0f,     0.0f,     1.0f);
+		   //* MatrixTranslation(-vPos);
 }
 
 // ******************************************************************************** //

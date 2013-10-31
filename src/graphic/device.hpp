@@ -5,6 +5,8 @@ struct GLFWwindow;
 
 namespace Graphic {
 
+	class VertexBuffer;
+
 	/// \brief A singleton wrapper to controll the render pipeline.
 	/// \details The device must be created on program start with the
 	///		Initialize method. On shutdown Exit must be called to release the
@@ -33,6 +35,11 @@ namespace Graphic {
 
 		/// \brief Clears the z-buffer only
 		static void ClearZ();
+
+		/// \brief Draw call to render direct from a bound vertex buffer
+		///		without indices.
+		/// \details Commits all state changes and uniform buffers automatically.
+		static void DrawVertices( const VertexBuffer& _Buffer, int _iFrom, int _iCount );
 
 	private:
 		GLFWwindow* m_Window;

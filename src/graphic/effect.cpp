@@ -7,6 +7,7 @@ namespace Graphic {
 
 	static unsigned LoadShader( const char* _sFile, unsigned _iShaderType )
 	{
+		if( !_sFile || *_sFile==0 ) return 0;
 		unsigned iShaderID = glCreateShader(_iShaderType);
 		if(!iShaderID) {std::cout << "[LoadShader] Could not create a shader!\n"; return 0;}
 
@@ -15,10 +16,11 @@ namespace Graphic {
 		if( !pFile ) {std::cout << "[LoadShader] Could not find file '" << _sFile << "'\n"; glDeleteShader(iShaderID); return 0;}
 		fseek( pFile, 0, SEEK_END );
 		long iSize = ftell( pFile );
-		uint8_t* pSource = (uint8_t*)malloc(iSize);
+		uint8_t* pSource = (uint8_t*)malloc(iSize+1);
 		fseek( pFile, 0, SEEK_SET );
 		fread( pSource, iSize, 1, pFile );
 		fclose( pFile );
+		pSource[iSize] = 0;
 
 		// Compile
 		const GLchar* pSourceConst = (GLchar*)pSource;
@@ -50,12 +52,12 @@ namespace Graphic {
 			RasterizerState::CULL_MODE _CullMode, RasterizerState::FILL_MODE _FillMode ) :
 		m_RasterizerState(_CullMode, _FillMode),
 	//	m_SamplerState(),
-		m_BlendState(BlendState::BLEND_OPERATION::DISABLE, BlendState::BLEND::ONE, BlendState::BLEND::ZERO ),
+		m_BlendState(BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::ONE, BlendState::BLEND::ZERO ),
 		m_DepthStencilState(DepthStencilState::COMPARISON_FUNC::LESS, true)
 	{
 		m_iVertexShader = LoadShader( _sVSFile.c_str(), GL_VERTEX_SHADER );
-		m_iGeometryShader = LoadShader( _sVSFile.c_str(), GL_FRAGMENT_SHADER );
-		m_iPixelShader = LoadShader( _sVSFile.c_str(), GL_GEOMETRY_SHADER );
+		m_iGeometryShader = LoadShader( _sGSFile.c_str(), GL_GEOMETRY_SHADER );
+		m_iPixelShader = LoadShader( _sPSFile.c_str(), GL_FRAGMENT_SHADER );
 		if( m_iVertexShader == 0 || m_iGeometryShader == 0 || m_iPixelShader == 0 )
 		{
 			std::cout << "[Effect::Effect] One or more shaders were not loaded. Effect will be wrong.\n";
