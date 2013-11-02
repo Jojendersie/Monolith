@@ -174,7 +174,7 @@ namespace Voxel {
 
 		// -16 is the translation to center the chunks
 		// TODO: mass mid point (Schwerpunkt)
-		_ObjectConstants["WorldViewProjection"] = MatrixTranslation(-16.0f, -16.0f,-16.0f) * _mViewProjection;
+		_ObjectConstants["WorldViewProjection"] = MatrixTranslation(m_vPosition) * _mViewProjection;
 
 		_ObjectConstants["Corner000"] = Vec4( -0.5f, -0.5f, -0.5f, 0.0f ) * _mViewProjection;
 		_ObjectConstants["Corner001"] = Vec4( -0.5f, -0.5f,  0.5f, 0.0f ) * _mViewProjection;

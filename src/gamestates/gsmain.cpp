@@ -11,6 +11,7 @@ GSMain::GSMain()
 {
 	m_pAstTest = new Generators::Asteroid( 32, 32, 32 );
 	m_pAstTest->ComputeVertexBuffer();
+	m_pAstTest->SetPosition( Vec3( 0.0f, 0.0f, 0.0f ) );
 }
 
 GSMain::~GSMain()

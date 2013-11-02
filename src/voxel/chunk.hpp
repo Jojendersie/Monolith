@@ -56,6 +56,7 @@ namespace Voxel {
 		/// \param [out] _ObjectConstants A reference to the constant buffer
 		///		which must be filled.
 		/// \param [in] _mViewProjection The actual view projection matrix. TODO: camera mit culling
+		///		This matrix should contain the general model transformation too.
 		void Draw( Graphic::UniformBuffer& _ObjectConstants, const Math::Matrix& _mViewProjection );
 
 		/// \brief Compute the visible voxel set vertex buffer.
@@ -92,6 +93,11 @@ namespace Voxel {
 		/// \brief Get a single octree voxel.
 		/// \details If the octree ends earlier it terminates with NONE.
 		OctreeNode Get( const Math::IVec3& _vPosition, int _iLevel );
+
+		/// \brief Set position relative to the model.
+		void SetPosition( const Math::Vec3& _vPosition )	{ m_vPosition = _vPosition + Math::Vec3(-16.0f,-16.0f,-16.0f); }
+
+		Math::Vec3 GetPosition()		{ return m_vPosition - Math::Vec3(-16.0f,-16.0f,-16.0f); }
 	private:
 		/// \brief One memory block for all levels of the octree. Each level
 		///		is saved as x+w*(y+w*z) block. Each element is a typeID.
@@ -100,6 +106,8 @@ namespace Voxel {
 		Graphic::VertexBuffer m_Voxels;	///< One VoxelVertex value per visible voxel.
 
 		void FillVBRecursive( const Math::IVec3& _vPosition, int _iLevel );
+
+		Math::Vec3 m_vPosition;			///< Relative position of the chunk respective to the model.
 	};
 
 	/// \brief A generall loop to make voxel iteration easier. The voxel
