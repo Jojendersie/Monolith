@@ -64,7 +64,7 @@ void Monolith::Run()
 
 Monolith::_Content::_Content() :
 	VoxelRenderEffect( "shader/voxel.vs", "shader/voxel.gs", "shader/voxel.ps",
-	Graphic::RasterizerState::CULL_MODE::NONE, Graphic::RasterizerState::FILL_MODE::SOLID ),
+	Graphic::RasterizerState::CULL_MODE::BACK, Graphic::RasterizerState::FILL_MODE::SOLID ),
 	ObjectUBO( "Object" ), CameraUBO( "Camera" )
 {
 	// Init the constant buffers

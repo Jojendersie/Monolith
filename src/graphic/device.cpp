@@ -20,8 +20,13 @@ namespace Graphic {
 	{
 		// Create a new window with GLFW
 		glfwSetErrorCallback(ErrorCallBack);
-		glfwInit();
+		if( !glfwInit() ) std::cout << "[Device::Initialize] Could not initialise GLFW.";
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		g_Device.m_Window = glfwCreateWindow(_iWidth, _iHeight, "Monolith", nullptr, nullptr);
+		if( !g_Device.m_Window ) std::cout << "[Device::Initialize] Window was not created.";
 		glfwMakeContextCurrent(g_Device.m_Window);
 
 		// Init glew.

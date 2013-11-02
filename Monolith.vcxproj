@@ -39,7 +39,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>D:\C++\Spiele\Monolith\dependencies\glfw-3.0.3\bin;D:\C++\Spiele\Monolith\dependencies\glew-1.10.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
+    <LibraryPath>dependencies\glfw-3.0.3\bin;dependencies\glew-1.10.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LibraryPath>dependencies\glfw-3.0.3\bin;dependencies\glew-1.10.0\lib\Release\Win32;$(LibraryPath)</LibraryPath>
