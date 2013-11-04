@@ -27,31 +27,31 @@ namespace Graphic {
 		};
 
 		/// \brief Create the depth-stencil state object with disabled stencil buffer.
-		DepthStencilState( COMPARISON_FUNC _ZTest, bool _bZWrite );
+		DepthStencilState( COMPARISON_FUNC _zTest, bool _zWrite );
 
 		/// \brief Create the depth-stencil state object with enabled stencil buffer.
 		/// \param [in] _SFTest Stencil test comparison function for front faces.
-		DepthStencilState( COMPARISON_FUNC _ZTest, bool _bZWrite, 
+		DepthStencilState( COMPARISON_FUNC _zTest, bool _zWrite, 
 						   COMPARISON_FUNC _SFTest, STENCIL_OP _SFFail, STENCIL_OP _SFFailZ, STENCIL_OP _SFPass,
 						   COMPARISON_FUNC _SBTest, STENCIL_OP _SBFail, STENCIL_OP _SBFailZ, STENCIL_OP _SBPass);
 
 		/// \brief Unique number for each different state combination.
 		/// \details Two different state objects with the same setup have the
 		///		same hash.
-		int GetHash() const		{ return m_iHash; }
+		int GetHash() const		{ return m_hash; }
 
 		/// \brief Set stencil reference value for front and back faces
-		void SetStencilReference( int _iValue )		{ m_iStencilRef = _iValue;}
-		int GetStencilReference()					{ return m_iStencilRef; }
+		void SetStencilReference( int _iValue )		{ m_stencilRef = _iValue;}
+		int GetStencilReference()					{ return m_stencilRef; }
 
 	private:
-		bool m_bWriteZ, m_bUseStencil;
-		COMPARISON_FUNC m_ZTest;
+		bool m_zWrite, m_useStencil;
+		COMPARISON_FUNC m_zTest;
 		COMPARISON_FUNC m_SFTest, m_SBTest;
 		unsigned m_SFFail, m_SFFailZ, m_SFPass;
 		unsigned m_SBFail, m_SBFailZ, m_SBPass;
-		int m_iStencilRef;
-		int m_iHash;
+		int m_stencilRef;
+		int m_hash;
 
 		/// \brief Set all related states.
 		/// \details This can only be called by the device. Use

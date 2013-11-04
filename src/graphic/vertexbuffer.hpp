@@ -17,18 +17,18 @@ namespace Graphic {
 			INDEXED
 		};
 	private:
-		unsigned	m_iVBO;				///< Only one vertexbuffer is used for the whole array
-		unsigned	m_iVAO;				///< The OpenGL ID for the whole mesh-vertices
-		unsigned	m_iMaxNumVertices;	///< Maximum size set at construction
-		unsigned	m_iCursor;			///< Cursor for stream write methods
-		int			m_iVertexSize;		///< Size of one vertex in bytes if single interleaved buffer, size of all components in an not interleaved buffer.
-		uint8_t*	m_pData;			///< A CPU copy of the data or nullptr for static buffers
-		bool		m_bDirty;
-		PrimitiveType m_PrimitiveType;	///< What form of geometry is stored?
+		unsigned	m_VBO;				///< Only one vertexbuffer is used for the whole array
+		unsigned	m_VAO;				///< The OpenGL ID for the whole mesh-vertices
+		unsigned	m_maxNumVertices;	///< Maximum size set at construction
+		unsigned	m_cursor;			///< Cursor for stream write methods
+		int			m_vertexSize;		///< Size of one vertex in bytes if single interleaved buffer, size of all components in an not interleaved buffer.
+		uint8_t*	m_data;				///< A CPU copy of the data or nullptr for static buffers
+		bool		m_dirty;
+		PrimitiveType m_primitiveType;	///< What form of geometry is stored?
 
-		unsigned	m_iPositionOffset;	///< Byte offset inside a vertex to the position vector
-		unsigned	m_iNormalOffset;	///< Byte offset inside a vertex to the normal vector
-		unsigned	m_iTangentOffset;	///< Byte offset inside a vertex to the tangent vector
+		unsigned	m_positionOffset;	///< Byte offset inside a vertex to the position vector
+		unsigned	m_normalOffset;		///< Byte offset inside a vertex to the normal vector
+		unsigned	m_tangentOffset;	///< Byte offset inside a vertex to the tangent vector
 
 		// Prevent copy constructor and operator = being generated.
 		VertexBuffer(const VertexBuffer&);
@@ -54,8 +54,8 @@ namespace Graphic {
 		};
 
 		/// \brief Creating a vertex buffer with arbitary interleaved data
-		/// \param [in] _iMaxNumVertices Capacity/total number of usable vertices
-		/// \param [in] _pcVD Vertex definition/declaration specifies the
+		/// \param [in] _maxNumVertices Capacity/total number of usable vertices
+		/// \param [in] _vertexDeclaration Vertex definition/declaration specifies the
 		///		format of one vertex. Each character determines a binding
 		///		location and its positions the position in the per vertex data.
 		///
@@ -68,28 +68,28 @@ namespace Graphic {
 		///					4 - 4 float components (BIND_VEC+x)
 		///					c - 4 byte color (BIND_COLOR+y)
 		///					u - 1 uint32 (BIND_UINT+z)
-		/// \param [in] _Type What form of geometry will be stored? The standard
+		/// \param [in] _type What form of geometry will be stored? The standard
 		///		case is indexed where the accoring index buffer will dertermine
 		///		the primitive type. This is required for direct vertex-draw calls
-		VertexBuffer(unsigned _iMaxNumVertices, const char* _pcVD, PrimitiveType _Type = PrimitiveType::INDEXED );
+		VertexBuffer(unsigned _maxNumVertices, const char* _vertexDeclaration, PrimitiveType _type = PrimitiveType::INDEXED );
 		~VertexBuffer();
 
 		/// \brief Add one vertex at the end of the buffer.
-		/// \details This copies as much bytes as specified through _pcVD in
+		/// \details This copies as much bytes as specified through _vertexDeclaration in
 		///		constructor.
-		void Add(void* _pVal);
+		void Add(void* _value);
 
 		// \brief Overrides a index in the memory copy. Does nothing if static.
-		/// \param [in] _iIndex Index of the vertex which should be in
+		/// \param [in] _index Index of the vertex which should be in
 		///		[0,GetNumVertices()[.
-		/// \param [in] _pValue Pointer to a vertex structure.
-		void Set(unsigned _iIndex, const void* _pValue);
+		/// \param [in] _valueue Pointer to a vertex structure.
+		void Set(unsigned _index, const void* _value);
 
 		/// \brief Reads from memory copy. Does nothing if static.
-		void* Get(unsigned _iIndex);
+		void* Get(unsigned _index);
 
 		/// \brief Set the number of vertices back to 0.
-		void Clear()		{ m_iCursor = 0; }
+		void Clear()		{ m_cursor = 0; }
 
 		/// \brief Uploads data and removes the memory copy for read and write
 		///		operations.
@@ -100,7 +100,7 @@ namespace Graphic {
 
 		/// \brief Moving the last vertex to the specified index and overwrites the
 		///		one there. Then removing the last vertex.
-		void DeleteVertex(unsigned _iIndex);
+		void DeleteVertex(unsigned _index);
 
 		/// \brief Invert the sign of all normal vectors.
 		/// \details If there are no normals in vertexformat it does nothing.
@@ -109,20 +109,20 @@ namespace Graphic {
 		/// \brief Bind the buffer for the draw call
 		void Bind() const;
 
-		unsigned GetNumVertices() const			{ return m_iCursor; }
-		int GetVertexSize() const				{ return m_iVertexSize; }
-		PrimitiveType GetPrimitiveType() const	{ return m_PrimitiveType; }
-		void SetDirty()							{ m_bDirty = true;}
-		bool IsStatic() const					{ return m_pData==nullptr; }
-		bool IsDirty() const					{ return m_bDirty; }
+		unsigned GetNumVertices() const			{ return m_cursor; }
+		int GetVertexSize() const				{ return m_vertexSize; }
+		PrimitiveType GetPrimitiveType() const	{ return m_primitiveType; }
+		void SetDirty()							{ m_dirty = true;}
+		bool IsStatic() const					{ return m_data==nullptr; }
+		bool IsDirty() const					{ return m_dirty; }
 
-		unsigned GetPositionOffset() const		{ return m_iPositionOffset; }
-		unsigned GetNormalOffset() const		{ return m_iNormalOffset; }
-		unsigned GetTangentOffset() const		{ return m_iTangentOffset; }
+		unsigned GetPositionOffset() const		{ return m_positionOffset; }
+		unsigned GetNormalOffset() const		{ return m_normalOffset; }
+		unsigned GetTangentOffset() const		{ return m_tangentOffset; }
 		
-		const Math::Vec3& GetPosition(unsigned _iIndex) const	{ return *(Math::Vec3*)(m_pData + _iIndex*m_iVertexSize + m_iPositionOffset); }
-		const Math::Vec3& GetNormal(unsigned _iIndex) const		{ return *(Math::Vec3*)(m_pData + _iIndex*m_iVertexSize + m_iNormalOffset); }
-		const Math::Vec3& GetTangent(unsigned _iIndex) const	{ return *(Math::Vec3*)(m_pData + _iIndex*m_iVertexSize + m_iTangentOffset); }
+		const Math::Vec3& GetPosition(unsigned _index) const	{ return *(Math::Vec3*)(m_data + _index*m_vertexSize + m_positionOffset); }
+		const Math::Vec3& GetNormal(unsigned _index) const		{ return *(Math::Vec3*)(m_data + _index*m_vertexSize + m_normalOffset); }
+		const Math::Vec3& GetTangent(unsigned _index) const		{ return *(Math::Vec3*)(m_data + _index*m_vertexSize + m_tangentOffset); }
 	};
 	typedef VertexBuffer* VertexBufferP;
 

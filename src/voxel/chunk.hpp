@@ -24,18 +24,18 @@ namespace Voxel {
 		///		19-23: Z coordinate of voxel relative to the grid corner of the
 		///			 respective size-dimension (2^s).
 		///		24-31: 256 texture indices / voxel types.
-		uint32_t iFlags;
+		uint32_t flags;
 
-		VoxelVertex() : iFlags(0)	{}
+		VoxelVertex() : flags(0)	{}
 
-		void SetVisibility( int _iL, int _iR, int _iBo, int _iT, int _iF, int _iBa )	{ iFlags = (iFlags & 0xffffffa0) | _iL | _iR<<1 | _iBo<<2 | _iT<<3 | _iF<<4 | _iBa<<5; }
-		void SetSize( int _iLevel )							{ assert(0<=_iLevel && _iLevel<=5); iFlags = (iFlags & 0xfffffe3f) | (_iLevel<<6); }
-		void SetPosition( const Math::IVec3& _vPosition )	{ iFlags = (iFlags & 0xff0001ff) | (_vPosition.x << 9) | (_vPosition.y<<14) | (_vPosition.z<<19); }
-		void SetTexture( int _iTextureIndex )				{ iFlags = (iFlags & 0x00ffffff) | (_iTextureIndex << 24); }
-//		void SetHasChildren( bool _bHasChildren )			{ iFlags = (iFlags & 0x7fffffff) | (_bHasChildren?0x80000000:0); }
+		void SetVisibility( int _iL, int _iR, int _iBo, int _iT, int _iF, int _iBa )	{ flags = (flags & 0xffffffa0) | _iL | _iR<<1 | _iBo<<2 | _iT<<3 | _iF<<4 | _iBa<<5; }
+		void SetSize( int _level )							{ assert(0<=_level && _level<=5); flags = (flags & 0xfffffe3f) | (_level<<6); }
+		void SetPosition( const Math::IVec3& _position )	{ flags = (flags & 0xff0001ff) | (_position.x << 9) | (_position.y<<14) | (_position.z<<19); }
+		void SetTexture( int _iTextureIndex )				{ flags = (flags & 0x00ffffff) | (_iTextureIndex << 24); }
+//		void SetHasChildren( bool _bHasChildren )			{ flags = (flags & 0x7fffffff) | (_bHasChildren?0x80000000:0); }
 
-		bool IsVisible() const								{ return (iFlags & 0x3f) != 0; }
-		int GetSize() const									{ return (iFlags>>6) & 0x7; }
+		bool IsVisible() const								{ return (flags & 0x3f) != 0; }
+		int GetSize() const									{ return (flags>>6) & 0x7; }
 	};
 
 
@@ -53,11 +53,11 @@ namespace Voxel {
 		/// \brief Fills the constant buffer with the chunk specific data
 		///		and draw the voxels.
 		/// \details The effect must be set outside.
-		/// \param [out] _ObjectConstants A reference to the constant buffer
+		/// \param [out] _objectConstants A reference to the constant buffer
 		///		which must be filled.
-		/// \param [in] _mViewProjection The actual view projection matrix. TODO: camera mit culling
+		/// \param [in] _viewProjection The actual view projection matrix. TODO: camera mit culling
 		///		This matrix should contain the general model transformation too.
-		void Draw( Graphic::UniformBuffer& _ObjectConstants, const Math::Matrix& _mViewProjection );
+		void Draw( Graphic::UniformBuffer& _objectConstants, const Math::Matrix& _viewProjection );
 
 		/// \brief Compute the visible voxel set vertex buffer.
 		/// \details The current implementation uses CPU later this will be
@@ -68,46 +68,46 @@ namespace Voxel {
 		/// \details All children of the current node and there children
 		///		recursive are set to the same value. If all 8 nodes on the 
 		///		target level become one type the parent node is updated too.
-		/// \param [in] _vPosition Position in [0,31]^3 or [0,1]^3 depending of
+		/// \param [in] _position Position in [0,31]^3 or [0,1]^3 depending of
 		///		the ground size of the current voxel.
-		/// \param [in] _iLevel The octree depth. Level 0 is the root node and
+		/// \param [in] _level The octree depth. Level 0 is the root node and
 		///		5 is the maximal depth.
-		void Set( const Math::IVec3& _vPosition, int _iLevel, VoxelType _Type );
+		void Set( const Math::IVec3& _position, int _level, VoxelType _type );
 
 		struct OctreeNode {
-			VoxelType GetType() const { return Type; }
-			bool IsSolid() const { return (iFlags & 0x01) ? true : false; }
-			bool IsUniform() const { return (iFlags & 0x02) ? true : false; }
-			bool IsEmpty() const { return Type == VoxelType::NONE; }
+			VoxelType GetType() const { return type; }
+			bool IsSolid() const { return (flags & 0x01) ? true : false; }
+			bool IsUniform() const { return (flags & 0x02) ? true : false; }
+			bool IsEmpty() const { return type == VoxelType::NONE; }
 		private: friend class Chunk;
-			VoxelType Type;
+			VoxelType type;
 			/// \brief Additional structure information.
 			/// \details Each bit has its own meaning:
 			///		0: Solid. If 0 this voxel has some children with type NONE.
 			///		1: Uniform: All children have the same type.
-			uint8_t iFlags;
+			uint8_t flags;
 
-			OctreeNode() : iFlags(0x02), Type(VoxelType::NONE)	{}
+			OctreeNode() : flags(0x02), type(VoxelType::NONE)	{}
 		};
 
 		/// \brief Get a single octree voxel.
 		/// \details If the octree ends earlier it terminates with NONE.
-		OctreeNode Get( const Math::IVec3& _vPosition, int _iLevel );
+		OctreeNode Get( const Math::IVec3& _position, int _level );
 
 		/// \brief Set position relative to the model.
-		void SetPosition( const Math::Vec3& _vPosition )	{ m_vPosition = _vPosition + Math::Vec3(-16.0f,-16.0f,-16.0f); }
+		void SetPosition( const Math::Vec3& _position )	{ m_position = _position + Math::Vec3(-16.0f,-16.0f,-16.0f); }
 
-		Math::Vec3 GetPosition()		{ return m_vPosition - Math::Vec3(-16.0f,-16.0f,-16.0f); }
+		Math::Vec3 GetPosition()		{ return m_position - Math::Vec3(-16.0f,-16.0f,-16.0f); }
 	private:
 		/// \brief One memory block for all levels of the octree. Each level
 		///		is saved as x+w*(y+w*z) block. Each element is a typeID.
-		OctreeNode* m_Octree;		
+		OctreeNode* m_octree;		
 
-		Graphic::VertexBuffer m_Voxels;	///< One VoxelVertex value per visible voxel.
+		Graphic::VertexBuffer m_voxels;	///< One VoxelVertex value per visible voxel.
 
-		void FillVBRecursive( const Math::IVec3& _vPosition, int _iLevel );
+		void FillVBRecursive( const Math::IVec3& _position, int _level );
 
-		Math::Vec3 m_vPosition;			///< Relative position of the chunk respective to the model.
+		Math::Vec3 m_position;			///< Relative position of the chunk respective to the model.
 	};
 
 	/// \brief A generall loop to make voxel iteration easier. The voxel

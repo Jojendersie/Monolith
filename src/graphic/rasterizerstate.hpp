@@ -18,16 +18,16 @@ namespace Graphic {
 		};
 
 		/// \brief Create the rasterizer state object.
-		RasterizerState( CULL_MODE _CullMode, FILL_MODE _FillMode );
+		RasterizerState( CULL_MODE _cullMode, FILL_MODE _fillMode );
 
 		/// \brief Unique number for each different state combination.
 		/// \details Two different state objects with the same setup have the
 		///		same hash.
-		int GetHash() const		{ return int(m_CullMode) + int(m_FillMode) * 10; }
+		int GetHash() const		{ return int(m_cullMode) + int(m_fillMode) * 10; }
 
 	private:
-		CULL_MODE m_CullMode;
-		FILL_MODE m_FillMode;
+		CULL_MODE m_cullMode;
+		FILL_MODE m_fillMode;
 
 		/// \brief Set all states.
 		/// \details This can only be called by the device. Use
@@ -35,8 +35,8 @@ namespace Graphic {
 		void Apply() const;
 
 		// OpenGL specific values to set the state fast
-		unsigned int m_iCullFace;
-		unsigned int m_iFillMode;
+		unsigned int m_cullFace;
+		unsigned int m_fillModeGL;
 
 		friend class Device;
 	};

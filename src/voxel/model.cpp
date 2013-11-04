@@ -4,34 +4,34 @@ using namespace Math;
 
 namespace Voxel {
 
-	void Model::Draw( Graphic::UniformBuffer& _ObjectConstants, const Math::Matrix& _mViewProjection )
+	void Model::Draw( Graphic::UniformBuffer& _objectConstants, const Math::Matrix& _viewProjection )
 	{
 		// TODO: culling
 
 		// Create a new model space transformation
-		Math::Matrix mModelViewProjection = _mViewProjection;
+		Math::Matrix mModelViewProjection = _viewProjection;
 
 		// Draw all chunks
-		for( int i=0; i<m_iNumChunks; ++i )
+		for( int i=0; i<m_numChunks; ++i )
 		{
-			m_aChunks[i]->Draw( _ObjectConstants, mModelViewProjection );
+			m_chunks[i]->Draw( _objectConstants, mModelViewProjection );
 		}
 	}
 
-	void Model::Set( const Math::IVec3& _vPosition, int _iLevel, VoxelType _Type )
+	void Model::Set( const Math::IVec3& _position, int _level, VoxelType _type )
 	{
 		// Compute which chunk is searched. The chunk position is in units of
 		// the smallest voxels but rounded to 32 voxel alignment.
-		Vec3 vChunkPos;
-		vChunkPos.x = _vPosition.x << (5-_iLevel);
-		vChunkPos.y = _vPosition.y << (5-_iLevel);
-		vChunkPos.z = _vPosition.z << (5-_iLevel);
+		IVec3 chunkPos;
+		chunkPos.x = _position.x << (5-_level);
+		chunkPos.y = _position.y << (5-_level);
+		chunkPos.z = _position.z << (5-_level);
 		// TODO: align
 
 		// Search the correct chunk
-		for( int i=0; i<m_iNumChunks; ++i )
+		for( int i=0; i<m_numChunks; ++i )
 		{
-			if( m_aChunks[i]->GetPosition() == vChunkPos )
+			if( m_chunks[i]->GetPosition() == chunkPos )
 			{
 				// Add, update and ready
 				return;

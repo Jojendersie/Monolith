@@ -5,91 +5,91 @@
 
 namespace Graphic {
 
-	static unsigned LoadShader( const char* _sFile, unsigned _iShaderType )
+	static unsigned LoadShader( const char* _fileName, unsigned _shaderType )
 	{
-		if( !_sFile || *_sFile==0 ) return 0;
-		unsigned iShaderID = glCreateShader(_iShaderType);
-		if(!iShaderID) {std::cout << "[LoadShader] Could not create a shader!\n"; return 0;}
+		if( !_fileName || *_fileName==0 ) return 0;
+		unsigned shaderID = glCreateShader(_shaderType);
+		if(!shaderID) {std::cout << "[LoadShader] Could not create a shader!\n"; return 0;}
 
 		// Read in file
-		FILE* pFile = fopen( _sFile, "rb" );
-		if( !pFile ) {std::cout << "[LoadShader] Could not find file '" << _sFile << "'\n"; glDeleteShader(iShaderID); return 0;}
-		fseek( pFile, 0, SEEK_END );
-		long iSize = ftell( pFile );
-		uint8_t* pSource = (uint8_t*)malloc(iSize+1);
-		fseek( pFile, 0, SEEK_SET );
-		fread( pSource, iSize, 1, pFile );
-		fclose( pFile );
-		pSource[iSize] = 0;
+		FILE* file = fopen( _fileName, "rb" );
+		if( !file ) {std::cout << "[LoadShader] Could not find file '" << _fileName << "'\n"; glDeleteShader(shaderID); return 0;}
+		fseek( file, 0, SEEK_END );
+		long size = ftell( file );
+		uint8_t* source = (uint8_t*)malloc(size+1);
+		fseek( file, 0, SEEK_SET );
+		fread( source, size, 1, file );
+		fclose( file );
+		source[size] = 0;
 
 		// Compile
-		const GLchar* pSourceConst = (GLchar*)pSource;
-		glShaderSource(iShaderID, 1, &pSourceConst, nullptr);
-		glCompileShader(iShaderID);
-		free( pSource );
+		const GLchar* sourceConst = (GLchar*)source;
+		glShaderSource(shaderID, 1, &sourceConst, nullptr);
+		glCompileShader(shaderID);
+		free( source );
 
 		// Compilation success?
-		GLint iRes;
-		glGetShaderiv( iShaderID, GL_COMPILE_STATUS, &iRes );
-		if( iRes == GL_TRUE )
+		GLint res;
+		glGetShaderiv( shaderID, GL_COMPILE_STATUS, &res );
+		if( res == GL_TRUE )
 		{
-			std::cout << "[LoadShader] Successfully loaded shader: '" << _sFile << "'\n";
+			std::cout << "[LoadShader] Successfully loaded shader: '" << _fileName << "'\n";
 		} else
 		{
 			GLsizei charsWritten  = 0;
 
-			glGetShaderiv( iShaderID, GL_INFO_LOG_LENGTH, &iRes );
-			char* pLog = (char *)malloc(iRes);
-			glGetShaderInfoLog( iShaderID, iRes, &charsWritten, pLog );
-			std::cout << "[LoadShader] Error in compiling the shader '" << _sFile << "': " << pLog << '\n';
-			free( pLog );
+			glGetShaderiv( shaderID, GL_INFO_LOG_LENGTH, &res );
+			char* log = (char *)malloc(res);
+			glGetShaderInfoLog( shaderID, res, &charsWritten, log );
+			std::cout << "[LoadShader] Error in compiling the shader '" << _fileName << "': " << log << '\n';
+			free( log );
 		}
 
-		return iShaderID;
+		return shaderID;
 	}
 
-	Effect::Effect( const std::string& _sVSFile, const std::string& _sGSFile, const std::string& _sPSFile,
-			RasterizerState::CULL_MODE _CullMode, RasterizerState::FILL_MODE _FillMode ) :
-		m_RasterizerState(_CullMode, _FillMode),
+	Effect::Effect( const std::string& _VSFile, const std::string& _GSFile, const std::string& _PSFile,
+			RasterizerState::CULL_MODE _cullMode, RasterizerState::FILL_MODE _fillMode ) :
+		m_rasterizerState(_cullMode, _fillMode),
 	//	m_SamplerState(),
-		m_BlendState(BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::ONE, BlendState::BLEND::ZERO ),
-		m_DepthStencilState(DepthStencilState::COMPARISON_FUNC::LESS, true)
+		m_blendState(BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::ONE, BlendState::BLEND::ZERO ),
+		m_depthStencilState(DepthStencilState::COMPARISON_FUNC::LESS, true)
 	{
-		m_iVertexShader = LoadShader( _sVSFile.c_str(), GL_VERTEX_SHADER );
-		m_iGeometryShader = LoadShader( _sGSFile.c_str(), GL_GEOMETRY_SHADER );
-		m_iPixelShader = LoadShader( _sPSFile.c_str(), GL_FRAGMENT_SHADER );
-		if( m_iVertexShader == 0 || m_iGeometryShader == 0 || m_iPixelShader == 0 )
+		m_vertexShader = LoadShader( _VSFile.c_str(), GL_VERTEX_SHADER );
+		m_geometryShader = LoadShader( _GSFile.c_str(), GL_GEOMETRY_SHADER );
+		m_pixelShader = LoadShader( _PSFile.c_str(), GL_FRAGMENT_SHADER );
+		if( m_vertexShader == 0 || m_geometryShader == 0 || m_pixelShader == 0 )
 		{
 			std::cout << "[Effect::Effect] One or more shaders were not loaded. Effect will be wrong.\n";
 			return;
 		}
 
 		// Create new program
-		m_iProgramID = glCreateProgram();
+		m_programID = glCreateProgram();
 
 		// Link
-		glAttachShader(m_iProgramID, m_iVertexShader);
-		glAttachShader(m_iProgramID, m_iGeometryShader);
-		glAttachShader(m_iProgramID, m_iPixelShader);
-		glLinkProgram(m_iProgramID);
+		glAttachShader(m_programID, m_vertexShader);
+		glAttachShader(m_programID, m_geometryShader);
+		glAttachShader(m_programID, m_pixelShader);
+		glLinkProgram(m_programID);
 
 		// Check of linking the shader program worked
-		GLint iTestResult;
-		glGetProgramiv(m_iProgramID, GL_LINK_STATUS, &iTestResult);
-		if (iTestResult == GL_FALSE) {
+		GLint testResult;
+		glGetProgramiv(m_programID, GL_LINK_STATUS, &testResult);
+		if (testResult == GL_FALSE) {
 			char acInfoLog[512];
-			glGetProgramInfoLog(m_iProgramID, 512, 0, acInfoLog);
+			glGetProgramInfoLog(m_programID, 512, 0, acInfoLog);
 			std::cout << "[Effect::Effect] Failed to build shader program:\n" << acInfoLog << '\n';
 		}
 	}
 
 	Effect::~Effect()
 	{
-		glDeleteProgram(m_iProgramID);
+		glDeleteProgram(m_programID);
 
-		glDeleteShader(m_iVertexShader);
-		glDeleteShader(m_iGeometryShader);
-		glDeleteShader(m_iPixelShader);
+		glDeleteShader(m_vertexShader);
+		glDeleteShader(m_geometryShader);
+		glDeleteShader(m_pixelShader);
 	}
 
 };

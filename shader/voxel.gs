@@ -25,7 +25,7 @@ layout(std140) uniform Camera
 {
 	mat4 c_mView;
 	mat4 c_mProjection;
-	mat4 c_mViewProjection;
+	mat4 c_viewProjection;
 	vec3 c_vInverseProjection;
 	float c_fFar;
 };

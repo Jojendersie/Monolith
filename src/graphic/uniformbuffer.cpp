@@ -8,69 +8,69 @@ namespace Graphic {
 
 	static int g_iNumUBOs = 0;
 
-	UniformBuffer::UniformBuffer( const std::string& _sName ) :
-		m_sName(_sName), m_iSize(0)
+	UniformBuffer::UniformBuffer( const std::string& _name ) :
+		m_name(_name), m_size(0)
 	{
-		glGenBuffers(1, &m_iBufferID);
-		m_iIndex = g_iNumUBOs++;
+		glGenBuffers(1, &m_bufferID);
+		m_index = g_iNumUBOs++;
 
 		// Allocate memory on CPU side. The maximum size is 1KB.
-		m_pMemory = malloc(1024);
+		m_memory = malloc(1024);
 
 		// Create GPU side memory
-		glBindBuffer(GL_UNIFORM_BUFFER, m_iBufferID);
+		glBindBuffer(GL_UNIFORM_BUFFER, m_bufferID);
 		glBufferData(GL_UNIFORM_BUFFER, 1024, 0, GL_STREAM_DRAW);
 
 		// Bind to binding point according to its index
-		glBindBufferBase(GL_UNIFORM_BUFFER, m_iIndex, m_iBufferID);
+		glBindBufferBase(GL_UNIFORM_BUFFER, m_index, m_bufferID);
 	}
 
 	UniformBuffer::~UniformBuffer()
 	{
-		glDeleteBuffers(1, &m_iBufferID);
-		free(m_pMemory);
+		glDeleteBuffers(1, &m_bufferID);
+		free(m_memory);
 	}
 
 
-	void UniformBuffer::AddAttribute( const std::string& _sName, ATTRIBUTE_TYPE _Type )
+	void UniformBuffer::AddAttribute( const std::string& _name, ATTRIBUTE_TYPE _type )
 	{
 		// Attribute already exists!
-		assert(m_Attributes.find(_sName) == m_Attributes.end());
+		assert(m_attributes.find(_name) == m_attributes.end());
 
 		// Determine alignment
-		int iOffset = m_iSize & 0xf;	// modulu 16
-		if( iOffset )
+		int offset = m_size & 0xf;	// modulu 16
+		if( offset )
 		{
-			if( (m_iSize/16) == ((m_iSize+int(_Type))/16) )
+			if( (m_size/16) == ((m_size+int(_type))/16) )
 				// Variable does not skip a 16 byte alignment border
-				iOffset = 0;
-			else iOffset = 16 - iOffset;
+				offset = 0;
+			else offset = 16 - offset;
 		}
-		iOffset += m_iSize;
+		offset += m_size;
 
 		// Is there still memory?
-		if( int(_Type)+iOffset > 1024 ) { std::cout << "[UniformBuffer::AddAttribute] Size of uniform buffer not large enough."; return; }
+		if( int(_type)+offset > 1024 ) { std::cout << "[UniformBuffer::AddAttribute] Size of uniform buffer not large enough."; return; }
 
 		// All right add to map
-		m_Attributes.insert( std::pair<std::string,int>( _sName, iOffset ) );
-		m_iSize = int(_Type)+iOffset;
+		m_attributes.insert( std::pair<std::string,int>( _name, offset ) );
+		m_size = int(_type)+offset;
 	}
 
-	UniformBuffer::UniformVar UniformBuffer::operator [] (const std::string& _sName)
+	UniformBuffer::UniformVar UniformBuffer::operator [] (const std::string& _name)
 	{
 		// Cannot access unkonw attribute!
-		assert(m_Attributes.find(_sName) != m_Attributes.end());
+		assert(m_attributes.find(_name) != m_attributes.end());
 
-		return (uint8_t*)m_pMemory + m_Attributes[_sName];
+		return (uint8_t*)m_memory + m_attributes[_name];
 	}
 
 
-	void UniformBuffer::BindToShader( unsigned _iProgramID )
+	void UniformBuffer::BindToShader( unsigned _programID )
 	{
-		unsigned iIndex = glGetUniformBlockIndex(_iProgramID, m_sName.c_str());
+		unsigned index = glGetUniformBlockIndex(_programID, m_name.c_str());
 		// Ignore the errors. There are shaders without the blocks
-		if( !glGetError() && iIndex!=GL_INVALID_INDEX )
-			glUniformBlockBinding(_iProgramID, iIndex, m_iIndex);
+		if( !glGetError() && index!=GL_INVALID_INDEX )
+			glUniformBlockBinding(_programID, index, m_index);
 	}
 
 
@@ -78,15 +78,15 @@ namespace Graphic {
 	{
 		// Upload the whole used part of the buffer. It could be more efficient
 		// to upload only the changed part.
-		glBindBuffer(GL_UNIFORM_BUFFER, m_iBufferID);
-		glBufferSubData( GL_UNIFORM_BUFFER, 0, m_iSize, m_pMemory );
+		glBindBuffer(GL_UNIFORM_BUFFER, m_bufferID);
+		glBufferSubData( GL_UNIFORM_BUFFER, 0, m_size, m_memory );
 
 		// The following line forces a sync on Intel HD chips. Otherwise reseting the buffer
 		// twice has no effect. (In case both times the same program is used.)
 		//glFlush();
 
-		const GLenum ErrorValue = glGetError();
-		if (ErrorValue != GL_NO_ERROR)
+		const GLenum errorValue = glGetError();
+		if (errorValue != GL_NO_ERROR)
 			std::cout << "[UniformBuffer::Commit] : An error during binding and uploading data occured.\n";
 	}
 };

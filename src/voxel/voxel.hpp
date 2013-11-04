@@ -18,18 +18,18 @@ namespace Voxel {
 	///		information structs.
 	struct VoxelTypeInfo
 	{
-		float fMass;				///< Mass of a voxel
-		float fActivisionEnergy;	///< Energy required to destroy this voxel in Joule
-		float fReactionEnergy;		///< Energy released during destruction in Joule
+		float mass;					///< Mass of a voxel
+		float activisionEnergy;		///< Energy required to destroy this voxel in Joule
+		float reactionEnergy;		///< Energy released during destruction in Joule
 		
-		int iWater;					///< Amount of resource "water" required to build this voxel or dropped by mining.
-		int iMinerals;				///< Amount of resource "mineral" required to build this voxel or dropped by mining.
-		int iMetals;				///< Amount of resource "metal" required to build this voxel or dropped by mining.
-		int iRareMetals;			///< Amount of resource "rare metals" required to build this voxel or dropped by mining.
-		int iAlloys;				///< Amount of resource "alloy" required to build this voxel or dropped by mining.
-		int iPolymeres;				///< Amount of resource "polymere" required to build this voxel or dropped by mining.
+		int water;					///< Amount of resource "water" required to build this voxel or dropped by mining.
+		int minerals;				///< Amount of resource "mineral" required to build this voxel or dropped by mining.
+		int metals;					///< Amount of resource "metal" required to build this voxel or dropped by mining.
+		int rareMetals;				///< Amount of resource "rare metals" required to build this voxel or dropped by mining.
+		int alloys;					///< Amount of resource "alloy" required to build this voxel or dropped by mining.
+		int polymeres;				///< Amount of resource "polymere" required to build this voxel or dropped by mining.
 	};
-
+	
 	/// \brief The mass if the voxel type in kg
 	const VoxelTypeInfo VOXEL_INFO[] = {
 		{ 0.0f, 0.0f, 0.0f, 0, 0, 0, 0, 0, 0},	// NONE

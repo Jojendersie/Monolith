@@ -9,35 +9,35 @@ using namespace Math;
 
 GSMain::GSMain()
 {
-	m_pAstTest = new Generators::Asteroid( 32, 32, 32 );
-	m_pAstTest->ComputeVertexBuffer();
-	m_pAstTest->SetPosition( Vec3( 0.0f, 0.0f, 0.0f ) );
+	m_astTest = new Generators::Asteroid( 32, 32, 32 );
+	m_astTest->ComputeVertexBuffer();
+	m_astTest->SetPosition( Vec3( 0.0f, 0.0f, 0.0f ) );
 }
 
 GSMain::~GSMain()
 {
-	delete m_pAstTest;
+	delete m_astTest;
 }
 
-void GSMain::Update( double _fTime, double _fDeltaTime )
+void GSMain::Update( double _time, double _deltaTime )
 {
-//	_fTime = 0.1 * cos(_fTime*0.5);
-	Matrix mView = MatrixCamera( Vec3(sin(_fTime)*100,40.0f,cos(_fTime)*100), Vec3(0.0f,0.0f,0.0f) );
-	Matrix mProjection = MatrixProjection( 0.6f, 1.3f, 0.5f, 400.0f );
-	Matrix mViewProjection = mView * mProjection;
-	m_pParent->Content.CameraUBO["View"] = mView;
-	m_pParent->Content.CameraUBO["Projection"] = mProjection;
-	m_pParent->Content.CameraUBO["ViewProjection"] = mViewProjection;
-	m_pParent->Content.CameraUBO["ProjectionInverse"] = Vec3(1.0f/mProjection.m11, 1.0f/mProjection.m22, 1.0f/mProjection.m33);
-	m_pParent->Content.CameraUBO["Far"] = 400.0f;
+//	_time = 0.1 * cos(_time*0.5);
+	Matrix view = MatrixCamera( Vec3(sin(_time)*100,40.0f,cos(_time)*100), Vec3(0.0f,0.0f,0.0f) );
+	Matrix projection = MatrixProjection( 0.6f, 1.3f, 0.5f, 400.0f );
+	Matrix viewProjection = view * projection;
+	m_parent->content.cameraUBO["View"] = view;
+	m_parent->content.cameraUBO["Projection"] = projection;
+	m_parent->content.cameraUBO["ViewProjection"] = viewProjection;
+	m_parent->content.cameraUBO["ProjectionInverse"] = Vec3(1.0f/projection.m11, 1.0f/projection.m22, 1.0f/projection.m33);
+	m_parent->content.cameraUBO["Far"] = 400.0f;
 }
 
-void GSMain::Render( double _fTime, double _fDeltaTime )
+void GSMain::Render( double _time, double _deltaTime )
 {
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 
-	Graphic::Device::SetEffect(	m_pParent->Content.VoxelRenderEffect );
-	m_pParent->Content.CameraUBO.Commit();
+	Graphic::Device::SetEffect(	m_parent->content.voxelRenderEffect );
+	m_parent->content.cameraUBO.Commit();
 
-	m_pAstTest->Draw( m_pParent->Content.ObjectUBO, m_pParent->Content.CameraUBO["ViewProjection"] );
+	m_astTest->Draw( m_parent->content.objectUBO, m_parent->content.cameraUBO["ViewProjection"] );
 }

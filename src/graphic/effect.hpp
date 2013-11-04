@@ -13,27 +13,27 @@ namespace Graphic {
 	{
 	public:
 		/// \brief Construction with pixel shader and vertex shader only.
-		Effect( const std::string& _sVSFile, const std::string& _sPSFile );
+		Effect( const std::string& _VSFile, const std::string& _PSFile );
 
 		/// \brief Construction of a program with pixel, vertex and geometry shader.
-		Effect( const std::string& _sVSFile, const std::string& _sGSFile, const std::string& _sPSFile,
-			RasterizerState::CULL_MODE _CullMode, RasterizerState::FILL_MODE _FillMode );
+		Effect( const std::string& _VSFile, const std::string& _GSFile, const std::string& _PSFile,
+			RasterizerState::CULL_MODE _cullMode, RasterizerState::FILL_MODE _fillMode );
 
 		~Effect();
 
 		/// \brief Get the OpenGL id of this shader program.
-		unsigned GetProgramID() const	{ return m_iProgramID; }
+		unsigned GetProgramID() const	{ return m_programID; }
 
 	private:
-		RasterizerState m_RasterizerState;		///< The rasterizer state
+		RasterizerState m_rasterizerState;		///< The rasterizer state
 	//	SamplerState m_SamplerState[8];			///< One state for each of 8 texture stages
-		BlendState m_BlendState;				///< Effect blend mode
-		DepthStencilState m_DepthStencilState;	///< Buffer options
+		BlendState m_blendState;				///< Effect blend mode
+		DepthStencilState m_depthStencilState;	///< Buffer options
 
-		unsigned m_iVertexShader;
-		unsigned m_iGeometryShader;
-		unsigned m_iPixelShader;
-		unsigned m_iProgramID;
+		unsigned m_vertexShader;
+		unsigned m_geometryShader;
+		unsigned m_pixelShader;
+		unsigned m_programID;
 
 		friend class Device;
 	};

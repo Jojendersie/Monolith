@@ -17,27 +17,27 @@ namespace Voxel {
 		///		and then each chunk is rendered.
 		///
 		///		The effect must be set outside.
-		/// \param [out] _ObjectConstants A reference to the constant buffer
+		/// \param [out] _objectConstants A reference to the constant buffer
 		///		which must be filled.
-		/// \param [in] _mViewProjection The actual view projection matrix. TODO: camera mit culling
-		void Draw( Graphic::UniformBuffer& _ObjectConstants, const Math::Matrix& _mViewProjection );
+		/// \param [in] _viewProjection The actual view projection matrix. TODO: camera mit culling
+		void Draw( Graphic::UniformBuffer& _objectConstants, const Math::Matrix& _viewProjection );
 
 		/// \brief Set a voxel in the model and update mass properties.
 		/// \details This method overwrites all covered coxels.
-		/// \param [in] _vPosition Position inside the given level.
-		/// \param [in] _iLevel Depth in the grid hierarchy. 0 is the maximum
+		/// \param [in] _position Position inside the given level.
+		/// \param [in] _level Depth in the grid hierarchy. 0 is the maximum
 		///		size and 5 is the level of the smallest voxel grid.
-		void Set( const Math::IVec3& _vPosition, int _iLevel, VoxelType _Type );
+		void Set( const Math::IVec3& _position, int _level, VoxelType _type );
 	private:
-		Chunk** m_aChunks;				///< A loose collection of chunks. TODO: octree
-		int m_iNumChunks;
+		Chunk** m_chunks;				///< A loose collection of chunks. TODO: octree
+		int m_numChunks;
 
-		Math::Vec3 m_vPosition;			///< The center of gravity.
-		Math::Quaternion m_vRotation;	///< The rotation around the center
+		Math::Vec3 m_position;			///< The center of gravity.
+		Math::Quaternion m_rotation;	///< The rotation around the center
 
-		Math::Quaternion m_vRotatoryVelocity;	///< Current chage of rotation per second
-		Math::Vec3 m_vVelocity;			///< Velocity in m/s (vector length)
-		float m_fMass;					///< Mass (inertia) of the full model
-		float m_fRotatoryMomentum;		///< Inertia of rotation for the full model.
+		Math::Quaternion m_rotatoryVelocity;	///< Current chage of rotation per second
+		Math::Vec3 m_velocity;			///< Velocity in m/s (vector length)
+		float m_mass;					///< Mass (inertia) of the full model
+		float m_rotatoryMomentum;		///< Inertia of rotation for the full model.
 	};
 };

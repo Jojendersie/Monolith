@@ -23,17 +23,17 @@ namespace Graphic {
 		};
 
 		/// \brief Create the blend state object.
-		BlendState( BLEND_OPERATION _BlendOp, BLEND _SrcOp, BLEND _DstOp );
+		BlendState( BLEND_OPERATION _blendOp, BLEND _srcOp, BLEND _dstOp );
 
 		/// \brief Unique number for each different state combination.
 		/// \details Two different state objects with the same setup have the
 		///		same hash.
-		int GetHash() const		{ return int(m_SrcOp) + int(m_DstOp) * 10 + int(m_BlendOperation) * 100; }
+		int GetHash() const		{ return int(m_srcOp) + int(m_dstOp) * 10 + int(m_blendOperation) * 100; }
 
 	private:
-		BLEND_OPERATION m_BlendOperation;
-		BLEND m_SrcOp;
-		BLEND m_DstOp;
+		BLEND_OPERATION m_blendOperation;
+		BLEND m_srcOp;
+		BLEND m_dstOp;
 
 		/// \brief Set all related states.
 		/// \details This can only be called by the device. Use

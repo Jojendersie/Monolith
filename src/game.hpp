@@ -18,18 +18,18 @@ public:
 	virtual ~IGameState() {}
 
 	/// \brief Update the movement, damages... of all objects
-	/// \param [in] _fTime Total time since game start in seconds.
-	/// \param [in] _fDeltaTime Time since last Update call.
-	virtual void Update( double _fTime, double _fDeltaTime ) = 0;
+	/// \param [in] _time Total time since game start in seconds.
+	/// \param [in] _deltaTime Time since last Update call.
+	virtual void Update( double _time, double _deltaTime ) = 0;
 
 	/// \brief Render one frame.
-	/// \param [in] _fTime Total time since game start in seconds.
-	/// \param [in] _fDeltaTime Time since last Render call.
-	virtual void Render( double _fTime, double _fDeltaTime ) = 0;
+	/// \param [in] _time Total time since game start in seconds.
+	/// \param [in] _deltaTime Time since last Render call.
+	virtual void Render( double _time, double _deltaTime ) = 0;
 
 	// TODO: Input
 
-	Monolith* m_pParent;
+	Monolith* m_parent;
 };
 
 typedef IGameState* IGameStateP;
@@ -39,11 +39,11 @@ class Monolith
 {
 public:
 	/// \brief Create a single threaded variant with limited frame rate.
-	Monolith( float _fTargetFrameRate );
+	Monolith( float _targetFrameRate );
 
 	/// \brief Create a multi threaded variant with a limited frame rate for
 	///		each thread.
-	Monolith( float _fTargetRenderFR, float _fTargetUpdateFR, float _fTargetSoundFR );
+	Monolith( float _targetRenderFR, float _targetUpdateFR, float _targetSoundFR );
 
 	/// \brief Delete all created resources
 	~Monolith();
@@ -55,18 +55,18 @@ public:
 	struct _Content {
 		_Content();
 
-		Graphic::Effect VoxelRenderEffect;
-		Graphic::UniformBuffer ObjectUBO;
-		Graphic::UniformBuffer CameraUBO;
-	} Content;
+		Graphic::Effect voxelRenderEffect;
+		Graphic::UniformBuffer objectUBO;
+		Graphic::UniformBuffer cameraUBO;
+	} content;
 private:
-	IGameStateP m_ppGameStates[1];	///< MainMenu, NewGame, Main, 
-	int m_iCurrentGameState;
-	bool m_bSingleThreaded;
-	bool m_bRunning;
+	IGameStateP m_gameStates[1];	///< MainMenu, NewGame, Main, 
+	int m_currentGameState;
+	bool m_singleThreaded;
+	bool m_running;
 
-	double m_fTime;					///< Total time since run in seconds
-	std::chrono::microseconds m_iMicroSecPerFrame;
+	double m_time;					///< Total time since run in seconds
+	std::chrono::microseconds m_microSecPerFrame;
 };
 
 /// \brief Game state for the game itself.
@@ -77,8 +77,8 @@ public:
 	GSMain();
 	~GSMain();
 
-	virtual void Update( double _fTime, double _fDeltaTime );
-	virtual void Render( double _fTime, double _fDeltaTime );
+	virtual void Update( double _time, double _deltaTime );
+	virtual void Render( double _time, double _deltaTime );
 private:
-	Generators::Asteroid* m_pAstTest;
+	Generators::Asteroid* m_astTest;
 };

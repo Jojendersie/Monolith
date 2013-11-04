@@ -2,8 +2,8 @@
 #include "../opengl.hpp"
 
 namespace Graphic {
-	BlendState::BlendState( BLEND_OPERATION _BlendOp, BLEND _SrcOp, BLEND _DstOp ) :
-		m_BlendOperation(_BlendOp), m_SrcOp(_SrcOp), m_DstOp(_DstOp)
+	BlendState::BlendState( BLEND_OPERATION _blendOp, BLEND _srcOp, BLEND _dstOp ) :
+		m_blendOperation(_blendOp), m_srcOp(_srcOp), m_dstOp(_dstOp)
 	{
 	}
 
@@ -11,12 +11,12 @@ namespace Graphic {
 	{
 		// TODO: glBlendFunci... for MRT
 
-		if( m_BlendOperation == BLEND_OPERATION::DISABLE )
+		if( m_blendOperation == BLEND_OPERATION::DISABLE )
 			glDisable( GL_BLEND );
 		else {
 			glEnable( GL_BLEND );
-			glBlendEquation( unsigned(m_BlendOperation) );
-			glBlendFunc( unsigned(m_SrcOp), unsigned(m_DstOp) );
+			glBlendEquation( unsigned(m_blendOperation) );
+			glBlendFunc( unsigned(m_srcOp), unsigned(m_dstOp) );
 		}
 	}
 };
