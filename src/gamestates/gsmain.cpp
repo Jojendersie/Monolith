@@ -6,17 +6,21 @@ using namespace Math;
 
 // TODO: remove after test
 #include "../generators/asteroid.hpp"
+#include "../graphic/font.hpp"
 
 GSMain::GSMain()
 {
 	m_astTest = new Generators::Asteroid( 32, 32, 32 );
 	m_astTest->ComputeVertexBuffer();
 	m_astTest->SetPosition( Vec3( 0.0f, 0.0f, 0.0f ) );
+
+	m_fontTest = new Graphic::Font();
 }
 
 GSMain::~GSMain()
 {
 	delete m_astTest;
+	delete m_fontTest;
 }
 
 void GSMain::Update( double _time, double _deltaTime )

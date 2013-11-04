@@ -1,0 +1,15 @@
+#version 330
+
+in vec2 gs_TexCoord;
+in float gs_Thickness;
+in vec4 gs_Color;
+
+out vec4 fragColor;
+
+void main()
+{
+	// TODO: texture sample
+	float fHeight = 0.5;
+
+	fragColor = gs_Color * (fHeight<gs_Thickness ? 0 : 1);
+}

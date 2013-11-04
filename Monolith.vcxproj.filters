@@ -92,6 +92,9 @@
     <ClCompile Include="src\opengl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\graphic\font.cpp">
+      <Filter>Source Files\graphic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game.hpp">
@@ -163,6 +166,9 @@
     <ClInclude Include="src\generators\asteroid.hpp">
       <Filter>Source Files\generators</Filter>
     </ClInclude>
+    <ClInclude Include="src\graphic\font.hpp">
+      <Filter>Source Files\graphic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\voxel.ps">
@@ -172,6 +178,15 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="shader\voxel.gs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shader\font.ps">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shader\font.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shader\font.gs">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

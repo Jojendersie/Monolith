@@ -8,6 +8,7 @@ class Monolith;
 
 // For test
 namespace Generators { class Asteroid; }
+namespace Graphic { class Font; }
 
 
 /// \brief A game state is an instance with a number of handling methods which
@@ -81,4 +82,5 @@ public:
 	virtual void Render( double _time, double _deltaTime );
 private:
 	Generators::Asteroid* m_astTest;
+	Graphic::Font* m_fontTest;
 };
