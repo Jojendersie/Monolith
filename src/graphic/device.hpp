@@ -48,6 +48,7 @@ namespace Graphic {
 		int m_rasterizerState;		///< Hash of the current rasterizer state to optimize unnecessary changes.
 		int m_blendState;			///< Hash of the current blend state used for all render targets.
 		int m_depthStencilState;	///< Hash of the current depth stencil state to optimize unnecessary changes.
-		int m_samplerStates[8];	///< One hash per texture stage which sampler is bound
+		int m_samplerStates[8];		///< One hash per texture stage which sampler is bound
+		const Effect* m_currentEffect;	///< Pointer to the last effect which was set.
 	};
 };

@@ -75,14 +75,19 @@ namespace Graphic {
 		///		twice is not allowed.
 		UniformVar operator [] ( const std::string& _name );
 
-		/// \brief Each buffer must be bound to a program once to be used.
-		/// \param [in] _programID OpenGL id of a valid linked shader program
-		void BindToShader( unsigned _programID );
-
 		/// \brief Load the latest changes up to the GPU.
 		/// \details Due to driver issues this should be called at most once
 		///		before each draw call.
 		void Commit();
+
+		/// \brief Get the name of the buffer object which should be the same
+		///		name as used in the shaders.
+		const std::string& GetName() const	{ return m_name; }
+
+		/// \brief Get the OpenGL buffer id.
+		unsigned GetBufferID() const		{ return m_bufferID; }
+		/// \brief Get the location where the buffer is bound in OpenGL.
+		unsigned GetBufferBaseIndex() const	{ return m_index; }
 
 	private:
 		std::string m_name;		///< Name of the buffer inside shaders

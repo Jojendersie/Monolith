@@ -40,6 +40,14 @@ namespace Graphic {
 		else glGetError();	// Sometimes glewInit creates an arrow even if return val correct
 
 		glViewport(0, 0, _width, _height);
+
+		// Null the references
+		g_Device.m_currentEffect = nullptr;
+		g_Device.m_blendState = -1;
+		g_Device.m_depthStencilState = -1;
+		g_Device.m_rasterizerState = -1;
+		for( int i=0; i<8; ++i )
+			g_Device.m_samplerStates[i] = -1;
 	}
 
 
@@ -58,6 +66,9 @@ namespace Graphic {
 			g_Device.m_rasterizerState = iHash;
 			// Set all relateted states now.
 			_state.Apply();
+#ifdef _DEBUG
+			LogGlError( "[Device::SetRasterizerState] Could not set rasterizer state" );
+#endif
 		}
 	}
 
@@ -70,6 +81,9 @@ namespace Graphic {
 			g_Device.m_samplerStates[_location] = iHash;
 			// Set all relateted states now.
 			_state.Apply(_location);
+#ifdef _DEBUG
+			LogGlError( "[Device::SetSamplerState] Could not set a sampler state" );
+#endif
 		}
 	}
 
@@ -82,6 +96,9 @@ namespace Graphic {
 			g_Device.m_blendState = iHash;
 			// Set all relateted states now.
 			_state.Apply();
+#ifdef _DEBUG
+			LogGlError( "[Device::SetBlendState] Could not set the blend state" );
+#endif
 		}
 	}
 
@@ -94,6 +111,9 @@ namespace Graphic {
 			g_Device.m_depthStencilState = iHash;
 			// Set all relateted states now.
 			_state.Apply();
+#ifdef _DEBUG
+			LogGlError( "[Device::SetDepthStencilState] Could not set the depth stencil state" );
+#endif
 		}
 	}
 
@@ -101,13 +121,18 @@ namespace Graphic {
 	void Device::SetEffect( const Effect& _effect )
 	{
 		assert(glGetError() == GL_NO_ERROR);
-		SetRasterizerState( _effect.m_rasterizerState );
-		//SetSamplerState( 0, _effect.
-		SetBlendState( _effect.m_blendState );
-		SetDepthStencilState( _effect.m_depthStencilState );
-		assert(glGetError() == GL_NO_ERROR);
-		glUseProgram( _effect.m_programID );
-		assert(glGetError() == GL_NO_ERROR);
+		if( g_Device.m_currentEffect != &_effect )
+		{
+			SetRasterizerState( _effect.m_rasterizerState );
+			//SetSamplerState( 0, _effect.
+			SetBlendState( _effect.m_blendState );
+			SetDepthStencilState( _effect.m_depthStencilState );
+			glUseProgram( _effect.m_programID );
+#ifdef _DEBUG
+			LogGlError( "[Device::SetEffect] Could not bind the shader program" );
+#endif
+			g_Device.m_currentEffect = &_effect;
+		}
 	}
 
 
@@ -131,6 +156,9 @@ namespace Graphic {
 #ifdef _DEBUG
 		LogGlError("[Device::DrawVertices] Could not bind the vertex buffer");
 #endif
+
+		g_Device.m_currentEffect->CommitUniformBuffers();
+
 		glDrawArrays( unsigned(_buffer.GetPrimitiveType()), _from, _count );
 
 #ifdef _DEBUG

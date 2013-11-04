@@ -185,8 +185,6 @@ namespace Voxel {
 		_objectConstants["Corner110"] = Vec4(  0.5f,  0.5f, -0.5f, 0.0f ) * _viewProjection;
 		_objectConstants["Corner111"] = Vec4(  0.5f,  0.5f,  0.5f, 0.0f ) * _viewProjection;
 
-		// TODO: auto commit
-		_objectConstants.Commit();
 		Graphic::Device::DrawVertices( m_voxels, 0, m_voxels.GetNumVertices() );
 	}
 };

@@ -37,7 +37,6 @@ void GSMain::Render( double _time, double _deltaTime )
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 
 	Graphic::Device::SetEffect(	m_parent->content.voxelRenderEffect );
-	m_parent->content.cameraUBO.Commit();
 
 	m_astTest->Draw( m_parent->content.objectUBO, m_parent->content.cameraUBO["ViewProjection"] );
 }

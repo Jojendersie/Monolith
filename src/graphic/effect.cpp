@@ -1,5 +1,6 @@
 #include "effect.hpp"
 #include "../opengl.hpp"
+#include "uniformbuffer.hpp"
 #include <iostream>
 #include <cstdint>
 
@@ -90,6 +91,29 @@ namespace Graphic {
 		glDeleteShader(m_vertexShader);
 		glDeleteShader(m_geometryShader);
 		glDeleteShader(m_pixelShader);
+	}
+
+
+	void Effect::BindUniformBuffer( UniformBuffer& _uniformBuffer )
+	{
+#ifdef _DEBUG
+		for( size_t i=0; i<m_boundUniformBuffers.size(); ++i )
+			if( m_boundUniformBuffers[i] == &_uniformBuffer )
+				std::cout << "[Effect::BindUniformBuffer] The constant buffer is already bound te the shader. Performance will be decreased.\n";
+#endif
+
+		m_boundUniformBuffers.push_back( &_uniformBuffer );
+
+		unsigned index = glGetUniformBlockIndex(m_programID, _uniformBuffer.GetName().c_str());
+		// Ignore the errors. There are shaders without the blocks
+		if( !glGetError() && index!=GL_INVALID_INDEX )
+			glUniformBlockBinding(m_programID, index, _uniformBuffer.GetBufferBaseIndex());
+	}
+
+	void Effect::CommitUniformBuffers() const
+	{
+		for( size_t i=0; i<m_boundUniformBuffers.size(); ++i )
+			m_boundUniformBuffers[i]->Commit();
 	}
 
 };

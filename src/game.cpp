@@ -85,7 +85,7 @@ Monolith::_Content::_Content() :
 	cameraUBO.AddAttribute( "Far", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 
 	// Bind constant buffers to effects
-	objectUBO.BindToShader( voxelRenderEffect.GetProgramID() );
-	cameraUBO.BindToShader( voxelRenderEffect.GetProgramID() );
+	voxelRenderEffect.BindUniformBuffer( objectUBO );
+	voxelRenderEffect.BindUniformBuffer( cameraUBO );
 	assert(glGetError() == GL_NO_ERROR);
 }

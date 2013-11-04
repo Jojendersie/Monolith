@@ -65,15 +65,6 @@ namespace Graphic {
 	}
 
 
-	void UniformBuffer::BindToShader( unsigned _programID )
-	{
-		unsigned index = glGetUniformBlockIndex(_programID, m_name.c_str());
-		// Ignore the errors. There are shaders without the blocks
-		if( !glGetError() && index!=GL_INVALID_INDEX )
-			glUniformBlockBinding(_programID, index, m_index);
-	}
-
-
 	void UniformBuffer::Commit()
 	{
 		// Upload the whole used part of the buffer. It could be more efficient
