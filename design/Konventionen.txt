@@ -8,15 +8,28 @@ Struktur
 * Wenn möglich pre-declarations gegenüber includes im Header vorziehen
 
 Dokumentation
-* Doxygen Kommentare im Header an public Attributen:
+* Doxygen Kommentare im Header an public Attributen/Methoden:
 	/// \brief			immer angeben
 	/// \details		wenn mehr als Kurzbeschreibung sinnvoll
 	/// \param [in]		wenn nur gelesen wird
 	/// \param [out]	wenn nur geschrieben wird
-	/// \param [inout]	bei lese schreib-zugriff
+	/// \param [inout]	bei lese-schreib Zugriff
 	/// \return
+  Hiervon immer die benötigten auswählen mindestens aber brief.
 * An Membervariablen nur Kurzbeschreibug dahinter: ///< es sei denn mehr ist sinnvoll
 * cpp mit normalen Kommentaren: //
+
+Code
+* Everything in english
+* Funktionen: CamelCase
+* Typen: CamelCase
+* Variablen: kleinCamelCase
+	* Scope-Vorsilben:
+	  m_ Member of a class
+	  g_ Global variable
+	  _ Function parameter
+	* Keine Typ-Vorsiblen
+* Konstanten: BIG_LETTERS
 
 
 
