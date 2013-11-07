@@ -95,6 +95,9 @@
     <ClCompile Include="src\graphic\font.cpp">
       <Filter>Source Files\graphic</Filter>
     </ClCompile>
+    <ClCompile Include="src\generators\random.cpp">
+      <Filter>Source Files\generators</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game.hpp">
@@ -168,6 +171,9 @@
     </ClInclude>
     <ClInclude Include="src\graphic\font.hpp">
       <Filter>Source Files\graphic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\generators\random.hpp">
+      <Filter>Source Files\generators</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
