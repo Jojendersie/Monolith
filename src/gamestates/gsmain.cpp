@@ -10,9 +10,9 @@ using namespace Math;
 
 GSMain::GSMain()
 {
-	m_astTest = new Generators::Asteroid( 32, 32, 32 );
-	m_astTest->ComputeVertexBuffer();
-	m_astTest->SetPosition( Vec3( 0.0f, 0.0f, 0.0f ) );
+	m_astTest = new Generators::Asteroid( 200, 200, 200, 2 );
+	//m_astTest->ComputeVertexBuffer();
+	//m_astTest->SetPosition( Vec3( 0.0f, 0.0f, 0.0f ) );
 
 	m_fontTest = new Graphic::Font();
 }
@@ -26,7 +26,7 @@ GSMain::~GSMain()
 void GSMain::Update( double _time, double _deltaTime )
 {
 //	_time = 0.1 * cos(_time*0.5);
-	Matrix view = MatrixCamera( Vec3(sin(_time)*100,40.0f,cos(_time)*100), Vec3(0.0f,0.0f,0.0f) );
+	Matrix view = MatrixCamera( Vec3(sin(_time)*250,80.0f,cos(_time)*250), Vec3(0.0f,0.0f,0.0f) );
 	Matrix projection = MatrixProjection( 0.6f, 1.3f, 0.5f, 400.0f );
 	Matrix viewProjection = view * projection;
 	m_parent->content.cameraUBO["View"] = view;

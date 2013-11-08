@@ -19,14 +19,13 @@ namespace Voxel {
 	Chunk::Chunk() :
 		m_voxels( NUM_OCTREE_NODES, "u", Graphic::VertexBuffer::PrimitiveType::POINT )
 	{
-		m_octree = (OctreeNode*)malloc( sizeof(OctreeNode) * NUM_OCTREE_NODES );
-		memset( m_octree, 0, sizeof(OctreeNode) * NUM_OCTREE_NODES );
+		m_octree = new OctreeNode[NUM_OCTREE_NODES];
 	}
 
 
 	Chunk::~Chunk()
 	{
-		free(m_octree);
+		delete[] m_octree;
 		m_octree = nullptr;
 	}
 
@@ -80,11 +79,11 @@ namespace Voxel {
 				m_octree[INDEX2( baseX+1, baseY+1, baseZ+1, _level)] };
 			// Find majority element
 			int iMajIdx=0, iMajCount=1;
-			solid &= pTypes[0].type != VoxelType::NONE;
+			solid &= pTypes[0].IsSolid();
 			uniformChildren &= pTypes[0].IsUniform();
 			for( int i=1; i<8; ++i )
 			{
-				solid &= pTypes[i].type != VoxelType::NONE;
+				solid &= pTypes[i].IsSolid();
 				uniformChildren &= pTypes[i].IsUniform();
 				// Moore's Voting algorithm part 1
 				if( pTypes[i].type == pTypes[iMajIdx].type ) ++iMajCount;

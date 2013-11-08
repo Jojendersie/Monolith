@@ -10,6 +10,10 @@ namespace Voxel {
 	class Model
 	{
 	public:
+		/// \brief Constructs an empty model without any chunk
+		Model();
+		~Model();
+
 		/// \brief Draw a full model.
 		/// \details This method sets the texture map???
 		///
@@ -28,11 +32,11 @@ namespace Voxel {
 		/// \param [in] _level Depth in the grid hierarchy. 0 is the maximum
 		///		size and 5 is the level of the smallest voxel grid.
 		void Set( const Math::IVec3& _position, int _level, VoxelType _type );
-	private:
+	protected:
 		Chunk** m_chunks;				///< A loose collection of chunks. TODO: octree
 		int m_numChunks;
 
-		Math::Vec3 m_position;			///< The center of gravity.
+		Math::Vec3 m_center;			///< The center of gravity.
 		Math::Quaternion m_rotation;	///< The rotation around the center
 
 		Math::Quaternion m_rotatoryVelocity;	///< Current chage of rotation per second

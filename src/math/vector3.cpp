@@ -2,6 +2,10 @@
 #include "matrix.hpp"
 
 namespace Math {
+
+	// ******************************************************************************** //
+	Vec3::Vec3(const IVec3& v) : x(float(v.x)), y(float(v.y)), z(float(v.z))												{}
+
 // ******************************************************************************** //
 // Create a uniformly distributed random direction vector ( length == 1 ).
 // No inline because of Rand-dependency (-> more includes)

@@ -74,7 +74,7 @@ namespace Graphic {
 
 		// The following line forces a sync on Intel HD chips. Otherwise reseting the buffer
 		// twice has no effect. (In case both times the same program is used.)
-		//glFlush();
+		glFlush();
 
 		const GLenum errorValue = glGetError();
 		if (errorValue != GL_NO_ERROR)

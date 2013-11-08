@@ -95,9 +95,9 @@ namespace Voxel {
 		OctreeNode Get( const Math::IVec3& _position, int _level );
 
 		/// \brief Set position relative to the model.
-		void SetPosition( const Math::Vec3& _position )	{ m_position = _position + Math::Vec3(-16.0f,-16.0f,-16.0f); }
+		void SetPosition( const Math::Vec3& _position )	{ m_position = _position; }
 
-		Math::Vec3 GetPosition()		{ return m_position - Math::Vec3(-16.0f,-16.0f,-16.0f); }
+		Math::Vec3 GetPosition()		{ return m_position; }
 	private:
 		/// \brief One memory block for all levels of the octree. Each level
 		///		is saved as x+w*(y+w*z) block. Each element is a typeID.

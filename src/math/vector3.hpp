@@ -6,6 +6,7 @@
 namespace Math {
 
 	class Matrix;
+	class IVec3;
 
 // ******************************************************************************** //
 /// \brief The class for 3D vectors (element of R^3)
@@ -33,6 +34,7 @@ public:
 	// Constructors
 	Vec3()																						{}
 	Vec3(const Vec3& v) : x(v.x), y(v.y), z(v.z)												{}
+	Vec3(const IVec3& v);
 	Vec3(const Vec2& v, float f) : x(v.x), y(v.y), z(f)											{}
 	Vec3(float f, const Vec2& v) : x(f), y(v.x), z(v.y)											{}
 	Vec3(const float f) : x(f), y(f), z(f)														{}
@@ -179,8 +181,10 @@ public:
 	inline IVec3 operator - () const								{return IVec3(-x, -y, -z);}
 	inline IVec3 operator * (const IVec3& b) const					{return IVec3(x*b.x, y*b.y, z*b.z);}
 	inline IVec3 operator * (const int i) const						{return IVec3(x * i, y * i, z * i);}
+	inline Vec3 operator * (const float f) const					{return Vec3(x * f, y * f, z * f);}
 	inline IVec3 operator / (const IVec3& b) const					{return IVec3(x / b.x, y / b.y, z / b.z);}
-	inline IVec3 operator / (int i) const							{return IVec3(x * i, y * i, z * i);}
+	inline IVec3 operator / (int i) const							{return IVec3(x / i, y / i, z / i);}
+	inline Vec3 operator / (float f) const							{return Vec3(x / f, y / f, z / f);}
 
 	// ******************************************************************************** //
 	// Comparison operators
