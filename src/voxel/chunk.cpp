@@ -60,11 +60,15 @@ namespace Voxel {
 		}
 
 		// Update parents
-		int baseX = _position.x & 0xfffffffe;
-		int baseY = _position.y & 0xfffffffe;
-		int baseZ = _position.z & 0xfffffffe;
-		while( _level > 0 )
+		bool somethingChanged = true;
+		int baseX = _position.x;
+		int baseY = _position.y;
+		int baseZ = _position.z;
+		while( _level > 0 && somethingChanged )
 		{
+			baseX &= 0xfffffffe;
+			baseY &= 0xfffffffe;
+			baseZ &= 0xfffffffe;
 			// Count different types in the neighbourhood and take majority.
 			bool solid = true;		// False if at least one node is of type NONE
 			bool uniformChildren = true;
@@ -96,11 +100,10 @@ namespace Voxel {
 			baseZ >>= 1;
 			--_level;
 			index = INDEX2(baseX, baseY, baseZ, _level);
+			uint8_t flags = (solid ? 1 : 0) | ((uniformChildren && (iMajCount==8)) ? 2 : 0);
+			somethingChanged = m_octree[index].flags != flags || m_octree[index].type != pTypes[iMajIdx].type;
 			m_octree[index].type = pTypes[iMajIdx].type;
-			m_octree[index].flags = (solid ? 1 : 0) | ((uniformChildren && (iMajCount==8)) ? 2 : 0);
-			baseX &= 0xfffffffe;
-			baseY &= 0xfffffffe;
-			baseZ &= 0xfffffffe;
+			m_octree[index].flags = flags;
 		}
 	}
 

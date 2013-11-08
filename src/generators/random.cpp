@@ -89,7 +89,7 @@ namespace Generators {
 		_x ^= m_state[0]; _y ^= m_state[1]; _z ^= m_state[2];
 
 		uint32_t value = HashInt(_x) ^ HashInt(_y) ^ HashInt(_z);
-		return float(value / double(0xffffffff));
+		return value * 2.328306437e-10f;
 	}
 
 	// ********************************************************************* //

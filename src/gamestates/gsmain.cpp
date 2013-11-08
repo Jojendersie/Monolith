@@ -10,7 +10,7 @@ using namespace Math;
 
 GSMain::GSMain()
 {
-	m_astTest = new Generators::Asteroid( 200, 200, 200, 2 );
+	m_astTest = new Generators::Asteroid( 256, 256, 256, 2 );
 	//m_astTest->ComputeVertexBuffer();
 	//m_astTest->SetPosition( Vec3( 0.0f, 0.0f, 0.0f ) );
 

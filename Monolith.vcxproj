@@ -51,7 +51,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINDOWS;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
     </ClCompile>
@@ -69,7 +69,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NOMINMAX;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WINDOWS;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -100,6 +100,7 @@
     <ClCompile Include="src\math\vector3.cpp" />
     <ClCompile Include="src\math\vector4.cpp" />
     <ClCompile Include="src\opengl.cpp" />
+    <ClCompile Include="src\timer.cpp" />
     <ClCompile Include="src\voxel\chunk.cpp" />
     <ClCompile Include="src\voxel\model.cpp" />
   </ItemGroup>
@@ -126,6 +127,7 @@
     <ClInclude Include="src\math\vector3.hpp" />
     <ClInclude Include="src\math\vector4.hpp" />
     <ClInclude Include="src\opengl.hpp" />
+    <ClInclude Include="src\timer.hpp" />
     <ClInclude Include="src\voxel\chunk.hpp" />
     <ClInclude Include="src\voxel\model.hpp" />
     <ClInclude Include="src\voxel\voxel.hpp" />

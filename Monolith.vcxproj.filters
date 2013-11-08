@@ -98,6 +98,9 @@
     <ClCompile Include="src\generators\random.cpp">
       <Filter>Source Files\generators</Filter>
     </ClCompile>
+    <ClCompile Include="src\timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game.hpp">
@@ -174,6 +177,9 @@
     </ClInclude>
     <ClInclude Include="src\generators\random.hpp">
       <Filter>Source Files\generators</Filter>
+    </ClInclude>
+    <ClInclude Include="src\timer.hpp">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

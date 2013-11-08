@@ -2,6 +2,7 @@
 #include <cassert>
 #include "game.hpp"
 #include "opengl.hpp"
+#include "timer.hpp"
 #include "graphic/device.hpp"
 #include "graphic/uniformbuffer.hpp"
 
@@ -34,18 +35,11 @@ void Monolith::Run()
 	if( m_singleThreaded )
 	{
 		m_gameStates[m_currentGameState]->Update( m_time, 0.0 );
-		std::chrono::high_resolution_clock::time_point StartPoint, EndPoint;
-		StartPoint = std::chrono::high_resolution_clock::now();
+		TimeQuerySlot frameTimer;
+		TimeQuery( frameTimer );
+		double deltaTime = 0.0;
 		while( m_running && !glfwWindowShouldClose(Graphic::Device::GetWindow()) )
 		{
-			// Calculate time since last frame
-			EndPoint = std::chrono::high_resolution_clock::now();
-			std::chrono::high_resolution_clock::rep Ticks = (EndPoint - StartPoint).count();
-			StartPoint = EndPoint;
-
-			double deltaTime = Ticks * g_fInvFrequency;
-			m_time += deltaTime;
-
 			// Call stuff
 			m_gameStates[m_currentGameState]->Render( m_time, deltaTime );
 			m_gameStates[m_currentGameState]->Update( m_time, deltaTime );
@@ -53,10 +47,16 @@ void Monolith::Run()
 			glfwSwapBuffers(Graphic::Device::GetWindow());
 			glfwPollEvents();
 
-			glFinish();
+			//glFinish();
+
+			// Calculate time since last frame
+			double deltaFrameTime = TimeQuery( frameTimer );
+			// Smooth frame time
+			deltaTime = deltaTime * 0.8 + deltaFrameTime * 0.2;
+			m_time += deltaTime;
 
 			// Limiting to target fps
-		//	std::this_thread::sleep_for( m_iMicroSecPerFrame - std::chrono::microseconds(unsigned(deltaTime * 1000000.0))  );
+			//std::this_thread::sleep_for( m_microSecPerFrame - std::chrono::microseconds(unsigned(deltaFrameTime * 1000000.0))  );
 		}
 	}
 }
