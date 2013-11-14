@@ -64,8 +64,12 @@ void Monolith::Run()
 
 Monolith::_Content::_Content() :
 	voxelRenderEffect( "shader/voxel.vs", "shader/voxel.gs", "shader/voxel.ps",
-	Graphic::RasterizerState::CULL_MODE::BACK, Graphic::RasterizerState::FILL_MODE::SOLID ),
-	objectUBO( "Object" ), cameraUBO( "Camera" )
+		Graphic::RasterizerState::CULL_MODE::BACK, Graphic::RasterizerState::FILL_MODE::SOLID ),
+		objectUBO( "Object" ), cameraUBO( "Camera" ),
+	pointSampler(Graphic::SamplerState::EDGE_TREATMENT::WRAP, Graphic::SamplerState::SAMPLE::POINT,
+				Graphic::SamplerState::SAMPLE::POINT, Graphic::SamplerState::SAMPLE::LINEAR ),
+	linearSampler(Graphic::SamplerState::EDGE_TREATMENT::WRAP, Graphic::SamplerState::SAMPLE::LINEAR,
+				Graphic::SamplerState::SAMPLE::LINEAR, Graphic::SamplerState::SAMPLE::LINEAR )
 {
 	// Init the constant buffers
 	objectUBO.AddAttribute( "WorldViewProjection", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
@@ -87,5 +91,6 @@ Monolith::_Content::_Content() :
 	// Bind constant buffers to effects
 	voxelRenderEffect.BindUniformBuffer( objectUBO );
 	voxelRenderEffect.BindUniformBuffer( cameraUBO );
+	voxelRenderEffect.BindTexture("u_diffuseTex", 0, pointSampler);
 	assert(glGetError() == GL_NO_ERROR);
 }

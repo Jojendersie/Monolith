@@ -1,6 +1,7 @@
 #include "device.hpp"
 #include "../opengl.hpp"
 #include "vertexbuffer.hpp"
+#include "texture.hpp"
 #include <cstdio>
 #include <iostream>
 #include <cassert>
@@ -124,15 +125,27 @@ namespace Graphic {
 		if( g_Device.m_currentEffect != &_effect )
 		{
 			SetRasterizerState( _effect.m_rasterizerState );
-			//SetSamplerState( 0, _effect.
 			SetBlendState( _effect.m_blendState );
 			SetDepthStencilState( _effect.m_depthStencilState );
+			for( size_t i=0; i<_effect.m_samplerStates.size(); ++i )
+				SetSamplerState( _effect.m_samplerStates[i].location, *_effect.m_samplerStates[i].sampler );
+
 			glUseProgram( _effect.m_programID );
 #ifdef _DEBUG
 			LogGlError( "[Device::SetEffect] Could not bind the shader program" );
 #endif
 			g_Device.m_currentEffect = &_effect;
 		}
+	}
+
+
+	void Device::SetTexture( const Texture& _texture, unsigned _location )
+	{
+		glActiveTexture(_location+GL_TEXTURE0);
+		glBindTexture( _texture.m_bindingPoint, _texture.m_textureID );
+#ifdef _DEBUG
+		LogGlError( "[Device::SetTexture] Could not bind a texture" );
+#endif
 	}
 
 

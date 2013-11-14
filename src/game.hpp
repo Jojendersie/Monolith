@@ -5,10 +5,11 @@
 class Monolith;
 #include "graphic/uniformbuffer.hpp"
 #include "graphic/effect.hpp"
+#include "graphic/samplerstate.hpp"
 
 // For test
 namespace Generators { class Asteroid; }
-namespace Graphic { class Font; }
+namespace Graphic { class Font; class Texture; }
 
 
 /// \brief A game state is an instance with a number of handling methods which
@@ -59,6 +60,8 @@ public:
 		Graphic::Effect voxelRenderEffect;
 		Graphic::UniformBuffer objectUBO;
 		Graphic::UniformBuffer cameraUBO;
+		Graphic::SamplerState pointSampler;
+		Graphic::SamplerState linearSampler;
 	} content;
 private:
 	IGameStateP m_gameStates[1];	///< MainMenu, NewGame, Main, 
@@ -83,4 +86,5 @@ public:
 private:
 	Generators::Asteroid* m_astTest;
 	Graphic::Font* m_fontTest;
+	Graphic::Texture* m_textures;
 };

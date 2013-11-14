@@ -37,14 +37,29 @@ namespace Graphic {
 		///		not be deleted before the effect.
 		void BindUniformBuffer( UniformBuffer& _uniformBuffer );
 
+		/// \brief Assoziates a texture sampler with a texture binding point
+		/// \param [in] _name Sampler uniform name used in the glsl code.
+		/// \param [in] _location Texture binding point. This location is equal
+		///		to the one in \ref{Device::SetTexture}. // TODO: Test doxygen
+		/// \param [in] _sampler A sampler object which defines how textures
+		///		are read.
+		void BindTexture( const char* _name, unsigned _location, const SamplerState& _sampler );
+
 	private:
 		RasterizerState m_rasterizerState;		///< The rasterizer state
-	//	SamplerState m_SamplerState[8];			///< One state for each of 8 texture stages
 		BlendState m_blendState;				///< Effect blend mode
 		DepthStencilState m_depthStencilState;	///< Buffer options
 
 		/// \brief A list of uniform buffers which where bound to the effect.
 		std::vector<UniformBuffer*> m_boundUniformBuffers;
+
+		/// \brief This struct is a pair which maps texture locations to
+		///		sampler states.
+		struct SamplerStateBinding {
+			unsigned location;
+			const SamplerState* sampler;
+		};
+		std::vector<SamplerStateBinding> m_samplerStates;
 
 		unsigned m_vertexShader;
 		unsigned m_geometryShader;

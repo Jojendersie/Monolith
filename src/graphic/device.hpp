@@ -6,6 +6,7 @@ struct GLFWwindow;
 namespace Graphic {
 
 	class VertexBuffer;
+	class Texture;
 
 	/// \brief A singleton wrapper to controll the render pipeline.
 	/// \details The device must be created on program start with the
@@ -29,6 +30,8 @@ namespace Graphic {
 		static void SetDepthStencilState( const DepthStencilState& _state );
 
 		static void SetEffect( const Effect& _effect );
+
+		static void SetTexture( const Texture& _texture, unsigned _location );
 
 		/// \brief Clear backbuffer and z-buffer
 		static void Clear( float _r, float _g, float _b );

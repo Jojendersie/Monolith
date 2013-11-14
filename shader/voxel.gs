@@ -3,7 +3,8 @@
 #define OUT_VERTS 12
 
 in uint vs_out_VoxelCode[1];
-out vec3 gs_Normal;
+out vec3 gs_normal;
+out vec2 gs_texCoord;
 
 layout(points) in;
 layout(triangle_strip, max_vertices = OUT_VERTS) out;
@@ -58,13 +59,17 @@ void main(void)
 	if( dot((c_vCorner000.xyz+c_vCorner110.xyz)*c_vInverseProjection, vZDir) < 0 ) {
 		if( (vs_out_VoxelCode[0] & uint(0x10)) != uint(0) )
 		{
-			gs_Normal = vec3(0,0,-1);
+			gs_normal = vec3(0,0,-1);
+			gs_texCoord = vec2(0,0);
 			gl_Position = c_vCorner000 * s + vPos;
 			EmitVertex();
+			gs_texCoord = vec2(s,0);
 			gl_Position = c_vCorner100 * s + vPos;
 			EmitVertex();
+			gs_texCoord = vec2(0,s);
 			gl_Position = c_vCorner010 * s + vPos;
 			EmitVertex();
+			gs_texCoord = vec2(s,s);
 			gl_Position = c_vCorner110 * s + vPos;
 			EmitVertex();
 			EndPrimitive();
@@ -72,13 +77,17 @@ void main(void)
 	} else {
 		if( (vs_out_VoxelCode[0] & uint(0x20)) != uint(0) )
 		{
-			gs_Normal = vec3(0,0,1);
+			gs_normal = vec3(0,0,1);
+			gs_texCoord = vec2(0,0);
 			gl_Position = c_vCorner011 * s + vPos;
 			EmitVertex();
+			gs_texCoord = vec2(s,0);
 			gl_Position = c_vCorner111 * s + vPos;
 			EmitVertex();
+			gs_texCoord = vec2(0,s);
 			gl_Position = c_vCorner001 * s + vPos;
 			EmitVertex();
+			gs_texCoord = vec2(s,s);
 			gl_Position = c_vCorner101 * s + vPos;
 			EmitVertex();
 			EndPrimitive();
@@ -88,13 +97,17 @@ void main(void)
 	if( dot((c_vCorner010.xyz+c_vCorner111.xyz)*c_vInverseProjection, vZDir) < 0 ) {
 		if( (vs_out_VoxelCode[0] & uint(0x08)) != uint(0) )
 		{
-			gs_Normal = vec3(0,1,0);
+			gs_normal = vec3(0,1,0);
+			gs_texCoord = vec2(0,0);
 			gl_Position = c_vCorner010 * s + vPos;
 			EmitVertex();
+			gs_texCoord = vec2(s,0);
 			gl_Position = c_vCorner110 * s + vPos;
 			EmitVertex();
+			gs_texCoord = vec2(0,s);
 			gl_Position = c_vCorner011 * s + vPos;
 			EmitVertex();
+			gs_texCoord = vec2(s,s);
 			gl_Position = c_vCorner111 * s + vPos;
 			EmitVertex();
 			EndPrimitive();
@@ -102,13 +115,17 @@ void main(void)
 	} else {
 		if( (vs_out_VoxelCode[0] & uint(0x04)) != uint(0) )
 		{
-			gs_Normal = vec3(0,-1,0);
+			gs_normal = vec3(0,-1,0);
+			gs_texCoord = vec2(0,0);
 			gl_Position = c_vCorner100 * s + vPos;
 			EmitVertex();
+			gs_texCoord = vec2(s,0);
 			gl_Position = c_vCorner000 * s + vPos;
 			EmitVertex();
+			gs_texCoord = vec2(0,s);
 			gl_Position = c_vCorner101 * s + vPos;
 			EmitVertex();
+			gs_texCoord = vec2(s,s);
 			gl_Position = c_vCorner001 * s + vPos;
 			EmitVertex();
 			EndPrimitive();
@@ -118,13 +135,17 @@ void main(void)
 	if( dot((c_vCorner000.xyz+c_vCorner011.xyz)*c_vInverseProjection, vZDir) < 0 ) {
 		if( (vs_out_VoxelCode[0] & uint(0x01)) != uint(0) )
 		{
-			gs_Normal = vec3(-1,0,0);
+			gs_normal = vec3(-1,0,0);
+			gs_texCoord = vec2(0,0);
 			gl_Position = c_vCorner000 * s + vPos;
 			EmitVertex();
+			gs_texCoord = vec2(s,0);
 			gl_Position = c_vCorner010 * s + vPos;
 			EmitVertex();
+			gs_texCoord = vec2(0,s);
 			gl_Position = c_vCorner001 * s + vPos;
 			EmitVertex();
+			gs_texCoord = vec2(s,s);
 			gl_Position = c_vCorner011 * s + vPos;
 			EmitVertex();
 			EndPrimitive();
@@ -132,13 +153,17 @@ void main(void)
 	} else {
 		if( (vs_out_VoxelCode[0] & uint(0x02)) != uint(0) )
 		{
-			gs_Normal = vec3(1,0,0);
+			gs_normal = vec3(1,0,0);
+			gs_texCoord = vec2(0,0);
 			gl_Position = c_vCorner110 * s + vPos;
 			EmitVertex();
+			gs_texCoord = vec2(s,0);
 			gl_Position = c_vCorner100 * s + vPos;
 			EmitVertex();
+			gs_texCoord = vec2(0,s);
 			gl_Position = c_vCorner111 * s + vPos;
 			EmitVertex();
+			gs_texCoord = vec2(s,s);
 			gl_Position = c_vCorner101 * s + vPos;
 			EmitVertex();
 			EndPrimitive();

@@ -7,20 +7,23 @@ using namespace Math;
 // TODO: remove after test
 #include "../generators/asteroid.hpp"
 #include "../graphic/font.hpp"
+#include "../graphic/texture.hpp"
 
 GSMain::GSMain()
 {
-	m_astTest = new Generators::Asteroid( 256, 256, 256, 2 );
+	m_astTest = new Generators::Asteroid( 80, 50, 30, 2 );
 	//m_astTest->ComputeVertexBuffer();
 	//m_astTest->SetPosition( Vec3( 0.0f, 0.0f, 0.0f ) );
 
 	m_fontTest = new Graphic::Font();
+	m_textures = new Graphic::Texture("texture/rock1.png");
 }
 
 GSMain::~GSMain()
 {
 	delete m_astTest;
 	delete m_fontTest;
+	delete m_textures;
 }
 
 void GSMain::Update( double _time, double _deltaTime )
@@ -41,6 +44,7 @@ void GSMain::Render( double _time, double _deltaTime )
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 
 	Graphic::Device::SetEffect(	m_parent->content.voxelRenderEffect );
+	Graphic::Device::SetTexture( *m_textures, 0 );
 
 	m_astTest->Draw( m_parent->content.objectUBO, m_parent->content.cameraUBO["ViewProjection"] );
 }

@@ -52,7 +52,6 @@ namespace Graphic {
 	Effect::Effect( const std::string& _VSFile, const std::string& _GSFile, const std::string& _PSFile,
 			RasterizerState::CULL_MODE _cullMode, RasterizerState::FILL_MODE _fillMode ) :
 		m_rasterizerState(_cullMode, _fillMode),
-	//	m_SamplerState(),
 		m_blendState(BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::ONE, BlendState::BLEND::ZERO ),
 		m_depthStencilState(DepthStencilState::COMPARISON_FUNC::LESS, true)
 	{
@@ -108,6 +107,31 @@ namespace Graphic {
 		// Ignore the errors. There are shaders without the blocks
 		if( !glGetError() && index!=GL_INVALID_INDEX )
 			glUniformBlockBinding(m_programID, index, _uniformBuffer.GetBufferBaseIndex());
+	}
+
+	void Effect::BindTexture( const char* _name, unsigned _location, const SamplerState& _sampler )
+	{
+#ifdef _DEBUG
+		if( !_sampler ) std::cout << "[Effect::BindTexture] The sampler state object cannot be null.\n";
+#endif
+		// First bind the texture
+		glUseProgram( m_programID );
+		GLint uniformLocation = glGetUniformLocation(m_programID, _name);
+		LogGlError("[Effect::BindTexture] Uniform location not found");
+
+		glUniform1i(uniformLocation, _location);
+		LogGlError("[Effect::BindTexture] Failed to set the uniform sampler variable.");
+
+		// Now store or overwrite the sampler state binding.
+		for( size_t i=0; i<m_samplerStates.size(); ++i )
+			if( m_samplerStates[i].location == _location ) {
+				m_samplerStates[i].sampler = &_sampler;
+				return;
+			}
+		SamplerStateBinding newBinding;
+		newBinding.location = _location;
+		newBinding.sampler = &_sampler;
+		m_samplerStates.push_back(newBinding);
 	}
 
 	void Effect::CommitUniformBuffers() const
