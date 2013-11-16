@@ -31,6 +31,8 @@ namespace Voxel {
 		/// \param [in] _position Position inside the given level.
 		/// \param [in] _level Depth in the grid hierarchy. 0 is the maximum
 		///		size and 5 is the level of the smallest voxel grid.
+		/// \param [in] _type Material to be set. VoxelType::NONE can delete
+		///		a voxel.
 		void Set( const Math::IVec3& _position, int _level, VoxelType _type );
 	protected:
 		Chunk** m_chunks;				///< A loose collection of chunks. TODO: octree

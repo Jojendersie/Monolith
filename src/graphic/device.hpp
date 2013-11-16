@@ -29,8 +29,15 @@ namespace Graphic {
 		static void SetBlendState( const BlendState& _state );
 		static void SetDepthStencilState( const DepthStencilState& _state );
 
+		/// \brief Set a shader program and all related states of the pipeline.
+		/// \param [in] _effect Compiled shader with assoziated state objects.
 		static void SetEffect( const Effect& _effect );
 
+		/// \brief Bind a texture to a specific texture stage.
+		/// \param [in] _texture A texture with any format. The texture tape/
+		///		dimension must be consistent with the one from the shader.
+		/// \param [in] _location Texture stage. Which texture stages maps to
+		///		which uniform variable in the shader is set by Effect::BindTexture.
 		static void SetTexture( const Texture& _texture, unsigned _location );
 
 		/// \brief Clear backbuffer and z-buffer
@@ -45,7 +52,7 @@ namespace Graphic {
 		static void DrawVertices( const VertexBuffer& _buffer, int _from, int _count );
 
 	private:
-		GLFWwindow* m_window;
+		GLFWwindow* m_window;		///< Reference to the one window created during Initialize()
 
 		// Current state TODO: zero init
 		int m_rasterizerState;		///< Hash of the current rasterizer state to optimize unnecessary changes.

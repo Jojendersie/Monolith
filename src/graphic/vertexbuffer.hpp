@@ -82,7 +82,7 @@ namespace Graphic {
 		// \brief Overrides a index in the memory copy. Does nothing if static.
 		/// \param [in] _index Index of the vertex which should be in
 		///		[0,GetNumVertices()[.
-		/// \param [in] _valueue Pointer to a vertex structure.
+		/// \param [in] _value Pointer to a vertex structure.
 		void Set(unsigned _index, const void* _value);
 
 		/// \brief Reads from memory copy. Does nothing if static.

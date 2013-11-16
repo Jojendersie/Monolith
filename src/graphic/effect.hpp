@@ -40,7 +40,7 @@ namespace Graphic {
 		/// \brief Assoziates a texture sampler with a texture binding point
 		/// \param [in] _name Sampler uniform name used in the glsl code.
 		/// \param [in] _location Texture binding point. This location is equal
-		///		to the one in \ref{Device::SetTexture}. // TODO: Test doxygen
+		///		to the one in Device::SetTexture.
 		/// \param [in] _sampler A sampler object which defines how textures
 		///		are read.
 		void BindTexture( const char* _name, unsigned _location, const SamplerState& _sampler );
@@ -56,9 +56,10 @@ namespace Graphic {
 		/// \brief This struct is a pair which maps texture locations to
 		///		sampler states.
 		struct SamplerStateBinding {
-			unsigned location;
-			const SamplerState* sampler;
+			unsigned location;				///< Texture stage to which this sampler is applied
+			const SamplerState* sampler;	///< A reference to an existing sampler state object.
 		};
+		/// \brief A list of all samplers for all used texture stages (forced by setter)
 		std::vector<SamplerStateBinding> m_samplerStates;
 
 		unsigned m_vertexShader;
