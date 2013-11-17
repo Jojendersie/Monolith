@@ -111,9 +111,6 @@ namespace Graphic {
 
 	void Effect::BindTexture( const char* _name, unsigned _location, const SamplerState& _sampler )
 	{
-#ifdef _DEBUG
-		if( !_sampler ) std::cout << "[Effect::BindTexture] The sampler state object cannot be null.\n";
-#endif
 		// First bind the texture
 		glUseProgram( m_programID );
 		GLint uniformLocation = glGetUniformLocation(m_programID, _name);
