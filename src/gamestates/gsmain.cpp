@@ -30,7 +30,7 @@ void GSMain::Update( double _time, double _deltaTime )
 {
 //	_time = 0.1 * cos(_time*0.5);
 	Matrix view = MatrixCamera( Vec3(sin(_time)*250,80.0f,cos(_time)*250), Vec3(0.0f,0.0f,0.0f) );
-	Matrix projection = MatrixProjection( 0.6f, 1.3f, 0.5f, 400.0f );
+	Matrix projection = MatrixProjection( 0.3f, 1.3f, 0.5f, 400.0f );
 	Matrix viewProjection = view * projection;
 	m_parent->content.cameraUBO["View"] = view;
 	m_parent->content.cameraUBO["Projection"] = projection;
@@ -44,7 +44,7 @@ void GSMain::Render( double _time, double _deltaTime )
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 
 	Graphic::Device::SetEffect(	m_parent->content.voxelRenderEffect );
-	Graphic::Device::SetTexture( *m_textures, 0 );
+	Graphic::Device::SetTexture( *m_parent->content.voxelTextures, 0 );
 
 	m_astTest->Draw( m_parent->content.objectUBO, m_parent->content.cameraUBO["ViewProjection"] );
 }

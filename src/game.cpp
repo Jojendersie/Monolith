@@ -1,10 +1,12 @@
 #include <thread>
 #include <cassert>
+#include <iostream>
 #include "game.hpp"
 #include "opengl.hpp"
 #include "timer.hpp"
 #include "graphic/device.hpp"
 #include "graphic/uniformbuffer.hpp"
+#include "graphic/texture.hpp"
 
 static double g_fInvFrequency;
 
@@ -93,4 +95,21 @@ Monolith::_Content::_Content() :
 	voxelRenderEffect.BindUniformBuffer( cameraUBO );
 	voxelRenderEffect.BindTexture("u_diffuseTex", 0, pointSampler);
 	assert(glGetError() == GL_NO_ERROR);
+
+	// Load array texture for all voxels
+	std::vector<std::string> textureNames;
+	textureNames.push_back( "texture/none.png" );
+	textureNames.push_back( "texture/rock1.png" );
+	textureNames.push_back( "texture/water.png" );
+	try {
+		voxelTextures = new Graphic::Texture(textureNames);
+	} catch( std::string _message ) {
+		std::cerr << "Failed to load voxel textures!\n";
+	}
+}
+
+
+Monolith::_Content::~_Content()
+{
+	delete voxelTextures;
 }

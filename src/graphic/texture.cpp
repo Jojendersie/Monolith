@@ -1,7 +1,8 @@
-#include "texture.hpp"
-#include "../opengl.hpp"
 #include <cstdint>
 #include <jofilelib.hpp>
+#include <iostream>
+#include "texture.hpp"
+#include "../opengl.hpp"
 #include "../math/math.hpp"
 
 namespace Graphic {
@@ -69,10 +70,6 @@ Texture::Texture( const std::string& _fileName )
 		++level;
     } while( width * height > 1 );
 
-	/*int mipMaps = int(log(Math::max(image.Width(), image.Height()) / log(2)));
-	glTexStorage2D(m_bindingPoint, mipMaps, 
-		MapToGLFormats(image.NumChannels(), image.BitDepth(), image.GetChannelType()),
-		image.Width(), image.Height());*/
 	LogGlError("Allocating memory for a texture failed");
 
 	// Always set some texture parameters (required for some drivers)
@@ -102,6 +99,8 @@ Texture::Texture( const std::vector<std::string>& _fileNames )
 	
 	// Expect all textures to be ok. Some of the layers might be empty later.
 	uint32_t internalFormat = MapToGLFormats(firstImage.NumChannels(), firstImage.BitDepth(), firstImage.GetChannelType());
+	uint32_t type = TYPE[int(firstImage.GetChannelType())][firstImage.BitDepth()/8-1];
+	uint32_t format = FORMAT[firstImage.NumChannels()-1];
 	int width = firstImage.Width() * 2;
 	int height = firstImage.Height() * 2;
 	int level = 0;
@@ -109,33 +108,33 @@ Texture::Texture( const std::vector<std::string>& _fileNames )
         width = Math::max(1, (width / 2));
         height = Math::max(1, (height / 2));
         glTexImage3D(m_bindingPoint, level, internalFormat, width, height, _fileNames.size(),
-			0, FORMAT[firstImage.NumChannels()-1],
-			TYPE[int(firstImage.GetChannelType())][firstImage.BitDepth()/8-1],
-			nullptr);
+			0, format, type, nullptr);
+		++level;
     } while( width * height > 1 );
-
-	/*int mipMaps = int(log(Math::max(firstImage.Width(), firstImage.Height()) / log(2)));
-	glTexStorage3D( GL_TEXTURE_2D_ARRAY, mipMaps,
-		MapToGLFormats(firstImage.NumChannels(), firstImage.BitDepth(), firstImage.GetChannelType()),
-		firstImage.Width(), firstImage.Height(), _fileNames.size() );*/
 	LogGlError("Allocating memory for a texture failed");
 
 	// Upload pixel data of first image.
-	glTexSubImage3D( GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, firstImage.Width(), firstImage.Height(), 1,
-		GL_RGBA, GL_UNSIGNED_BYTE,
-		firstImage.GetBuffer() );
+	glTexSubImage3D( m_bindingPoint, 0, 0, 0, 0, firstImage.Width(), firstImage.Height(), 1,
+		format, type, firstImage.GetBuffer() );
+	LogGlError("glTexSubImage3D failed");
 
 	// Load all images from file.
 	for( size_t i=1; i<_fileNames.size(); ++i )
 	{
-		Jo::Files::HDDFile file(_fileNames[i], true);
-		Jo::Files::ImageWrapper image(file, Jo::Files::Format::PNG );
-		assert(image.Width() == firstImage.Width() && image.Height() == firstImage.Height());
-
-		// Upload pixel data.
-		glTexSubImage3D( GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, firstImage.Width(), firstImage.Height(), 1,
-			GL_RGBA, GL_UNSIGNED_BYTE,
-			image.GetBuffer() );
+		try {
+			Jo::Files::HDDFile file(_fileNames[i], true);
+			Jo::Files::ImageWrapper image(file, Jo::Files::Format::PNG );
+			assert(image.Width() == firstImage.Width() && image.Height() == firstImage.Height());
+			// Upload pixel data.
+			glTexSubImage3D( GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, firstImage.Width(), firstImage.Height(), 1,
+					format, type, image.GetBuffer() );
+		} catch( std::string _message ) {
+			std::cerr << _message << ". Will use first texture of the texture array as fallback.\n";
+			// Upload alternative pixel data.
+			glTexSubImage3D( GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, firstImage.Width(), firstImage.Height(), 1,
+				format, type, firstImage.GetBuffer() );
+		}
+		LogGlError("glTexSubImage3D failed");
 	}
 
 	// Always set some texture parameters (required for some drivers)

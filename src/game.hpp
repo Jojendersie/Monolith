@@ -56,12 +56,15 @@ public:
 	/// \brief Global content like fonts and render effects
 	struct _Content {
 		_Content();
+		~_Content();
 
 		Graphic::Effect voxelRenderEffect;
 		Graphic::UniformBuffer objectUBO;
 		Graphic::UniformBuffer cameraUBO;
 		Graphic::SamplerState pointSampler;
 		Graphic::SamplerState linearSampler;
+
+		Graphic::Texture* voxelTextures;
 	} content;
 private:
 	IGameStateP m_gameStates[1];	///< MainMenu, NewGame, Main, 
