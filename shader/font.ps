@@ -1,15 +1,16 @@
 #version 330
 
-in vec2 gs_TexCoord;
-in float gs_Thickness;
-in vec4 gs_Color;
+in vec2 gs_texCoord;
+in float gs_thickness;
+in vec4 gs_color;
+uniform sampler2D u_characterTex;
 
 out vec4 fragColor;
 
 void main()
 {
-	// TODO: texture sample
-	float fHeight = 0.5;
+	// Texture sample (bitmap font)
+	float height = texture( u_characterTex, gs_texCoord ).x;
 
-	fragColor = gs_Color * (fHeight<gs_Thickness ? 0 : 1);
+	fragColor = gs_color * (height<gs_thickness ? 0 : 1);
 }

@@ -9,9 +9,9 @@ in vec2 vs_out_Size[1];
 in float vs_out_Thickness[1];
 in float vs_out_Scale[1];
 
-out vec2 gs_TexCoord;
-out float gs_Thickness;
-out vec4 gs_Color;
+out vec2 gs_texCoord;
+out float gs_thickness;
+out vec4 gs_color;
 
 layout(points) in;
 layout(triangle_strip, max_vertices = OUT_VERTS) out;
@@ -32,19 +32,19 @@ void main(void)
 	float h = vs_out_Size[0].y * vs_out_Scale[0] * fAspect;
 
 	// Pass through
-	gs_Thickness = vs_out_Thickness[0];
-	gs_Color = vs_out_Color[0];
+	gs_thickness = vs_out_Thickness[0];
+	gs_color = vs_out_Color[0];
 
-	gs_TexCoord = vs_out_TexCoord[0];
+	gs_texCoord = vs_out_TexCoord[0];
 	gl_Position = vec4(vs_out_Position[0], 0, 1);
 	EmitVertex();
-	gs_TexCoord = vs_out_TexCoord[0] + vec2(vs_out_Size[0].x,0);
+	gs_texCoord = vs_out_TexCoord[0] + vec2(vs_out_Size[0].x,0);
 	gl_Position = vec4(vs_out_Position[0] + vec2(w,0), 0, 1);
 	EmitVertex();
-	gs_TexCoord = vs_out_TexCoord[0] + vec2(0, vs_out_Size[0].y);
+	gs_texCoord = vs_out_TexCoord[0] + vec2(0, vs_out_Size[0].y);
 	gl_Position = vec4(vs_out_Position[0] + vec2(0,h), 0, 1);
 	EmitVertex();
-	gs_TexCoord = vs_out_TexCoord[0] + vs_out_Size[0];
+	gs_texCoord = vs_out_TexCoord[0] + vs_out_Size[0];
 	gl_Position = vec4(vs_out_Position[0] + vec2(w,h), 0, 1);
 	EmitVertex();
 	EndPrimitive();
