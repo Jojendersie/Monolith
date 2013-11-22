@@ -37,9 +37,9 @@ public:
 	Vec3(const IVec3& v);
 	Vec3(const Vec2& v, float f) : x(v.x), y(v.y), z(f)											{}
 	Vec3(float f, const Vec2& v) : x(f), y(v.x), z(v.y)											{}
-	Vec3(const float f) : x(f), y(f), z(f)														{}
+	explicit Vec3(const float f) : x(f), y(f), z(f)												{}
 	Vec3(const float _x, const float _y, const float _z) : x(_x), y(_y), z(_z)					{}
-	Vec3(const float* pfComponent) : x(pfComponent[0]), y(pfComponent[1]), z(pfComponent[2])	{}
+	explicit Vec3(const float* pfComponent) : x(pfComponent[0]), y(pfComponent[1]), z(pfComponent[2])	{}
 
 	// Casting-operators
 	operator float* ()												{return (float*)(this);}

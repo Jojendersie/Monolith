@@ -5,3 +5,4 @@
 #include "vector3.hpp"
 #include "vector4.hpp"
 #include "matrix.hpp"
+#include "sphere.hpp"

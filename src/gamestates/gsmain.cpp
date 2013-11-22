@@ -1,6 +1,8 @@
 #include "../game.hpp"
 #include "../graphic/device.hpp"
 #include "../math/math.hpp"
+#include "../input/camera.hpp"
+#include "../input/input.hpp"
 using namespace Math;
 #include <cassert>
 
@@ -9,6 +11,7 @@ using namespace Math;
 #include "../graphic/font.hpp"
 #include "../graphic/texture.hpp"
 
+// ************************************************************************* //
 GSMain::GSMain()
 {
 	m_astTest = new Generators::Asteroid( 80, 50, 30, 2 );
@@ -17,34 +20,70 @@ GSMain::GSMain()
 
 	m_fontTest = new Graphic::Font();
 	m_textures = new Graphic::Texture("texture/rock1.png");
+
+	m_camera = new Input::Camera( Vec3( 0.0f, 80.0f, 250.0f ),
+		Quaternion( 0.0f, 0.0f, 0.0f ),
+		0.3f,
+		1.3f );	// TODO: compute aspect
+	m_camera->ZoomAt( *m_astTest );
 }
 
+// ************************************************************************* //
 GSMain::~GSMain()
 {
+	delete m_camera;
 	delete m_astTest;
 	delete m_fontTest;
 	delete m_textures;
 }
 
+// ************************************************************************* //
 void GSMain::Update( double _time, double _deltaTime )
 {
-//	_time = 0.1 * cos(_time*0.5);
-	Matrix view = MatrixCamera( Vec3(sin(_time)*250,80.0f,cos(_time)*250), Vec3(0.0f,0.0f,0.0f) );
-	Matrix projection = MatrixProjection( 0.3f, 1.3f, 0.5f, 400.0f );
-	Matrix viewProjection = view * projection;
-	m_parent->content.cameraUBO["View"] = view;
-	m_parent->content.cameraUBO["Projection"] = projection;
-	m_parent->content.cameraUBO["ViewProjection"] = viewProjection;
-	m_parent->content.cameraUBO["ProjectionInverse"] = Vec3(1.0f/projection.m11, 1.0f/projection.m22, 1.0f/projection.m33);
-	m_parent->content.cameraUBO["Far"] = 400.0f;
 }
 
+// ************************************************************************* //
 void GSMain::Render( double _time, double _deltaTime )
 {
+//	_time = 0.1 * cos(_time*0.5);
+	//Matrix view = MatrixCamera( Vec3(sin(_time)*250,80.0f,cos(_time)*250), Vec3(0.0f,0.0f,0.0f) );
+	//Matrix projection = MatrixProjection( 0.3f, 1.3f, 0.5f, 400.0f );
+	//Matrix viewProjection = view * projection;
+	m_parent->content.cameraUBO["View"] = m_camera->GetView();
+	m_parent->content.cameraUBO["Projection"] = m_camera->GetProjection();
+	m_parent->content.cameraUBO["ViewProjection"] = m_camera->GetViewProjection();
+	m_parent->content.cameraUBO["ProjectionInverse"] = Vec3(1.0f/m_camera->GetProjection().m11, 1.0f/m_camera->GetProjection().m22, 1.0f/m_camera->GetProjection().m33);
+	m_parent->content.cameraUBO["Far"] = 400.0f;
+
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 
 	Graphic::Device::SetEffect(	m_parent->content.voxelRenderEffect );
 	Graphic::Device::SetTexture( *m_parent->content.voxelTextures, 0 );
 
 	m_astTest->Draw( m_parent->content.objectUBO, m_parent->content.cameraUBO["ViewProjection"] );
+}
+
+// ************************************************************************* //
+void GSMain::UpdateInput()
+{
+	m_camera->UpdateMatrices();
+}
+
+// ************************************************************************* //
+void GSMain::MouseMove( double _dx, double _dy )
+{
+	double rotSpeed = m_parent->Config[std::string("Input")][std::string("CameraRotationSpeed")];
+	double moveSpeed = m_parent->Config[std::string("Input")][std::string("CameraMovementSpeed")];
+	// TODO: config file for speed
+	if( Input::Manager::IsKeyPressed(Input::Keys::ROTATE_CAMERA) )
+		m_camera->Rotate( float(_dy * rotSpeed), float(_dx * rotSpeed) );
+	else if( Input::Manager::IsKeyPressed(Input::Keys::MOVE_CAMERA) )
+		m_camera->Move( float(_dx * moveSpeed), float(_dy * moveSpeed) );
+}
+
+// ************************************************************************* //
+void GSMain::Scroll( double _dx, double _dy )
+{
+	double scrollSpeed = m_parent->Config[std::string("Input")][std::string("CameraScrollSpeed")];
+	m_camera->Scroll( _dy * scrollSpeed );
 }

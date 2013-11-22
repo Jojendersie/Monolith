@@ -154,6 +154,15 @@ Matrix MatrixRotation(const float x,
 }
 
 // ******************************************************************************** //
+Matrix MatrixRotation(const Quaternion& _r)
+{
+	return Matrix(1.0f-2.0f*_r.j*_r.j-2.0f*_r.k*_r.k, 2.0f*_r.i*_r.j-2.0f*_r.k*_r.r,      2.0f*_r.i*_r.k+2.0f*_r.j*_r.r,      0.0f,
+		          2.0f*_r.i*_r.j+2.0f*_r.k*_r.r,      1.0f-2.0f*_r.i*_r.i-2.0f*_r.k*_r.k, 2.0f*_r.j*_r.k-2.0f*_r.i*_r.r,      0.0f,
+				  2.0f*_r.i*_r.k-2.0f*_r.j*_r.r,      2.0f*_r.j*_r.k+2.0f*_r.i*_r.r,      1.0f-2.0f*_r.i*_r.i-2.0f*_r.j*_r.j, 0.0f,
+				  0.0f,                               0.0f,                               0.0f,                               1.0f);
+}
+
+// ******************************************************************************** //
 // Rotate around an arbitrary axis
 Matrix MatrixRotationAxis(const Vec3& vAxis,
 									 const float f)
@@ -292,7 +301,7 @@ Matrix invert(const Matrix& m)
 	for(int i=0; i<4; i++)
 	{
 		// Calculate determinant as cross product
-		v = cross(m.m[0<i?0:1], m.m[1<i?1:2], m.m[2<i?2:3]);
+		v = cross((Vec4)m.m[0<i?0:1], (Vec4)m.m[1<i?1:2], (Vec4)m.m[2<i?2:3]);
 
 		// Sign * Determinant_i / Determinante
 		mSolution.m[0][i] = fSignDet * v.x;

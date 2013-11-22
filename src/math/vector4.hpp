@@ -53,9 +53,9 @@ namespace Math {
 		Vec4(float fx, const Vec2& v, float fw) : x(fx), y(v.x), z(v.y), w(fw)										{}
 		Vec4(float fx, float fy, const Vec2& v) : x(fx), y(fy), z(v.x), w(v.y)										{}
 		Vec4(const Vec2& v, const Vec2& v2) : x(v.x), y(v.y), z(v2.x), w(v2.y)										{}
-		Vec4(const float f) : x(f), y(f), z(f), w(f)																{}
+		explicit Vec4(const float f) : x(f), y(f), z(f), w(f)														{}
 		Vec4(const float _x, const float _y, const float _z, const float _w) : x(_x), y(_y), z(_z), w(_w)			{}
-		Vec4(const float* pfComponent) : x(pfComponent[0]), y(pfComponent[1]), z(pfComponent[2]), w(pfComponent[3])	{}
+		explicit Vec4(const float* pfComponent) : x(pfComponent[0]), y(pfComponent[1]), z(pfComponent[2]), w(pfComponent[3])	{}
 
 		// Casting-operators
 		operator float* ()					{return (float*)(this);}
@@ -176,6 +176,13 @@ namespace Math {
 		inline float				LengthInv() const								{return invsqrt(i * i + j * j + k * k + r * r);}
 		inline const Quaternion&	Normalize()										{*this *= invsqrt(i * i + j * j + k * k + r * r); return *this;}
 		inline float				Dot(const Quaternion& b) const					{return i * b.i + j * b.j + k * b.k + r * b.r;}
+
+		/// \brief Compute the x axis of the local coordinate system.
+		inline Vec3					XAxis() const { return Vec3( 1.0f-2.0f*j*j-2.0f*k*k, 2.0f*i*j+2.0f*k*r, 2.0f*i*k-2.0f*j*r ); }
+		/// \brief Compute the y axis of the local coordinate system.
+		inline Vec3					YAxis() const { return Vec3( 2.0f*i*j-2.0f*k*r, 1.0f-2.0f*i*i-2.0f*k*k, 2.0f*j*k+2.0f*i*r ); }
+		/// \brief Compute the z axis of the local coordinate system.
+		inline Vec3					ZAxis() const { return Vec3( 2.0f*i*k+2.0f*j*r, 2.0f*j*k-2.0f*i*r, 1.0f-2.0f*i*i-2.0f*j*j ); }
 
 		// Casting-operators
 		operator float* ()					{return (float*)(&i);}

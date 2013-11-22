@@ -11,15 +11,14 @@ void exitprogram()
 {
 	// Close device
 	Graphic::Device::Exit();
-
-#if defined(DEBUG) || defined(_DEBUG)
-	_CrtDumpMemoryLeaks();
-#endif
 }
 
 /// \brief Entry point.
 int main()
 {
+#if defined(DEBUG) || defined(_DEBUG)
+	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+#endif
 	atexit(exitprogram);
 
 	// Create a device with a window

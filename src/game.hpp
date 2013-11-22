@@ -2,14 +2,11 @@
 
 #include <chrono>
 
-class Monolith;
 #include "graphic/uniformbuffer.hpp"
 #include "graphic/effect.hpp"
 #include "graphic/samplerstate.hpp"
-
-// For test
-namespace Generators { class Asteroid; }
-namespace Graphic { class Font; class Texture; }
+#include "predeclarations.hpp"
+#include <jofilelib.hpp>
 
 
 /// \brief A game state is an instance with a number of handling methods which
@@ -29,7 +26,21 @@ public:
 	/// \param [in] _deltaTime Time since last Render call.
 	virtual void Render( double _time, double _deltaTime ) = 0;
 
-	// TODO: Input
+	// TODO: more Input
+
+	/// \brief The input update is called synchronized with the renderer.
+	/// \details This method must recompute camera matrices and other things
+	///		which relay on input but are used in rendering too.
+	virtual void UpdateInput() = 0;
+
+	/// \brief React to mouse move input.
+	/// \details Do not update anything accessed by the renderer. Try to
+	///		deferr them till UpdateInput().
+	/// \param [in] _dx Delta x. Change of position in x direction
+	virtual void MouseMove( double _dx, double _dy ) = 0;
+
+	/// \brief handle vertical and horizontal scroll events.
+	virtual void Scroll( double _dx, double _dy ) {}
 
 	Monolith* m_parent;
 };
@@ -66,6 +77,8 @@ public:
 
 		Graphic::Texture* voxelTextures;
 	} content;
+
+	Jo::Files::MetaFileWrapper Config;
 private:
 	IGameStateP m_gameStates[1];	///< MainMenu, NewGame, Main, 
 	int m_currentGameState;
@@ -74,6 +87,8 @@ private:
 
 	double m_time;					///< Total time since run in seconds
 	std::chrono::microseconds m_microSecPerFrame;
+
+	void BuildDefaultConfig();
 };
 
 /// \brief Game state for the game itself.
@@ -84,10 +99,14 @@ public:
 	GSMain();
 	~GSMain();
 
-	virtual void Update( double _time, double _deltaTime );
-	virtual void Render( double _time, double _deltaTime );
+	virtual void Update( double _time, double _deltaTime ) override;
+	virtual void Render( double _time, double _deltaTime ) override;
+	virtual void UpdateInput() override;
+	virtual void MouseMove( double _dx, double _dy ) override;
+	virtual void Scroll( double _dx, double _dy ) override;
 private:
 	Generators::Asteroid* m_astTest;
 	Graphic::Font* m_fontTest;
 	Graphic::Texture* m_textures;
+	Input::Camera* m_camera;
 };

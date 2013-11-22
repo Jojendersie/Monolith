@@ -9,8 +9,10 @@ namespace Voxel {
 	Model::Model() :
 		m_chunks(nullptr),
 		m_numChunks(0),
+		m_position(0.0f),
 		m_mass(0.0f),
-		m_center(0.0f)
+		m_center(0.0f),
+		m_boundingSphereRadius(0.0f)
 	{
 	}
 
@@ -26,7 +28,7 @@ namespace Voxel {
 		// TODO: culling
 
 		// Create a new model space transformation
-		Math::Matrix mModelViewProjection = MatrixTranslation( -m_center ) * _viewProjection;
+		Math::Matrix mModelViewProjection = MatrixTranslation( m_position ) * _viewProjection;
 
 		// Draw all chunks
 		for( int i=0; i<m_numChunks; ++i )
@@ -73,6 +75,11 @@ namespace Voxel {
 		else
 			m_center = (m_center * m_mass + _position * VOXEL_INFO[int(_type)].mass) / (m_mass + VOXEL_INFO[int(_type)].mass);
 		m_mass += VOXEL_INFO[int(_type)].mass;
+
+		// TEMP: approximate a sphere; TODO Grow and shrink a real bounding volume
+		m_boundingSphereRadius = Math::max(m_boundingSphereRadius, (m_center - _position).Length() );
 	}
 
+
+	// ********************************************************************* //
 };

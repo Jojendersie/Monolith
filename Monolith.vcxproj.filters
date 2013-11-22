@@ -27,6 +27,9 @@
     <Filter Include="Source Files\generators">
       <UniqueIdentifier>{282fbc1e-b184-4cef-a11b-76919d91d261}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\input">
+      <UniqueIdentifier>{3bb628ef-e624-4ab4-bd09-a60a30939490}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
@@ -100,6 +103,15 @@
     </ClCompile>
     <ClCompile Include="src\timer.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\input.cpp">
+      <Filter>Source Files\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\camera.cpp">
+      <Filter>Source Files\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\sphere.cpp">
+      <Filter>Source Files\math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -180,6 +192,18 @@
     </ClInclude>
     <ClInclude Include="src\timer.hpp">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\input.hpp">
+      <Filter>Source Files\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\camera.hpp">
+      <Filter>Source Files\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\predeclarations.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\sphere.hpp">
+      <Filter>Source Files\math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

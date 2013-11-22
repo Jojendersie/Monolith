@@ -291,6 +291,8 @@ inline	Matrix	MatrixIdentity() {return Matrix(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f
 		// Rotate around all three axis. This is the same as
 		Matrix	MatrixRotation(const float x, const float y, const float z);
 inline	Matrix	MatrixRotation(const Vec3& v)		{return MatrixRotation(v.x, v.y, v.z);}
+		// Matrix from quaternion
+		Matrix MatrixRotation(const Quaternion& _rotation);
 		// Direct computation of MatrixRotation(x,y,z)*MatrixTranslation
 		Matrix	MatrixRotation_Translatation(const Vec3& vR, const Vec3& vP);
 		// Rotate around an arbitrary axis

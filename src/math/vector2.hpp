@@ -27,9 +27,9 @@ public:
 	// Constructors
 	Vec2()																	{}
 	Vec2(const Vec2& v) : x(v.x), y(v.y)									{}
-	Vec2(const float f) : x(f), y(f)										{}
+	explicit Vec2(const float f) : x(f), y(f)								{}
 	Vec2(const float _x, const float _y) : x(_x), y(_y)						{}
-	Vec2(const float* pfComponent) : x(pfComponent[0]), y(pfComponent[1])	{}
+	explicit Vec2(const float* pfComponent) : x(pfComponent[0]), y(pfComponent[1])	{}
 
 	// Casting-operators
 	operator float* ()											{return (float*)(this);}

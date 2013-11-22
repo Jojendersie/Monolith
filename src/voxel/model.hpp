@@ -34,16 +34,28 @@ namespace Voxel {
 		/// \param [in] _type Material to be set. VoxelType::NONE can delete
 		///		a voxel.
 		void Set( const Math::IVec3& _position, int _level, VoxelType _type );
+
+		/// \brief Get the center of gravity (mass center)
+		Math::Vec3 GetCenter() const		{ return m_center + m_position; }
+		/// \brief Get the bounding radius of the sphere centered at the center
+		///		of gravity.
+		float GetRadius() const { return m_boundingSphereRadius; }
+
 	protected:
 		Chunk** m_chunks;				///< A loose collection of chunks. TODO: octree
 		int m_numChunks;
 
-		Math::Vec3 m_center;			///< The center of gravity.
-		Math::Quaternion m_rotation;	///< The rotation around the center
+		Math::Vec3 m_position;			///< Model position in the space.
+		Math::Vec3 m_center;			///< The center of gravity (relative to the model).
+		Math::Quaternion m_rotation;	///< The rotation around the center.
 
 		Math::Quaternion m_rotatoryVelocity;	///< Current chage of rotation per second
 		Math::Vec3 m_velocity;			///< Velocity in m/s (vector length)
 		float m_mass;					///< Mass (inertia) of the full model
 		float m_rotatoryMomentum;		///< Inertia of rotation for the full model.
+
+		float m_boundingSphereRadius;	///< Bounding sphere radius (to the center of gravity) for culling etc.
+
+		//ComputeBounding
 	};
 };
