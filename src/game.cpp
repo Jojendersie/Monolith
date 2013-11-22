@@ -26,8 +26,8 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 		Jo::Files::HDDFile file( "config.json", true );
 		Config.Read( file, Jo::Files::Format::JSON );
 	} catch( std::string _message ) {
-		std::cerr << "Failed to load config file with:\n";
-		std::cerr << _message;
+		std::cerr << "Failed to load config file with message:\n";
+		std::cerr << _message << '\n';
 		std::cerr << "Loading default configuration.\n";
 		BuildDefaultConfig();
 	}
@@ -45,6 +45,12 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 
 Monolith::~Monolith()
 {
+	try {
+		Jo::Files::HDDFile file( "config.json", false );
+		Config.Write( file, Jo::Files::Format::JSON );
+	} catch(...) {
+		std::cerr << "Could not write a config file!";
+	}
 	delete m_gameStates[0];
 }
 
@@ -134,11 +140,11 @@ Monolith::_Content::~_Content()
 
 void Monolith::BuildDefaultConfig()
 {
-	auto& cinput = Config.RootNode[std::string("Input")];
-	cinput[std::string("MoveCamera")][0] = "MR";
-	cinput[std::string("RotateCamera")][0] = "MM";
-	cinput[std::string("Zoom")][0] = "MLD";
-	cinput[std::string("Zoom")][1] = "z";
+	auto& cinput = Config[std::string("Input")];
+	cinput[std::string("MoveCamera")][0] = std::string("MR");
+	cinput[std::string("RotateCamera")][0] = std::string("MM");
+	cinput[std::string("Zoom")][0] = std::string("MLD");
+	cinput[std::string("Zoom")][1] = std::string("z");
 	cinput[std::string("CameraRotationSpeed")] = 0.005;
 	cinput[std::string("CameraMovementSpeed")] = 0.0025;
 	cinput[std::string("CameraScrollSpeed")] = 5.0;
