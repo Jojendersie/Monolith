@@ -28,7 +28,7 @@ namespace Voxel {
 		// TODO: culling
 
 		// Create a new model space transformation
-		Math::Matrix mModelViewProjection = MatrixTranslation( m_position ) * _viewProjection;
+		Math::Matrix mModelViewProjection = MatrixTranslation(-m_center) * MatrixRotation(m_rotation) * MatrixTranslation( m_position+m_center ) * _viewProjection;
 
 		// Draw all chunks
 		for( int i=0; i<m_numChunks; ++i )
