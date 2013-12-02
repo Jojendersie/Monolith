@@ -8,6 +8,7 @@ namespace Math {
 class Matrix;
 class Matrix2x3;
 class Plane;
+class Mat3;
 Matrix invert(const Matrix& m);
 Matrix2x3 invert(const Matrix2x3& m);
 
@@ -560,5 +561,7 @@ inline	Matrix2x3	Matrix2x3Identity() {return Matrix2x3(1.0f, 0.0f, 0.0f, 0.0f, 1
 		// Compute determinant
 		float		Matrix2x3Det(const Matrix2x3& m);
 
-
+		class Mat3
+		{};
+		inline Vec3 operator * (const Mat3, const Vec3);
 }; // namespace Math

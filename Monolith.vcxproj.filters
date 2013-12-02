@@ -225,5 +225,11 @@
     <None Include="shader\font.gs">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="src\math\polyhedron.hpp">
+      <Filter>Source Files\math</Filter>
+    </None>
+    <None Include="src\math\solver.hpp">
+      <Filter>Source Files\math</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -23,5 +23,8 @@ namespace Generators {
 
 		for( int i=0; i<m_numChunks; ++i )
 			m_chunks[i]->ComputeVertexBuffer();
+		
+		//TODO : replace this, probably better estimate than the Set one
+		//m_boundingSphereRadius=sqrt(_sizeX*_sizeX + _sizeY*_sizeY + _sizeZ*_sizeZ) / 2;
 	}
 };

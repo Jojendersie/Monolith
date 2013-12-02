@@ -146,6 +146,8 @@
     <None Include="shader\voxel.gs" />
     <None Include="shader\voxel.ps" />
     <None Include="shader\voxel.vs" />
+    <None Include="src\math\polyhedron.hpp" />
+    <None Include="src\math\solver.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

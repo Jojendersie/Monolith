@@ -111,6 +111,7 @@ inline Vec3	normalize(const Vec3& v)								{return v * invsqrt(v.x * v.x + v.y 
 inline float dot(const Vec3& v1, const Vec3& v2)					{return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;}
 inline Vec3	cross(const Vec3& v1, const Vec3& v2)					{return Vec3(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x);}
 inline float angle(const Vec3& v1, const Vec3& v2)					{return acos((v1.x * v2.x + v1.y * v2.y + v1.z * v2.z) * invsqrt((v1.x * v1.x + v1.y * v1.y + v1.z * v1.z) * (v2.x * v2.x + v2.y * v2.y + v2.z * v2.z)));}
+inline Vec3 orth(const Vec3& v)										{return (v.y == 0 && v.z == 0) ? Vec3(0, v.x, 0) : Vec3(0, v.z, -v.y); }
 
 // ******************************************************************************** //
 // Lerp, Abs, Min and Max have to be in global scope to override the default template
@@ -199,7 +200,6 @@ public:
 	inline const IVec3&	Normalize(int iL)							{float fL = iL*invsqrt(float(x * x + y * y + z * z)); x = int(x*fL); y = int(y*fL); z = int(z*fL); return *this;}
 	inline IVec3		Cross(const IVec3& v) const					{return IVec3(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x);}
 	inline int			Dot(const IVec3& v) const					{return x * v.x + y * v.y + z * v.z;}
-
 	// Creates an vector with length 1000 and random direction
 	static IVec3		Random();
 };

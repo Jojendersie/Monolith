@@ -41,6 +41,11 @@ namespace Voxel {
 		///		of gravity.
 		float GetRadius() const { return m_boundingSphereRadius; }
 
+		friend bool CollisionTest(Math::Vec3&, Math::Vec3&, const Model, const Model);
+		friend void CollisionCompute(Math::Vec3&, Math::Quaternion&, Math::Vec3&, Math::Quaternion&,
+			Math::Vec3&, Math::Quaternion&, Math::Vec3&, Math::Quaternion&,
+			const Model, const Model,const Math::Vec3, const Math::Vec3);
+
 	protected:
 		Chunk** m_chunks;				///< A loose collection of chunks. TODO: octree
 		int m_numChunks;
@@ -52,10 +57,26 @@ namespace Voxel {
 		Math::Quaternion m_rotatoryVelocity;	///< Current chage of rotation per second
 		Math::Vec3 m_velocity;			///< Velocity in m/s (vector length)
 		float m_mass;					///< Mass (inertia) of the full model
-		float m_rotatoryMomentum;		///< Inertia of rotation for the full model.
+		Math::Mat3 m_inertiaMomentum;		///< Inertia of rotation for the full model.
 
 		float m_boundingSphereRadius;	///< Bounding sphere radius (to the center of gravity) for culling etc.
-
+		Math::Polyhedron m_boundingBox;		///< Bounding Box for the model 
 		//ComputeBounding
 	};
+	/// \brief Check if the models collide.
+	/// \param [out] _collisionPoint where the Collision happens
+	/// \param [out] _collisionNormal in which direction the Forces work
+	/// \param [in] _modelOne against which the Collision Test is done
+	/// \param [in] _modelTwo against which the Collision Test is done
+	bool CollisionTest(Math::Vec3& _collisionPoint, Math::Vec3& _collisionNormal, const Model _modelOne, const Model _modelTwo);
+	/// \brief Calculate a physical Collision for both the elastic and plastic case
+	/// \param [out] _elastic^+ return values for the elastic case
+	/// \param [out] _plastic^+ return values for the plastic case
+	/// \param [in] _modelOne against which the Collision Test is done
+	/// \param [in] _modelTwo against which the Collision Test is done
+	/// \param [in] _collisionPoint Position where the contact has happened
+	/// \param [in] _collisionNormal Direction in which Forces can be applied
+	void CollisionCompute(Math::Vec3& _elasticVelocityOne, Math::Quaternion& _elasticRotaryOne, Math::Vec3& _elasticVelocityTwo, Math::Quaternion& _elasticRotaryTwo,
+		Math::Vec3& _plasticVelocityOne, Math::Quaternion& _plasticRotaryOne, Math::Vec3& _plasticVelocityTwo, Math::Quaternion& _plasticRotaryTwo,
+		const Model _modelOne, const Model _modelTwo, const Math::Vec3 _collisionPoint, const Math::Vec3 _collisionNormal);
 };
