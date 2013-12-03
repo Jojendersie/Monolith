@@ -1,6 +1,7 @@
 #include "chunk.hpp"
 #include "../graphic/device.hpp"
 #include "../graphic/uniformbuffer.hpp"
+#include "../input/camera.hpp"
 #include <cstdlib>
 #include <cstring>
 
@@ -20,6 +21,7 @@ namespace Voxel {
 		m_voxels( NUM_OCTREE_NODES, "u", Graphic::VertexBuffer::PrimitiveType::POINT )
 	{
 		m_octree = new OctreeNode[NUM_OCTREE_NODES];
+		memset(m_lodVoxelNum, 0, sizeof(int)*6);
 	}
 
 
@@ -30,8 +32,10 @@ namespace Voxel {
 	}
 
 
-	void Chunk::Set( const Math::IVec3& _position, int _level, VoxelType _type )
+	// ********************************************************************* //
+	int Chunk::Set( const Math::IVec3& _position, int _level, VoxelType _type, VoxelVertex* _overwritten )
 	{
+		int numOverwritten = 0;
 		int levelSize = 1<<_level;
 		assert(_position.x >= 0 && _position.x < levelSize);
 		assert(_position.y >= 0 && _position.y < levelSize);
@@ -49,14 +53,14 @@ namespace Voxel {
 			int baseX = _position.x * 2;
 			int baseY = _position.y * 2;
 			int baseZ = _position.z * 2;
-			Set( IVec3( baseX,   baseY,   baseZ   ), _level+1, _type );
-			Set( IVec3( baseX+1, baseY,   baseZ   ), _level+1, _type );
-			Set( IVec3( baseX,   baseY+1, baseZ   ), _level+1, _type );
-			Set( IVec3( baseX+1, baseY+1, baseZ   ), _level+1, _type );
-			Set( IVec3( baseX,   baseY,   baseZ+1 ), _level+1, _type );
-			Set( IVec3( baseX+1, baseY,   baseZ+1 ), _level+1, _type );
-			Set( IVec3( baseX,   baseY+1, baseZ+1 ), _level+1, _type );
-			Set( IVec3( baseX+1, baseY+1, baseZ+1 ), _level+1, _type );
+			numOverwritten = Set( IVec3( baseX,   baseY,   baseZ   ), _level+1, _type, _overwritten+numOverwritten );
+			numOverwritten = Set( IVec3( baseX+1, baseY,   baseZ   ), _level+1, _type, _overwritten+numOverwritten );
+			numOverwritten = Set( IVec3( baseX,   baseY+1, baseZ   ), _level+1, _type, _overwritten+numOverwritten );
+			numOverwritten = Set( IVec3( baseX+1, baseY+1, baseZ   ), _level+1, _type, _overwritten+numOverwritten );
+			numOverwritten = Set( IVec3( baseX,   baseY,   baseZ+1 ), _level+1, _type, _overwritten+numOverwritten );
+			numOverwritten = Set( IVec3( baseX+1, baseY,   baseZ+1 ), _level+1, _type, _overwritten+numOverwritten );
+			numOverwritten = Set( IVec3( baseX,   baseY+1, baseZ+1 ), _level+1, _type, _overwritten+numOverwritten );
+			numOverwritten = Set( IVec3( baseX+1, baseY+1, baseZ+1 ), _level+1, _type, _overwritten+numOverwritten );
 		}
 
 		// Update parents
@@ -105,6 +109,7 @@ namespace Voxel {
 			m_octree[index].type = pTypes[iMajIdx].type;
 			m_octree[index].flags = flags;
 		}
+		return numOverwritten;
 	}
 
 	Chunk::OctreeNode Chunk::Get( const Math::IVec3& _position, int _level )
@@ -170,23 +175,29 @@ namespace Voxel {
 		}
 	}
 
-	void Chunk::Draw( Graphic::UniformBuffer& _objectConstants, const Math::Mat4x4& _viewProjection )
+	void Chunk::Draw( Graphic::UniformBuffer& _objectConstants,
+			const Math::Matrix& _modelViewProjection,
+			const Input::Camera& _camera,
+			const Math::Vec3& _modelPosition )
 	{
 		// TODO: culling & LOD
+		Vec3 chunkWorldPos = m_position + _modelPosition;
+		int lod = (int)Math::min(5.0f, 5.0f/(_camera.GetPosition() - chunkWorldPos).LengthSq() );
+		int lodOffset = 0;
+		for( int i=0; i<lod; ++i) lodOffset += m_lodVoxelNum[i];
 
 		// Translation to center the chunks
 		_objectConstants["WorldViewProjection"] = Mat4x4::Translation(m_position) * _viewProjection;
 
-		// TODO: move to model
-		_objectConstants["Corner000"] = Vec4( -0.5f, -0.5f, -0.5f, 0.0f ) * _viewProjection;
-		_objectConstants["Corner001"] = Vec4( -0.5f, -0.5f,  0.5f, 0.0f ) * _viewProjection;
-		_objectConstants["Corner010"] = Vec4( -0.5f,  0.5f, -0.5f, 0.0f ) * _viewProjection;
-		_objectConstants["Corner011"] = Vec4( -0.5f,  0.5f,  0.5f, 0.0f ) * _viewProjection;
-		_objectConstants["Corner100"] = Vec4(  0.5f, -0.5f, -0.5f, 0.0f ) * _viewProjection;
-		_objectConstants["Corner101"] = Vec4(  0.5f, -0.5f,  0.5f, 0.0f ) * _viewProjection;
-		_objectConstants["Corner110"] = Vec4(  0.5f,  0.5f, -0.5f, 0.0f ) * _viewProjection;
-		_objectConstants["Corner111"] = Vec4(  0.5f,  0.5f,  0.5f, 0.0f ) * _viewProjection;
+		_objectConstants["Corner000"] = Vec4( -0.5f, -0.5f, -0.5f, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner001"] = Vec4( -0.5f, -0.5f,  0.5f, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner010"] = Vec4( -0.5f,  0.5f, -0.5f, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner011"] = Vec4( -0.5f,  0.5f,  0.5f, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner100"] = Vec4(  0.5f, -0.5f, -0.5f, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner101"] = Vec4(  0.5f, -0.5f,  0.5f, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner110"] = Vec4(  0.5f,  0.5f, -0.5f, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner111"] = Vec4(  0.5f,  0.5f,  0.5f, 0.0f ) * _modelViewProjection;
 
-		Graphic::Device::DrawVertices( m_voxels, 0, m_voxels.GetNumVertices() );
+		Graphic::Device::DrawVertices( m_voxels, lodOffset, m_lodVoxelNum[lod] );
 	}
 };

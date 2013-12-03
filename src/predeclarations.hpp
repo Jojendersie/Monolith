@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 // External things
 struct GLFWwindow;
 
@@ -36,9 +38,11 @@ namespace Math {
 	class Mat4x4;
 	class Mat3x3;
 	class Quaternion;
+	class Plane;
 	struct Sphere;
 	class Vec2;
 	class Vec3;
+	class IVec3;
 	class Vec4;
 } // namespace Math
 
@@ -46,3 +50,12 @@ namespace Utils {
 	class Color32F;
 	class Color8U;
 } // namespace Utils
+
+
+namespace Voxel {
+	class Chunk;
+	class Model;
+	enum struct VoxelType: uint8_t;
+	struct VoxelTypeInfo;
+	struct VoxelVertex;
+} // namespace Voxel

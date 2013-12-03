@@ -65,7 +65,7 @@ void GSMain::Render( double _time, double _deltaTime )
 	Graphic::Device::SetEffect(	m_parent->m_graficContent->voxelRenderEffect );
 	Graphic::Device::SetTexture( *m_parent->m_graficContent->voxelTextures, 0 );
 
-	m_astTest->Draw( m_parent->m_graficContent->objectUBO, m_parent->m_graficContent->cameraUBO["ViewProjection"] );
+	m_astTest->Draw( m_parent->content.objectUBO, *m_camera );
 	
 	m_textTest->SetText(std::to_string(_deltaTime));
 	m_textTest->Draw();

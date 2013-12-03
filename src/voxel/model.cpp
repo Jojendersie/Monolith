@@ -1,6 +1,7 @@
 #include "model.hpp"
 #include "voxel.hpp"
 #include <cstdlib>
+#include "../input/camera.hpp"
 
 using namespace Math;
 
@@ -23,17 +24,17 @@ namespace Voxel {
 		free(m_chunks);
 	}
 
-	void Model::Draw( Graphic::UniformBuffer& _objectConstants, const Math::Mat4x4& _viewProjection )
+	void Model::Draw( Graphic::UniformBuffer& _objectConstants, const Input::Camera& _camera )
 	{
 		// TODO: culling
 
 		// Create a new model space transformation
-		Math::Mat4x4 mModelViewProjection = Mat4x4::Translation(-m_center) * Mat4x4::Rotation(m_rotation) * Mat4x4::Translation( m_position+m_center ) * _viewProjection;
+		Math::Matrix mModelViewProjection = MatrixTranslation(-m_center) * MatrixRotation(m_rotation) * MatrixTranslation( m_position + m_center ) * _camera.GetViewProjection();
 
 		// Draw all chunks
 		for( int i=0; i<m_numChunks; ++i )
 		{
-			m_chunks[i]->Draw( _objectConstants, mModelViewProjection );
+			m_chunks[i]->Draw( _objectConstants, mModelViewProjection, _camera, m_position );
 		}
 	}
 
@@ -67,7 +68,7 @@ namespace Voxel {
 			++m_numChunks;
 		}
 
-		targetChunk->Set(posInsideChunk, _level, _type);
+		targetChunk->Set(posInsideChunk, _level, _type, nullptr);
 
 		// Update mass center
 		if( m_mass == 0.0f )
@@ -82,4 +83,76 @@ namespace Voxel {
 
 
 	// ********************************************************************* //
+	static const IVec3 CHILD_OFFSETS[8] = { IVec3(0,0,0), IVec3(0,0,1), IVec3(0,1,0), IVec3(0,1,1),
+					   IVec3(1,0,0), IVec3(1,0,1), IVec3(1,1,0), IVec3(1,1,1) };
+
+	// ********************************************************************* //
+	void Model::SVON::Set(int _currentSize, const Math::IVec3& _position, int _size, VoxelType _type, Model* _model)
+	{
+		if( _currentSize == _size )
+		{
+			// This is the target voxel. Delete everything below.
+			if( children ) RemoveSubTree(_position, _size, _model);
+			// Physical update of this voxel
+			_model->Update(_position, _size, type, _type);
+			type = _type;
+		} else {
+			// Go into recursion
+			int childIndex = ComputeChildIndex(_position,_size,_currentSize-1);
+			if( !children )
+			{ // Create new children
+				children = (SVON*)_model->m_SVONAllocator.Alloc();
+				// Set all children to the same type as this node.
+				for(int i=0; i<8; ++i) { children[i].type = type; children[i].children = nullptr; }
+			}
+			children[childIndex].Set(_currentSize-1, _position, _size, _type, _model);
+			// It could be that the children were deleted or are of the same
+			// type now.
+			if( IsUniform() )
+			{
+				// To do the model update the current position must be computed.
+				int scale = _currentSize-_size;
+				Math::IVec3 position(_position.x>>scale, _position.y>>scale, _position.z>>scale);
+				// A uniform node does not need its children.
+				if( children ) RemoveSubTree(position, _currentSize, _model);
+				_model->Update(position, _currentSize, type, _type);
+				type = _type;
+			}
+		}
+	}
+
+	// ********************************************************************* //
+	void Model::SVON::RemoveSubTree(const Math::IVec3& _position, int _size, Model* _model)
+	{
+		assert( _size >= 0 );
+		assert( children );
+		for(int i=0; i<8; ++i)
+		{
+			// Recursive
+			children[i].RemoveSubTree(_position+CHILD_OFFSETS[i], _size-1, _model);
+			// Delete
+			_model->Update(_position+CHILD_OFFSETS[i], _size-1, type, VoxelType::NONE);
+			_model->m_SVONAllocator.Free(children);
+		}
+	}
+
+	// ********************************************************************* //
+	bool Model::SVON::IsUniform()
+	{
+		if( !children ) return true;	// Uniform none.
+		VoxelType type = children[0].type;
+		for( int i=1; i<8; ++i )
+			if( children[0].type != type ) return false;
+		return true;
+	}
+
+	// ********************************************************************* //
+	int Model::SVON::ComputeChildIndex(const Math::IVec3& _targetPosition, int _targetSize, int _childSize)
+	{
+		// Find out the correct position
+		int scale = _childSize-_targetSize;
+		Math::IVec3 position(_targetPosition.x>>scale, _targetPosition.y>>scale, _targetPosition.z>>scale);
+		// Now compute the index from the position
+		return (_targetPosition.x & 1) + (_targetPosition.y & 1) * 2 + (_targetPosition.z & 1) * 4;
+	}
 };

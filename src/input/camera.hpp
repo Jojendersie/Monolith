@@ -30,6 +30,8 @@ namespace Input {
 
 		/// \brief Set a total new position.
 		void SetPosition( const Math::Vec3& _position );
+		/// \brief Read position
+		const Math::Vec3& GetPosition() const	{ return m_position; }
 
 		/// \brief Move in camera space.
 		void Move( float _dx, float _dy );

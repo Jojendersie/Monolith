@@ -11,6 +11,7 @@ namespace Voxel {
 		ROCK_2,
 		ROCK_3,
 		ROCK_4,
+		UNDEFINED = 0xffffffff
 	};
 
 	/// \brief General information about a voxel of a specific type.
