@@ -6,7 +6,7 @@
 namespace Math {
 
 // ******************************************************************************** //
-Matrix::Matrix(const float* pfValue)	{memcpy(this, pfValue, sizeof(float)*16);/*dwMatrixID = Or_MatrixIDCounter++;*/}
+//Matrix::Matrix(const float* pfValue)	{memcpy(this, pfValue, sizeof(float)*16);/*dwMatrixID = Or_MatrixIDCounter++;*/}
 
 // ******************************************************************************** //
 // Operators

@@ -19,29 +19,30 @@ public:
 	// Variables
 	union
 	{
-		struct
+		// Row wise
+		/*struct
 		{
 			float m11, m12, m13, m14,	// Elements of the matrix
 				  m21, m22, m23, m24,
 				  m31, m32, m33, m34,
 				  m41, m42, m43, m44;
-		};
+		};*/
 
+		// Column wise
 		struct
 		{
-			float m1[4],				// Row vectors
+			float m11, m21, m31, m41,	// Elements of the matrix
+				m12, m22, m32, m42,
+				m13, m23, m33, m43,
+				m14, m24, m34, m44;
+		};
+		struct
+		{
+			float m1[4],				// Column vectors
 				 m2[4],
 				 m3[4],
 				 m4[4];
 		};
-
-/*		struct
-		{
-			Vec4 v1,					// Row vectors
-				 v2,
-				 v3,
-				 v4;
-		};*/
 
 		float		m[4][4];			// 2 dimensional array access
 	};
@@ -63,7 +64,7 @@ public:
 															 m31(_m31), m32(_m32), m33(_m33), m34(_m34),
 															 m41(_m41), m42(_m42), m43(_m43), m44(_m44) {/*dwMatrixID = Or_MatrixIDCounter++;*/}
 
-	Matrix(const float* pfValue);
+	//Matrix(const float* pfValue);
 
 	// Casting-operators
 	operator float* ()					{return (float*)(this);}

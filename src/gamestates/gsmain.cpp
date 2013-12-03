@@ -85,5 +85,5 @@ void GSMain::MouseMove( double _dx, double _dy )
 void GSMain::Scroll( double _dx, double _dy )
 {
 	double scrollSpeed = m_parent->Config[std::string("Input")][std::string("CameraScrollSpeed")];
-	m_camera->Scroll( _dy * scrollSpeed );
+	m_camera->Scroll( float(_dy * scrollSpeed) );
 }
