@@ -36,17 +36,17 @@ namespace Math {
 		/// \brief Read access to elements
 		float operator () (int _row, int _column) const {return m_data[_row + _column*m];}
 
-		template<class D2> Matrix& operator += (const Matrix<m,n,D2>& _m);		///< Add two matrices of the same size
-		template<class D2> Matrix& operator -= (const Matrix<m,n,D2>& _m);		///< Subtract two matrices of the same size
-		Matrix& operator *= (float _s);						///< Multiplication with a scalar
-		Matrix& operator /= (float _s);						///< Division with a scalar
-		template<class D2> Matrix operator + (const Matrix<m,n,D2>& _m) const;	///< Add two matrices of the same size
-		template<class D2> Matrix operator - (const Matrix<m,n,D2>& _m) const;	///< Subtract two matrices of the same size
-		Matrix operator * (float _s) const;					///< Multiplication with a scalar
-		Matrix operator / (float _s) const;					///< Division with a scalar
+		template<class D2> Derived& operator += (const Matrix<m,n,D2>& _m);		///< Add two matrices of the same size
+		template<class D2> Derived& operator -= (const Matrix<m,n,D2>& _m);		///< Subtract two matrices of the same size
+		Derived& operator *= (float _s);						///< Multiplication with a scalar
+		Derived& operator /= (float _s);						///< Division with a scalar
+		template<class D2> Derived operator + (const Matrix<m,n,D2>& _m) const;	///< Add two matrices of the same size
+		template<class D2> Derived operator - (const Matrix<m,n,D2>& _m) const;	///< Subtract two matrices of the same size
+		Derived operator * (float _s) const;					///< Multiplication with a scalar
+		Derived operator / (float _s) const;					///< Division with a scalar
 
 		/// \brief Multiply two matrices which share at least one dimension (n)
-		template<class D2> Matrix& operator *= (const Matrix<n,n,D2>& _m);
+		template<class D2> Derived& operator *= (const Matrix<n,n,D2>& _m);
 
 		/// \brief Multiply two matrices which share at least one dimension (n)
 		template<int k, class D2> Matrix<m,k,Derived> operator * (const Matrix<n,k,D2>& _m) const;
@@ -55,9 +55,9 @@ namespace Math {
 		template<int k, class D2, class D3> static Matrix<m,k,Derived> Mad(const Matrix& _op1, const Matrix<n,k,D2>& _op2, const Matrix<m,k,D3>& _op3);
 
 		///< Unary add
-		const Matrix& operator + () const;
+		const Derived& operator + () const;
 		///< Unary minus
-		Matrix operator - () const;
+		Derived operator - () const;
 
 		///< Equality check with a small epsilon.
 		template<class D2> bool operator == (const Matrix<m,n,D2>& _op) const;
@@ -66,7 +66,7 @@ namespace Math {
 		template<class D2> bool operator != (const Matrix<m,n,D2>& _op) const;
 
 		/// \brief Create the identity matrix
-		static Matrix Identity();
+		static Derived Identity();
 
 		/// \brief Swap rows and columns
 		Derived Transpose() const;
@@ -81,51 +81,55 @@ namespace Math {
 	// ********************************************************************* //
 	// Add two matrices of the same size
 	template<int m, int n, class D> template<class D2>
-	Matrix<m,n,D>& Matrix<m,n,D>::operator += (const Matrix<m,n,D2>& _m)
+	D& Matrix<m,n,D>::operator += (const Matrix<m,n,D2>& _m)
 	{
 		for(int c<0; c<n; ++c)
 			for(int r<0; r<m; ++r)
 				m_data[r+c*m] += _m.m_data[r+c*m];
+		return *this;
 	}
 
 	// ********************************************************************* //
 	// Subtract two matrices of the same size
 	template<int m, int n, class D> template<class D2>
-	Matrix<m,n,D>& Matrix<m,n,D>::operator -= (const Matrix<m,n,D2>& _m)
+	D& Matrix<m,n,D>::operator -= (const Matrix<m,n,D2>& _m)
 	{
 		for(int c<0; c<n; ++c)
 			for(int r<0; r<m; ++r)
 				m_data[r+c*m] -= _m.m_data[r+c*m];
+		return *this;
 	}
 
 	// ********************************************************************* //
 	// Multiplication with a scalar
 	template<int m, int n, class D>
-	Matrix<m,n,D>& Matrix<m,n,D>::operator *= (float _s)
+	D& Matrix<m,n,D>::operator *= (float _s)
 	{
 		for(int c=0; c<n; ++c)
 			for(int r=0; r<m; ++r)
 				m_data[r+c*m] *= _s;
+		return *this;
 	}
 
 	// ********************************************************************* //
 	// Division with a scalar
 	template<int m, int n, class D>
-	Matrix<m,n,D>& Matrix<m,n,D>::operator /= (float _s)
+	D& Matrix<m,n,D>::operator /= (float _s)
 	{
 		// Multiply with inverse is faster
 		_s = 1.0f/_s;
 		for(int c=0; c<n; ++c)
 			for(int r=0; r<m; ++r)
 				m_data[r+c*m] *= _s;
+		return *this;
 	}
 
 	// ********************************************************************* //
 	// Add two matrices of the same size
 	template<int m, int n, class D> template<class D2>
-	Matrix<m,n,D> Matrix<m,n,D>::operator + (const Matrix<m,n,D2>& _m) const
+	D Matrix<m,n,D>::operator + (const Matrix<m,n,D2>& _m) const
 	{
-		Matrix<m,n,D> result(*this);
+		D result(*this);
 		result += _m;
 		return result;
 	}
@@ -133,9 +137,9 @@ namespace Math {
 	// ********************************************************************* //
 	// Subtract two matrices of the same size
 	template<int m, int n, class D> template<class D2>
-	Matrix<m,n,D> Matrix<m,n,D>::operator - (const Matrix<m,n,D2>& _m) const
+	D Matrix<m,n,D>::operator - (const Matrix<m,n,D2>& _m) const
 	{
-		Matrix<m,n,D> result(*this);
+		D result(*this);
 		result -= _m;
 		return result;
 	}
@@ -143,19 +147,19 @@ namespace Math {
 	// ********************************************************************* //
 	// Multiplication with a scalar
 	template<int m, int n, class D>
-	Matrix<m,n,D> Matrix<m,n,D>::operator * (float _s) const
+	D Matrix<m,n,D>::operator * (float _s) const
 	{
-		Matrix<m,n,D> result(*this);
+		D result(*this);
 		result *= _s;
 		return result;
 	}
 
 	// ********************************************************************* //
 	// Division with a scalar
-	template<int m, int n, class D> Matrix<m,n,D>
-	Matrix<m,n,D>::operator / (float _s) const
+	template<int m, int n, class D>
+	D Matrix<m,n,D>::operator / (float _s) const
 	{
-		Matrix<m,n,D> result(*this);
+		D result(*this);
 		result /= _s;
 		return result;
 	}
@@ -163,7 +167,7 @@ namespace Math {
 	// ********************************************************************* //
 	// Multiply two matrices which share at least one dimension (n)
 	template<int m, int n, class D> template<class D2>
-	Matrix<m,n,D>& Matrix<m,n,D>::operator *= (const Matrix<n,n,D2>& _m)
+	D& Matrix<m,n,D>::operator *= (const Matrix<n,n,D2>& _m)
 	{
 		static_assert(m==n);
 		// Matrix multiplication cannot be done in place -> use non assigning
@@ -205,7 +209,7 @@ namespace Math {
 	// ********************************************************************* //
 	// Unary add
 	template<int m, int n, class D>
-	const Matrix<m,n,D>& Matrix<m,n,D>::operator + () const
+	const D& Matrix<m,n,D>::operator + () const
 	{
 		return *this;
 	}
@@ -213,7 +217,7 @@ namespace Math {
 	// ********************************************************************* //
 	// Unary minus
 	template<int m, int n, class D>
-	Matrix<m,n,D> Matrix<m,n,D>::operator - () const
+	D Matrix<m,n,D>::operator - () const
 	{
 		Matrix<m,n,D> result;
 		for(int c=0; c<n; ++c)
@@ -225,9 +229,9 @@ namespace Math {
 	// ********************************************************************* //
 	// Create the identity matrix
 	template<int m, int n, class D>
-	Matrix<m,n,D> Matrix<m,n,D>::Identity()
+	D Matrix<m,n,D>::Identity()
 	{
-		Matrix<m,n,D> result(0.0f);
+		D result(0.0f);
 		for( int i=0; i<min(m,n); ++i )
 			result(i,i) = 1.0f;
 		return result;
