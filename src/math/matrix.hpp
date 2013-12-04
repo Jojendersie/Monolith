@@ -27,9 +27,9 @@ namespace Math {
 		/// \brief Casting to a const float array of size n²
 		operator const float* () const		{return m_data;}
 
-		/// \brief Allow implicit cast between Mat4x4/... <-> Matrix<4,4>
+		/// \brief Allow implicit cast between Mat4x4/... <-> Matrix<4,4>, ...
 		operator Derived&()					{return *reinterpret_cast<Derived*>(this);}
-		operator const Derived&() const		{return *reinterpret_cast<Derived*>(this);}
+		operator const Derived&() const		{return *reinterpret_cast<const Derived*>(this);}
 
 		/// \brief Write access to elements
 		float& operator () (int _row, int _column) {return m_data[_row + _column*n];}
@@ -150,6 +150,14 @@ namespace Math {
 	D Matrix<n,D>::operator * (float _s) const
 	{
 		D result(*this);
+		result *= _s;
+		return result;
+	}
+
+	template<int n, class D>
+	inline D operator * (float _s, const Matrix<n,D>& _m)
+	{
+		D result(_m);
 		result *= _s;
 		return result;
 	}
@@ -303,10 +311,6 @@ namespace Math {
 			m_data[1] = _21; m_data[5] = _22; m_data[9]  = _23; m_data[13] = _24;
 			m_data[2] = _31; m_data[6] = _32; m_data[10] = _33; m_data[14] = _34;
 			m_data[3] = _41; m_data[7] = _42; m_data[11] = _43; m_data[15] = _44;
-/*			m_data[0] = _11; m_data[1] = _12; m_data[2]  = _13; m_data[3] = _14;
-			m_data[4] = _21; m_data[5] = _22; m_data[6]  = _23; m_data[7] = _24;
-			m_data[8] = _31; m_data[9] = _32; m_data[10] = _33; m_data[11] = _34;
-			m_data[12] = _41; m_data[13] = _42; m_data[14] = _43; m_data[15] = _44;*/
 		}
 
 		static Mat4x4 Translation(float _x, float _y, float _z);		///< Setup a translation matrix
@@ -333,7 +337,6 @@ namespace Math {
 		static Mat4x4 Camera(const Vec3& _position, const Vec3& _direction, const Vec3& _up, const Vec3& _bidir);	///< Calculate camera matrix
 		static Mat4x4 Mirror(const Plane& p);							///< Calculate a mirror matrix for given plane
 		static Mat4x4 Orthonormal(const Vec3& _normal);					///< Creates an orthonormal base for a direction vector
-		static Mat4x4 Transvection(const Vec3& v);						///< Setup shearing matrix
 
 		/// \brief Transform a position vector.
 		/// \details the vectors is interpreted as (_v, 1) 4D row vector.
@@ -377,233 +380,54 @@ namespace Math {
 
 
 
-
-// ******************************************************************************** //
-// 2x3 Matrix class for 2D Transformations
-// The transformation is applyed as follows: Matrix*(u,v,1)' (2x3 * 3x1 = 2x1)
-/*class Matrix2x3
-{
-public:
-	// Variables
-	union
+	// ********************************************************************* //
+	/// \brief 3x3 transformation matrices for rigid transformations.
+	class Mat3x3: public Matrix<3, Mat3x3>
 	{
-		struct
-		{
-			float m11, m12, m13,		// Elements of the matrix
-				  m21, m22, m23;
-		};
+	public:
+		/// \brief Standard constructor creates an uninitialized matrix
+		Mat3x3()	{}
 
-		struct
-		{
-			Vec3 v1;					// Row vectors
-			Vec3 v2;
-		};
+		/// \brief Create a matrix filled with a constant.
+		explicit Mat3x3(float _s) : Matrix(_s)	{}
 
-		float		m[2][3];			// 2 dimensional array of elements
-		float		n[6];				// 1 dimensional access
+		/// \brief Construction from explicit elements.
+		Mat3x3(float _11, float _12, float _13,
+			   float _21, float _22, float _23,
+			   float _31, float _32, float _33)
+		{
+			m_data[0] = _11; m_data[3] = _12; m_data[6] = _13;
+			m_data[1] = _21; m_data[4] = _22; m_data[7] = _23;
+			m_data[2] = _31; m_data[5] = _32; m_data[8] = _33;
+		}
+
+		static Mat3x3 Scaling(const Vec3& _scale);						///< Setup a translation matrix
+		static Mat3x3 Scaling(float _uniformScale);						///< Setup a translation matrix
+		static Mat3x3 Scaling(float _sx, float _sy, float _sz);			///< Setup a translation matrix
+
+		static Mat3x3 RotationX(const float _a);						///< Calculate rotation around the x axis
+		static Mat3x3 RotationY(const float _a);						///< Calculate rotation around the y axis
+		static Mat3x3 RotationZ(const float _a);						///< Calculate rotation around the z axis
+		static Mat3x3 Rotation(float _a, float _b, float _c);			///< Rotate around all three axis. This is the same as RotationZ(_c) * RotationX(_b) * RotationY(_a)
+		static Mat3x3 Rotation(const Vec3& _angles) {return Rotation(_angles.x, _angles.y, _angles.z);}	///< Rotate around all three axis. This is the same as RotationZ(z) * RotationX(x) * RotationY(y)
+		static Mat3x3 Rotation(const Vec3& _axis, float _angle);		///< Rotate around an arbitrary axis
+		static Mat3x3 Rotation(const Quaternion& _rotation);			///< Matrix from quaternion
+
+		static Mat3x3 Axis(const Vec3& _xAxis, const Vec3& _yAxis, const Vec3& _zAxis);		///< Setup an axis matrix - a vector base
+
+		static Mat3x3 Orthonormal(const Vec3& _normal);					///< Creates an orthonormal base for a direction vector
+
+		/// \brief Compute the inverse with determinant method
+		Mat3x3 Invert() const;
+
+		/// \brief Calculate the determinant of the whole 3x3 matrix with
+		///		Laplace's formula
+		float Det() const;
 	};
 
-	// Constructors
-	Matrix2x3() {}
-
-	Matrix2x3(const Matrix2x3& m) : m11(m.m11), m12(m.m12), m13(m.m13),
-										m21(m.m21), m22(m.m22), m23(m.m23) {}
-
-	Matrix2x3(float _m11, float _m12, float _m13,
-			    float _m21, float _m22, float _m23) : m11(_m11), m12(_m12), m13(_m13),
-													  m21(_m21), m22(_m22), m23(_m23) {}
-
-	Matrix2x3(const float* pfValue) : m11(pfValue[0]), m12(pfValue[1]), m13(pfValue[2]),
-									    m21(pfValue[3]), m22(pfValue[4]), m23(pfValue[5])	{}
-
-	// Casting-operators
-	operator float* ()					{return (float*)(n);}
-	operator const float* () const		{return (float*)(n);}
-
-	// Access operators
-	float& operator () (int iRow, int iColumn) {return m[iRow][iColumn];}
-	float operator () (int iRow, int iColumn) const {return m[iRow][iColumn];}
-
-	// Assignment operators
-	Matrix2x3& operator = (const Matrix2x3& m)
-	{
-		m11 = m.m11; m12 = m.m12; m13 = m.m13;
-		m21 = m.m21; m22 = m.m22; m23 = m.m23;
-		return *this;
-	}
-	
-	Matrix2x3& operator += (const Matrix2x3& m)
-	{
-		m11 += m.m11; m12 += m.m12; m13 += m.m13;
-		m21 += m.m21; m22 += m.m22; m23 += m.m23;
-		return *this;
-	}
-
-	Matrix2x3& operator -= (const Matrix2x3& m)
-	{
-		m11 -= m.m11; m12 -= m.m12; m13 -= m.m13;
-		m21 -= m.m21; m22 -= m.m22; m23 -= m.m23;
-		return *this;
-	}
-
-	Matrix2x3& operator *= (const Matrix2x3& m)
-	{
-		float r1 = m11, r2 = m12;
-		m11 = m.m11 * m11 + m.m21 * m12;
-		m12 = m.m12 * r1  + m.m22 * m12;
-		m13 = m.m13 * r1  + m.m23 * r2  + m13;
-		r1 = m21, r2 = m22;
-		m21 = m.m11 * m21 + m.m21 * m22;
-		m22 = m.m12 * r1  + m.m22 * m22;
-		m23 = m.m13 * r1  + m.m23 * r2  + m23;
-		 return *this;
-	}
-
-	Matrix2x3& operator *= (const float f)
-	{
-		m11 *= f; m12 *= f; m13 *= f;
-		m21 *= f; m22 *= f; m23 *= f;
-		return *this;
-	}
-	
-	Matrix2x3& operator /= (const Matrix2x3& m)
-	{
-		return *this *= invert(m);
-	}
-
-	Matrix2x3& operator /= (float f)
-	{
-		f = 1/f;
-		m11 *= f; m12 *= f; m13 *= f;
-		m21 *= f; m22 *= f; m23 *= f;
-		return *this;
-	}
-
-	// Unary operators
-	Matrix2x3 operator + () const
-	{
-		return *this;
-	}
-
-	Matrix2x3 operator - () const
-	{
-		return Matrix2x3(-m11, -m12, -m13,
-						 -m21, -m22, -m23);
-	}
-};
-
-typedef Matrix2x3* Matrix2x3P;
-
-
-// ******************************************************************************** //
-// Arithmetical operators
-inline Matrix2x3 operator + (const Matrix2x3& a, const Matrix2x3& b)	{return Matrix2x3(a.m11 + b.m11, a.m12 + b.m12, a.m13 + b.m13, a.m21 + b.m21, a.m22 + b.m22, a.m23 + b.m23);}
-inline Matrix2x3 operator - (const Matrix2x3& a, const Matrix2x3& b)	{return Matrix2x3(a.m11 - b.m11, a.m12 - b.m12, a.m13 - b.m13, a.m21 - b.m21, a.m22 - b.m22, a.m23 - b.m23);}
-inline Matrix2x3 operator - (const Matrix2x3& m)						{return Matrix2x3(-m.m11, -m.m12, -m.m13, -m.m21, -m.m22, -m.m23);}
-
-inline Matrix2x3 operator * (const Matrix2x3& a,
-							 const Matrix2x3& b)
-{
-	return Matrix2x3(b.m11 * a.m11 + b.m21 * a.m12,
-					   b.m12 * a.m11 + b.m22 * a.m12,
-					   b.m13 * a.m11 + b.m23 * a.m12 + a.m13,
-					   b.m11 * a.m21 + b.m21 * a.m22,
-					   b.m12 * a.m21 + b.m22 * a.m22,
-					   b.m13 * a.m21 + b.m23 * a.m22 + a.m23);
-}
-
-inline Matrix2x3 operator * (const Matrix2x3& m,
-							 const float f)
-{
-	return Matrix2x3(m.m11 * f, m.m12 * f, m.m13 * f,
-			           m.m21 * f, m.m22 * f, m.m23 * f);
-}
-
-inline Matrix2x3 operator * (const float f,
-							 const Matrix2x3& m)
-{
-	return Matrix2x3(m.m11 * f, m.m12 * f, m.m13 * f,
-			           m.m21 * f, m.m22 * f, m.m23 * f);
-}
-
-inline Vec2 operator * (const Vec2& v,
-						const Matrix2x3& m)
-{
-	return Vec2(v.x * m.m11 + v.y * m.m21,
-				v.x * m.m12 + v.y * m.m22);
-}
-
-inline Vec2 operator * (const Matrix2x3& m,
-						const Vec2& v)
-{
-	// Multiply matrix from left: 2x3 * (2+1)x1 = 2x1
-	return Vec2(m.m11*v.x + m.m12*v.y + m.m13,
-				m.m21*v.x + m.m22*v.y + m.m23);
-}
-
-inline Matrix2x3 operator / (const Matrix2x3& a, const Matrix2x3& b) {return a * invert(b);}
-
-inline Matrix2x3 operator / (const Matrix2x3& m,
-							   float f)
-{
-	f = 1/f;
-	return Matrix2x3(m.m11 * f, m.m12 * f, m.m13 * f,
-			         m.m21 * f, m.m22 * f, m.m23 * f);
-}
-
-// ******************************************************************************** //
-// Comparison operators
-inline bool operator == (const Matrix2x3& a,
-						 const Matrix2x3& b)
-{
-	if(abs(a.m11 - b.m11) > EPSILON) return false;
-	if(abs(a.m12 - b.m12) > EPSILON) return false;
-	if(abs(a.m13 - b.m13) > EPSILON) return false;
-	if(abs(a.m21 - b.m21) > EPSILON) return false;
-	if(abs(a.m22 - b.m22) > EPSILON) return false;
-	if(abs(a.m23 - b.m23) > EPSILON) return false;
-	return (abs(a.m23 - b.m23) <= EPSILON);
-}
-
-inline bool operator != (const Matrix2x3& a,
-						 const Matrix2x3& b)
-{
-	if(abs(a.m11 - b.m11) > EPSILON) return true;
-	if(abs(a.m12 - b.m12) > EPSILON) return true;
-	if(abs(a.m13 - b.m13) > EPSILON) return true;
-	if(abs(a.m21 - b.m21) > EPSILON) return true;
-	if(abs(a.m22 - b.m22) > EPSILON) return true;
-	if(abs(a.m23 - b.m23) > EPSILON) return true;
-	return (abs(a.m23 - b.m23) > EPSILON);
-}
-
-// ******************************************************************************** //
-// Declaration of functions for matrix creation. All functions simulate a 3x3 matrix
-// with some parts left away.
-		// Return identity matrix
-inline	Matrix2x3	Matrix2x3Identity() {return Matrix2x3(1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);}
-		// Setup translation matrix for (matrix * vector) transformations
-		Matrix2x3	Matrix2x3Translation(const Vec2& v);
-		// Setup translation matrix for (matrix * vector) transformations
-		Matrix2x3	Matrix2x3Translation(const float x, const float y);
-		// Calculate rotation around the "z" axis
-		Matrix2x3	Matrix2x3Rotation(const float f);
-		// Setup scaling matrix
-		Matrix2x3	Matrix2x3Scaling(const Vec2& v);
-		// Setup scaling matrix
-		Matrix2x3	Matrix2x3Scaling(const float x, const float y);
-		// Setup proportional scaling matrix
-		Matrix2x3	Matrix2x3Scaling(const float f);
-		// Create a base in R^2 from two vectors
-		Matrix2x3	Matrix2x3Axis(const Vec2& vXAxis, const Vec2& vYAxis);
-		// Invert matrix
-		Matrix2x3	invert(const Matrix2x3& m);
-		// Setup shearing matrix
-		Matrix2x3	Matrix2x3Transvection(const Vec2& v);
-		// Setup shearing matrix
-		Matrix2x3	Matrix2x3Transvection(const float x, const float y);
-		// Compute determinant
-		float		Matrix2x3Det(const Matrix2x3& m);
-		*/
+	/// \brief Computes _v * _A.
+	Vec3 operator * (const Vec3& _v, const Mat3x3& _A);
+	/// \brief Computes _A * _v.
+	Vec3 operator * (const Mat3x3& _A, const Vec3& _v);
 
 }; // namespace Math

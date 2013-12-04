@@ -75,7 +75,7 @@ namespace Math {
 	// Calculate rotation around the z axis
 	Mat4x4 Mat4x4::RotationZ(const float _a)
 	{
-		Matrix result;
+		Mat4x4 result;
 		result(2,2) = result(3,3) = 1.0f;
 		result(0,0) = result(1,1) = cos(_a);
 		result(0,1) = sin(_a);
@@ -235,12 +235,6 @@ namespace Math {
 					  0.0f,		 0.0f,		0.0f,		1.0f);
 	}
 
-	// TODO: Setup shearing matrix
-	Mat4x4 Mat4x4::Transvection(const Vec3& v)
-	{
-		return Mat4x4();
-	}
-
 	// Transform a position vector.
 	Vec3 Mat4x4::Transform(const Vec3& _v) const
 	{
@@ -366,89 +360,6 @@ namespace Math {
 
 
 
-
-
-
-
-
-
-
-// ******************************************************************************** //
-// Calculate determinant of the upper left 3x3 sub matrix
-/*float MatrixDet3(const Matrix& m)
-{
-	return m.m11 * (m.m22 * m.m33 - m.m23 * m.m32) -
-           m.m12 * (m.m21 * m.m33 - m.m23 * m.m31) +
-           m.m13 * (m.m21 * m.m32 - m.m22 * m.m31);
-}
-
-// ******************************************************************************** //
-// Calculate the determinant of the whole 4x4 matrix with Laplace's formula
-float MatrixDet(const Matrix& m)
-{
-	// Determinant of upper left 3x3-sub matrix
-	// (cross out 4. row and 4. column)
-	float detA44 = + m.m11 * (m.m22 * m.m33 - m.m23 * m.m32)
-				   - m.m12 * (m.m21 * m.m33 - m.m23 * m.m31)
-				   + m.m13 * (m.m21 * m.m32 - m.m22 * m.m31);
-	// (cross out 4. row and 3. column)
-	float detA43 = + m.m11 * (m.m22 * m.m34 - m.m24 * m.m32)
-				   - m.m12 * (m.m21 * m.m34 - m.m24 * m.m31)
-				   + m.m14 * (m.m21 * m.m32 - m.m22 * m.m31);
-	// (cross out 4. row and 2. column)
-	float detA42 = + m.m11 * (m.m23 * m.m34 - m.m24 * m.m33)
-				   - m.m13 * (m.m21 * m.m34 - m.m24 * m.m31)
-				   + m.m14 * (m.m21 * m.m33 - m.m23 * m.m31);
-	// (cross out 4. row and 1. column)
-	float detA41 = + m.m12 * (m.m23 * m.m34 - m.m24 * m.m33)
-				   - m.m13 * (m.m22 * m.m34 - m.m24 * m.m32)
-				   + m.m14 * (m.m22 * m.m33 - m.m23 * m.m32);
-
-	// Sum determinants from sub matrices
-	return - m.m41 * detA41
-		   + m.m42 * detA42
-		   - m.m43 * detA43
-		   + m.m44 * detA44;
-}
-
-
-// ******************************************************************************** //
-// Invert a matrix
-// Returns the identity matrix, if matrix is not invertible .
-Matrix invert(const Matrix& m)
-{
-	Matrix mSolution;
-	Vec4 v, vec[3];
-	float fDet;
-
-	fDet = MatrixDet(m);
-
-	if(!fDet)
-		return MatrixIdentity();
-
-	// Swap sign in each pass
-	float fSignDet = 1.0f/fDet;
-
-	for(int i=0; i<4; i++)
-	{
-		// Calculate determinant as cross product
-		v = cross((Vec4)m.m[0<i?0:1], (Vec4)m.m[1<i?1:2], (Vec4)m.m[2<i?2:3]);
-
-		// Sign * Determinant_i / Determinante
-		mSolution.m[0][i] = fSignDet * v.x;
-		mSolution.m[1][i] = fSignDet * v.y;
-		mSolution.m[2][i] = fSignDet * v.z;
-		mSolution.m[3][i] = fSignDet * v.w;
-		fSignDet *= -1.0f;
-	}
-
-	return mSolution;
-}
-
-
-
-
-
 // ******************************************************************************** //
 // Solve the equation system Ax=v with Gauß-Jordan method.
 // The return value is true iff an unique solution exists. The solution is saved
@@ -510,101 +421,170 @@ Matrix invert(const Matrix& m)
 
 
 
-// ******************************************************************************** //
-// ******************************************************************************** //
-// ******************************************************************************** //
-// The following functions all simulate a 3x3 matrix
 
-// ******************************************************************************** //
-// Setup translation matrix for (matrix * vector) transformations
-/*Matrix2x3 Matrix2x3Translation(const Vec2& v)
-{
-	return Matrix2x3(1.0f, 0.0f, v.x,
-					 0.0f, 1.0f, v.y);
-}
+	// ********************************************************************* //
+	// Setup a translation matrix
+	Mat3x3 Mat3x3::Scaling( const Vec3& _scale )
+	{
+		return Mat3x3(_scale.x,  0.0f, 0.0f,
+					  0.0f, _scale.y,  0.0f,
+					  0.0f, 0.0f, _scale.z);
+	}
 
-// ******************************************************************************** //
-// Setup translation matrix for (matrix * vector) transformations
-Matrix2x3 Matrix2x3Translation(const float x, const float y)
-{
-	return Matrix2x3(1.0f, 0.0f, x,
-					 0.0f, 1.0f, y);
-}
+	// Setup a translation matrix
+	Mat3x3 Mat3x3::Scaling(float _uniformScale)
+	{
+		return Mat3x3(_uniformScale,  0.0f, 0.0f,
+					  0.0f, _uniformScale,  0.0f,
+					  0.0f, 0.0f, _uniformScale);
+	}
 
-// ******************************************************************************** //
-// Calculate rotation around the "z" axis
-Matrix2x3 Matrix2x3Rotation(const float f)
-{
-	float fCos = cos(f);
-	float fSin = sin(f);
-	return Matrix2x3(fCos, -fSin, 0.0f,
-					 fSin , fCos, 0.0f);
-}
+	// Setup a translation matrix
+	Mat3x3 Mat3x3::Scaling(float _sx, float _sy, float _sz)
+	{
+		return Mat3x3(_sx,  0.0f, 0.0f,
+					  0.0f, _sy,  0.0f,
+					  0.0f, 0.0f, _sz);
+	}
 
-// ******************************************************************************** //
-// Setup scaling matrix
-Matrix2x3 Matrix2x3Scaling(const Vec2& v)
-{
-	return Matrix2x3(v.x , 0.0f, 0.0f,
-					 0.0f, v.y , 0.0f);
-}
+	// Calculate rotation around the x axis
+	Mat3x3 Mat3x3::RotationX(const float _a)
+	{
+		Mat3x3 result(0.0f);
+		result(0,0) = result(3,3) = 1.0f;
+		result(1,1) = result(2,2) = cos(_a);
+		result(1,2) = sin(_a);
+		result(2,1) = -result(1,2);
+		return result;
+	}
 
-// ******************************************************************************** //
-// Setup scaling matrix
-Matrix2x3 Matrix2x3Scaling(const float x, const float y)
-{
-	return Matrix2x3(x   , 0.0f, 0.0f,
-					 0.0f, y   , 0.0f);
-}
+	// Calculate rotation around the y axis
+	Mat3x3 Mat3x3::RotationY(const float _a)
+	{
+		Mat3x3 result(0.0f);
+		result(1,1) = result(3,3) = 1.0f;
+		result(0,0) = result(2,2) = cos(_a);
+		result(2,0) = sin(_a);
+		result(0,2) = -result(2,0);
+		return result;
+	}
 
-// ******************************************************************************** //
-// Setup proportional scaling matrix
-Matrix2x3 Matrix2x3Scaling(const float f)
-{
-	return Matrix2x3(f , 0.0f, 0.0f,
-					 0.0f, f , 0.0f);
-}
+	// Calculate rotation around the z axis
+	Mat3x3 Mat3x3::RotationZ(const float _a)
+	{
+		Mat3x3 result;
+		result(2,2) = result(3,3) = 1.0f;
+		result(0,0) = result(1,1) = cos(_a);
+		result(0,1) = sin(_a);
+		result(1,0) = -result(0,1);
+		return result;
+	}
 
-// ******************************************************************************** //
-// Create a base in R^2 from two vectors
-Matrix2x3 Matrix2x3Axis(const Vec2& vXAxis, const Vec2& vYAxis)
-{
-	return Matrix2x3(vXAxis.x, vXAxis.y, 0.0f,
-					 vYAxis.x, vYAxis.y, 0.0f);
-}
+	// Rotate around all three axis. This is the same as RotationZ(_c) * RotationX(_b) * RotationY(_a)
+	Mat3x3 Mat3x3::Rotation(float _a, float _b, float _c)
+	{
+		float sinX = sin(_a), sinY = sin(_b), sinZ = sin(_c);
+		float cosX = cos(_a), cosY = cos(_b), cosZ = cos(_c);
+		float sinXY = sinX*sinY;
+		float cosYZ = cosY*cosZ;
+		float cosYsinZ = cosY*sinZ;
+		return Mat3x3(cosYZ-sinXY*sinZ,		cosX*sinZ,	sinY*cosZ+sinX*cosYsinZ,
+					  -cosYsinZ-sinXY*cosZ,	cosX*cosZ,	sinX*cosYZ-sinY*sinZ,
+					  -cosX*sinY,			-sinX,		cosX*cosY);
+	}
 
-// ******************************************************************************** //
-// Invert matrix
-Matrix2x3 Matrix2x3Invert(const Matrix2x3& m)
-{
-	float fDet = 1.0f/Matrix2x3Det(m);
-	// simulate 3x3 Matrix with (0,0,1) in the 3rd row
-	return Matrix2x3(m.m22*fDet, -m.m12*fDet, (m.m12*m.m23-m.m13*m.m22)*fDet,
-					 -m.m21*fDet, m.m11*fDet, (m.m13*m.m21-m.m11*m.m23)*fDet);
-}
+	// Rotate around an arbitrary axis
+	Mat3x3 Mat3x3::Rotation(const Vec3& _axis, float _angle)
+	{
+		// Calculate as much as possible without redundant calculations
+		const double fSin = sin(double(-_angle));
+		const double fCos = cos(double(-_angle));
+		const double fOneMinusCos = 1.0 - fCos;
+		const double AxSin = _axis.x * fSin;
+		const double AySin = _axis.y * fSin;
+		const double AzSin = _axis.z * fSin;
 
-// ******************************************************************************** //
-// Setup shearing matrix
-Matrix2x3 Matrix2x3Transvection(const Vec2& v)
-{
-	return Matrix2x3(1.0f, v.x , 0.0f,
-					 v.y , 1.0f, 0.0f);
-}
+		// Create matrix and close up the calculation
+		return Mat3x3(float((_axis.x * _axis.x) * fOneMinusCos + fCos),
+			float((_axis.x * _axis.y) * fOneMinusCos - (AzSin)),
+			float((_axis.x * _axis.z) * fOneMinusCos + (AySin)),
+			float((_axis.y * _axis.x) * fOneMinusCos + (AzSin)),
+			float((_axis.y * _axis.y) * fOneMinusCos + fCos),
+			float((_axis.y * _axis.z) * fOneMinusCos - (AxSin)),
+			float((_axis.z * _axis.x) * fOneMinusCos - (AySin)),
+			float((_axis.z * _axis.y) * fOneMinusCos + (AxSin)),
+			float((_axis.z * _axis.z) * fOneMinusCos + fCos)
+			);
+	}
 
-// ******************************************************************************** //
-// Setup shearing matrix
-Matrix2x3 Matrix2x3Transvection(const float x, const float y)
-{
-	return Matrix2x3(1.0f, x   , 0.0f,
-					 y   , 1.0f, 0.0f);
-}
+	// Matrix from quaternion
+	Mat3x3 Mat3x3::Rotation(const Quaternion& _r)
+	{
+		return Mat3x3(1.0f-2.0f*_r.j*_r.j-2.0f*_r.k*_r.k, 2.0f*_r.i*_r.j-2.0f*_r.k*_r.r,      2.0f*_r.i*_r.k+2.0f*_r.j*_r.r,
+					  2.0f*_r.i*_r.j+2.0f*_r.k*_r.r,      1.0f-2.0f*_r.i*_r.i-2.0f*_r.k*_r.k, 2.0f*_r.j*_r.k-2.0f*_r.i*_r.r,
+					  2.0f*_r.i*_r.k-2.0f*_r.j*_r.r,      2.0f*_r.j*_r.k+2.0f*_r.i*_r.r,      1.0f-2.0f*_r.i*_r.i-2.0f*_r.j*_r.j);
+	}
 
-// ******************************************************************************** //
-// Compute determinant
-float Matrix2x3Det(const Matrix2x3& m)
-{
-	return m.m11 * m.m22 -
-           m.m12 * m.m21;
-}*/
+	// Setup an axis matrix - a vector base
+	Mat3x3 Mat3x3::Axis(const Vec3& _xAxis, const Vec3& _yAxis, const Vec3& _zAxis)
+	{
+		return Mat3x3(_xAxis.x, _xAxis.y, _xAxis.z,
+					  _yAxis.x, _yAxis.y, _yAxis.z,
+					  _zAxis.x, _zAxis.y, _zAxis.z);
+	}
+
+	// Creates an orthogonal base for a direction vector
+	Mat3x3 Mat3x3::Orthonormal(const Vec3& _normal)
+	{
+		// Calculate a second orthogonal vector with scalar product
+		Vec3 v2 = (_normal.x==1.0f)?Vec3(0.0f, 1.0f, 0.0f): normalize((_normal.y != 0.0f)? Vec3(1.0f, -_normal.x/_normal.y, 0.0f) : Vec3(1.0f, 0.0f, -_normal.x/_normal.z));
+		// 3. Vector is simple the cross product
+		Vec3 v3 = cross(_normal, v2);
+		return Mat3x3(v2.x,		 v2.y,		v2.z,
+					  v3.x,		 v3.y,		v3.z,
+					  _normal.x, _normal.y,	_normal.z);
+	}
+
+	// Compute the inverse with determinant method
+	Mat3x3 Mat3x3::Invert() const
+	{
+		float detInv = 1.0f / Det();
+		
+		return detInv * Mat3x3((*this)(1,1)*(*this)(2,2) - (*this)(1,2)*(*this)(2,1),
+							   (*this)(2,1)*(*this)(0,2) - (*this)(0,1)*(*this)(2,2),
+							   (*this)(0,1)*(*this)(1,2) - (*this)(0,2)*(*this)(1,1),
+							   (*this)(1,2)*(*this)(2,0) - (*this)(1,0)*(*this)(2,2),
+							   (*this)(0,0)*(*this)(2,2) - (*this)(0,2)*(*this)(2,0),
+							   (*this)(0,2)*(*this)(1,0) - (*this)(0,0)*(*this)(1,2),
+							   (*this)(1,0)*(*this)(2,1) - (*this)(1,1)*(*this)(2,0),
+							   (*this)(0,1)*(*this)(2,0) - (*this)(0,0)*(*this)(2,1),
+							   (*this)(0,0)*(*this)(1,1) - (*this)(1,0)*(*this)(0,1));
+	}
+
+	// Calculate the determinant of the whole 3x3 matrix with Laplace's formula
+	float Mat3x3::Det() const {
+		return (*this)(0,0) * ((*this)(1,1) * (*this)(2,2) - (*this)(1,2) * (*this)(2,1)) -
+			   (*this)(0,1) * ((*this)(1,0) * (*this)(2,2) - (*this)(1,2) * (*this)(2,0)) +
+			   (*this)(0,2) * ((*this)(1,0) * (*this)(2,1) - (*this)(1,1) * (*this)(2,0));
+	}
+
+
+	// ********************************************************************* //
+	// Computes _v * _A.
+	Vec3 operator * (const Vec3& _v, const Mat3x3& _A)
+	{
+		return Vec3(_v.x*_A(0,0)+_v.y*_A(1,0)+_v.z*_A(2,0),
+					_v.x*_A(0,1)+_v.y*_A(1,1)+_v.z*_A(2,1),
+					_v.x*_A(0,2)+_v.y*_A(1,2)+_v.z*_A(2,2));
+	}
+
+	// ********************************************************************* //
+	// Computes _A * _v.
+	Vec3 operator * (const Mat3x3& _A, const Vec3& _v)
+	{
+		return Vec3(_v.x*_A(0,0)+_v.y*_A(0,1)+_v.z*_A(0,2),
+					_v.x*_A(1,0)+_v.y*_A(1,1)+_v.z*_A(1,2),
+					_v.x*_A(2,0)+_v.y*_A(2,1)+_v.z*_A(2,2));
+	}
 
 } // namespace Math
