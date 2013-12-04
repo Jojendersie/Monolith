@@ -5,8 +5,8 @@
 
 namespace Voxel {
 
-	/// \brief A model is a high level abtraction with graphics and
-	///		gameplay elements.
+	/// \brief A model is a high level abstraction with graphics and
+	///		game play elements.
 	class Model
 	{
 	public:
@@ -24,10 +24,10 @@ namespace Voxel {
 		/// \param [out] _objectConstants A reference to the constant buffer
 		///		which must be filled.
 		/// \param [in] _viewProjection The actual view projection matrix. TODO: camera mit culling
-		void Draw( Graphic::UniformBuffer& _objectConstants, const Math::Matrix& _viewProjection );
+		void Draw( Graphic::UniformBuffer& _objectConstants, const Math::Mat4x4& _viewProjection );
 
 		/// \brief Set a voxel in the model and update mass properties.
-		/// \details This method overwrites all covered coxels.
+		/// \details This method overwrites all covered voxels.
 		/// \param [in] _position Position inside the given level.
 		/// \param [in] _level Depth in the grid hierarchy. 0 is the maximum
 		///		size and 5 is the level of the smallest voxel grid.
@@ -49,7 +49,7 @@ namespace Voxel {
 		Math::Vec3 m_center;			///< The center of gravity (relative to the model).
 		Math::Quaternion m_rotation;	///< The rotation around the center.
 
-		Math::Quaternion m_rotatoryVelocity;	///< Current chage of rotation per second
+		Math::Quaternion m_rotatoryVelocity;	///< Current change of rotation per second
 		Math::Vec3 m_velocity;			///< Velocity in m/s (vector length)
 		float m_mass;					///< Mass (inertia) of the full model
 		float m_rotatoryMomentum;		///< Inertia of rotation for the full model.

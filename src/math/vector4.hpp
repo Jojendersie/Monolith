@@ -127,7 +127,7 @@ namespace Math {
 	Vec4 slerp(const Vec4& v1, const Vec4& v2, const float t);
 
 
-
+	class Mat4x4;
 
 	// ******************************************************************************** //
 	// Union quaternions (4D - complex numbers) for rotation in 3D space
@@ -164,7 +164,7 @@ namespace Math {
 		}
 
 		// From Matrix
-		Quaternion(const Matrix& _m);
+		Quaternion(const Mat4x4& _m);
 
 		// From Euler angles
 		Quaternion( float _fYaw, float _fPitch, float _fRoll );
@@ -188,7 +188,7 @@ namespace Math {
 		operator float* ()					{return (float*)(&i);}
 		operator const float* () const		{return (const float*)(&i);}
 		operator Vec4 () const				{return *this;}
-		operator Matrix () const;
+		operator Mat4x4 () const;
 
 		// Comparison operators
 		inline bool operator == (const Quaternion& b) { if(abs(r-b.r) > EPSILON) return false; if(abs(i-b.i) > EPSILON) return false; if(abs(j-b.j) > EPSILON) return false; return abs(k-b.k) < EPSILON; }

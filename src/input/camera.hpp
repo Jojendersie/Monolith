@@ -62,18 +62,18 @@ namespace Input {
 		///		them.
 		void UpdateMatrices();
 
-		const Math::Matrix& GetView() const					{ return m_view; }					///< Return view matrix
-		const Math::Matrix& GetProjection() const			{ return m_projection; }			///< Return projection matrix
-		const Math::Matrix& GetViewProjection() const		{ return m_viewProjection; }		///< Return view * projection matrix
-		const Math::Matrix& GetInverseView() const			{ return m_inverseView; }			///< Return inverse view matrix
-		const Math::Matrix& GetInverseViewProjection() const{ return m_inverseViewProjection; }	///< Return inverse (view * projection) matrix
+		const Math::Mat4x4& GetView() const					{ return m_view; }					///< Return view matrix
+		const Math::Mat4x4& GetProjection() const			{ return m_projection; }			///< Return projection matrix
+		const Math::Mat4x4& GetViewProjection() const		{ return m_viewProjection; }		///< Return view * projection matrix
+		const Math::Mat4x4& GetInverseView() const			{ return m_inverseView; }			///< Return inverse view matrix
+		const Math::Mat4x4& GetInverseViewProjection() const{ return m_inverseViewProjection; }	///< Return inverse (view * projection) matrix
 	private:
 		// Computed matrices used in rendering
-		Math::Matrix m_view;
-		Math::Matrix m_projection;
-		Math::Matrix m_viewProjection;
-		Math::Matrix m_inverseView;
-		Math::Matrix m_inverseViewProjection;
+		Math::Mat4x4 m_view;
+		Math::Mat4x4 m_projection;
+		Math::Mat4x4 m_viewProjection;
+		Math::Mat4x4 m_inverseView;
+		Math::Mat4x4 m_inverseViewProjection;
 
 		std::mutex m_mutex;				///< mutex between all update methods
 		Math::Quaternion m_rotation;

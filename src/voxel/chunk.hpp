@@ -57,7 +57,7 @@ namespace Voxel {
 		///		which must be filled.
 		/// \param [in] _viewProjection The actual view projection matrix. TODO: camera mit culling
 		///		This matrix should contain the general model transformation too.
-		void Draw( Graphic::UniformBuffer& _objectConstants, const Math::Matrix& _viewProjection );
+		void Draw( Graphic::UniformBuffer& _objectConstants, const Math::Mat4x4& _viewProjection );
 
 		/// \brief Compute the visible voxel set vertex buffer.
 		/// \details The current implementation uses CPU later this will be

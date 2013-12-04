@@ -4,340 +4,381 @@
 
 namespace Math {
 
-// Define used symbols
-class Matrix;
-class Matrix2x3;
-class Plane;
-Matrix invert(const Matrix& m);
-Matrix2x3 invert(const Matrix2x3& m);
+	class Plane;
 
-// ******************************************************************************** //
-// Die 4D - Matrix class (for 3D Transformations)
-class Matrix
-{
-public:
-	// Variables
-	union
+	class NoExtraMatrixFunctions;
+
+	// ********************************************************************* //
+	/// \brief Class of m x n matrices (m=number of rows, n=number of columns).
+	/// \details This class uses column major order.
+	template<int m, int n, class Derived = NoExtraMatrixFunctions>
+	class Matrix
 	{
-		// Row wise
-		/*struct
-		{
-			float m11, m12, m13, m14,	// Elements of the matrix
-				  m21, m22, m23, m24,
-				  m31, m32, m33, m34,
-				  m41, m42, m43, m44;
-		};*/
+	public:
+		/// \brief Standard constructor creates an uninitialized matrix
+		Matrix()	{}
+		/// \brief Create a matrix filled with a constant.
+		explicit Matrix(float _s)	{ for(int i=0; i<m*n; ++i) m_data[i] = _s; }
 
-		// Column wise
-		struct
-		{
-			float m11, m21, m31, m41,	// Elements of the matrix
-				m12, m22, m32, m42,
-				m13, m23, m33, m43,
-				m14, m24, m34, m44;
-		};
-		struct
-		{
-			float m1[4],				// Column vectors
-				 m2[4],
-				 m3[4],
-				 m4[4];
-		};
+		// TODO: move, copy, assign?
 
-		float		m[4][4];			// 2 dimensional array access
+		/// \brief Casting to a float array of size mxn
+		operator float* ()					{return m_data;}
+		/// \brief Casting to a const float array of size mxn
+		operator const float* () const		{return m_data;}
+
+		/// \brief Allow implicit cast between Mat4x4/... <-> Matrix<4,4>
+		operator Derived&()					{return *reinterpret_cast<Derived*>(this);}
+		operator const Derived&() const		{return *reinterpret_cast<Derived*>(this);}
+
+		/// \brief Write access to elements
+		float& operator () (int _row, int _column) {return m_data[_row + _column*m];}
+		/// \brief Read access to elements
+		float operator () (int _row, int _column) const {return m_data[_row + _column*m];}
+
+		template<class D2> Matrix& operator += (const Matrix<m,n,D2>& _m);		///< Add two matrices of the same size
+		template<class D2> Matrix& operator -= (const Matrix<m,n,D2>& _m);		///< Subtract two matrices of the same size
+		Matrix& operator *= (float _s);						///< Multiplication with a scalar
+		Matrix& operator /= (float _s);						///< Division with a scalar
+		template<class D2> Matrix operator + (const Matrix<m,n,D2>& _m) const;	///< Add two matrices of the same size
+		template<class D2> Matrix operator - (const Matrix<m,n,D2>& _m) const;	///< Subtract two matrices of the same size
+		Matrix operator * (float _s) const;					///< Multiplication with a scalar
+		Matrix operator / (float _s) const;					///< Division with a scalar
+
+		/// \brief Multiply two matrices which share at least one dimension (n)
+		template<class D2> Matrix& operator *= (const Matrix<n,n,D2>& _m);
+
+		/// \brief Multiply two matrices which share at least one dimension (n)
+		template<int k, class D2> Matrix<m,k,Derived> operator * (const Matrix<n,k,D2>& _m) const;
+
+		/// \brief Computes multiply-add: _op1<m,n> * _op2<n,k> + _op3<m,k>
+		template<int k, class D2, class D3> static Matrix<m,k,Derived> Mad(const Matrix& _op1, const Matrix<n,k,D2>& _op2, const Matrix<m,k,D3>& _op3);
+
+		///< Unary add
+		const Matrix& operator + () const;
+		///< Unary minus
+		Matrix operator - () const;
+
+		///< Equality check with a small epsilon.
+		template<class D2> bool operator == (const Matrix<m,n,D2>& _op) const;
+
+		///< Inequality check with a small epsilon.
+		template<class D2> bool operator != (const Matrix<m,n,D2>& _op) const;
+
+		/// \brief Create the identity matrix
+		static Matrix Identity();
+
+		/// \brief Swap rows and columns
+		Derived Transpose() const;
+	protected:
+		float m_data[m*n];
 	};
 
+	// ********************************************************************* //
+	// Implementations of Matrix member functions and global operators
+	// ********************************************************************* //
 
-	// Constructors
-	Matrix() {/*dwMatrixID = Or_MatrixIDCounter++;*/}
-
-	Matrix(const Matrix& m) : m11(m.m11), m12(m.m12), m13(m.m13), m14(m.m14),
-                              m21(m.m21), m22(m.m22), m23(m.m23), m24(m.m24),
-							  m31(m.m31), m32(m.m32), m33(m.m33), m34(m.m34),
-							  m41(m.m41), m42(m.m42), m43(m.m43), m44(m.m44) {/*dwMatrixID = Or_MatrixIDCounter++;*/}
-
-	Matrix(float _m11, float _m12, float _m13, float _m14,
-		   float _m21, float _m22, float _m23, float _m24,
-		   float _m31, float _m32, float _m33, float _m34,
-		   float _m41, float _m42, float _m43, float _m44) : m11(_m11), m12(_m12), m13(_m13), m14(_m14),
-			                                                 m21(_m21), m22(_m22), m23(_m23), m24(_m24),
-															 m31(_m31), m32(_m32), m33(_m33), m34(_m34),
-															 m41(_m41), m42(_m42), m43(_m43), m44(_m44) {/*dwMatrixID = Or_MatrixIDCounter++;*/}
-
-	//Matrix(const float* pfValue);
-
-	// Casting-operators
-	operator float* ()					{return (float*)(this);}
-	operator const float* () const		{return (float*)(this);}
-
-	// Access operators
-	float& operator () (int iRow, int iColumn) {return m[iRow][iColumn];}
-	float operator () (int iRow, int iColumn) const {return m[iRow][iColumn];}
-	inline float& operator[](int i) { return *((float*)this + i); }
-
-	// Assignment operators
-	Matrix& operator = (const Matrix& m);
-	
-	Matrix& operator += (const Matrix& m)
+	// ********************************************************************* //
+	// Add two matrices of the same size
+	template<int m, int n, class D> template<class D2>
+	Matrix<m,n,D>& Matrix<m,n,D>::operator += (const Matrix<m,n,D2>& _m)
 	{
-		m11 += m.m11; m12 += m.m12; m13 += m.m13; m14 += m.m14;
-		m21 += m.m21; m22 += m.m22; m23 += m.m23; m24 += m.m24;
-		m31 += m.m31; m32 += m.m32; m33 += m.m33; m34 += m.m34;
-		m41 += m.m41; m42 += m.m42; m43 += m.m43; m44 += m.m44;
+		for(int c<0; c<n; ++c)
+			for(int r<0; r<m; ++r)
+				m_data[r+c*m] += _m.m_data[r+c*m];
+	}
+
+	// ********************************************************************* //
+	// Subtract two matrices of the same size
+	template<int m, int n, class D> template<class D2>
+	Matrix<m,n,D>& Matrix<m,n,D>::operator -= (const Matrix<m,n,D2>& _m)
+	{
+		for(int c<0; c<n; ++c)
+			for(int r<0; r<m; ++r)
+				m_data[r+c*m] -= _m.m_data[r+c*m];
+	}
+
+	// ********************************************************************* //
+	// Multiplication with a scalar
+	template<int m, int n, class D>
+	Matrix<m,n,D>& Matrix<m,n,D>::operator *= (float _s)
+	{
+		for(int c=0; c<n; ++c)
+			for(int r=0; r<m; ++r)
+				m_data[r+c*m] *= _s;
+	}
+
+	// ********************************************************************* //
+	// Division with a scalar
+	template<int m, int n, class D>
+	Matrix<m,n,D>& Matrix<m,n,D>::operator /= (float _s)
+	{
+		// Multiply with inverse is faster
+		_s = 1.0f/_s;
+		for(int c=0; c<n; ++c)
+			for(int r=0; r<m; ++r)
+				m_data[r+c*m] *= _s;
+	}
+
+	// ********************************************************************* //
+	// Add two matrices of the same size
+	template<int m, int n, class D> template<class D2>
+	Matrix<m,n,D> Matrix<m,n,D>::operator + (const Matrix<m,n,D2>& _m) const
+	{
+		Matrix<m,n,D> result(*this);
+		result += _m;
+		return result;
+	}
+
+	// ********************************************************************* //
+	// Subtract two matrices of the same size
+	template<int m, int n, class D> template<class D2>
+	Matrix<m,n,D> Matrix<m,n,D>::operator - (const Matrix<m,n,D2>& _m) const
+	{
+		Matrix<m,n,D> result(*this);
+		result -= _m;
+		return result;
+	}
+
+	// ********************************************************************* //
+	// Multiplication with a scalar
+	template<int m, int n, class D>
+	Matrix<m,n,D> Matrix<m,n,D>::operator * (float _s) const
+	{
+		Matrix<m,n,D> result(*this);
+		result *= _s;
+		return result;
+	}
+
+	// ********************************************************************* //
+	// Division with a scalar
+	template<int m, int n, class D> Matrix<m,n,D>
+	Matrix<m,n,D>::operator / (float _s) const
+	{
+		Matrix<m,n,D> result(*this);
+		result /= _s;
+		return result;
+	}
+
+	// ********************************************************************* //
+	// Multiply two matrices which share at least one dimension (n)
+	template<int m, int n, class D> template<class D2>
+	Matrix<m,n,D>& Matrix<m,n,D>::operator *= (const Matrix<n,n,D2>& _m)
+	{
+		static_assert(m==n);
+		// Matrix multiplication cannot be done in place -> use non assigning
+		// multiplication
+		*this = *this * _m;
 		return *this;
 	}
 
-	Matrix& operator -= (const Matrix& m)
+	// ********************************************************************* //
+	// Multiply two matrices which share at least one dimension (n)
+	template<int m, int n, class D> template<int k, class D2>
+	Matrix<m,k,D> Matrix<m,n,D>::operator * (const Matrix<n,k,D2>& _m) const
 	{
-		m11 -= m.m11; m12 -= m.m12; m13 -= m.m13; m14 -= m.m14;
-		m21 -= m.m21; m22 -= m.m22; m23 -= m.m23; m24 -= m.m24;
-		m31 -= m.m31; m32 -= m.m32; m33 -= m.m33; m34 -= m.m34;
-		m41 -= m.m41; m42 -= m.m42; m43 -= m.m43; m44 -= m.m44;
-		return *this;
+		Matrix<m,k,D> result(0.0f);
+		// Fast column wise multiplication
+		for(int h=0; h<k; ++h)
+			for(int c=0; c<n; ++c)
+				for(int r=0; r<m; ++r) {
+					result(r,h) += (*this)(r,c) * _m(c,h);
+				}
+		return result;
 	}
 
-	Matrix& operator *= (const Matrix& m)
+	// ********************************************************************* //
+	// Computes multiply-add: _op1<m,n> * _op2<n,k> + _op3<m,k>
+	template<int m, int n, class D> template<int k, class D2, class D3>
+	Matrix<m,k,D> Matrix<m,n,D>::Mad(const Matrix<m,n,D>& _op1, const Matrix<n,k,D2>& _op2, const Matrix<m,k,D3>& _op3)
 	{
-		float r1 = m11, r2 = m12, r3 = m13;
-		m11 = m.m11 * m11 + m.m21 * m12 + m.m31 * m13 + m.m41 * m14;
-		m12 = m.m12 * r1  + m.m22 * m12 + m.m32 * m13 + m.m42 * m14;
-		m13 = m.m13 * r1  + m.m23 * r2  + m.m33 * m13 + m.m43 * m14;
-		m14 = m.m14 * r1  + m.m24 * r2  + m.m34 * r3  + m.m44 * m14;
-		r1 = m21, r2 = m22, r3 = m23;
-		m21 = m.m11 * m21 + m.m21 * m22 + m.m31 * m23 + m.m41 * m24;
-		m22 = m.m12 * r1  + m.m22 * m22 + m.m32 * m23 + m.m42 * m24;
-		m23 = m.m13 * r1  + m.m23 * r2  + m.m33 * m23 + m.m43 * m24;
-		m24 = m.m14 * r1  + m.m24 * r2  + m.m34 * r3  + m.m44 * m24;
-		r1 = m31, r2 = m32, r3 = m33;
-		m31 = m.m11 * m31 + m.m21 * m32 + m.m31 * m33 + m.m41 * m34;
-		m32 = m.m12 * r1  + m.m22 * m32 + m.m32 * m33 + m.m42 * m34;
-		m33 = m.m13 * r1  + m.m23 * r2  + m.m33 * m33 + m.m43 * m34;
-		m34 = m.m14 * r1  + m.m24 * r2  + m.m34 * r3  + m.m44 * m34;
-		r1 = m41, r2 = m42, r3 = m43;
-		m41 = m.m11 * m41 + m.m21 * m42 + m.m31 * m43 + m.m41 * m44;
-		m42 = m.m12 * r1  + m.m22 * m42 + m.m32 * m43 + m.m42 * m44;
-		m43 = m.m13 * r1  + m.m23 * r2  + m.m33 * m43 + m.m43 * m44;
-		m44 = m.m14 * r1  + m.m24 * r2  + m.m34 * r3  + m.m44 * m44;
-		 return *this;
+		// This copying makes the add
+		Matrix<m,k,D> result(_op3);
+		// Fast column wise multiplication
+		for(int h=0; h<k; ++h)
+			for(int c=0; c<n; ++c)
+				for(int r=0; r<m; ++r)
+					result(r,h) += _op1(r,c) * _op2(c,h);
+		return result;
 	}
 
-	Matrix& operator *= (const float f)
-	{
-		m11 *= f; m12 *= f; m13 *= f; m14 *= f;
-		m21 *= f; m22 *= f; m23 *= f; m24 *= f;
-		m31 *= f; m32 *= f; m33 *= f; m34 *= f;
-		m41 *= f; m42 *= f; m43 *= f; m44 *= f;
-		return *this;
-	}
-	
-	Matrix& operator /= (const Matrix& m)
-	{
-		return *this *= invert(m);
-	}
-
-	Matrix& operator /= (float f)
-	{
-		f = 1/f;
-		m11 *= f; m12 *= f; m13 *= f; m14 *= f;
-		m21 *= f; m22 *= f; m23 *= f; m24 *= f;
-		m31 *= f; m32 *= f; m33 *= f; m34 *= f;
-		m41 *= f; m42 *= f; m43 *= f; m44 *= f;
-		return *this;
-	}
-
-	// Unary operators
-	Matrix operator + () const
+	// ********************************************************************* //
+	// Unary add
+	template<int m, int n, class D>
+	const Matrix<m,n,D>& Matrix<m,n,D>::operator + () const
 	{
 		return *this;
 	}
 
-	Matrix operator - () const
+	// ********************************************************************* //
+	// Unary minus
+	template<int m, int n, class D>
+	Matrix<m,n,D> Matrix<m,n,D>::operator - () const
 	{
-		return Matrix(-m11, -m12, -m13, -m14,
-					  -m21, -m22, -m23, -m24,
-					  -m31, -m32, -m33, -m34,
-					  -m41, -m42, -m43, -m44);
+		Matrix<m,n,D> result;
+		for(int c=0; c<n; ++c)
+			for(int r=0; r<m; ++r)
+				result(r,c) = -m_data[r+c*m];
+		return result;
 	}
-};
 
-typedef Matrix* MatrixP;
+	// ********************************************************************* //
+	// Create the identity matrix
+	template<int m, int n, class D>
+	Matrix<m,n,D> Matrix<m,n,D>::Identity()
+	{
+		Matrix<m,n,D> result(0.0f);
+		for( int i=0; i<min(m,n); ++i )
+			result(i,i) = 1.0f;
+		return result;
+	}
 
-// Arithmetical operators
-inline Matrix operator + (const Matrix& a, const Matrix& b)	{return Matrix(a.m11 + b.m11, a.m12 + b.m12, a.m13 + b.m13, a.m14 + b.m14, a.m21 + b.m21, a.m22 + b.m22, a.m23 + b.m23, a.m24 + b.m24, a.m31 + b.m31, a.m32 + b.m32, a.m33 + b.m33, a.m34 + b.m34, a.m41 + b.m41, a.m42 + b.m42, a.m43 + b.m43, a.m44 + b.m44);}
-inline Matrix operator - (const Matrix& a, const Matrix& b)	{return Matrix(a.m11 - b.m11, a.m12 - b.m12, a.m13 - b.m13, a.m14 - b.m14, a.m21 - b.m21, a.m22 - b.m22, a.m23 - b.m23, a.m24 - b.m24, a.m31 - b.m31, a.m32 - b.m32, a.m33 - b.m33, a.m34 - b.m34, a.m41 - b.m41, a.m42 - b.m42, a.m43 - b.m43, a.m44 - b.m44);}
-inline Matrix operator - (const Matrix& m)					{return Matrix(-m.m11, -m.m12, -m.m13, -m.m14, -m.m21, -m.m22, -m.m23, -m.m24, -m.m31, -m.m32, -m.m33, -m.m34, -m.m41, -m.m42, -m.m43, -m.m44);}
+	// ********************************************************************* //
+	// Swap rows and columns
+	template<int m, int n, class D>
+	D Matrix<m,n,D>::Transpose() const
+	{
+		D result;
+		for(int c=0; c<n; ++c)
+			for(int r=0; r<m; ++r)
+				result(c,r) = m_data[r+c*m];
+		return result;
+	}
 
-inline Matrix operator * (const Matrix& a,
-						  const Matrix& b)
-{
-	return Matrix(b.m11 * a.m11 + b.m21 * a.m12 + b.m31 * a.m13 + b.m41 * a.m14,
-				  b.m12 * a.m11 + b.m22 * a.m12 + b.m32 * a.m13 + b.m42 * a.m14,
-				  b.m13 * a.m11 + b.m23 * a.m12 + b.m33 * a.m13 + b.m43 * a.m14,
-				  b.m14 * a.m11 + b.m24 * a.m12 + b.m34 * a.m13 + b.m44 * a.m14,
-				  b.m11 * a.m21 + b.m21 * a.m22 + b.m31 * a.m23 + b.m41 * a.m24,
-				  b.m12 * a.m21 + b.m22 * a.m22 + b.m32 * a.m23 + b.m42 * a.m24,
-				  b.m13 * a.m21 + b.m23 * a.m22 + b.m33 * a.m23 + b.m43 * a.m24,
-				  b.m14 * a.m21 + b.m24 * a.m22 + b.m34 * a.m23 + b.m44 * a.m24,
-				  b.m11 * a.m31 + b.m21 * a.m32 + b.m31 * a.m33 + b.m41 * a.m34,
-				  b.m12 * a.m31 + b.m22 * a.m32 + b.m32 * a.m33 + b.m42 * a.m34,
-				  b.m13 * a.m31 + b.m23 * a.m32 + b.m33 * a.m33 + b.m43 * a.m34,
-				  b.m14 * a.m31 + b.m24 * a.m32 + b.m34 * a.m33 + b.m44 * a.m34,
-				  b.m11 * a.m41 + b.m21 * a.m42 + b.m31 * a.m43 + b.m41 * a.m44,
-				  b.m12 * a.m41 + b.m22 * a.m42 + b.m32 * a.m43 + b.m42 * a.m44,
-				  b.m13 * a.m41 + b.m23 * a.m42 + b.m33 * a.m43 + b.m43 * a.m44,
-				  b.m14 * a.m41 + b.m24 * a.m42 + b.m34 * a.m43 + b.m44 * a.m44);
-}
+	// ********************************************************************* //
+	// Equality check with a small epsilon.
+	template<int m, int n, class D> template<class D2>
+	bool Matrix<m,n,D>::operator == (const Matrix<m,n,D2>& _op) const
+	{
+		for(int c=0; c<n; ++c)
+			for(int r=0; r<m; ++r)
+				if( abs(m_data(r,c)-_op(r,c)) > EPSILON ) return false;
+		return true;
+	}
 
-inline Matrix operator * (const Matrix& m,
-						  const float f)
-{
-	return Matrix(m.m11 * f, m.m12 * f, m.m13 * f, m.m14 * f,
-			      m.m21 * f, m.m22 * f, m.m23 * f, m.m24 * f,
-				  m.m31 * f, m.m32 * f, m.m33 * f, m.m34 * f,
-				  m.m41 * f, m.m42 * f, m.m43 * f, m.m44 * f);
-}
+	// ********************************************************************* //
+	// Inequality check with a small epsilon.
+	template<int m, int n, class D> template<class D2>
+	bool Matrix<m,n,D>::operator != (const Matrix<m,n,D2>& _op) const
+	{
+		for(int c=0; c<n; ++c)
+			for(int r=0; r<m; ++r)
+				if( abs(m_data(r,c)-_op(r,c)) > EPSILON ) return true;
+		return false;
+	}
 
-inline Matrix operator * (const float f,
-						  const Matrix& m)
-{
-	return Matrix(m.m11 * f, m.m12 * f, m.m13 * f, m.m14 * f,
-			      m.m21 * f, m.m22 * f, m.m23 * f, m.m24 * f,
-				  m.m31 * f, m.m32 * f, m.m33 * f, m.m34 * f,
-				  m.m41 * f, m.m42 * f, m.m43 * f, m.m44 * f);
-}
 
-// Multiply vector from left (interpret v as row vector with a fourth component of one)
-Vec3 operator * (const Vec3& v, const Matrix& m);
 
-// Multiply vector from right (interpret v as col vector with a fourth component of one)
-Vec3 operator * (const Matrix& m, const Vec3& v);
 
-// Multiply 4D-vector from left (interpret v as row vector)
-Vec4 operator * (const Vec4& v, const Matrix& m);
 
-// Multiply 4D-vector from right
-Vec4 operator * (const Matrix& m, const Vec4& v);
 
-inline Matrix operator / (const Matrix& a, const Matrix& b) {return a * invert(b);}
 
-inline Matrix operator / (const Matrix& m,
-						  float f)
-{
-	f = 1/f;
-	return Matrix(m.m11 * f, m.m12 * f, m.m13 * f, m.m14 * f,
-			      m.m21 * f, m.m22 * f, m.m23 * f, m.m24 * f,
-				  m.m31 * f, m.m32 * f, m.m33 * f, m.m34 * f,
-				  m.m41 * f, m.m42 * f, m.m43 * f, m.m44 * f);
-}
 
-// ******************************************************************************** //
-// Comparison operators
-inline bool operator == (const Matrix& a,
-						 const Matrix& b)
-{
-	if(abs(a.m11 - b.m11) > EPSILON) return false;
-	if(abs(a.m12 - b.m12) > EPSILON) return false;
-	if(abs(a.m13 - b.m13) > EPSILON) return false;
-	if(abs(a.m14 - b.m14) > EPSILON) return false;
-	if(abs(a.m21 - b.m21) > EPSILON) return false;
-	if(abs(a.m22 - b.m22) > EPSILON) return false;
-	if(abs(a.m23 - b.m23) > EPSILON) return false;
-	if(abs(a.m24 - b.m24) > EPSILON) return false;
-	if(abs(a.m31 - b.m31) > EPSILON) return false;
-	if(abs(a.m32 - b.m32) > EPSILON) return false;
-	if(abs(a.m33 - b.m33) > EPSILON) return false;
-	if(abs(a.m34 - b.m34) > EPSILON) return false;
-	if(abs(a.m41 - b.m41) > EPSILON) return false;
-	if(abs(a.m42 - b.m42) > EPSILON) return false;
-	if(abs(a.m43 - b.m43) > EPSILON) return false;
-	return (abs(a.m44 - b.m44) <= EPSILON);
-}
 
-inline bool operator != (const Matrix& a,
-						 const Matrix& b)
-{
-	if(abs(a.m11 - b.m11) > EPSILON) return true;
-	if(abs(a.m12 - b.m12) > EPSILON) return true;
-	if(abs(a.m13 - b.m13) > EPSILON) return true;
-	if(abs(a.m14 - b.m14) > EPSILON) return true;
-	if(abs(a.m21 - b.m21) > EPSILON) return true;
-	if(abs(a.m22 - b.m22) > EPSILON) return true;
-	if(abs(a.m23 - b.m23) > EPSILON) return true;
-	if(abs(a.m24 - b.m24) > EPSILON) return true;
-	if(abs(a.m31 - b.m31) > EPSILON) return true;
-	if(abs(a.m32 - b.m32) > EPSILON) return true;
-	if(abs(a.m33 - b.m33) > EPSILON) return true;
-	if(abs(a.m34 - b.m34) > EPSILON) return true;
-	if(abs(a.m41 - b.m41) > EPSILON) return true;
-	if(abs(a.m42 - b.m42) > EPSILON) return true;
-	if(abs(a.m43 - b.m43) > EPSILON) return true;
-	return (abs(a.m44 - b.m44) > EPSILON);
-}
 
-// ******************************************************************************** //
-// Declaration of functions for matrix creation
 
-		// Returns the identity matrix
-inline	Matrix	MatrixIdentity() {return Matrix(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);}
-		// Setup translation matrix for (vector * matrix) transformations
-		Matrix	MatrixTranslation(const Vec3& v);
-		// Setup translation matrix for (vector * matrix) transformations
-		Matrix	MatrixTranslation(const float x, const float y, const float z);
-		// Calculate rotation around the x axis
-		Matrix	MatrixRotationX(const float f);
-		// Calculate rotation around the y axis
-		Matrix	MatrixRotationY(const float f);
-		// Calculate rotation around the z axis
-		Matrix	MatrixRotationZ(const float f);
-		// Rotate around all three axis. This is the same as
-		Matrix	MatrixRotation(const float x, const float y, const float z);
-inline	Matrix	MatrixRotation(const Vec3& v)		{return MatrixRotation(v.x, v.y, v.z);}
-		// Matrix from quaternion
-		Matrix MatrixRotation(const Quaternion& _rotation);
-		// Direct computation of MatrixRotation(x,y,z)*MatrixTranslation
-		Matrix	MatrixRotation_Translatation(const Vec3& vR, const Vec3& vP);
-		// Rotate around an arbitrary axis
-		Matrix	MatrixRotationAxis(const Vec3& v, const float f);
-		// Setup scaling matrix
-		Matrix	MatrixScaling(const Vec3& v);
-		// Setup proportional scaling matrix
-		Matrix	MatrixScaling(const float f);
-		// Setup an axis matrix - a vector base
-		Matrix	MatrixAxis(const Vec3& vXAxis, const Vec3& vYAxis, const Vec3& vZAxis);
-		// Calculate determinant of the upper left 3x3 sub matrix
-		float	MatrixDet3(const Matrix& m);
-		// Calculate the determinant of the whole 4x4 matrix with Laplace's formula
-		float	MatrixDet(const Matrix& m);
-		// Invert matrix
-		Matrix	invert(const Matrix& m);
-		// Transpose matrix
-		Matrix	transpose(const Matrix& m);
-		// OpenGL perspective projection matrix
-		Matrix	MatrixProjection(const float fFOV, const float fAspect, const float fNearPlane, const float fFarPlane);
-		// OpenGL orthogonal projection matrix
-		Matrix	MatrixParallelProjection(const float fWidth, const float fHeigh, const float fNearPlane, const float fFarPlane);
-		// OpenGL orthogonal projection matrix
-		Matrix	MatrixParallelProjection(const float fLeft, const float fRight, const float fBottom, const float fTop, const float fNear, const float fFar);
-		// Calculate camera matrix
-		Matrix	MatrixCamera(const Vec3& vPos, const Vec3& vLookAt, const Vec3& vUp = Vec3(0.0f, 1.0f, 0.0f));
-		// Calculate camera matrix
-		Matrix	MatrixCamera(const Vec3& vPos, const Vec3& vDir, const Vec3& vUp, const Vec3& vBidir);
-		// Transform to texture matrix
-		Matrix	MatrixToTex2DMatrix(const Matrix& m);
-		// Calculate a mirror matrix for given plane
-		Matrix	MatrixMirror(const Plane& p);
-		// Solve the equation system Ax=v with Gauss-Jordan method.
-		bool	MatrixSolveEquation(Matrix _A, Vec4& _vX);
-		// Creates an orthogonal base for a direction vector
-		Matrix	MatrixOrthonormal(const Vec3& vNormal);
-		// TODO: Setup shearing matrix
-		Matrix	MatrixTransvection(const Vec3& v);
+
+
+	// ********************************************************************* //
+	/// \brief Standard transformation matrices for 3D graphics.
+	class Mat4x4: public Matrix<4,4, Mat4x4>
+	{
+	public:
+		/// \brief Standard constructor creates an uninitialized matrix
+		Mat4x4()	{}
+
+		/// \brief Create a matrix filled with a constant.
+		explicit Mat4x4(float _s) : Matrix(_s)	{}
+
+		/// \brief Construction from explicit elements.
+		Mat4x4(float _11, float _12, float _13, float _14,
+			   float _21, float _22, float _23, float _24,
+			   float _31, float _32, float _33, float _34,
+			   float _41, float _42, float _43, float _44)
+		{
+			m_data[0] = _11; m_data[4] = _12; m_data[8]  = _13; m_data[12] = _14;
+			m_data[1] = _21; m_data[5] = _22; m_data[9]  = _23; m_data[13] = _24;
+			m_data[2] = _31; m_data[6] = _32; m_data[10] = _33; m_data[14] = _34;
+			m_data[3] = _41; m_data[7] = _42; m_data[11] = _43; m_data[15] = _44;
+/*			m_data[0] = _11; m_data[1] = _12; m_data[2]  = _13; m_data[3] = _14;
+			m_data[4] = _21; m_data[5] = _22; m_data[6]  = _23; m_data[7] = _24;
+			m_data[8] = _31; m_data[9] = _32; m_data[10] = _33; m_data[11] = _34;
+			m_data[12] = _41; m_data[13] = _42; m_data[14] = _43; m_data[15] = _44;*/
+		}
+
+		static Mat4x4 Translation(float _x, float _y, float _z);		///< Setup a translation matrix
+		static Mat4x4 Translation(const Vec3& _vector);					///< Setup a translation matrix
+
+		static Mat4x4 Scaling(const Vec3& _scale);						///< Setup a translation matrix
+		static Mat4x4 Scaling(float _uniformScale);						///< Setup a translation matrix
+		static Mat4x4 Scaling(float _sx, float _sy, float _sz);			///< Setup a translation matrix
+
+		static Mat4x4 RotationX(const float _a);						///< Calculate rotation around the x axis
+		static Mat4x4 RotationY(const float _a);						///< Calculate rotation around the y axis
+		static Mat4x4 RotationZ(const float _a);						///< Calculate rotation around the z axis
+		static Mat4x4 Rotation(float _a, float _b, float _c);			///< Rotate around all three axis. This is the same as RotationZ(_c) * RotationX(_b) * RotationY(_a)
+		static Mat4x4 Rotation(const Vec3& _angles) {return Rotation(_angles.x, _angles.y, _angles.z);}	///< Rotate around all three axis. This is the same as RotationZ(z) * RotationX(x) * RotationY(y)
+		static Mat4x4 Rotation(const Vec3& _axis, float _angle);		///< Rotate around an arbitrary axis
+		static Mat4x4 Rotation(const Quaternion& _rotation);			///< Matrix from quaternion
+
+		static Mat4x4 Axis(const Vec3& _xAxis, const Vec3& _yAxis, const Vec3& _zAxis);		///< Setup an axis matrix - a vector base
+
+		static Mat4x4 Projection(float _FOV, float _aspect, float _near, float _far);			///< OpenGL perspective projection matrix
+		static Mat4x4 ParallelProjection(float _width, float _heigh, float _near, float _far);	///< OpenGL orthogonal projection matrix
+		static Mat4x4 ParallelProjection(float _left, float _right, float _bottom, float _top, float _near, float _far);	///< OpenGL orthogonal projection matrix
+		static Mat4x4 Camera(const Vec3& _position, const Vec3& _lookAt, const Vec3& _up = Vec3(0.0f, 1.0f, 0.0f));	///< Calculate camera matrix.
+		static Mat4x4 Camera(const Vec3& _position, const Vec3& _direction, const Vec3& _up, const Vec3& _bidir);	///< Calculate camera matrix
+		static Mat4x4 Mirror(const Plane& p);							///< Calculate a mirror matrix for given plane
+		static Mat4x4 Orthonormal(const Vec3& _normal);					///< Creates an orthonormal base for a direction vector
+		static Mat4x4 Transvection(const Vec3& v);						///< Setup shearing matrix
+
+		/// \brief Transform a position vector.
+		/// \details the vectors is interpreted as (_v, 1) 4D row vector.
+		///		Only the 4x3 sub-matrix is used (last column is ignored).
+		Vec3 Transform(const Vec3& _v) const;
+
+		/// \brief Transform a direction vector.
+		/// \details the vectors is interpreted as _v 3D row vector.
+		///		Only the 3x3 sub-matrix is used (last column is ignored).
+		///		
+		///		This transformation might be wrong because of scaling parts
+		///		in the matrix.
+		Vec3 TransformDirection(const Vec3& _v) const;
+
+		/// \brief Transform a position vector and do division through the w part.
+		/// \details the vectors is interpreted as (_v, 1) 4D row vector.
+		Vec3 TransformPerspective(const Vec3& _v) const;
+
+		/// \brief Compute the inverse with determinant method
+		Mat4x4 Invert() const;
+
+		/// \brief Calculate the determinant of the whole 4x4 matrix with
+		///		Laplace's formula
+		float Det() const;
+
+		///< Solve the equation system Ax=v with Gauss-Jordan method.
+		//bool	MatrixSolveEquation(Matrix _A, Vec4& _vX);
+	};
+
+	/// \brief Computes (_v,1) * _A which is the same as Transform().
+	Vec3 operator * (const Vec3& _v, const Mat4x4& _A);
+	/// \brief Computes _A * (_v,1) which is the same as Transpose().Transform().
+	Vec3 operator * (const Mat4x4& _A, const Vec3& _v);
+	/// \brief Computes _v * _A.
+	Vec4 operator * (const Vec4& _v, const Mat4x4& _A);
+	/// \brief Computes _A * _v.
+	Vec4 operator * (const Mat4x4& _A, const Vec4& _v);
+
+
+
+
+
 
 
 // ******************************************************************************** //
 // 2x3 Matrix class for 2D Transformations
 // The transformation is applyed as follows: Matrix*(u,v,1)' (2x3 * 3x1 = 2x1)
-class Matrix2x3
+/*class Matrix2x3
 {
 public:
 	// Variables
@@ -560,6 +601,6 @@ inline	Matrix2x3	Matrix2x3Identity() {return Matrix2x3(1.0f, 0.0f, 0.0f, 0.0f, 1
 		Matrix2x3	Matrix2x3Transvection(const float x, const float y);
 		// Compute determinant
 		float		Matrix2x3Det(const Matrix2x3& m);
-
+		*/
 
 }; // namespace Math

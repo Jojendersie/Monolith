@@ -21,6 +21,16 @@ int main()
 #endif
 	atexit(exitprogram);
 
+	float d = Math::Mat4x4::Scaling(Math::PI).Det();
+	Math::Mat4x4 m = Math::Mat4x4::RotationX(Math::PI) * Math::Mat4x4::Translation(1.0f, 3.0f, 5.0f);
+	Math::Vec3 v(1.0f);
+	v = m.Transform(v);
+	v = m.Invert().Transform(v);
+	m = Math::Mat4x4::Translation(1.0f, 3.0f, 5.0f).Transpose();
+	int i=sizeof(m);
+
+
+
 	// Create a device with a window
 	Graphic::Device::Initialize( 1024, 768, false );
 

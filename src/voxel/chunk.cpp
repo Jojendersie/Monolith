@@ -170,14 +170,14 @@ namespace Voxel {
 		}
 	}
 
-	void Chunk::Draw( Graphic::UniformBuffer& _objectConstants, const Math::Matrix& _viewProjection )
+	void Chunk::Draw( Graphic::UniformBuffer& _objectConstants, const Math::Mat4x4& _viewProjection )
 	{
 		// TODO: culling & LOD
 
-		// -16 is the translation to center the chunks
-		// TODO: mass mid point (Schwerpunkt)
-		_objectConstants["WorldViewProjection"] = MatrixTranslation(m_position) * _viewProjection;
+		// Translation to center the chunks
+		_objectConstants["WorldViewProjection"] = Mat4x4::Translation(m_position) * _viewProjection;
 
+		// TODO: move to model
 		_objectConstants["Corner000"] = Vec4( -0.5f, -0.5f, -0.5f, 0.0f ) * _viewProjection;
 		_objectConstants["Corner001"] = Vec4( -0.5f, -0.5f,  0.5f, 0.0f ) * _viewProjection;
 		_objectConstants["Corner010"] = Vec4( -0.5f,  0.5f, -0.5f, 0.0f ) * _viewProjection;

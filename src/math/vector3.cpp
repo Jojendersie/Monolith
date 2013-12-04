@@ -34,20 +34,6 @@ IVec3 OrE::Math::IVec3::Random()
 }*/
 
 
-// ******************************************************************************** //
-// Transform a 3D directional vector - faster since only 3x3 matrix is applied
-Vec3 Vec3::TransformDirection(const Matrix& m) const
-{
-	// multiply 3x3 matrix with vector - no translation
-	return Vec3(x * m.m11 + y * m.m21 + z * m.m31,
-				x * m.m12 + y * m.m22 + z * m.m32,
-				x * m.m13 + y * m.m23 + z * m.m33);
-
-	// Calculation of the fourth component not necessary for directional vectors
-	// (vec3,0).
-
-	return *this;
-}
 
 // ******************************************************************************** //
 // Rotate a vector around some axis. This transformation uses quaternion

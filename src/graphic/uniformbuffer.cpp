@@ -58,7 +58,7 @@ namespace Graphic {
 
 	UniformBuffer::UniformVar UniformBuffer::operator [] (const std::string& _name)
 	{
-		// Cannot access unkonw attribute!
+		// Cannot access unknown attribute!
 		assert(m_attributes.find(_name) != m_attributes.end());
 
 		return (uint8_t*)m_memory + m_attributes[_name];
