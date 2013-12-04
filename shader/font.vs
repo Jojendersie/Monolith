@@ -15,8 +15,6 @@ out vec2 vs_out_Size;
 out float vs_out_Thickness;
 out float vs_out_Scale;
 
-out uint vs_out_VoxelCode;
-
 void main()
 {
 	// Pass through everything

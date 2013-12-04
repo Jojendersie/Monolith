@@ -31,8 +31,8 @@ namespace Input {
 } // namespace Input
 
 namespace Math {
-	class Matrix;
-	class Matrix2x3;
+	class Mat4x4;
+	class Mat3x3;
 	class Quaternion;
 	struct Sphere;
 	class Vec2;

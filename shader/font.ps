@@ -10,7 +10,7 @@ out vec4 fragColor;
 void main()
 {
 	// Texture sample (bitmap font)
-	float height = texture( u_characterTex, gs_texCoord ).x;
+	float height = texture( u_characterTex, vec2(gs_texCoord.x, 1-gs_texCoord.y) ).x;
 
 	fragColor = gs_color * (height<gs_thickness ? 0 : 1);
 }

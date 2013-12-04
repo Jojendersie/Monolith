@@ -63,12 +63,13 @@ namespace Math {
 						Vec3 b = _p3 - _p1;
 						Vec3 c = _p4 - _p1;
 
-						Matrix m = Matrix( _p2.x, _p2.y, _p2.z, 0.0f,
+						// TODO: Mat3x3
+						Mat4x4 m = Mat4x4( _p2.x, _p2.y, _p2.z, 0.0f,
 										   _p3.x, _p3.y, _p3.z, 0.0f,
 										   _p4.x, _p4.y, _p4.z, 0.0f,
 										   0.0f,  0.0f,  0.0f,  1.0f );
 
-						float denominator = 0.5f / MatrixDet3(m);
+						float denominator = 0.5f / m.Det();
 
 						Vec3 o = (c.LengthSq() * a.Cross(b) +
 								  b.LengthSq() * c.Cross(a) +

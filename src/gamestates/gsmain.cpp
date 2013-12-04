@@ -52,7 +52,7 @@ void GSMain::Render( double _time, double _deltaTime )
 	m_parent->content.cameraUBO["View"] = m_camera->GetView();
 	m_parent->content.cameraUBO["Projection"] = m_camera->GetProjection();
 	m_parent->content.cameraUBO["ViewProjection"] = m_camera->GetViewProjection();
-	m_parent->content.cameraUBO["ProjectionInverse"] = Vec3(1.0f/m_camera->GetProjection().m11, 1.0f/m_camera->GetProjection().m22, 1.0f/m_camera->GetProjection().m33);
+	m_parent->content.cameraUBO["ProjectionInverse"] = Vec3(1.0f/m_camera->GetProjection()(0,0), 1.0f/m_camera->GetProjection()(1,1), 1.0f/m_camera->GetProjection()(2,2));
 	m_parent->content.cameraUBO["Far"] = 400.0f;
 
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
@@ -85,5 +85,5 @@ void GSMain::MouseMove( double _dx, double _dy )
 void GSMain::Scroll( double _dx, double _dy )
 {
 	double scrollSpeed = m_parent->Config[std::string("Input")][std::string("CameraScrollSpeed")];
-	m_camera->Scroll( _dy * scrollSpeed );
+	m_camera->Scroll( float(_dy * scrollSpeed) );
 }

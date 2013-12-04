@@ -9,7 +9,7 @@ namespace Graphic {
 	/// \brief A wrapper for uniform buffer objects.
 	/// \details This class maps string-keys to locations to allow array access.
 	///
-	///		Each key is alligned according to the order of addition. Make sure
+	///		Each key is aligned according to the order of addition. Make sure
 	///		that the order aligns well with your ubo in shader.
 	class UniformBuffer
 	{
@@ -40,7 +40,7 @@ namespace Graphic {
 
 			/// \brief Assign a matrix to the uniform location.
 			/// \details This will not check for type validity!
-			void operator=(const Math::Matrix& _m)	{ *(Math::Matrix*)bufferPosition = transpose(_m); }
+			void operator=(const Math::Mat4x4& _m)	{ *(Math::Mat4x4*)bufferPosition = _m; }
 
 			/// \brief Assign a 4D vector to the uniform location.
 			/// \details This will not check for type validity!
@@ -59,7 +59,7 @@ namespace Graphic {
 			void operator=(const float _f)	{ *(float*)bufferPosition = _f; }
 
 			/// \brief Cast to matrix without type check.
-			operator Math::Matrix () const { return transpose(*(Math::Matrix*)bufferPosition); }
+			operator Math::Mat4x4 () const { return *(Math::Mat4x4*)bufferPosition; }
 			/// \brief Cast to vector 4 without type check.
 			operator const Math::Vec4& () const { return *(Math::Vec4*)bufferPosition; }
 			/// \brief Cast to vector 3 without type check.

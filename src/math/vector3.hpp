@@ -5,7 +5,6 @@
 
 namespace Math {
 
-	class Matrix;
 	class IVec3;
 
 // ******************************************************************************** //
@@ -90,12 +89,6 @@ public:
 
 	// Create a random point uniformly distributed in the [-1,1]^3 cube.
 	static Vec3			RandomPosition();
-
-	// Multiply a directional vector (left) with the matrix (from right).
-	// The w component is ignored (9mul + 9add).
-	// Use a transposed inverse to transform directions correct
-	// (if transformation is affine and not rigged)!
-	Vec3			TransformDirection(const Matrix& m) const;
 
 	// Rotate a vector around some axis. This transformation uses quaternion
 	// math. Use this if you want to rotate only one vector. For the rotation

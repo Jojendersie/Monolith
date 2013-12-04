@@ -3,7 +3,7 @@
 #define OUT_VERTS 4
 
 in vec4 vs_out_Color[1];
-out vec2 vs_out_Position[1];
+in vec2 vs_out_Position[1];
 in vec2 vs_out_TexCoord[1];
 in vec2 vs_out_Size[1];
 in float vs_out_Thickness[1];

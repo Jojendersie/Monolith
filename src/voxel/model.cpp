@@ -23,12 +23,12 @@ namespace Voxel {
 		free(m_chunks);
 	}
 
-	void Model::Draw( Graphic::UniformBuffer& _objectConstants, const Math::Matrix& _viewProjection )
+	void Model::Draw( Graphic::UniformBuffer& _objectConstants, const Math::Mat4x4& _viewProjection )
 	{
 		// TODO: culling
 
 		// Create a new model space transformation
-		Math::Matrix mModelViewProjection = MatrixTranslation(-m_center) * MatrixRotation(m_rotation) * MatrixTranslation( m_position+m_center ) * _viewProjection;
+		Math::Mat4x4 mModelViewProjection = Mat4x4::Translation(-m_center) * Mat4x4::Rotation(m_rotation) * Mat4x4::Translation( m_position+m_center ) * _viewProjection;
 
 		// Draw all chunks
 		for( int i=0; i<m_numChunks; ++i )

@@ -84,52 +84,53 @@ Vec4 slerp(const Vec4& v1, const Vec4& v2, const float t)
 
 // ******************************************************************************** //
 // Construction from matrix
-Quaternion::Quaternion(const Matrix& _m)
+Quaternion::Quaternion(const Mat4x4& _m)
 {
+	// TODO: Mat3x3
 	// Local copy for write access. The copy is without translation part.
-	Matrix M(_m.m11, _m.m12, _m.m13, 0.0f,
-			 _m.m21, _m.m22, _m.m23, 0.0f,
-			 _m.m31, _m.m32, _m.m33, 0.0f,
+	Mat4x4 M(_m(0,0), _m(0,1), _m(0,2), 0.0f,
+			 _m(1,0), _m(1,1), _m(1,2), 0.0f,
+			 _m(2,0), _m(2,1), _m(2,2), 0.0f,
 			 0.0f,   0.0f,   0.0f,   1.0f);
 
 	// Remove scaling part
-	((Vec3*)(M.m1))->Normalize();
-	((Vec3*)(M.m2))->Normalize();
-	((Vec3*)(M.m3))->Normalize();
+	((Vec3*)(&M(0,0)))->Normalize();
+	((Vec3*)(&M(0,1)))->Normalize();
+	((Vec3*)(&M(0,2)))->Normalize();
 
 	// ignore de-orthogonalization
 
 	// Build Quaternion from rotation matrix
 	// Src: http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
-	float fTrace = M.m11 + M.m22 + M.m33;
+	float fTrace = _m(0,0) + _m(1,1) + _m(2,2);
 	if( fTrace > 0 )
 	{
 		float s = 0.5f / sqrtf( fTrace+ 1.0f );
-		i = ( M.m32 - M.m23 ) * s;
-		j = ( M.m13 - M.m31 ) * s;
-		k = ( M.m21 - M.m12 ) * s;
+		i = ( _m(2,1) - _m(1,2) ) * s;
+		j = ( _m(0,2) - _m(2,0) ) * s;
+		k = ( _m(1,0) - _m(0,1) ) * s;
 		r = 0.25f / s;
 	} else {
-		if( M.m11 > M.m22 && M.m11 > M.m33 )
+		if( _m(0,0) > _m(1,1) && _m(0,0) > _m(2,2) )
 		{
-			float s = 2.0f * sqrtf( 1.0f + M.m11 - M.m22 - M.m33 );
+			float s = 2.0f * sqrtf( 1.0f + _m(0,0) - _m(1,1) - _m(2,2) );
 			i = 0.25f * s;
-			j = ( M.m12 + M.m21 ) / s;
-			k = ( M.m13 + M.m31 ) / s;
-			r = ( M.m32 - M.m23 ) / s;
-		} else if( M.m22 > M.m33 )
+			j = ( _m(0,1) + _m(1,0) ) / s;
+			k = ( _m(0,2) + _m(2,0) ) / s;
+			r = ( _m(2,1) - _m(1,2) ) / s;
+		} else if( _m(1,1) > _m(2,2) )
 		{
-			float s = 2.0f * sqrtf( 1.0f + M.m22 - M.m11 - M.m33 );
-			i = ( M.m12 + M.m21 ) / s;
+			float s = 2.0f * sqrtf( 1.0f + _m(1,1) - _m(0,0) - _m(2,2) );
+			i = ( _m(0,1) + _m(1,0) ) / s;
 			j = 0.25f * s;
-			k = ( M.m23 + M.m32 ) / s;
-			r = ( M.m13 - M.m31 ) / s;
+			k = ( _m(1,2) + _m(2,1) ) / s;
+			r = ( _m(0,2) - _m(2,0) ) / s;
 		} else {
-			float s = 2.0f * sqrtf( 1.0f + M.m33 - M.m11 - M.m22 );
-			i = ( M.m13 + M.m31 ) / s;
-			j = ( M.m23 + M.m32 ) / s;
+			float s = 2.0f * sqrtf( 1.0f + _m(2,2) - _m(0,0) - _m(1,1) );
+			i = ( _m(0,2) + _m(2,0) ) / s;
+			j = ( _m(1,2) + _m(2,1) ) / s;
 			k = 0.25f * s;
-			r = ( M.m21 - M.m12 ) / s;
+			r = ( _m(1,0) - _m(0,1) ) / s;
 		}
 	}
 }
@@ -138,12 +139,12 @@ Quaternion::Quaternion(const Matrix& _m)
 // From Euler angles
 Quaternion::Quaternion( float _fYaw, float _fPitch, float _fRoll )
 {
-	Quaternion q( MatrixRotation( _fYaw, _fPitch, _fRoll ) );
+	Quaternion q( Mat4x4::Rotation( _fYaw, _fPitch, _fRoll ) );
 	*this = q;
 }
 
 // ******************************************************************************** //
-Quaternion::operator Matrix () const
+Quaternion::operator Mat4x4 () const
 {
 	// Rotation composition from quaternion (remaining rest direct in matrix)
 	// See http://de.wikipedia.org/wiki/Quaternion#Bezug_zu_orthogonalen_Matrizen for
@@ -161,7 +162,7 @@ Quaternion::operator Matrix () const
     float f2jk = f2k  * j;
     float f2kk = f2k  * k;
 
-	return Matrix(
+	return Mat4x4(
 		1.0f - ( f2jj + f2kk ), f2ij - f2rk,            f2ik + f2rj,            0.0f,
 		f2ij + f2rk,            1.0f - ( f2ii + f2kk ), f2jk - f2ri,            0.0f,
 		f2ik - f2rj,            f2jk + f2ri,            1.0f - ( f2ii + f2jj ), 0.0f,

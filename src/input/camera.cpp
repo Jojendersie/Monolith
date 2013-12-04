@@ -21,12 +21,12 @@ namespace Input {
 	{
 		m_mutex.lock();
 //		if( m_hardAttached ) NormalizeReference();
-		m_view = Math::MatrixTranslation( -m_position ) * Math::MatrixRotation( m_rotation );
-		m_projection = Math::MatrixProjection( m_fov, m_aspect, 1.0f, 1000.0f );
+		m_view = Math::Mat4x4::Translation( -m_position ) * Math::Mat4x4::Rotation( m_rotation );
+		m_projection = Math::Mat4x4::Projection( m_fov, m_aspect, 1.0f, 1000.0f );
 		m_mutex.unlock();
 		m_viewProjection = m_view * m_projection;
-		m_inverseView = Math::invert( m_view );
-		m_inverseViewProjection = Math::invert( m_viewProjection );
+		m_inverseView = m_view.Invert();
+		m_inverseViewProjection = m_viewProjection.Invert();
 	}
 
 
@@ -38,7 +38,7 @@ namespace Input {
 			// Do an object relative rotation.
 			// In soft case the reference point is recomputed since we don't
 			// want to jump back but center movement at the object
-			if( !m_hardAttached ) m_referencePos = m_attachedTo->GetCenter() * m_view;
+			if( !m_hardAttached ) m_referencePos = m_view.Transform( m_attachedTo->GetCenter() );
 			m_rotation = m_rotation * Math::Quaternion( -_theta, _phi, 0.0f );
 			NormalizeReference();
 		} else
@@ -66,7 +66,7 @@ namespace Input {
 	{
 		if( m_attachedTo )
 		{
-			// Increasing scroll speed with increaing distance.
+			// Increasing scroll speed with increasing distance.
 			_dz = m_referencePos.z * _dz * 0.01f;
 			// TODO: avoid scrolling into the object
 		} // Linear movement otherwise
@@ -103,7 +103,7 @@ namespace Input {
 	{
 		// Transform by rotation inverse (which is multiplying from right for
 		// rotations)
-		Math::Matrix mCurrentView = MatrixRotation( m_rotation );
+		Math::Mat4x4 mCurrentView = Mat4x4::Rotation( m_rotation );
 		m_position = m_attachedTo->GetCenter() - mCurrentView * m_referencePos;
 	}
 
