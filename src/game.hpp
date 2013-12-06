@@ -107,6 +107,7 @@ public:
 private:
 	Generators::Asteroid* m_astTest;
 	Graphic::Font* m_fontTest;
+	Graphic::TextRender* m_textTest;
 	Graphic::Texture* m_textures;
 	Input::Camera* m_camera;
 };

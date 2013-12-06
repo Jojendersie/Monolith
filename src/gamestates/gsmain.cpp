@@ -18,7 +18,12 @@ GSMain::GSMain()
 	//m_astTest->ComputeVertexBuffer();
 	//m_astTest->SetPosition( Vec3( 0.0f, 0.0f, 0.0f ) );
 
-	m_fontTest = new Graphic::Font();
+	m_fontTest = new Graphic::Font("arial");
+	m_textTest = new Graphic::TextRender(m_fontTest);
+	m_textTest->SetPos(Math::Vec2(-1.f,-1.f));
+	m_textTest->SetText("AZ");
+	m_textTest->SetPos(Math::Vec2(0.5f,-1.f));
+
 	m_textures = new Graphic::Texture("texture/rock1.png");
 
 	m_camera = new Input::Camera( Vec3( 0.0f, 80.0f, 250.0f ),
@@ -61,6 +66,8 @@ void GSMain::Render( double _time, double _deltaTime )
 	Graphic::Device::SetTexture( *m_parent->content.voxelTextures, 0 );
 
 	m_astTest->Draw( m_parent->content.objectUBO, m_parent->content.cameraUBO["ViewProjection"] );
+
+	m_textTest->Draw();
 }
 
 // ************************************************************************* //
