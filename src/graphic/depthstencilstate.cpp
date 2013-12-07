@@ -23,7 +23,7 @@ namespace Graphic {
 
 	void DepthStencilState::ComputeHash()
 	{
-		m_hash = (int(m_zTest) & 0xf) | (m_zWrite << 3);
+		m_hash = (int(m_zTest) & 0x7) | (m_zWrite << 3);
 		if( m_stencilRef )
 		{
 			m_hash = (m_hash << 6) | (int(m_SFTest) & 0xf) | ((int(m_SBTest) & 0xf)<<3);
@@ -40,8 +40,10 @@ namespace Graphic {
 	{
 		// Z-Test
 		if( m_zTest == COMPARISON_FUNC::ALWAYS ) glDisable(GL_DEPTH_TEST);
-		else glEnable(GL_DEPTH_TEST);
-		glDepthFunc( unsigned(m_zTest) );
+		else {
+			glEnable(GL_DEPTH_TEST);
+			glDepthFunc( unsigned(m_zTest) );
+		}
 
 		// Z-Write
 		glDepthMask( m_zWrite );

@@ -8,6 +8,7 @@
 #include "effect.hpp"
 #include "texture.hpp"
 #include "device.hpp"
+#include "content.hpp"
 
 
 namespace Graphic {
@@ -33,9 +34,7 @@ namespace Graphic {
 		Effect m_effect;
 		Texture m_texture;
 		/// \brief Load a bitmap font and initialize the render effect.
-		Font(std::string _fontName);
-	private:
-		Graphic::SamplerState fontSampler;
+		Font(std::string _fontName, Content* _globalPipelineData);
 	};
 
 	/// \brief A buffer with a formated string to draw.

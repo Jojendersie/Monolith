@@ -113,6 +113,9 @@
     <ClCompile Include="src\math\sphere.cpp">
       <Filter>Source Files\math</Filter>
     </ClCompile>
+    <ClCompile Include="src\graphic\content.cpp">
+      <Filter>Source Files\graphic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game.hpp">
@@ -204,6 +207,9 @@
     </ClInclude>
     <ClInclude Include="src\math\sphere.hpp">
       <Filter>Source Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\content.hpp">
+      <Filter>Source Files\graphic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

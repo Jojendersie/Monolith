@@ -6,7 +6,7 @@
 #include "timer.hpp"
 #include "graphic/device.hpp"
 #include "graphic/uniformbuffer.hpp"
-#include "graphic/texture.hpp"
+#include "graphic/content.hpp"
 #include "input/input.hpp"
 
 static double g_fInvFrequency;
@@ -15,7 +15,8 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 	m_singleThreaded( true ),
 	m_running( true ),
 	m_time( 0.0 ),
-	m_currentGameState( 0 )
+	m_currentGameState( 0 ),
+	m_graficContent( nullptr )
 {
 	// Init timer
 	g_fInvFrequency = std::chrono::high_resolution_clock::period::num/double(std::chrono::high_resolution_clock::period::den);
@@ -36,9 +37,11 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 
 	Input::Manager::Initialize( Graphic::Device::GetWindow() );
 
+	// Load the graphic stuff
+	m_graficContent = new Graphic::Content();
+
 	// Create game states
-	m_gameStates[0] = new GSMain();
-	m_gameStates[0]->m_parent = this;
+	m_gameStates[0] = new GSMain(this);
 
 	Input::Manager::SetGameState( m_gameStates[0] );
 }
@@ -51,6 +54,7 @@ Monolith::~Monolith()
 	} catch(...) {
 		std::cerr << "Could not write a config file!";
 	}
+	delete m_graficContent;
 	delete m_gameStates[0];
 }
 
@@ -84,57 +88,6 @@ void Monolith::Run()
 			//std::this_thread::sleep_for( m_microSecPerFrame - std::chrono::microseconds(unsigned(deltaFrameTime * 1000000.0))  );
 		}
 	}
-}
-
-
-Monolith::_Content::_Content() :
-	voxelRenderEffect( "shader/voxel.vs", "shader/voxel.gs", "shader/voxel.ps",
-		Graphic::RasterizerState::CULL_MODE::BACK, Graphic::RasterizerState::FILL_MODE::SOLID ),
-		objectUBO( "Object" ), cameraUBO( "Camera" ),
-	pointSampler(Graphic::SamplerState::EDGE_TREATMENT::WRAP, Graphic::SamplerState::SAMPLE::POINT,
-				Graphic::SamplerState::SAMPLE::POINT, Graphic::SamplerState::SAMPLE::LINEAR ),
-	linearSampler(Graphic::SamplerState::EDGE_TREATMENT::WRAP, Graphic::SamplerState::SAMPLE::LINEAR,
-				Graphic::SamplerState::SAMPLE::LINEAR, Graphic::SamplerState::SAMPLE::LINEAR )
-{
-	// Init the constant buffers
-	objectUBO.AddAttribute( "WorldViewProjection", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
-	objectUBO.AddAttribute( "Corner000", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
-	objectUBO.AddAttribute( "Corner001", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
-	objectUBO.AddAttribute( "Corner010", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
-	objectUBO.AddAttribute( "Corner011", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
-	objectUBO.AddAttribute( "Corner100", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
-	objectUBO.AddAttribute( "Corner101", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
-	objectUBO.AddAttribute( "Corner110", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
-	objectUBO.AddAttribute( "Corner111", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
-
-	cameraUBO.AddAttribute( "View", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
-	cameraUBO.AddAttribute( "Projection", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
-	cameraUBO.AddAttribute( "ViewProjection", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
-	cameraUBO.AddAttribute( "ProjectionInverse", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC3 );
-	cameraUBO.AddAttribute( "Far", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
-
-	// Bind constant buffers to effects
-	voxelRenderEffect.BindUniformBuffer( objectUBO );
-	voxelRenderEffect.BindUniformBuffer( cameraUBO );
-	voxelRenderEffect.BindTexture("u_diffuseTex", 0, pointSampler);
-	assert(glGetError() == GL_NO_ERROR);
-
-	// Load array texture for all voxels
-	std::vector<std::string> textureNames;
-	textureNames.push_back( "texture/none.png" );
-	textureNames.push_back( "texture/rock1.png" );
-	textureNames.push_back( "texture/water.png" );
-	try {
-		voxelTextures = new Graphic::Texture(textureNames);
-	} catch( std::string _message ) {
-		std::cerr << "Failed to load voxel textures!\n";
-	}
-}
-
-
-Monolith::_Content::~_Content()
-{
-	delete voxelTextures;
 }
 
 
