@@ -176,7 +176,7 @@ namespace Voxel {
 	}
 
 	void Chunk::Draw( Graphic::UniformBuffer& _objectConstants,
-			const Math::Matrix& _modelViewProjection,
+			const Math::Mat4x4& _modelViewProjection,
 			const Input::Camera& _camera,
 			const Math::Vec3& _modelPosition )
 	{
@@ -187,7 +187,7 @@ namespace Voxel {
 		for( int i=0; i<lod; ++i) lodOffset += m_lodVoxelNum[i];
 
 		// Translation to center the chunks
-		_objectConstants["WorldViewProjection"] = Mat4x4::Translation(m_position) * _viewProjection;
+		_objectConstants["WorldViewProjection"] = Mat4x4::Translation(m_position) * _modelViewProjection;
 
 		_objectConstants["Corner000"] = Vec4( -0.5f, -0.5f, -0.5f, 0.0f ) * _modelViewProjection;
 		_objectConstants["Corner001"] = Vec4( -0.5f, -0.5f,  0.5f, 0.0f ) * _modelViewProjection;

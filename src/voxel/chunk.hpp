@@ -60,7 +60,7 @@ namespace Voxel {
 		///		This matrix should contain the general model transformation too.
 		/// \param [in] _camera Camera used for culling and LOD computations.
 		void Draw( Graphic::UniformBuffer& _objectConstants,
-			const Math::Matrix& _modelViewProjection,
+			const Math::Mat4x4& _modelViewProjection,
 			const Input::Camera& _camera,
 			const Math::Vec3& _modelPosition );
 

@@ -164,6 +164,8 @@ public:
 	IVec3& operator *= (const int i)								{x *= i; y *= i; z *= i; return *this;}
 	IVec3& operator /= (const IVec3& v)								{x /= v.x; y /= v.y; z /= v.z; return *this;}
 	IVec3& operator /= (int i)										{x /= i; y /= i; z /= i; return *this;}
+	IVec3& operator >>= (int i)										{x >>= i; y >>= i; z >>= i; return *this;}
+	IVec3& operator <<= (int i)										{x <<= i; y <<= i; z <<= i; return *this;}
 
 	inline int& operator[](int i)									{ return *((int*)this + i); }
 
@@ -178,6 +180,8 @@ public:
 	inline IVec3 operator / (const IVec3& b) const					{return IVec3(x / b.x, y / b.y, z / b.z);}
 	inline IVec3 operator / (int i) const							{return IVec3(x / i, y / i, z / i);}
 	inline Vec3 operator / (float f) const							{return Vec3(x / f, y / f, z / f);}
+	inline IVec3 operator >> (int i) const							{return IVec3(x >> i, y >> i, z >> i);}
+	inline IVec3 operator << (int i) const							{return IVec3(x << i, y << i, z << i);}
 
 	// ******************************************************************************** //
 	// Comparison operators

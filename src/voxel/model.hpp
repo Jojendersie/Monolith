@@ -33,7 +33,8 @@ namespace Voxel {
 		/// \details This method overwrites all covered voxels.
 		/// \param [in] _position Position inside the given level.
 		/// \param [in] _level Depth in the grid hierarchy. 0 is the maximum
-		///		size and 5 is the level of the smallest voxel grid.
+		///		resolution of the voxel grid. The size is the logarithmic edge
+		///		length of voxels (2^0).
 		/// \param [in] _type Material to be set. VoxelType::NONE can delete
 		///		a voxel.
 		void Set( const Math::IVec3& _position, int _level, VoxelType _type );
@@ -57,6 +58,7 @@ namespace Voxel {
 	protected:
 		Chunk** m_chunks;				///< A loose collection of chunks. TODO: octree
 		int m_numChunks;
+		int m_numVoxels;				///< Count the number of voxels for statistical issues
 
 		Math::Vec3 m_position;			///< Model position in the space.
 		Math::Vec3 m_center;			///< The center of gravity (relative to the model).
@@ -77,11 +79,14 @@ namespace Voxel {
 			SVON* children;
 			VoxelType type;
 
-			/// \brief Set a voxel on the highest resolution.
+			SVON() : children(nullptr), type(VoxelType::UNDEFINED)	{}//TODO: stuff
+
+			/// \brief Set a voxel on a chosen resolution.
 			/// \param [in] _currentSize The voxel size in the current recursion
 			///		level. This can be used to compute the full actual position.
 			///	\param [in] _position Position where to set the new voxel.
-			///	\param [in] _size Logarithmic size of the voxel to be set.
+			///	\param [in] _size Logarithmic size of the voxel to be set. 0 is
+			///		the layer with the highest resolution.
 			///	\param [in] _type The new type.
 			/// \param [in] _model The model for all update steps if voxels are
 			///		overwritten.
@@ -91,21 +96,41 @@ namespace Voxel {
 			///		delete the memory block.
 			/// \param [in] _model The model for all update steps if voxels are
 			///		overwritten.
-			void RemoveSubTree(const Math::IVec3& _position, int _size, Model* _model);
+			///	\param [in] _removePhysicaly Call the model update for each deleted voxel or not? 
+			void RemoveSubTree(const Math::IVec3& _position, int _size, Model* _model, bool _removePhysically);
 
 			/// \brief Check if all children have the same type.
 			bool IsUniform();
 
-			int ComputeChildIndex(const Math::IVec3& _targetPosition, int _targetSize, int _childSize);
+			/// \brief Computes which type has the majority for the 8 children.
+			/// \details NONE is not counted.
+			VoxelType MajorVoxelType();
+
+			/// \brief Computes the child array index [0,7] assuming that the
+			///		target position is within the current voxels children
+			static int ComputeChildIndex(const Math::IVec3& _targetPosition, int _targetSize, int _childSize);
+
+			/// \brief Temporarily method to benchmark the tree
+#ifdef _DEBUG
+			size_t MemoryConsumtion() const;
+#endif
 		};
 #		pragma pack(pop)
 
-		/// \brief An own allocator for all nodes of this model's octree
+		/// \brief An own allocator for all nodes of this model's octree.
+		/// \details Instead of single voxels this is always an array of 8.
 		Jo::Memory::PoolAllocator m_SVONAllocator;
 
-		//SVON* NewSVON()					{ return (SVON*)m_SVONAllocator.Alloc(); }
+		/// \brief Use the pool allocator and call the constructor 8 times
+		SVON* NewSVON();
 		//void DeleteSVON(SVON* _node)	{ m_SVONAllocator.Free(_node); }
 
-		SVON* m_voxelTree;	///< The differences in the model to the blue print.
+		/// \brief A sparse voxel octree with incremental differences between
+		///		blueprint and this model.
+		///	\details Each pointer points to a set of 8 children. So on root level there
+		///		are always 8 nodes.
+		SVON* m_voxelTree;			
+		Math::IVec3 m_rootPosition;	///< Position of the root node in grid space of the m_rootSize+1 level.
+		int m_rootSize;				///< Level of the 8 root nodes where 0 is the highest possible resolution.
 	};
 };
