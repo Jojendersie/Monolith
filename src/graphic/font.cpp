@@ -10,11 +10,20 @@ namespace Graphic
 	{
 		m_effect.BindTexture( "u_characterTex", 7, _globalPipelineData->linearSampler );
 		m_effect.BindUniformBuffer( _globalPipelineData->cameraUBO );
+
+		Jo::Files::HDDFile file("texture/"+_fontName+".sraw", true);
+		Jo::Files::MetaFileWrapper Wrap( file, Jo::Files::Format::SRAW );
+		auto& PosX = Wrap.RootNode[std::string("positionX")];
+		auto& PosY = Wrap.RootNode[std::string("positionY")];
+		auto& sizeX = Wrap.RootNode[std::string("sizeX")];
+		auto& sizeY = Wrap.RootNode[std::string("sizeY")];
 		//default values for testing
 		for(int i = 0; i < 256; i++)
 		{
-			m_sizeTable[i] = Math::Vec2(1-0.01f*i,i*0.01f);//0.1; 0.25
-			m_CoordTable[i] = Math::Vec2(0.f,0.25f);
+			m_sizeTable[i] = Math::Vec2(sizeX[i],sizeY[i]);
+			m_CoordTable[i] = Math::Vec2(PosX[i],PosY[i]);
+		//	m_sizeTable[i] = Math::Vec2(1-0.01f*i,i*0.01f);//0.1; 0.25
+		//	m_CoordTable[i] = Math::Vec2(0.f,0.25f);
 		}
 	}
 
@@ -57,11 +66,11 @@ namespace Graphic
 		for(size_t i = 0; i<m_text.length(); i++)
 		{
 			CharacterVertex CV;
-			CV.position = -0.5f+0.15f*i;//currentPos;
+			CV.position = currentPos;
 			CV.scale = 1.f; 
 			CV.size = m_font->m_sizeTable[m_text[i]];
 			CV.texCoord = m_font->m_CoordTable[m_text[i]];
-			CV.thickness = 0.00001f;
+			CV.thickness = 0.5f;
 			//line break
 			if(m_text[i] == 13){currentPos.x = m_screenPos.x; currentPos.y -= m_font->m_sizeTable[m_text[i]].y;}
 			else currentPos.x += m_font->m_sizeTable[m_text[i]].x; 

@@ -9,6 +9,7 @@
 #include "texture.hpp"
 #include "device.hpp"
 #include "content.hpp"
+#include <jofilelib.hpp>
 
 
 namespace Graphic {
