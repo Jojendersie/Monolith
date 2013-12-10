@@ -1,10 +1,6 @@
 #pragma once
 
 #include <chrono>
-
-#include "graphic/uniformbuffer.hpp"
-#include "graphic/effect.hpp"
-#include "graphic/samplerstate.hpp"
 #include "predeclarations.hpp"
 #include <jofilelib.hpp>
 
@@ -14,6 +10,8 @@
 class IGameState
 {
 public:
+	IGameState(Monolith* _parent) : m_parent(_parent) {}
+
 	virtual ~IGameState() {}
 
 	/// \brief Update the movement, damages... of all objects
@@ -42,6 +40,7 @@ public:
 	/// \brief handle vertical and horizontal scroll events.
 	virtual void Scroll( double _dx, double _dy ) {}
 
+protected:
 	Monolith* m_parent;
 };
 
@@ -64,19 +63,7 @@ public:
 	/// \brief Start the game. This method will return after the game closed.
 	void Run();
 
-	/// \brief Global content like fonts and render effects
-	struct _Content {
-		_Content();
-		~_Content();
-
-		Graphic::Effect voxelRenderEffect;
-		Graphic::UniformBuffer objectUBO;
-		Graphic::UniformBuffer cameraUBO;
-		Graphic::SamplerState pointSampler;
-		Graphic::SamplerState linearSampler;
-
-		Graphic::Texture* voxelTextures;
-	} content;
+	Graphic::Content* m_graficContent;
 
 	Jo::Files::MetaFileWrapper Config;
 private:
@@ -96,7 +83,7 @@ class GSMain: public IGameState
 {
 public:
 	/// \brief Create main state specific content.
-	GSMain();
+	GSMain(Monolith* _parent);
 	~GSMain();
 
 	virtual void Update( double _time, double _deltaTime ) override;
@@ -107,6 +94,7 @@ public:
 private:
 	Generators::Asteroid* m_astTest;
 	Graphic::Font* m_fontTest;
+	Graphic::TextRender* m_textTest;
 	Graphic::Texture* m_textures;
 	Input::Camera* m_camera;
 };

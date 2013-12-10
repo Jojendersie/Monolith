@@ -12,13 +12,17 @@ using namespace Math;
 #include "../graphic/texture.hpp"
 
 // ************************************************************************* //
-GSMain::GSMain()
+GSMain::GSMain(Monolith* _parent) : IGameState(_parent)
 {
 	m_astTest = new Generators::Asteroid( 80, 50, 30, 2 );
 	//m_astTest->ComputeVertexBuffer();
 	//m_astTest->SetPosition( Vec3( 0.0f, 0.0f, 0.0f ) );
 
-	m_fontTest = new Graphic::Font();
+	m_fontTest = new Graphic::Font("arial", _parent->m_graficContent);
+	m_textTest = new Graphic::TextRender(m_fontTest);
+	//m_textTest->SetPos(Math::Vec2(-1.f,-1.f));
+	m_textTest->SetPos(Math::Vec2(0.7f,0.7f));
+
 	m_textures = new Graphic::Texture("texture/rock1.png");
 
 	m_camera = new Input::Camera( Vec3( 0.0f, 80.0f, 250.0f ),
@@ -33,6 +37,7 @@ GSMain::~GSMain()
 {
 	delete m_camera;
 	delete m_astTest;
+	delete m_textTest;
 	delete m_fontTest;
 	delete m_textures;
 }
@@ -49,18 +54,21 @@ void GSMain::Render( double _time, double _deltaTime )
 	//Matrix view = MatrixCamera( Vec3(sin(_time)*250,80.0f,cos(_time)*250), Vec3(0.0f,0.0f,0.0f) );
 	//Matrix projection = MatrixProjection( 0.3f, 1.3f, 0.5f, 400.0f );
 	//Matrix viewProjection = view * projection;
-	m_parent->content.cameraUBO["View"] = m_camera->GetView();
-	m_parent->content.cameraUBO["Projection"] = m_camera->GetProjection();
-	m_parent->content.cameraUBO["ViewProjection"] = m_camera->GetViewProjection();
-	m_parent->content.cameraUBO["ProjectionInverse"] = Vec3(1.0f/m_camera->GetProjection()(0,0), 1.0f/m_camera->GetProjection()(1,1), 1.0f/m_camera->GetProjection()(2,2));
-	m_parent->content.cameraUBO["Far"] = 400.0f;
+	m_parent->m_graficContent->cameraUBO["View"] = m_camera->GetView();
+	m_parent->m_graficContent->cameraUBO["Projection"] = m_camera->GetProjection();
+	m_parent->m_graficContent->cameraUBO["ViewProjection"] = m_camera->GetViewProjection();
+	m_parent->m_graficContent->cameraUBO["ProjectionInverse"] = Vec3(1.0f/m_camera->GetProjection()(0,0), 1.0f/m_camera->GetProjection()(1,1), 1.0f/m_camera->GetProjection()(2,2));
+	m_parent->m_graficContent->cameraUBO["Far"] = 400.0f;
 
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 
-	Graphic::Device::SetEffect(	m_parent->content.voxelRenderEffect );
-	Graphic::Device::SetTexture( *m_parent->content.voxelTextures, 0 );
+	Graphic::Device::SetEffect(	m_parent->m_graficContent->voxelRenderEffect );
+	Graphic::Device::SetTexture( *m_parent->m_graficContent->voxelTextures, 0 );
 
-	m_astTest->Draw( m_parent->content.objectUBO, m_parent->content.cameraUBO["ViewProjection"] );
+	m_astTest->Draw( m_parent->m_graficContent->objectUBO, m_parent->m_graficContent->cameraUBO["ViewProjection"] );
+	
+	m_textTest->SetText(std::to_string(_deltaTime));
+	m_textTest->Draw();
 }
 
 // ************************************************************************* //

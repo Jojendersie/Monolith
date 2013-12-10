@@ -152,8 +152,13 @@ namespace Graphic {
 	void Device::Clear( float _r, float _g, float _b )
 	{
 		glClearColor( _r, _g, _b, 1.0f );
+		// Need to write z in clear call
+		GLboolean writeDepth; glGetBooleanv(GL_DEPTH_WRITEMASK, &writeDepth);
+		glDepthMask( true );
 		glClearDepth( 1.0f );
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+		// Return to old state, otherwise effects could get confused
+		glDepthMask( writeDepth );
 	}
 
 	void Device::ClearZ()
@@ -177,5 +182,7 @@ namespace Graphic {
 #ifdef _DEBUG
 		LogGlError("[Device::DrawVertices] glDrawArrays failed");
 #endif
+
+		//glBindVertexArray(0);
 	}
 };

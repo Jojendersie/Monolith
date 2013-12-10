@@ -6,6 +6,10 @@
 #include <cstdint>
 #include "vertexbuffer.hpp"
 #include "effect.hpp"
+#include "texture.hpp"
+#include "device.hpp"
+#include "content.hpp"
+#include <jofilelib.hpp>
 
 
 namespace Graphic {
@@ -26,10 +30,12 @@ namespace Graphic {
 	class Font
 	{
 	public:
-		/// \brief Load a bitmap font and initialize the render effect.
-		Font();
-	private:
+		Math::Vec2 m_sizeTable[256];
+		Math::Vec2 m_CoordTable[256];
 		Effect m_effect;
+		Texture m_texture;
+		/// \brief Load a bitmap font and initialize the render effect.
+		Font(std::string _fontName, Content* _globalPipelineData);
 	};
 
 	/// \brief A buffer with a formated string to draw.
@@ -41,8 +47,17 @@ namespace Graphic {
 
 		/// \brief Draw all buffered texts.
 		void Draw();
+
+		/// \brief Sets the text and updates the VertexBuffer.
+		void SetText(std::string _text);
+
+		// \brief Sets the Position on the screen.
+		void SetPos(Math::Vec2 _screenPos);
 	private:
+		void RenewBuffer();
 		Font* m_font;	///< Reference to the used font.
+		std::string m_text;
+		Math::Vec2 m_screenPos;
 		VertexBuffer m_characters;
 	};
 };

@@ -20,7 +20,8 @@ namespace Graphic {
 
 		/// \brief Construction of a program with pixel, vertex and geometry shader.
 		Effect( const std::string& _VSFile, const std::string& _GSFile, const std::string& _PSFile,
-			RasterizerState::CULL_MODE _cullMode, RasterizerState::FILL_MODE _fillMode );
+			RasterizerState::CULL_MODE _cullMode, RasterizerState::FILL_MODE _fillMode,
+			DepthStencilState::COMPARISON_FUNC _depthFunc = DepthStencilState::COMPARISON_FUNC::LESS, bool _zWrite = true);
 
 		~Effect();
 

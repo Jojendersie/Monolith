@@ -18,9 +18,11 @@ namespace Generators {
 namespace Graphic {
 	class Effect;
 	class Font;
+	class TextRender;
 	class SamplerState;
 	class Texture;
 	class UniformBuffer;
+	struct Content;
 } // namespace Graphic
 
 namespace Input {

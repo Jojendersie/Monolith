@@ -23,7 +23,7 @@ inline int VectorSize(char a)
 	return 0;
 }
 
-// Creating a vertex buffer with arbitary interleaved data
+// Creating a vertex buffer with arbitrary interleaved data
 VertexBuffer::VertexBuffer(unsigned _maxNumVertices, const char* _vertexDeclaration, PrimitiveType _type) :
 	m_data(nullptr),
 	m_maxNumVertices(_maxNumVertices),
@@ -34,7 +34,7 @@ VertexBuffer::VertexBuffer(unsigned _maxNumVertices, const char* _vertexDeclarat
 	m_tangentOffset(0xffffffff),
 	m_primitiveType(_type)
 {
-	// First step analysing the string
+	// First step analyzing the string
 		// Counting VBO's size and string length
 		int len = 0;
 		m_vertexSize = 0;
@@ -61,40 +61,40 @@ VertexBuffer::VertexBuffer(unsigned _maxNumVertices, const char* _vertexDeclarat
 			switch(_vertexDeclaration[i])
 			{
 			case 'p': location = int(BindingLocation::POSITION);
-				glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(stride));
+				glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
 				glEnableVertexAttribArray(location);
 				stride += 3*sizeof(float);
 				break;
 			case 'n': location = int(BindingLocation::NORMAL);
-				glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(stride));
+				glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
 				glEnableVertexAttribArray(location);
 				stride += 3*sizeof(float);
 				break;
 			case 't': location = int(BindingLocation::TANGENT);
-				glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(stride));
+				glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
 				glEnableVertexAttribArray(location);
 				stride += 3*sizeof(float);
 				break;
 			case '1': location = int(BindingLocation::VEC) + bindOff;
-				glVertexAttribPointer(location, 1, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(stride));
+				glVertexAttribPointer(location, 1, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
 				glEnableVertexAttribArray(location);
 				stride += sizeof(float);
 				++bindOff;
 				break;
 			case '2': location = int(BindingLocation::VEC) + bindOff;
-				glVertexAttribPointer(location, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(stride));
+				glVertexAttribPointer(location, 2, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
 				glEnableVertexAttribArray(location);
 				stride += 2*sizeof(float);
 				++bindOff;
 				break;
 			case '3': location = int(BindingLocation::VEC) + bindOff;
-				glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(stride));
+				glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
 				glEnableVertexAttribArray(location);
 				stride += 3*sizeof(float);
 				++bindOff;
 				break;
 			case '4': location = int(BindingLocation::VEC) + bindOff;
-				glVertexAttribPointer(location, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(stride));
+				glVertexAttribPointer(location, 4, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
 				glEnableVertexAttribArray(location);
 				stride += 4*sizeof(float);
 				++bindOff;
@@ -102,7 +102,7 @@ VertexBuffer::VertexBuffer(unsigned _maxNumVertices, const char* _vertexDeclarat
 			case 'c':
 				if(colorBindOff>=3) std::cout << "[VertexBuffer::VertexBuffer] Too many 'c' in vertex declaration. The maximum number of color binding points is 4!\n";
 				location = int(BindingLocation::COLOR0) + colorBindOff;
-				glVertexAttribPointer(location, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, (GLvoid*)(stride));
+				glVertexAttribPointer(location, 4, GL_UNSIGNED_BYTE, GL_TRUE, m_vertexSize, (GLvoid*)(stride));
 				glEnableVertexAttribArray(location);
 				stride += 4;
 				++colorBindOff;
@@ -110,7 +110,7 @@ VertexBuffer::VertexBuffer(unsigned _maxNumVertices, const char* _vertexDeclarat
 			case 'u':
 				if(uintBindOff>=3) std::cout << "[VertexBuffer::VertexBuffer] Too many 'u' in vertex declaration. The maximum number of uint binding points is 4!\n";
 				location = int(BindingLocation::UINT0) + uintBindOff;
-				glVertexAttribIPointer(location, 1, GL_UNSIGNED_INT, 0, (GLvoid*)(stride));
+				glVertexAttribIPointer(location, 1, GL_UNSIGNED_INT, m_vertexSize, (GLvoid*)(stride));
 				glEnableVertexAttribArray(location);
 				stride += 4;
 				++uintBindOff;
@@ -118,6 +118,10 @@ VertexBuffer::VertexBuffer(unsigned _maxNumVertices, const char* _vertexDeclarat
 			}
 			++i;
 		}
+
+	// Allocate on GPU memory
+	glBufferData(GL_ARRAY_BUFFER, m_maxNumVertices * m_vertexSize, 0, GL_DYNAMIC_DRAW);// TODO: choose the right draw type
+
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -186,12 +190,14 @@ void VertexBuffer::Commit()
 {
 	if(m_data && m_dirty)
 	{
-		//glBindVertexArray(m_dwVAO);
+		//glBindVertexArray(m_VAO);
 		// Discard everything on gpu and upload new
-		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+		glBindBuffer( GL_ARRAY_BUFFER, m_VBO );
+		glBufferSubData( GL_ARRAY_BUFFER, 0, m_cursor * m_vertexSize, m_data );
 		//glBufferData(GL_ARRAY_BUFFER, 0, 0, GL_STATIC_DRAW);
-		glBufferData(GL_ARRAY_BUFFER, m_cursor * m_vertexSize, m_data, GL_STATIC_DRAW);
+		//glBufferData(GL_ARRAY_BUFFER, m_cursor * m_vertexSize, m_data, GL_DYNAMIC_DRAW);//GL_STATIC_DRAW);
 		m_dirty = false;
+		glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	}
 }
 
