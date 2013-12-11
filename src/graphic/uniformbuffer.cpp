@@ -9,7 +9,7 @@ namespace Graphic {
 	static int g_iNumUBOs = 0;
 
 	UniformBuffer::UniformBuffer( const std::string& _name ) :
-		m_name(_name), m_size(0)
+		m_name(_name), m_size(0), m_isDirty(false)
 	{
 		glGenBuffers(1, &m_bufferID);
 		m_index = g_iNumUBOs++;
@@ -20,9 +20,6 @@ namespace Graphic {
 		// Create GPU side memory
 		glBindBuffer(GL_UNIFORM_BUFFER, m_bufferID);
 		glBufferData(GL_UNIFORM_BUFFER, 1024, 0, GL_STREAM_DRAW);
-
-		// Bind to binding point according to its index
-		glBindBufferBase(GL_UNIFORM_BUFFER, m_index, m_bufferID);
 	}
 
 	UniformBuffer::~UniformBuffer()
@@ -38,7 +35,7 @@ namespace Graphic {
 		assert(m_attributes.find(_name) == m_attributes.end());
 
 		// Determine alignment
-		int offset = m_size & 0xf;	// modulu 16
+		int offset = m_size & 0xf;	// modulo 16
 		if( offset )
 		{
 			if( (m_size/16) == ((m_size+int(_type))/16) )
@@ -61,23 +58,42 @@ namespace Graphic {
 		// Cannot access unknown attribute!
 		assert(m_attributes.find(_name) != m_attributes.end());
 
-		return (uint8_t*)m_memory + m_attributes[_name];
+		return UniformVar((uint8_t*)m_memory + m_attributes[_name], this);
+	}
+
+	const UniformBuffer::UniformVar UniformBuffer::operator [] ( const std::string& _name ) const
+	{
+		// Cannot access unknown attribute!
+		assert(m_attributes.find(_name) != m_attributes.end());
+
+		// Give a nullptr instead of a buffer - it is only accessed during write
+		return UniformVar((uint8_t*)m_memory + m_attributes.at(_name), nullptr);
 	}
 
 
 	void UniformBuffer::Commit()
 	{
-		// Upload the whole used part of the buffer. It could be more efficient
-		// to upload only the changed part.
-		glBindBuffer(GL_UNIFORM_BUFFER, m_bufferID);
-		glBufferSubData( GL_UNIFORM_BUFFER, 0, m_size, m_memory );
+		// Bind to binding point according to its index
+		glBindBufferBase(GL_UNIFORM_BUFFER, m_index, m_bufferID);
 
-		// The following line forces a sync on Intel HD chips. Otherwise reseting the buffer
-		// twice has no effect. (In case both times the same program is used.)
-		glFlush();
+		if( m_isDirty )
+		{
+			// Upload the whole used part of the buffer. It could be more efficient
+			// to upload only the changed part.
+			glBindBuffer( GL_UNIFORM_BUFFER, m_bufferID );
+			glBufferSubData( GL_UNIFORM_BUFFER, 0, m_size, m_memory );
 
-		const GLenum errorValue = glGetError();
-		if (errorValue != GL_NO_ERROR)
-			std::cout << "[UniformBuffer::Commit] : An error during binding and uploading data occured.\n";
+			// The following line forces a sync on Intel HD chips. Otherwise reseting the buffer
+			// twice has no effect. (In case both times the same program is used.)
+			glFlush();
+
+			const GLenum errorValue = glGetError();
+			if (errorValue != GL_NO_ERROR)
+				std::cout << "[UniformBuffer::Commit] : An error during binding and uploading data occured.\n";
+
+			m_isDirty = false;
+
+			//glBindBuffer( GL_UNIFORM_BUFFER, 0 );
+		}
 	}
 };

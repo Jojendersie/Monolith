@@ -27,9 +27,9 @@ layout(std140) uniform Camera
 
 void main(void)
 {
-	float fAspect = c_mProjection[1][1] / c_mProjection[0][0];
+	float aspect = c_mProjection[0][0] / c_mProjection[1][1];
 	float w = vs_out_Size[0].x * vs_out_Scale[0];
-	float h = vs_out_Size[0].y * vs_out_Scale[0] * fAspect;
+	float h = vs_out_Size[0].y * vs_out_Scale[0] * aspect;
 
 	// Pass through
 	gs_thickness = vs_out_Thickness[0];

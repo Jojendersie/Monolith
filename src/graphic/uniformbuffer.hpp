@@ -34,29 +34,30 @@ namespace Graphic {
 		///		different types.
 		class UniformVar {
 			void* bufferPosition;
+			UniformBuffer* buffer;	///<< Parent access to mark things as dirty
 		public:
 			/// \brief Create the variable with access to a certain buffer position.
-			UniformVar( void* _p ) : bufferPosition(_p)	{}
+			UniformVar( void* _p, UniformBuffer* _buffer ) : bufferPosition(_p), buffer(_buffer)	{}
 
 			/// \brief Assign a matrix to the uniform location.
 			/// \details This will not check for type validity!
-			void operator=(const Math::Mat4x4& _m)	{ *(Math::Mat4x4*)bufferPosition = _m; }
+			void operator=(const Math::Mat4x4& _m)	{ *(Math::Mat4x4*)bufferPosition = _m; buffer->m_isDirty = true; }
 
 			/// \brief Assign a 4D vector to the uniform location.
 			/// \details This will not check for type validity!
-			void operator=(const Math::Vec4& _v)	{ *(Math::Vec4*)bufferPosition = _v; }
+			void operator=(const Math::Vec4& _v)	{ *(Math::Vec4*)bufferPosition = _v; buffer->m_isDirty = true; }
 
 			/// \brief Assign a 3D vector to the uniform location.
 			/// \details This will not check for type validity!
-			void operator=(const Math::Vec3& _v)	{ *(Math::Vec3*)bufferPosition = _v; }
+			void operator=(const Math::Vec3& _v)	{ *(Math::Vec3*)bufferPosition = _v; buffer->m_isDirty = true; }
 
 			/// \brief Assign a 2D vector to the uniform location.
 			/// \details This will not check for type validity!
-			void operator=(const Math::Vec2& _v)	{ *(Math::Vec2*)bufferPosition = _v; }
+			void operator=(const Math::Vec2& _v)	{ *(Math::Vec2*)bufferPosition = _v; buffer->m_isDirty = true; }
 
 			/// \brief Assign a float value to the uniform location.
 			/// \details This will not check for type validity!
-			void operator=(const float _f)	{ *(float*)bufferPosition = _f; }
+			void operator=(const float _f)			{ *(float*)bufferPosition = _f; buffer->m_isDirty = true; }
 
 			/// \brief Cast to matrix without type check.
 			operator Math::Mat4x4 () const { return *(Math::Mat4x4*)bufferPosition; }
@@ -74,6 +75,11 @@ namespace Graphic {
 		/// \param [in] _name Name for the new attribute. Using the same name
 		///		twice is not allowed.
 		UniformVar operator [] ( const std::string& _name );
+
+		/// \brief Read access to variables.
+		/// \param [in] _name Name for the new attribute. Using the same name
+		///		twice is not allowed.
+		const UniformVar operator [] ( const std::string& _name ) const;
 
 		/// \brief Load the latest changes up to the GPU.
 		/// \details Due to driver issues this should be called at most once
@@ -95,6 +101,8 @@ namespace Graphic {
 		unsigned m_bufferID;	///< Address of uniform buffer object
 		void* m_memory;			///< RAM double buffer: this is edited and uploaded if necessary
 		unsigned m_size;		///< Number of used bytes in m_memory
+
+		bool m_isDirty;			///< Did something change since last commit?
 
 		std::unordered_map<std::string, int> m_attributes;
 	};

@@ -106,8 +106,9 @@ namespace Graphic {
 
 		unsigned index = glGetUniformBlockIndex(m_programID, _uniformBuffer.GetName().c_str());
 		// Ignore the errors. There are shaders without the blocks
-		if( !glGetError() && index!=GL_INVALID_INDEX )
+		if( !glGetError() && index!=GL_INVALID_INDEX ) {
 			glUniformBlockBinding(m_programID, index, _uniformBuffer.GetBufferBaseIndex());
+		}
 	}
 
 	void Effect::BindTexture( const char* _name, unsigned _location, const SamplerState& _sampler )
