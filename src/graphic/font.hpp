@@ -31,7 +31,7 @@ namespace Graphic {
 	{
 	public:
 		Math::Vec2 m_sizeTable[256];
-		Math::Vec2 m_CoordTable[256];
+		Math::Vec2 m_coordTable[256];
 		Effect m_effect;
 		Texture m_texture;
 		/// \brief Load a bitmap font and initialize the render effect.

@@ -22,6 +22,6 @@ void main()
 	vs_out_Position = in_Position;
 	vs_out_TexCoord = in_TexCoord;
 	vs_out_Size = in_Size;
-	vs_out_Thickness = in_Thickness;
+	vs_out_Thickness = 1-in_Thickness;
 	vs_out_Scale = in_Scale;
 }

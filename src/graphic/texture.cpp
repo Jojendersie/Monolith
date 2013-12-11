@@ -56,6 +56,10 @@ Texture::Texture( const std::string& _fileName )
 	Jo::Files::HDDFile file(_fileName, true);
 	Jo::Files::ImageWrapper image(file, Jo::Files::Format::PNG );
 
+	m_width = image.Width();
+	m_height = image.Height();
+	m_depth = 1;	// TODO: volume texture support
+
 	uint32_t internalFormat = MapToGLFormats(image.NumChannels(), image.BitDepth(), image.GetChannelType());
 	int width = image.Width() * 2;
 	int height = image.Height() * 2;
@@ -96,6 +100,10 @@ Texture::Texture( const std::vector<std::string>& _fileNames )
 	// Use first file as reference file.
 	Jo::Files::HDDFile firstFile(_fileNames[0], true);
 	Jo::Files::ImageWrapper firstImage(firstFile, Jo::Files::Format::PNG );
+
+	m_width = firstImage.Width();
+	m_height = firstImage.Height();
+	m_depth = (int)_fileNames.size();
 	
 	// Expect all textures to be ok. Some of the layers might be empty later.
 	uint32_t internalFormat = MapToGLFormats(firstImage.NumChannels(), firstImage.BitDepth(), firstImage.GetChannelType());

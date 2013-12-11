@@ -12,5 +12,11 @@ void main()
 	// Texture sample (bitmap font)
 	float height = texture( u_characterTex, vec2(gs_texCoord.x, 1-gs_texCoord.y) ).x;
 
-	fragColor = gs_color * (height<gs_thickness ? 0 : 1);
+	fragColor.rgb = gs_color.rgb * (height<gs_thickness ? 0 : 1);
+
+	// Anti-aliased edges
+	fragColor.a = gs_color.a * clamp( (height - gs_thickness)/(1-gs_thickness)*2, 0.0, 1.0);
+
+	// TODO: test perfomance
+	//if( fragColor.a < 0.01 ) discard;
 }

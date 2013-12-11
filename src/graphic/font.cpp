@@ -6,6 +6,7 @@ namespace Graphic
 		m_texture("texture/"+_fontName+".png"),
 		m_effect( "shader/font.vs", "shader/font.gs", "shader/font.ps",
 				Graphic::RasterizerState::CULL_MODE::BACK, Graphic::RasterizerState::FILL_MODE::SOLID,
+				Graphic::BlendState::BLEND_OPERATION::ADD, Graphic::BlendState::BLEND::SRC_ALPHA, Graphic::BlendState::BLEND::INV_SRC_ALPHA,
 				Graphic::DepthStencilState::COMPARISON_FUNC::ALWAYS, false)
 	{
 		m_effect.BindTexture( "u_characterTex", 7, _globalPipelineData->linearSampler );
@@ -21,9 +22,10 @@ namespace Graphic
 		for(int i = 0; i < 256; i++)
 		{
 			m_sizeTable[i] = Math::Vec2(sizeX[i],sizeY[i]);
-			m_CoordTable[i] = Math::Vec2(PosX[i],PosY[i]);
+			// Half pixel offset necessary - otherwise rounding errors in shader
+			m_coordTable[i] = Math::Vec2(float(PosX[i]) + 0.5f/m_texture.Width(),PosY[i]);
 		//	m_sizeTable[i] = Math::Vec2(1-0.01f*i,i*0.01f);//0.1; 0.25
-		//	m_CoordTable[i] = Math::Vec2(0.f,0.25f);
+		//	m_coordTable[i] = Math::Vec2(0.f,0.25f);
 		}
 	}
 
@@ -69,8 +71,9 @@ namespace Graphic
 			CV.position = currentPos;
 			CV.scale = 1.f; 
 			CV.size = m_font->m_sizeTable[m_text[i]];
-			CV.texCoord = m_font->m_CoordTable[m_text[i]];
+			CV.texCoord = m_font->m_coordTable[m_text[i]];
 			CV.thickness = 0.5f;
+			CV.color = 0xffffffff;
 			//line break
 			if(m_text[i] == 13){currentPos.x = m_screenPos.x; currentPos.y -= m_font->m_sizeTable[m_text[i]].y;}
 			else currentPos.x += m_font->m_sizeTable[m_text[i]].x; 

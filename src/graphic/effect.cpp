@@ -51,9 +51,10 @@ namespace Graphic {
 
 	Effect::Effect( const std::string& _VSFile, const std::string& _GSFile, const std::string& _PSFile,
 			RasterizerState::CULL_MODE _cullMode, RasterizerState::FILL_MODE _fillMode,
+			BlendState::BLEND_OPERATION _blendOp, BlendState::BLEND _srcOp, BlendState::BLEND _dstOp,
 			DepthStencilState::COMPARISON_FUNC _depthFunc, bool _zWrite ) :
 		m_rasterizerState(_cullMode, _fillMode),
-		m_blendState(BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::ONE, BlendState::BLEND::ZERO ),
+		m_blendState(_blendOp, _srcOp, _dstOp ),
 		m_depthStencilState(_depthFunc, _zWrite)
 	{
 		m_vertexShader = LoadShader( _VSFile.c_str(), GL_VERTEX_SHADER );
