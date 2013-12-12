@@ -79,7 +79,7 @@ namespace Voxel {
 			SVON* children;
 			VoxelType type;
 
-			SVON() : children(nullptr), type(VoxelType::UNDEFINED)	{}//TODO: stuff
+			SVON() : children(nullptr), type(VoxelType::UNDEFINED)	{}
 
 			/// \brief Set a voxel on a chosen resolution.
 			/// \param [in] _currentSize The voxel size in the current recursion

@@ -99,7 +99,7 @@ namespace Voxel {
 		_size = _size * _size * _size;
 
 		// Remove the old voxel
-		if( _oldType != VoxelType::NONE )
+		if( _oldType != VoxelType::NONE && _oldType != VoxelType::UNDEFINED)
 		{
 			float oldMass = VOXEL_INFO[int(_oldType)].mass * _size;
 			m_center = (m_center * m_mass - _position * oldMass) / m_mass;
@@ -108,7 +108,7 @@ namespace Voxel {
 		}
 
 		// Add new voxel
-		if( _newType != VoxelType::NONE )
+		if( _newType != VoxelType::NONE && _oldType != VoxelType::UNDEFINED)
 		{
 			float newMass = VOXEL_INFO[int(_newType)].mass * _size;
 			m_center = (m_center * m_mass + _position * newMass) / (m_mass + newMass);
@@ -201,7 +201,7 @@ namespace Voxel {
 		VoxelType types[8];
 		// Enumerate and sort all types of the child voxels
 		int num = 0;
-		for(int i=0; i<8; ++i) if(children[i].type != VoxelType::NONE)
+		for(int i=0; i<8; ++i) if(children[i].type != VoxelType::NONE && children[i].type != VoxelType::UNDEFINED)
 			types[num++] = children[i].type;
 		assert( num > 0 );
 		Algo::SmallSort(types, num);
@@ -235,7 +235,7 @@ namespace Voxel {
 	// ********************************************************************* //
 	size_t Model::SVON::MemoryConsumtion() const
 	{
-		/*size_t size = 0;	// Count this-size at parent
+		size_t size = 0;	// Count this-size at parent
 		if( children ) {
 			size = 8*sizeof(SVON);	// The child array
 			for( int i=0; i<8; ++i )
@@ -243,10 +243,10 @@ namespace Voxel {
 		}
 		return size;//*/
 		// Theoretic model
-		size_t size = sizeof(SVON)+1;
+		/*size_t size = sizeof(SVON)+1;
 		if( children ) {
 			for( int i=0; i<8; ++i )
-				if( children[i].type != VoxelType::NONE )
+				if( children[i].type != VoxelType::NONE && children[i].type != VoxelType::UNDEFINED )
 					size += children[i].MemoryConsumtion();
 		}
 		return size;//*/

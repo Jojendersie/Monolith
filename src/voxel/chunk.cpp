@@ -18,7 +18,7 @@ namespace Voxel {
 
 
 	Chunk::Chunk() :
-		m_voxels( NUM_OCTREE_NODES, "u", Graphic::VertexBuffer::PrimitiveType::POINT )
+		m_voxels( "u", Graphic::VertexBuffer::PrimitiveType::POINT )
 	{
 		m_octree = new OctreeNode[NUM_OCTREE_NODES];
 		memset(m_lodVoxelNum, 0, sizeof(int)*6);
