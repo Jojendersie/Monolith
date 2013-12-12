@@ -262,7 +262,7 @@ namespace Math {
 	}
 
 	// Compute the inverse with determinant method
-	Mat4x4 Mat4x4::Invert() const
+	Mat4x4 Mat4x4::Inverse() const
 	{
 		Mat4x4 result;
 		Vec4 v, vec[3];
@@ -546,7 +546,7 @@ namespace Math {
 	}
 
 	// Compute the inverse with determinant method
-	Mat3x3 Mat3x3::Invert() const
+	Mat3x3 Mat3x3::Inverse() const
 	{
 		float detInv = 1.0f / Det();
 		

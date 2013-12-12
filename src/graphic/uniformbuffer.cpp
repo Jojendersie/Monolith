@@ -92,8 +92,6 @@ namespace Graphic {
 				std::cout << "[UniformBuffer::Commit] : An error during binding and uploading data occured.\n";
 
 			m_isDirty = false;
-
-			//glBindBuffer( GL_UNIFORM_BUFFER, 0 );
 		}
 	}
 };

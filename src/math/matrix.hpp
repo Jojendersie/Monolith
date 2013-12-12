@@ -356,7 +356,7 @@ namespace Math {
 		Vec3 TransformPerspective(const Vec3& _v) const;
 
 		/// \brief Compute the inverse with determinant method
-		Mat4x4 Invert() const;
+		Mat4x4 Inverse() const;
 
 		/// \brief Calculate the determinant of the whole 4x4 matrix with
 		///		Laplace's formula
@@ -418,7 +418,7 @@ namespace Math {
 		static Mat3x3 Orthonormal(const Vec3& _normal);					///< Creates an orthonormal base for a direction vector
 
 		/// \brief Compute the inverse with determinant method
-		Mat3x3 Invert() const;
+		Mat3x3 Inverse() const;
 
 		/// \brief Calculate the determinant of the whole 3x3 matrix with
 		///		Laplace's formula

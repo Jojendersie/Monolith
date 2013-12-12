@@ -30,6 +30,9 @@
     <Filter Include="Source Files\input">
       <UniqueIdentifier>{3bb628ef-e624-4ab4-bd09-a60a30939490}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\utilities">
+      <UniqueIdentifier>{48cb2e38-bcdc-47bb-ab0c-8e95eb1430c5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
@@ -115,6 +118,9 @@
     </ClCompile>
     <ClCompile Include="src\graphic\content.cpp">
       <Filter>Source Files\graphic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utilities\color.cpp">
+      <Filter>Source Files\utilities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -210,6 +216,9 @@
     </ClInclude>
     <ClInclude Include="src\graphic\content.hpp">
       <Filter>Source Files\graphic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utilities\color.hpp">
+      <Filter>Source Files\utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

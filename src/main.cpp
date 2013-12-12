@@ -1,5 +1,6 @@
 #include "game.hpp"
 #include "graphic/device.hpp"
+#include "utilities/color.hpp"
 
 // CRT's memory leak detection
 #if defined(DEBUG) || defined(_DEBUG)

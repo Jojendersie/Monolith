@@ -41,3 +41,8 @@ namespace Math {
 	class Vec3;
 	class Vec4;
 } // namespace Math
+
+namespace Utils {
+	class Color32F;
+	class Color8U;
+} // namespace Utils

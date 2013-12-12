@@ -25,8 +25,8 @@ namespace Input {
 		m_projection = Math::Mat4x4::Projection( m_fov, m_aspect, 1.0f, 1000.0f );
 		m_mutex.unlock();
 		m_viewProjection = m_view * m_projection;
-		m_inverseView = m_view.Invert();
-		m_inverseViewProjection = m_viewProjection.Invert();
+		m_inverseView = m_view.Inverse();
+		m_inverseViewProjection = m_viewProjection.Inverse();
 	}
 
 

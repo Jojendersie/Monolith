@@ -105,6 +105,7 @@
     <ClCompile Include="src\math\vector4.cpp" />
     <ClCompile Include="src\opengl.cpp" />
     <ClCompile Include="src\timer.cpp" />
+    <ClCompile Include="src\utilities\color.cpp" />
     <ClCompile Include="src\voxel\chunk.cpp" />
     <ClCompile Include="src\voxel\model.cpp" />
   </ItemGroup>
@@ -137,6 +138,7 @@
     <ClInclude Include="src\opengl.hpp" />
     <ClInclude Include="src\predeclarations.hpp" />
     <ClInclude Include="src\timer.hpp" />
+    <ClInclude Include="src\utilities\color.hpp" />
     <ClInclude Include="src\voxel\chunk.hpp" />
     <ClInclude Include="src\voxel\model.hpp" />
     <ClInclude Include="src\voxel\voxel.hpp" />
