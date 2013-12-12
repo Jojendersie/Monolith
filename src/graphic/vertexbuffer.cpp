@@ -218,6 +218,7 @@ void VertexBuffer::Commit()
 			(m_lastDirtyIndex - m_firstDirtyIndex + 1) * m_vertexSize,
 			m_data );
 		glBindBuffer( GL_ARRAY_BUFFER, 0 );
+		LogGlError("[VertexBuffer::Commit] Update of dynamic data failed.");
 
 		m_firstDirtyIndex = std::numeric_limits<int>::max();
 		m_lastDirtyIndex = -1;

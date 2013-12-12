@@ -130,7 +130,7 @@ namespace Graphic {
 		PrimitiveType GetPrimitiveType() const	{ return m_primitiveType; }
 		//void SetDirty()							{ m_dirty = true;}
 		bool IsStatic() const					{ return m_data==nullptr; }
-		bool IsDirty() const					{ return m_lastDirtyIndex == -1; }
+		bool IsDirty() const					{ return m_lastDirtyIndex != -1; }
 
 		unsigned GetPositionOffset() const		{ return m_positionOffset; }
 		unsigned GetNormalOffset() const		{ return m_normalOffset; }
@@ -156,10 +156,10 @@ namespace Graphic {
 		}
 
 		// At least the vertex at the cursor is dirty now
-		m_firstDirtyIndex = min(m_cursor, m_firstDirtyIndex);
-		m_lastDirtyIndex = max(m_cursor, m_lastDirtyIndex);
+		m_firstDirtyIndex = Math::min((int)m_cursor, m_firstDirtyIndex);
+		m_lastDirtyIndex = Math::max((int)m_cursor, m_lastDirtyIndex);
 
-		memcpy(m_data + m_cursor * m_vertexSize, _value, m_vertexSize);
+		memcpy(m_data + m_cursor * m_vertexSize, &_value, m_vertexSize);
 		++m_cursor;
 	}
 
@@ -172,8 +172,8 @@ namespace Graphic {
 		assert( 0<=_index && _index < GetNumVertices() );
 		memcpy(m_data + _index * m_vertexSize, _value, m_vertexSize);
 
-		m_firstDirtyIndex = min(_index, m_firstDirtyIndex);
-		m_lastDirtyIndex = max(_index, m_lastDirtyIndex);
+		m_firstDirtyIndex = Math::min(_index, m_firstDirtyIndex);
+		m_lastDirtyIndex = Math::max(_index, m_lastDirtyIndex);
 	}
 
 	// ************************************************************************* //
