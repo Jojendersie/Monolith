@@ -56,8 +56,13 @@ namespace Input {
 	{
 		// TODO: more than mouse...
 		Jo::Files::MetaFileWrapper::Node& currentKeys = *InputManagerInstance.m_keyMap[(int)_key];
-		for( int i=0; i<currentKeys.Size(); ++i )
-			return GLFW_PRESS == glfwGetMouseButton( InputManagerInstance.m_window, (int)currentKeys[i] );
+		for( int i=0; i<currentKeys.Size(); ++i ) {
+			int key = (int)currentKeys[i];
+			if( key < 32 )
+				return GLFW_PRESS == glfwGetMouseButton( InputManagerInstance.m_window, key );
+			else
+				return GLFW_PRESS == glfwGetKey( InputManagerInstance.m_window, key );
+		}
 /*		if( _key == Keys::MOVE_CAMERA )
 			return GLFW_PRESS == glfwGetMouseButton( InputManagerInstance.m_window, GLFW_MOUSE_BUTTON_RIGHT );
 		if( _key == Keys::ROTATE_CAMERA )
