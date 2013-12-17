@@ -21,13 +21,19 @@ namespace Utils {
 		Color32F()												{}
 
 		/// \brief From other color class for implicit casting
-		Color32F(const Color8U& _color)							{*this = static_cast<Color32F>(_color); }
+		Color32F(const Color8U& _color)								{*this = static_cast<Color32F>(_color); }
 
 		/// \brief From single bytes
-		Color32F(uint8_t r, uint8_t g, uint8_t b, uint8_t a=255)	{ x = r*(1.0f/255.0f); y = r*(1.0f/255.0f); z = r*(1.0f/255.0f); w = r*(1.0f/255.0f); }
+		Color32F(uint8_t r, uint8_t g, uint8_t b, uint8_t a=255)	{ x = r*(1.0f/255.0f); y = g*(1.0f/255.0f); z = b*(1.0f/255.0f); w = a*(1.0f/255.0f); }
+
+		/// \brief From bytes in the range [0,255].
+		/// \details This constructor exists to avoid the 'ambigious' error
+		///		for normal integer values. E.g. Color32F(10,133,42) would cause
+		///		an error otherwise
+		Color32F(int r, int g, int b, int a=255)	{ x = r*(1.0f/255.0f); y = g*(1.0f/255.0f); z = b*(1.0f/255.0f); w = a*(1.0f/255.0f); }
 
 		/// \brief From single floats
-		Color32F(float r, float g, float b, float a=1.0f)		{ x = r; y = g; z = b; w = a; }
+		Color32F(float r, float g, float b, float a=1.0f)			{ x = r; y = g; z = b; w = a; }
 
 		/// \brief From HSV color space
 		Color32F(const HSV& _hsv);
