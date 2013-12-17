@@ -35,7 +35,7 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 
 	assert(glGetError() == GL_NO_ERROR);
 
-	Input::Manager::Initialize( Graphic::Device::GetWindow() );
+	Input::Manager::Initialize( Graphic::Device::GetWindow(), Config[std::string("Input")] );
 
 	// Load the graphic stuff
 	m_graficContent = new Graphic::Content();
@@ -48,6 +48,8 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 
 Monolith::~Monolith()
 {
+	Input::Manager::Close();
+
 	try {
 		Jo::Files::HDDFile file( "config.json", false );
 		Config.Write( file, Jo::Files::Format::JSON );
@@ -94,10 +96,9 @@ void Monolith::Run()
 void Monolith::BuildDefaultConfig()
 {
 	auto& cinput = Config[std::string("Input")];
-	cinput[std::string("MoveCamera")][0] = std::string("MR");
-	cinput[std::string("RotateCamera")][0] = std::string("MM");
-	cinput[std::string("Zoom")][0] = std::string("MLD");
-	cinput[std::string("Zoom")][1] = std::string("z");
+	cinput[std::string("MoveCamera")][0] = 1;
+	cinput[std::string("RotateCamera")][0] = 2;
+	cinput[std::string("Zoom")][0] = 90;
 	cinput[std::string("CameraRotationSpeed")] = 0.005;
 	cinput[std::string("CameraMovementSpeed")] = 0.0025;
 	cinput[std::string("CameraScrollSpeed")] = 5.0;

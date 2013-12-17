@@ -2,12 +2,14 @@
 #include "../opengl.hpp"
 #include "../game.hpp"
 
+using namespace std;
+
 namespace Input {
 
 	static Manager InputManagerInstance;
 
 	// ********************************************************************* //
-	void Manager::Initialize( GLFWwindow* _window )
+	void Manager::Initialize( GLFWwindow* _window, Jo::Files::MetaFileWrapper::Node& _keyConfig )
 	{
 		// GLFW setup
 		glfwSetInputMode( _window, GLFW_CURSOR, GLFW_CURSOR_NORMAL );	// TODO use internal/no cursor
@@ -22,6 +24,18 @@ namespace Input {
 		// Avoid invalid pointers
 		InputManagerInstance.m_gameState = nullptr;
 		InputManagerInstance.m_window = _window;
+
+		// Read key mapping
+		InputManagerInstance.m_keyMap = new Jo::Files::MetaFileWrapper::Node*[3];
+		InputManagerInstance.m_keyMap[(int)Keys::MOVE_CAMERA] = &_keyConfig[string("MoveCamera")];
+		InputManagerInstance.m_keyMap[(int)Keys::ROTATE_CAMERA] = &_keyConfig[string("RotateCamera")];
+		InputManagerInstance.m_keyMap[(int)Keys::ZOOM] = &_keyConfig[string("Zoom")];
+	}
+
+	// ********************************************************************* //
+	void Manager::Close()
+	{
+		delete[] InputManagerInstance.m_keyMap;
 	}
 
 	// ********************************************************************* //
@@ -41,10 +55,13 @@ namespace Input {
 	bool Manager::IsKeyPressed( Keys _key )
 	{
 		// TODO: more than mouse...
-		if( _key == Keys::MOVE_CAMERA )
+		Jo::Files::MetaFileWrapper::Node& currentKeys = *InputManagerInstance.m_keyMap[(int)_key];
+		for( int i=0; i<currentKeys.Size(); ++i )
+			return GLFW_PRESS == glfwGetMouseButton( InputManagerInstance.m_window, (int)currentKeys[i] );
+/*		if( _key == Keys::MOVE_CAMERA )
 			return GLFW_PRESS == glfwGetMouseButton( InputManagerInstance.m_window, GLFW_MOUSE_BUTTON_RIGHT );
 		if( _key == Keys::ROTATE_CAMERA )
-			return GLFW_PRESS == glfwGetMouseButton( InputManagerInstance.m_window, GLFW_MOUSE_BUTTON_MIDDLE );
+			return GLFW_PRESS == glfwGetMouseButton( InputManagerInstance.m_window, GLFW_MOUSE_BUTTON_MIDDLE );*/
 		return false;
 	}
 

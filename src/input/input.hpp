@@ -1,10 +1,11 @@
 #pragma once
 
 #include "../predeclarations.hpp"
+#include <jofilelib.hpp>
 
 namespace Input {
 
-	/// \brief The input manager passes inputs to the current set gamestate
+	/// \brief The input manager passes inputs to the current set game state
 	///		and manages some input state options.
 	/// \details The manager must be singleton to allow correct callback setup.
 	class Manager
@@ -12,14 +13,17 @@ namespace Input {
 	public:
 		/// \brief Initializes callbacks and settings for GLFW
 		/// \details This input manager only allows single window input systems.
-		static void Initialize( GLFWwindow* _window );
+		static void Initialize( GLFWwindow* _window, Jo::Files::MetaFileWrapper::Node& _keyConfig );
 
-		/// \brief Switch which gamestate gets the input.
+		/// \brief Release all resources
+		static void Close();
+
+		/// \brief Switch which game state gets the input.
 		/// \param [in] _gameState null to disable input handling or a
-		///		gamestate which should recive the input events.
+		///		game state which should receive the input events.
 		static void SetGameState( IGameState* _gameState );
 
-		/// \brief Do a synchronised update of things like the camera.
+		/// \brief Do a synchronized update of things like the camera.
 		static void Update();
 
 		/// \brief Test if a key or button is currently pressed.
@@ -27,10 +31,11 @@ namespace Input {
 	private:
 		IGameState* m_gameState;
 		GLFWwindow* m_window;		///< The one reference window
+		Jo::Files::MetaFileWrapper::Node** m_keyMap;		///< Faster access to the correct nodes of the config file.
 
 		double m_cursorX;	///< Last known position of the cursor
 		double m_cursorY;	///< Last known position of the cursor
-		bool m_justEntered;	///< Has the cursor (re)entered the window scince last mouse move.
+		bool m_justEntered;	///< Has the cursor (re)entered the window since last mouse move.
 
 		static void CursorPosFun(GLFWwindow *, double, double);
 		static void CursorEnterFun(GLFWwindow *, int);
