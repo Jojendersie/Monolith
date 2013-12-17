@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cassert>
+
 namespace Algo {
 
 	/// \brief conditional swap without branches.

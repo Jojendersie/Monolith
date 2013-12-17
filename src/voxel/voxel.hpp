@@ -44,4 +44,7 @@ namespace Voxel {
 	// TODO: move to ideas
 	// Tramsformation: 1 Water + 1 Mineral -> 2 Polymere
 	//				   4 Metal + 1 Rare Metal -> 5 Alloy
+
+
+	inline bool IsSolid( VoxelType _v )	{ return _v != VoxelType::NONE && _v != VoxelType::UNDEFINED; }
 };

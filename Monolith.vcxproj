@@ -142,6 +142,7 @@
     <ClInclude Include="src\utilities\color.hpp" />
     <ClInclude Include="src\voxel\chunk.hpp" />
     <ClInclude Include="src\voxel\model.hpp" />
+    <ClInclude Include="src\voxel\sparseoctree.hpp" />
     <ClInclude Include="src\voxel\voxel.hpp" />
   </ItemGroup>
   <ItemGroup>

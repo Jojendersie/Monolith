@@ -1,4 +1,5 @@
 #include "asteroid.hpp"
+#include "../voxel/chunk.hpp"
 #include "random.hpp"
 
 using namespace Math;
@@ -21,11 +22,9 @@ namespace Generators {
 				Set( IVec3(x,y,z), 0, Voxel::VoxelType(Rnd.Uniform(1,2)) );
 		}
 
-		//size_t test = 0;
-		//for( int i=0; i<8; ++i )
-		//	test += m_voxeltree[i].memoryconsumtion();
+		size_t test = m_voxelTree.MemoryConsumption();
 
-		for( int i=0; i<m_numChunks; ++i )
-			m_chunks[i]->ComputeVertexBuffer();
+//		for( int i=0; i<m_numChunks; ++i )
+	//		m_chunks[i]->ComputeVertexBuffer();
 	}
 };

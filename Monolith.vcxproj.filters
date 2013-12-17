@@ -226,6 +226,9 @@
     <ClInclude Include="src\utilities\color.hpp">
       <Filter>Source Files\utilities</Filter>
     </ClInclude>
+    <ClInclude Include="src\voxel\sparseoctree.hpp">
+      <Filter>Source Files\voxel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\voxel.ps">

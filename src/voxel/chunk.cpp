@@ -1,4 +1,5 @@
 #include "chunk.hpp"
+#include "model.hpp"
 #include "../graphic/device.hpp"
 #include "../graphic/uniformbuffer.hpp"
 #include "../input/camera.hpp"
@@ -10,7 +11,7 @@ using namespace Math;
 namespace Voxel {
 
 	/// \brief The level offsets in number of voxels to the start of the octree
-	const int LEVEL_OFFSETS[] = {0,1,9,73,585,4681};
+	//const int LEVEL_OFFSETS[] = {0,1,9,73,585,4681};
 	const int NUM_OCTREE_NODES = 37449;
 
 #	define INDEX(P, L)		(LEVEL_OFFSETS[L] + (P.x) + (1<<(L))*((P.y) + (1<<(L))*(P.z)))
@@ -20,124 +21,89 @@ namespace Voxel {
 	Chunk::Chunk() :
 		m_voxels( "u", Graphic::VertexBuffer::PrimitiveType::POINT )
 	{
-		m_octree = new OctreeNode[NUM_OCTREE_NODES];
-		memset(m_lodVoxelNum, 0, sizeof(int)*6);
 	}
 
 
 	Chunk::~Chunk()
 	{
-		delete[] m_octree;
-		m_octree = nullptr;
 	}
-
-
-	// ********************************************************************* //
-	int Chunk::Set( const Math::IVec3& _position, int _level, VoxelType _type, VoxelVertex* _overwritten )
-	{
-		int numOverwritten = 0;
-		int levelSize = 1<<_level;
-		assert(_position.x >= 0 && _position.x < levelSize);
-		assert(_position.y >= 0 && _position.y < levelSize);
-		assert(_position.z >= 0 && _position.z < levelSize);
-
-		// Trivialy set
-		int index = INDEX( _position, _level);
-		m_octree[index].type = _type;
-		// A set always forces all children to the same type -> uniform
-		m_octree[index].flags = 0x02 | (_type==VoxelType::NONE ? 0 : 0x01);
-
-		// Fill children with the same type
-		if( _level < 5 )
-		{
-			int baseX = _position.x * 2;
-			int baseY = _position.y * 2;
-			int baseZ = _position.z * 2;
-			numOverwritten = Set( IVec3( baseX,   baseY,   baseZ   ), _level+1, _type, _overwritten+numOverwritten );
-			numOverwritten = Set( IVec3( baseX+1, baseY,   baseZ   ), _level+1, _type, _overwritten+numOverwritten );
-			numOverwritten = Set( IVec3( baseX,   baseY+1, baseZ   ), _level+1, _type, _overwritten+numOverwritten );
-			numOverwritten = Set( IVec3( baseX+1, baseY+1, baseZ   ), _level+1, _type, _overwritten+numOverwritten );
-			numOverwritten = Set( IVec3( baseX,   baseY,   baseZ+1 ), _level+1, _type, _overwritten+numOverwritten );
-			numOverwritten = Set( IVec3( baseX+1, baseY,   baseZ+1 ), _level+1, _type, _overwritten+numOverwritten );
-			numOverwritten = Set( IVec3( baseX,   baseY+1, baseZ+1 ), _level+1, _type, _overwritten+numOverwritten );
-			numOverwritten = Set( IVec3( baseX+1, baseY+1, baseZ+1 ), _level+1, _type, _overwritten+numOverwritten );
-		}
-
-		// Update parents
-		bool somethingChanged = true;
-		int baseX = _position.x;
-		int baseY = _position.y;
-		int baseZ = _position.z;
-		while( _level > 0 && somethingChanged )
-		{
-			baseX &= 0xfffffffe;
-			baseY &= 0xfffffffe;
-			baseZ &= 0xfffffffe;
-			// Count different types in the neighbourhood and take majority.
-			bool solid = true;		// False if at least one node is of type NONE
-			bool uniformChildren = true;
-			OctreeNode pTypes[] = {
-				m_octree[INDEX2( baseX,   baseY,   baseZ,   _level)],
-				m_octree[INDEX2( baseX+1, baseY,   baseZ,   _level)],
-				m_octree[INDEX2( baseX,   baseY+1, baseZ,   _level)],
-				m_octree[INDEX2( baseX+1, baseY+1, baseZ,   _level)],
-				m_octree[INDEX2( baseX,   baseY,   baseZ+1, _level)],
-				m_octree[INDEX2( baseX+1, baseY,   baseZ+1, _level)],
-				m_octree[INDEX2( baseX,   baseY+1, baseZ+1, _level)],
-				m_octree[INDEX2( baseX+1, baseY+1, baseZ+1, _level)] };
-			// Find majority element
-			int iMajIdx=0, iMajCount=1;
-			solid &= pTypes[0].IsSolid();
-			uniformChildren &= pTypes[0].IsUniform();
-			for( int i=1; i<8; ++i )
-			{
-				solid &= pTypes[i].IsSolid();
-				uniformChildren &= pTypes[i].IsUniform();
-				// Moore's Voting algorithm part 1
-				if( pTypes[i].type == pTypes[iMajIdx].type ) ++iMajCount;
-				else --iMajCount;
-				if( !iMajCount ) {iMajCount=1; iMajIdx = i;}
-			}
-			// Passed all tests set parent and go upward
-			baseX >>= 1;
-			baseY >>= 1;
-			baseZ >>= 1;
-			--_level;
-			index = INDEX2(baseX, baseY, baseZ, _level);
-			uint8_t flags = (solid ? 1 : 0) | ((uniformChildren && (iMajCount==8)) ? 2 : 0);
-			somethingChanged = m_octree[index].flags != flags || m_octree[index].type != pTypes[iMajIdx].type;
-			m_octree[index].type = pTypes[iMajIdx].type;
-			m_octree[index].flags = flags;
-		}
-		return numOverwritten;
-	}
-
-	Chunk::OctreeNode Chunk::Get( const Math::IVec3& _position, int _level )
-	{
-		int levelSize = 1<<_level;
-		if(_position.x < 0 || _position.x >= levelSize) return OctreeNode();
-		if(_position.y < 0 || _position.y >= levelSize) return OctreeNode();
-		if(_position.z < 0 || _position.z >= levelSize) return OctreeNode();
-
-		return m_octree[LEVEL_OFFSETS[_level] + _position.x + levelSize*(_position.y + levelSize*_position.z)];
-	}
-
 
 	void Chunk::ComputeVertexBuffer()
 	{
-		// Currently CPU method: recursively traverse the octree and add
-		// largest voxel if visible.
 		m_voxels.Clear();
-		FillVBRecursive( Math::IVec3(0,0,0), 0 );
+
+		// Sample a 34^3 volume (neighborhood for visibility). This initial
+		// sampling avoids the expensive resampling for many voxels.
+		// (Inner voxels would be sampled 7 times!)
+		VoxelType* volume = new VoxelType[34*34*34];
+		int level = Math::max( 0, m_level - 4 );
+		IVec3 pmin = (m_nodePostion << (m_level - level)) - IVec3(1);
+		IVec3 pmax = pmin + IVec3(34);
+		IVec3 pos;
+		for( pos.z=pmin.z; pos.z<pmax.z; ++pos.z )
+			for( pos.y=pmin.y; pos.y<pmax.y; ++pos.y )
+				for( pos.x=pmin.x; pos.x<pmax.x; ++pos.x )
+					m_model->Get(pos, level);
+
+		// Iterate over volume and add any surface voxel to vertex buffer
+		pmin += 1;
+		pmax -= 1;
+		for( pos.z=pmin.z; pos.z<pmax.z; ++pos.z )
+			for( pos.y=pmin.y; pos.y<pmax.y; ++pos.y )
+				for( pos.x=pmin.x; pos.x<pmax.x; ++pos.x )
+				{
+					// Check if at least one neighbor is NONE and this is not
+					// none -> surface
+					if( (volume[pos.x + 34 * (pos.y + 34 * pos.z)] != VoxelType::NONE) &&
+						((volume[pos.x - 1 + 34 * (pos.y + 34 * pos.z)] == VoxelType::NONE) ||
+						 (volume[pos.x + 1 + 34 * (pos.y + 34 * pos.z)] != VoxelType::NONE) ||
+						 (volume[pos.x + 34 * (pos.y - 1 + 34 * pos.z)] != VoxelType::NONE) ||
+						 (volume[pos.x + 34 * (pos.y + 1 + 34 * pos.z)] != VoxelType::NONE) ||
+						 (volume[pos.x + 34 * (pos.y + 34 * (pos.z - 1))] != VoxelType::NONE) ||
+						 (volume[pos.x + 34 * (pos.y + 34 * (pos.z + 1))] != VoxelType::NONE)) )
+					{
+						VoxelVertex V;
+						V.SetPosition( pos );
+						V.SetSize( 0 );	// TODO: deprecated
+						V.SetTexture( int(volume[pos.x + 34 * (pos.y + 34 * pos.z)]) );
+						m_voxels.Add( V );
+					}
+				}
+
+		// Remove temporary sampling
+		delete[] volume;
+
 		m_voxels.Commit();
 	}
 
 
-	void Chunk::FillVBRecursive( const Math::IVec3& _position, int _level )
+	/*void Chunk::FillVBRecursive( const Model::SVON* _current, int _level,
+		const Model::SVON* _left, const Model::SVON* _right,
+		const Model::SVON* _bottom, const Model::SVON* _top,
+		const Model::SVON* _front, const Model::SVON* _back )
 	{
-		OctreeNode T = Get( _position, _level );
+		// TODO: undefined nodes and blue prints
+		
 		// Stop at empty voxels
-		if( T.GetType()==VoxelType::NONE && T.IsUniform() ) return;
+		if( _current->type==VoxelType::NONE ) return;
+
+		// Several stop-options: Target level reached or tree not subdevided more
+		if( _level == 0 || !_current->children )
+		{
+			// Is this voxel visible?
+			if( _left->IsSolid() && _right->IsSolid() &&
+				_bottom->IsSolid() && _top->IsSolid() &&
+				_front->IsSolid() && _back->IsSolid() )
+			{
+				// Add a vertex
+			}
+		} else if(_current->children)
+		{
+			--_level;
+			// Recursion
+			FillVBRecursive(&_current->children[0], _level, &_left->children[4], &_current->children[4], &_bottom->children[2], &_current->children[2], &_front->children[1], &_current->children[1]);
+			FillVBRecursive(&_current->children[1], _level, &_left->children[5], &_current->children[5], &_bottom->children[3], &_current->children[3], &_front->children[1], &_current->children[1]);
+		}
 
 		// Recursion required?
 		// If all children have the same type stop recursion.
@@ -173,7 +139,7 @@ namespace Voxel {
 			FillVBRecursive( _position * 2 + Math::IVec3(0,1,1), _level+1 );
 			FillVBRecursive( _position * 2 + Math::IVec3(1,1,1), _level+1 );
 		}
-	}
+	}*/
 
 	void Chunk::Draw( Graphic::UniformBuffer& _objectConstants,
 			const Math::Mat4x4& _modelViewProjection,
@@ -184,7 +150,7 @@ namespace Voxel {
 		Vec3 chunkWorldPos = m_position + _modelPosition;
 		int lod = (int)Math::min(5.0f, 5.0f/(_camera.GetPosition() - chunkWorldPos).LengthSq() );
 		int lodOffset = 0;
-		for( int i=0; i<lod; ++i) lodOffset += m_lodVoxelNum[i];
+		//for( int i=0; i<lod; ++i) lodOffset += m_lodVoxelNum[i];
 
 		// Translation to center the chunks
 		_objectConstants["WorldViewProjection"] = Mat4x4::Translation(m_position) * _modelViewProjection;
@@ -198,6 +164,6 @@ namespace Voxel {
 		_objectConstants["Corner110"] = Vec4(  0.5f,  0.5f, -0.5f, 0.0f ) * _modelViewProjection;
 		_objectConstants["Corner111"] = Vec4(  0.5f,  0.5f,  0.5f, 0.0f ) * _modelViewProjection;
 
-		Graphic::Device::DrawVertices( m_voxels, lodOffset, m_lodVoxelNum[lod] );
+		Graphic::Device::DrawVertices( m_voxels, 0, m_voxels.GetNumVertices() );
 	}
 };

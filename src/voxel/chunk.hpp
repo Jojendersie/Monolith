@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cassert>
 #include "../predeclarations.hpp"
+#include "../math/vector3.hpp"
 #include "../graphic/vertexbuffer.hpp"
 #include "voxel.hpp"
 
@@ -12,7 +13,7 @@ namespace Voxel {
 
 	struct VoxelVertex
 	{
-		/// \brief A lot of discrete infromation.
+		/// \brief A lot of discrete information.
 		///	\details Single bits or groups of bits have different meanings:
 		///		0-5: Draw a side (1) or not (0). The order is: Left, Right,
 		///			 Bottom, Top, Front, Back
@@ -42,7 +43,7 @@ namespace Voxel {
 
 	/// \brief A block of volume information which is rendered in one call
 	///		if visible.
-	/// \details One chunk consists of exactly 32x32x32 voxels.
+	/// \details One chunk covers exactly 32x32x32 voxels (of any size).
 	class Chunk
 	{
 	public:
@@ -65,63 +66,40 @@ namespace Voxel {
 			const Math::Vec3& _modelPosition );
 
 		/// \brief Compute the visible voxel set vertex buffer.
-		/// \details The current implementation uses CPU later this will be
-		///		done on GPU
+		/// \details TODO: This can be done parallel to the render thread because it
+		///		only fills the VB and does not upload it.
+		///		CURRENTLY IT COMMITS THE BUFFER
 		void ComputeVertexBuffer();
-
-		/// \brief Set a voxel in the octree.
-		/// \details All children of the current node and there children
-		///		recursive are set to the same value. If all 8 nodes on the 
-		///		target level become one type the parent node is updated too.
-		/// \param [in] _position Position in [0,31]^3 or [0,1]^3 depending on
-		///		the ground size of the current voxel (_level).
-		/// \param [in] _level The octree depth. Level 0 is the root node and
-		///		5 is the maximal depth.
-		/// \param [out] _overwritten A preallocated buffer with at least
-		///		32K * sizeof(VoxelVertex).
-		///		It will be filled with a list of all overwritten voxels.
-		/// \return The number of overwritten voxels.
-		int Set( const Math::IVec3& _position, int _level, VoxelType _type, VoxelVertex* _overwritten );
-
-		struct OctreeNode {
-			VoxelType GetType() const { return type; }
-			bool IsSolid() const { return (flags & 0x01) ? true : false; }
-			bool IsUniform() const { return (flags & 0x02) ? true : false; }
-			bool IsEmpty() const { return type == VoxelType::NONE; }
-		private: friend class Chunk;
-			VoxelType type;
-			/// \brief Additional structure information.
-			/// \details Each bit has its own meaning:
-			///		0: Solid. If 0 this voxel has some children with type NONE.
-			///		1: Uniform: All children have the same type.
-			uint8_t flags;
-
-			OctreeNode() : flags(0x02), type(VoxelType::NONE)	{}
-		};
-
-		/// \brief Get a single octree voxel.
-		/// \details If the octree ends earlier it terminates with NONE.
-		OctreeNode Get( const Math::IVec3& _position, int _level );
 
 		/// \brief Set position relative to the model.
 		void SetPosition( const Math::Vec3& _position )	{ m_position = _position; }
 
 		Math::Vec3 GetPosition()		{ return m_position; }
 	private:
-		/// \brief One memory block for all levels of the octree. Each level
-		///		is saved as x+w*(y+w*z) block. Each element is a typeID.
-		OctreeNode* m_octree;
+		/// \brief Reference to the parent model used to access data.
+		const Model* m_model;
 
-		/// \brief Each element of the array contains the number of voxels in
-		///		the associated level of detail.
-		/// \details Index 0 is the worst lod and 5 the highest.
-		///
-		///		Invariant: This number is always valid (updated in set)
-		int m_lodVoxelNum[6];
+		/// \brief Position of the root node from this chunk in the model's
+		///		octree.
+		Math::IVec3 m_nodePostion;
 
-		Graphic::VertexBuffer m_voxels;	///< One VoxelVertex value per visible voxel.
+		/// \brief Level of the chunk root node.
+		/// \details This should most times be at least 4 (lvl0 is highest
+		///		resolution lvl4 covers 32^3 of that resolution).
+		int m_level;
 
-		void FillVBRecursive( const Math::IVec3& _position, int _level );
+		Graphic::VertexBuffer m_voxels;	///< One VoxelVertex value per surface voxel.
+
+		/// \brief Iterate exactly down to the level where 32^3 voxels are
+		///		covered and add them to vertex buffer.
+		///	\details Uses the 6 neighbors to determine visibility.
+		///	\param [in] _current The center node to add or iterate.
+		///	\param [in] _level Relative depth to be reached: 0 is the recursion
+		///		end condition.
+		/*void FillVBRecursive( const Model::SVON* _current, int _level,
+			const Model::SVON* _left, const Model::SVON* _right,
+			const Model::SVON* _bottom, const Model::SVON* _top,
+			const Model::SVON* _front, const Model::SVON* _back );*/
 
 		Math::Vec3 m_position;			///< Relative position of the chunk respective to the model.
 	};
@@ -129,8 +107,8 @@ namespace Voxel {
 	/// \brief A general loop to make voxel iteration easier. The voxel
 	///		position is defined through x,y,z insde the loop.
 #	define FOREACH_VOXEL(MaxX, MaxY, MaxZ) \
-		for( int z=0; z<(MaxZ); ++z ) \
-			for( int y=0; y<(MaxY); ++y ) \
-				for( int x=0; x<(MaxX); ++x )
+	for( int z=0; z<(MaxZ); ++z ) \
+		for( int y=0; y<(MaxY); ++y ) \
+			for( int x=0; x<(MaxX); ++x )
 
 };
