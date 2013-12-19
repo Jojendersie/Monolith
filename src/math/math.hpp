@@ -5,6 +5,7 @@
 #include "vector3.hpp"
 #include "vector4.hpp"
 #include "matrix.hpp"
+#include "vector.hpp"
 #include "sphere.hpp"
 #include "polyhedron.hpp"
 #include "solver.hpp"

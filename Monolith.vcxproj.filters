@@ -237,5 +237,8 @@
     <None Include="src\math\solver.hpp">
       <Filter>Source Files\math</Filter>
     </None>
+    <None Include="src\math\vector.hpp">
+      <Filter>Source Files\math</Filter>
+    </None>
   </ItemGroup>
 </Project>
