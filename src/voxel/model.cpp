@@ -80,19 +80,19 @@ namespace Voxel {
 		m_boundingSphereRadius = Math::max(m_boundingSphereRadius, (m_center - _position).Length() );
 	}
 
-	bool CollisionTest(Math::Vec3& _collisionPoint, Math::Vec3& _collisionNormal, const Model _modelOne,const Model _modelTwo)
-	{
-		//TODO proper intersection test
-		float minDist = _modelOne.m_boundingSphereRadius + _modelTwo.m_boundingSphereRadius;
-		if ((_modelOne.m_center - _modelTwo.m_center).LengthSq() > (minDist*minDist))
-			return false;
-		Polyhedron collisionZone = Polyhedron(_modelOne.m_boundingBox, _modelTwo.m_boundingBox);
-		if (collisionZone.IsEmpty())
-			return false;
-		_collisionPoint = collisionZone.GetCenter();
-		_collisionNormal = _modelOne.m_center - _modelTwo.m_center;
-		return true;
-	}
+	//bool CollisionTest(Math::Vec3& _collisionPoint, Math::Vec3& _collisionNormal, const Model _modelOne,const Model _modelTwo)
+	//{
+	//	//TODO proper intersection test
+	//	float minDist = _modelOne.m_boundingSphereRadius + _modelTwo.m_boundingSphereRadius;
+	//	if ((_modelOne.m_center - _modelTwo.m_center).LengthSq() > (minDist*minDist))
+	//		return false;
+	//	Polyhedron collisionZone = Polyhedron(_modelOne.m_boundingBox, _modelTwo.m_boundingBox);
+	//	if (collisionZone.IsEmpty())
+	//		return false;
+	//	_collisionPoint = collisionZone.GetCenter();
+	//	_collisionNormal = _modelOne.m_center - _modelTwo.m_center;
+	//	return true;
+	//}
 	void CollisionCompute(Math::Vec3& _elasticVelocityOne, Math::Quaternion& _elasticRotaryOne, Math::Vec3& _elasticVelocityTwo, Math::Quaternion& _elasticRotaryTwo,
 		Math::Vec3& _plasticVelocityOne, Math::Quaternion& _plasticRotaryOne, Math::Vec3& _plasticVelocityTwo, Math::Quaternion& _plasticRotaryTwo,
 		const Model _modelOne, const Model _modelTwo, const Math::Vec3 _collisionPoint, const Math::Vec3 _collisionNormal)
@@ -100,7 +100,9 @@ namespace Voxel {
 		//relative Positions of the collision Point
 		Vec3 r1 = _collisionPoint - _modelOne.m_center;
 		Vec3 r2 = _collisionPoint - _modelTwo.m_center;
-		//TODO add cP=mC cases
+	
+		//TODO add collision point == model Center cases
+
 		//orthogonal directions in which the rotational velocity can change
 		Vec3 s1 = orth(r1);
 		Vec3 s2 = orth(r2);
@@ -120,11 +122,24 @@ namespace Voxel {
 		Vec3 c2 = _modelTwo.m_inertiaMomentum*t2;
 		
 		//resulting forces can only work in colNormal direction
-		//d1*x1+e1*y1+f1*z1=0
-		//either one component of the coefficients is 0 or the 3 equations aren't linear independent
+		//(d1*x1+e1*y1+f1*z1) x n =0 
 		Vec3 d1 = cross(a1, _collisionNormal);
 		Vec3 e1 = cross(b1, _collisionNormal);
 		Vec3 f1 = cross(c1, _collisionNormal);
+
+		
+		float coeffsArea[36]= {
+			r1.x, s1.x, t1.x, r2.x, s2.x, t2.x,
+			r1.y, s1.y, t1.y, r2.y, s2.y, t2.y,
+			r1.z, s1.z, t1.z, r2.z, s2.z, t2.z,
+			d1.x, e1.x, f1.x, 0, 0, 0,
+			d1.y, e1.y, f1.y, 0, 0, 0,
+			d1.z, e1.z, f1.z, 0, 0, 0};
+		//Matrix<6, float> lowerMatrix(coeffsArea);
+		Matrix<6, float> upperMatrix(0);
+		Matrix<6, float> permMatrix(0);
+
+		//LUDecomposition(lowerMatrix, upperMatrix, permMatrix);
 
 	}
 

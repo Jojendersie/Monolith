@@ -57,10 +57,10 @@ namespace Voxel {
 		Math::Quaternion m_rotatoryVelocity;	///< Current change of rotation per second
 		Math::Vec3 m_velocity;			///< Velocity in m/s (vector length)
 		float m_mass;					///< Mass (inertia) of the full model
-		Math::Mat3 m_inertiaMomentum;		///< Inertia of rotation for the full model.
+		Math::Mat3x3 m_inertiaMomentum;		///< Inertia of rotation for the full model.
 
 		float m_boundingSphereRadius;	///< Bounding sphere radius (to the center of gravity) for culling etc.
-		Math::Polyhedron m_boundingBox;		///< Bounding Box for the model 
+		Math::Polyhedron m_boundingBox();		///< Bounding Box for the model 
 		//ComputeBounding
 	};
 	/// \brief Check if the models collide.

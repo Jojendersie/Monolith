@@ -429,5 +429,7 @@ namespace Math {
 	Vec3 operator * (const Vec3& _v, const Mat3x3& _A);
 	/// \brief Computes _A * _v.
 	Vec3 operator * (const Mat3x3& _A, const Vec3& _v);
-
+	/// \brief Decomposition of a Matrix
+	template<int n, class D>
+	bool LUDecomposition(Matrix<n,D> &_lowerMatrix, Matrix<n,D> &_upperMatrix, Matrix<n,D> &_permutationMatrix);
 }; // namespace Math
