@@ -133,6 +133,7 @@
     <ClInclude Include="src\math\matrix.hpp" />
     <ClInclude Include="src\math\plane.hpp" />
     <ClInclude Include="src\math\sphere.hpp" />
+    <ClInclude Include="src\math\vector.hpp" />
     <ClInclude Include="src\math\vector2.hpp" />
     <ClInclude Include="src\math\vector3.hpp" />
     <ClInclude Include="src\math\vector4.hpp" />
