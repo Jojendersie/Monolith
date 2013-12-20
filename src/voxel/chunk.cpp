@@ -40,32 +40,32 @@ namespace Voxel {
 		IVec3 pmin = (m_nodePostion << (m_level - level)) - IVec3(1);
 		IVec3 pmax = pmin + IVec3(34);
 		IVec3 pos;
-		for( pos.z=pmin.z; pos.z<pmax.z; ++pos.z )
-			for( pos.y=pmin.y; pos.y<pmax.y; ++pos.y )
-				for( pos.x=pmin.x; pos.x<pmax.x; ++pos.x )
+		for( pos[2]=pmin[2]; pos[2]<pmax[2]; ++pos[2] )
+			for( pos[1]=pmin[1]; pos[1]<pmax[1]; ++pos[1] )
+				for( pos[0]=pmin[0]; pos[0]<pmax[0]; ++pos[0] )
 					m_model->Get(pos, level);
 
 		// Iterate over volume and add any surface voxel to vertex buffer
 		pmin += 1;
 		pmax -= 1;
-		for( pos.z=pmin.z; pos.z<pmax.z; ++pos.z )
-			for( pos.y=pmin.y; pos.y<pmax.y; ++pos.y )
-				for( pos.x=pmin.x; pos.x<pmax.x; ++pos.x )
+		for( pos[2]=pmin[2]; pos[2]<pmax[2]; ++pos[2] )
+			for( pos[1]=pmin[1]; pos[1]<pmax[1]; ++pos[1] )
+				for( pos[0]=pmin[0]; pos[0]<pmax[0]; ++pos[0] )
 				{
 					// Check if at least one neighbor is NONE and this is not
 					// none -> surface
-					if( (volume[pos.x + 34 * (pos.y + 34 * pos.z)] != VoxelType::NONE) &&
-						((volume[pos.x - 1 + 34 * (pos.y + 34 * pos.z)] == VoxelType::NONE) ||
-						 (volume[pos.x + 1 + 34 * (pos.y + 34 * pos.z)] != VoxelType::NONE) ||
-						 (volume[pos.x + 34 * (pos.y - 1 + 34 * pos.z)] != VoxelType::NONE) ||
-						 (volume[pos.x + 34 * (pos.y + 1 + 34 * pos.z)] != VoxelType::NONE) ||
-						 (volume[pos.x + 34 * (pos.y + 34 * (pos.z - 1))] != VoxelType::NONE) ||
-						 (volume[pos.x + 34 * (pos.y + 34 * (pos.z + 1))] != VoxelType::NONE)) )
+					if( (volume[pos[0] + 34 * (pos[1] + 34 * pos[2])] != VoxelType::NONE) &&
+						((volume[pos[0] - 1 + 34 * (pos[1] + 34 * pos[2])] == VoxelType::NONE) ||
+						 (volume[pos[0] + 1 + 34 * (pos[1] + 34 * pos[2])] != VoxelType::NONE) ||
+						 (volume[pos[0] + 34 * (pos[1] - 1 + 34 * pos[2])] != VoxelType::NONE) ||
+						 (volume[pos[0] + 34 * (pos[1] + 1 + 34 * pos[2])] != VoxelType::NONE) ||
+						 (volume[pos[0] + 34 * (pos[1] + 34 * (pos[2] - 1))] != VoxelType::NONE) ||
+						 (volume[pos[0] + 34 * (pos[1] + 34 * (pos[2] + 1))] != VoxelType::NONE)) )
 					{
 						VoxelVertex V;
 						V.SetPosition( pos );
 						V.SetSize( 0 );	// TODO: deprecated
-						V.SetTexture( int(volume[pos.x + 34 * (pos.y + 34 * pos.z)]) );
+						V.SetTexture( int(volume[pos[0] + 34 * (pos[1] + 34 * pos[2])]) );
 						m_voxels.Add( V );
 					}
 				}

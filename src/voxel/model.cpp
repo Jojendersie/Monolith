@@ -15,6 +15,7 @@ namespace Voxel {
 		m_boundingSphereRadius(0.0f),
 		m_voxelTree(VoxelType::UNDEFINED, this)
 	{
+		auto x = IVec3(3) * 0.5f;
 	}
 
 	Model::~Model()
@@ -32,15 +33,13 @@ namespace Voxel {
 		{}
 	};
 
-	// Decide for one voxel if it has the correct detail level and is visible
-	// (culling). If yes the traversal is stopped and a chunk is created/rendered.
-	bool DecideToDraw(const Math::IVec3& _position, int _size, VoxelType _type, DrawParam* _param)
+	bool Model::DecideToDraw(const Math::IVec3& _position, int _size, VoxelType _type, DrawParam* _param)
 	{
 		// TODO: culling
 
 		if( _size == 5 )
 		{
-			//_param->model->m_chunks;
+			_param->model->m_chunks.find(Math::IVec4(_position, _size));
 			return false;
 		}
 		return true;
@@ -73,7 +72,8 @@ namespace Voxel {
 		if( IsSolid(_oldType) )
 		{
 			float oldMass = VOXEL_INFO[int(_oldType)].mass * _size;
-			m_center = (m_center * m_mass - _position * oldMass) / m_mass;
+			// TODO remove Math::Vec3 if replaced by template
+			m_center = (m_center * m_mass - Math::Vec3(_position * oldMass)) / m_mass;
 			m_mass -= oldMass;
 			m_numVoxels -= _size;
 		}
@@ -82,13 +82,14 @@ namespace Voxel {
 		if( IsSolid(_newType) )
 		{
 			float newMass = VOXEL_INFO[int(_newType)].mass * _size;
-			m_center = (m_center * m_mass + _position * newMass) / (m_mass + newMass);
+			m_center = (m_center * m_mass + Math::Vec3(_position * newMass)) / (m_mass + newMass);
 			m_mass += newMass;
 			m_numVoxels += _size;
 		}
 
 		// TEMP: approximate a sphere; TODO Grow and shrink a real bounding volume
-		m_boundingSphereRadius = Math::max(m_boundingSphereRadius, (m_center - _position).Length() );
+		// TODO remove Math::Vector if replaced by template
+		m_boundingSphereRadius = Math::max(m_boundingSphereRadius, Math::length(Math::Vector<3,float>(m_center) - _position) );
 	}
 
 };

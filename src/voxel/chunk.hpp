@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <cassert>
 #include "../predeclarations.hpp"
-#include "../math/vector3.hpp"
+#include "../math/vector.hpp"
 #include "../graphic/vertexbuffer.hpp"
 #include "voxel.hpp"
 
@@ -32,7 +32,7 @@ namespace Voxel {
 
 		void SetVisibility( int _iL, int _iR, int _iBo, int _iT, int _iF, int _iBa )	{ flags = (flags & 0xffffffa0) | _iL | _iR<<1 | _iBo<<2 | _iT<<3 | _iF<<4 | _iBa<<5; }
 		void SetSize( int _level )							{ assert(0<=_level && _level<=5); flags = (flags & 0xfffffe3f) | (_level<<6); }
-		void SetPosition( const Math::IVec3& _position )	{ flags = (flags & 0xff0001ff) | (_position.x << 9) | (_position.y<<14) | (_position.z<<19); }
+		void SetPosition( const Math::IVec3& _position )	{ flags = (flags & 0xff0001ff) | (_position[0] << 9) | (_position[1] << 14) | (_position[2] << 19); }
 		void SetTexture( int _iTextureIndex )				{ flags = (flags & 0x00ffffff) | (_iTextureIndex << 24); }
 //		void SetHasChildren( bool _bHasChildren )			{ flags = (flags & 0x7fffffff) | (_bHasChildren?0x80000000:0); }
 

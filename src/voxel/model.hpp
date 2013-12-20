@@ -4,9 +4,13 @@
 #include "sparseoctree.hpp"
 #include "voxel.hpp"
 #include "../math/math.hpp"
+#include "../math/vector.hpp"
 #include "../predeclarations.hpp"
 
 namespace Voxel {
+
+	/// \brief An internal used struct as an octree traversal param.
+	struct DrawParam;
 
 	/// \brief A model is a high level abstraction with graphics and
 	///		game play elements.
@@ -58,7 +62,7 @@ namespace Voxel {
 		void Update( const Math::IVec3& _position, int _size, VoxelType _oldType, VoxelType _newType );
 
 	protected:
-		//std::unordered_map<IVec4, Chunk> m_chunks;
+		std::unordered_map<Math::IVec4, Chunk> m_chunks;
 		int m_numVoxels;				///< Count the number of voxels for statistical issues
 
 		Math::Vec3 m_position;			///< Model position in the space.
@@ -75,7 +79,12 @@ namespace Voxel {
 		//ComputeBounding
 		SparseVoxelOctree<VoxelType, Model> m_voxelTree;
 		
-
+		/// \brief  Decide for one voxel if it has the correct detail level and
+		///		is visible (culling).
+		/// \details If the voxel is drawn the traversal is stopped and a chunk
+		///		is created/rendered.
+		static bool DecideToDraw(const Math::IVec3& _position, int _size, VoxelType _type, DrawParam* _param);
+		
 		friend class Chunk;
 	};
 };

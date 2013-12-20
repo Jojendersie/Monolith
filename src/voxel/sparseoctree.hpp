@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../math/math.hpp"
+#include "../math/vector.hpp"
 #include "../algorithm/smallsort.hpp"
 #include <poolallocator.hpp>
 
@@ -173,16 +173,14 @@ namespace Voxel {
 		int scale = m_rootSize-_level;
 		Math::IVec3 position = _position>>scale;
 		while( (scale < 0)
-			|| (((position.x-m_rootPosition.x*2) & 0xfffffffe) != 0)
-			|| (((position.y-m_rootPosition.y*2) & 0xfffffffe) != 0)
-			|| (((position.z-m_rootPosition.z*2) & 0xfffffffe) != 0))
+			|| (((position-m_rootPosition*2) & Math::IVec3(0xfffffffe)) != Math::IVec3(0)) )
 		{
 			// scale < 0: Obviously the target voxel is larger than the
 			//	current root -> create new larger root(set)
 			// pos: The new voxel could be outside -> requires larger root
 			//	too because the tree must cover a larger area.
 			SVON* pNew = NewSVON();
-			pNew[(m_rootPosition.x & 1) + (m_rootPosition.y & 1) * 2 + (m_rootPosition.z & 1) * 4].children = m_roots;
+			pNew[(m_rootPosition[0] & 1) + (m_rootPosition[1] & 1) * 2 + (m_rootPosition[2] & 1) * 4].children = m_roots;
 			m_rootPosition >>= 1;
 			m_roots = pNew;
 			++m_rootSize;
@@ -194,7 +192,7 @@ namespace Voxel {
 		// One of the eight children must contain the target position.
 		// Most things from ComputeChildIndex are already computed
 		// -> use last line inline.
-		m_roots[ (position.x & 1) + (position.y & 1) * 2 + (position.z & 1) * 4 ]
+		m_roots[ (position[0] & 1) + (position[1] & 1) * 2 + (position[2] & 1) * 4 ]
 			.Set(m_rootSize, _position, _level, _type, this);
 	}
 
@@ -213,10 +211,10 @@ namespace Voxel {
 		if( position != (m_rootPosition*2) ) return m_defaultData;
 
 		// Search in the octree (while not on target level or tree ends)
-		SVON* current = &m_roots[ (position.x & 1) + (position.y & 1) * 2 + (position.z & 1) * 4 ];
+		SVON* current = &m_roots[ (position[0] & 1) + (position[1] & 1) * 2 + (position[2] & 1) * 4 ];
 		while( (scale > 0) && current->children ) {
 			position >>= 1;
-			current = &current->children[ (position.x & 1) + (position.y & 1) * 2 + (position.z & 1) * 4 ];
+			current = &current->children[ (position[0] & 1) + (position[1] & 1) * 2 + (position[2] & 1) * 4 ];
 		}
 
 		// TODO Search in blue print.
@@ -364,7 +362,7 @@ namespace Voxel {
 		int scale = _childSize-_targetSize;
 		Math::IVec3 position = _targetPosition>>scale;
 		// Now compute the index from the position
-		return (position.x & 1) + (position.y & 1) * 2 + (position.z & 1) * 4;
+		return (position[0] & 1) + (position[1] & 1) * 2 + (position[2] & 1) * 4;
 	}
 
 
