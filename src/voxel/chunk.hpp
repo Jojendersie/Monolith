@@ -90,17 +90,6 @@ namespace Voxel {
 
 		Graphic::VertexBuffer m_voxels;	///< One VoxelVertex value per surface voxel.
 
-		/// \brief Iterate exactly down to the level where 32^3 voxels are
-		///		covered and add them to vertex buffer.
-		///	\details Uses the 6 neighbors to determine visibility.
-		///	\param [in] _current The center node to add or iterate.
-		///	\param [in] _level Relative depth to be reached: 0 is the recursion
-		///		end condition.
-		/*void FillVBRecursive( const Model::SVON* _current, int _level,
-			const Model::SVON* _left, const Model::SVON* _right,
-			const Model::SVON* _bottom, const Model::SVON* _top,
-			const Model::SVON* _front, const Model::SVON* _back );*/
-
 		Math::Vec3 m_position;			///< Relative position of the chunk respective to the model.
 	};
 

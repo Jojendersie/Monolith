@@ -21,15 +21,39 @@ namespace Voxel {
 	{
 	}
 
-	void Model::Draw( Graphic::UniformBuffer& _objectConstants, const Input::Camera& _camera )
+	// ********************************************************************* //
+	struct DrawParam
+	{
+		const Input::Camera& camera;	// Required for culling and LOD
+		Model* model;					// Create or find chunks here.
+
+		DrawParam(const Input::Camera& _camera, Model* _model) :
+			camera(_camera), model(_model)
+		{}
+	};
+
+	// Decide for one voxel if it has the correct detail level and is visible
+	// (culling). If yes the traversal is stopped and a chunk is created/rendered.
+	bool DecideToDraw(const Math::IVec3& _position, int _size, VoxelType _type, DrawParam* _param)
 	{
 		// TODO: culling
+
+		if( _size == 5 )
+		{
+			//_param->model->m_chunks;
+			return false;
+		}
+		return true;
+	}
+
+	void Model::Draw( Graphic::UniformBuffer& _objectConstants, const Input::Camera& _camera )
+	{
 
 		// Create a new model space transformation
 		Math::Mat4x4 mModelViewProjection = Mat4x4::Translation(-m_center) * Mat4x4::Rotation(m_rotation) * Mat4x4::Translation( m_position + m_center ) * _camera.GetViewProjection();
 
 		// Iterate through the octree and render chunks depending on the lod.
-		// TODO
+		m_voxelTree.Traverse( DecideToDraw, &DrawParam(_camera, this) );
 
 		// Draw all chunks
 	/*	for( int i=0; i<m_numChunks; ++i )

@@ -38,6 +38,19 @@ namespace Voxel {
 		///		approximating LOD (majority) of the children.
 		T Get( const Math::IVec3& _position, int _level ) const;
 
+		/// \brief Traverse through the whole tree in preorder and call the
+		///		callback.
+		/// \param [in] _callback This function is called for each voxel. It
+		///		has to return true if the children should be traversed too.
+		///		If a voxel does not have children the return value is ignored.
+		///		TODO: IVec4
+		///		The function takes the octree position, the voxels and gets
+		///		the parameters passed.
+		///	\param [in] _param Pointer to an arbitrary structure to pass
+		///		additional information to the callback.
+		template<typename Param>
+		void Traverse( bool(*_callback)(const Math::IVec3&,int,T,Param*), Param* _param );
+
 #ifdef _DEBUG
 		size_t MemoryConsumption() const;
 #endif
@@ -70,6 +83,13 @@ namespace Voxel {
 			///		overwritten.
 			///	\param [in] _removePhysicaly Call the model update for each deleted voxel or not? 
 			void RemoveSubTree(const Math::IVec3& _position, int _size, SparseVoxelOctree* _parent, bool _removePhysically);
+
+			/// \brief Recursive pre-order traverse.
+			/// \see SparseVoxelOctree::Traverse
+			/// \param [in] _position Voxel position in 3D grid.
+			/// \param [in] _size Grid size, 0 is the highest resolution.
+			template<class Param>
+			void Traverse( const Math::IVec3& _position, int _size, bool(*_callback)(const Math::IVec3&,int,T,Param*), Param* _param );
 
 			/// \brief Check if all children have the same type.
 			bool IsUniform() const;
@@ -111,6 +131,10 @@ namespace Voxel {
 
 
 
+
+	// ********************************************************************* //
+	static const Math::IVec3 CHILD_OFFSETS[8] = { Math::IVec3(0,0,0), Math::IVec3(0,0,1), Math::IVec3(0,1,0), Math::IVec3(0,1,1),
+		Math::IVec3(1,0,0), Math::IVec3(1,0,1), Math::IVec3(1,1,0), Math::IVec3(1,1,1) };
 
 	// ********************************************************************* //
 	template<typename T, typename Listener>
@@ -202,6 +226,15 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
+	template<typename T, typename Listener> template<typename Param>
+	void SparseVoxelOctree<T,Listener>::Traverse( bool(*_callback)(const Math::IVec3&,int,T,Param*), Param* _param )
+	{
+		if( m_roots )
+			for( int i=0; i<8; ++i )
+				m_roots[i].Traverse(m_rootPosition+CHILD_OFFSETS[i], m_rootSize, _callback, _param);
+	}
+
+	// ********************************************************************* //
 	template<typename T, typename Listener>
 	size_t SparseVoxelOctree<T,Listener>::MemoryConsumption() const
 	{
@@ -212,10 +245,6 @@ namespace Voxel {
 	}
 
 
-
-	// ********************************************************************* //
-	static const Math::IVec3 CHILD_OFFSETS[8] = { Math::IVec3(0,0,0), Math::IVec3(0,0,1), Math::IVec3(0,1,0), Math::IVec3(0,1,1),
-		Math::IVec3(1,0,0), Math::IVec3(1,0,1), Math::IVec3(1,1,0), Math::IVec3(1,1,1) };
 
 	// ********************************************************************* //
 	template<typename T, typename Listener>
@@ -275,6 +304,18 @@ namespace Voxel {
 		// Delete
 		_parent->m_SVONAllocator.Free(children);
 		children = nullptr;
+	}
+
+	// ********************************************************************* //
+	template<typename T, typename Listener> template<class Param>
+	void SparseVoxelOctree<T,Listener>::SVON::Traverse( const Math::IVec3& _position, int _size, bool(*_callback)(const Math::IVec3&,int,T,Param*), Param* _param )
+	{
+		if( _callback(_position,_size,voxel,_param) && children )
+		{
+			Math::IVec3 position = _position<<1;
+			for( int i=0; i<8; ++i )
+				children[i].Traverse(position + CHILD_OFFSETS[i], _size-1, _callback, _param);
+		}
 	}
 
 	// ********************************************************************* //
