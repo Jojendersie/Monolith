@@ -117,13 +117,13 @@ namespace Voxel {
 		SVON* NewSVON();
 		//void DeleteSVON(SVON* _node)	{ m_SVONAllocator.Free(_node); }
 
-		/// \brief A sparse voxel octree with incremental differences between
-		///		blueprint and this model.
+		/// \brief A sparse voxel octree root.
 		///	\details Each pointer points to a set of 8 children. So on root level there
 		///		are always 8 nodes.
-		SVON* m_roots;			
-		Math::IVec3 m_rootPosition;	///< Position of the root node in grid space of the m_rootSize+1 level.
-		int m_rootSize;				///< Level of the 8 root nodes where 0 is the highest possible resolution.
+//		SVON* m_roots;			
+		Math::IVec3 m_rootPosition;	///< Position of the root node in grid space of the node which covers all 8 roots.
+		int m_rootSize;				///< Level of the node which contains the 8 roots where 0 is the highest possible resolution.
+		SVON m_root;				///< The single top level root node
 
 	};
 
@@ -142,7 +142,7 @@ namespace Voxel {
 		m_defaultData(_defaultData),
 		m_listener(_listener),
 		m_SVONAllocator(sizeof(SVON)*8),
-		m_roots(nullptr),
+		m_root(_defaultData),
 		m_rootSize(-1),
 		m_rootPosition(0)
 	{
@@ -167,24 +167,26 @@ namespace Voxel {
 		{
 			// First set at all
 			m_rootSize = _level;
-			m_roots = NewSVON();
-			m_rootPosition = _position >> 1;
+			m_rootPosition = _position;
 		}
 		int scale = m_rootSize-_level;
 		Math::IVec3 position = _position>>scale;
 		while( (scale < 0)
-			|| (((position-m_rootPosition*2) & Math::IVec3(0xfffffffe)) != Math::IVec3(0)) )
+			|| ((position-m_rootPosition) != Math::IVec3(0)) )
 		{
 			// scale < 0: Obviously the target voxel is larger than the
 			//	current root -> create new larger root(set)
 			// pos: The new voxel could be outside -> requires larger root
 			//	too because the tree must cover a larger area.
 			SVON* pNew = NewSVON();
+			// Move the old root in one of the children
 			int rootIndex = (m_rootPosition[0] & 1) + (m_rootPosition[1] & 1) * 2 + (m_rootPosition[2] & 1) * 4;
-			pNew[rootIndex].children = m_roots;
-			pNew[rootIndex].voxel = pNew[rootIndex].MajorVoxelType();
+			pNew[rootIndex].children = m_root.children;
+			pNew[rootIndex].voxel = m_root.voxel;
+			// Set root to higher level
 			m_rootPosition >>= 1;
-			m_roots = pNew;
+			m_root.children = pNew;
+			m_root.voxel = m_root.MajorVoxelType();
 			++m_rootSize;
 			// Still to small?
 			++scale;
@@ -194,8 +196,7 @@ namespace Voxel {
 		// One of the eight children must contain the target position.
 		// Most things from ComputeChildIndex are already computed
 		// -> use last line inline.
-		m_roots[ (position[0] & 1) + (position[1] & 1) * 2 + (position[2] & 1) * 4 ]
-			.Set(m_rootSize, _position, _level, _type, this);
+		m_root.Set(m_rootSize, _position, _level, _type, this);
 	}
 
 	// ********************************************************************* //
@@ -210,12 +211,11 @@ namespace Voxel {
 		int scale = m_rootSize-_level;
 		if( scale < 0 ) return m_defaultData;
 		Math::IVec3 position = _position >> scale;
-		if( ((position-m_rootPosition*2) & Math::IVec3(0xfffffffe)) != Math::IVec3(0) ) return m_defaultData;
+		if( ((position-m_rootPosition) & Math::IVec3(0xfffffffe)) != Math::IVec3(0) ) return m_defaultData;
 
 		// Search in the octree (while not on target level or tree ends)
-		SVON* current = &m_roots[ (position[0] & 1) + (position[1] & 1) * 2 + (position[2] & 1) * 4 ];
+		const SVON* current = &m_root;
 		while( (scale > 0) && current->children ) {
-			assert( IsSolid( current->voxel ) );
 			--scale;
 			position = _position >> scale;
 			current = &current->children[ (position[0] & 1) + (position[1] & 1) * 2 + (position[2] & 1) * 4 ];
@@ -228,14 +228,9 @@ namespace Voxel {
 	template<typename T, typename Listener> template<typename Param>
 	void SparseVoxelOctree<T,Listener>::Traverse( bool(*_callback)(const Math::IVec4&,T,Param*), Param* _param )
 	{
-		if( m_roots )
-			for( int i=0; i<8; ++i )
-			{
-				if( m_roots[i].voxel != m_defaultData )
-					m_roots[i].Traverse(IVec4(m_rootPosition, m_rootSize+1)+CHILD_OFFSETS[i], _callback, _param, m_defaultData);
-				else
-					assert( !m_roots[i].children );
-			}
+		assert(m_rootSize != -1);
+
+		m_root.Traverse(IVec4(m_rootPosition, m_rootSize), _callback, _param, m_defaultData);
 	}
 
 	// ********************************************************************* //

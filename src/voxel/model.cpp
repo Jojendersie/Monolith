@@ -59,8 +59,8 @@ namespace Voxel {
 
 		// LOD - calculate a target level. If the current level is less or
 		// equal the target draw.
-		float distance = (chunkPos - _param->camera.GetPosition()).Length();
-		int targetLOD = max(5, Math::ceil(distance / 200.0f));
+		float distance = pow((chunkPos - _param->camera.GetPosition()).Length(), 0.25f);
+		int targetLOD = max(5, Math::ceil(distance / 1.0f));
 //		std::cout << targetLOD << '\n';
 		if( _position[3] <= targetLOD )
 		{

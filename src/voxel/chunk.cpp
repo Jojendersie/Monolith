@@ -22,7 +22,7 @@ namespace Voxel {
 		m_model( _model ),
 		m_scale( float(1<<(_nodePostion[3]-5)) ),
 		m_voxels( "u", Graphic::VertexBuffer::PrimitiveType::POINT ),
-		m_position( _nodePostion[0]<<5, _nodePostion[1]<<5, _nodePostion[2]<<5 )
+		m_position( float(_nodePostion[0]<<5), float(_nodePostion[1]<<5), float(_nodePostion[2]<<5) )
 	{
 		ComputeVertexBuffer(Math::IVec3((const int*)_nodePostion), _nodePostion[3] );
 	}
