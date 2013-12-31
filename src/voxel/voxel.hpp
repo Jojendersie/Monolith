@@ -46,5 +46,5 @@ namespace Voxel {
 	//				   4 Metal + 1 Rare Metal -> 5 Alloy
 
 
-	inline bool IsSolid( VoxelType _v )	{ return _v != VoxelType::NONE && _v != VoxelType::UNDEFINED; }
+	inline bool IsSolid( VoxelType _v )	{ return (_v != VoxelType::NONE) && (_v != VoxelType::UNDEFINED); }
 };

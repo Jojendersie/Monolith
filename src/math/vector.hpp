@@ -14,7 +14,7 @@ namespace Math {
 		/// \brief Create a Vector filled with a constant
 		explicit Vector(Data _d)			{for (int i = 0; i < n; i++) m_data[i] = _d; }
 		/// \brief Create a Vector from an array
-		explicit Vector(Data* _d)		{ for (int i = 0; i < n; i++) m_data[i] = _d[i]; }
+		explicit Vector(const Data* _d)		{ for (int i = 0; i < n; i++) m_data[i] = _d[i]; }
 		/// \brief Create a Vector from a Vector
 		Vector(const Vector<n, Data>& _v)	{ for (int i = 0; i < n; i++) m_data[i] = _v[i]; }
 		/// \brief Create a Vector from a Vector by casting the primitive type
@@ -208,6 +208,8 @@ namespace Math {
 
 
 namespace std {
+
+	template <class _Kty> struct hash;
 
 	/// \brief Custom hash function for vectors.
 	template <int n, class Data>

@@ -48,7 +48,12 @@ namespace Voxel {
 	{
 	public:
 		/// \brief Constructs a chunk without any voxel (type NONE).
-		Chunk();
+		/// \param [in] _nodePostion Position of the root node from this chunk
+		///		in the model's octree.
+		Chunk(const Model* _model, const Math::IVec4& _nodePostion);
+
+		/// \brief Move construction
+		Chunk(Chunk&& _chunk);
 
 		virtual ~Chunk();
 
@@ -59,38 +64,35 @@ namespace Voxel {
 		///		which must be filled.
 		/// \param [in] _modelViewProjection The actual view projection matrix.
 		///		This matrix should contain the general model transformation too.
-		/// \param [in] _camera Camera used for culling and LOD computations.
 		void Draw( Graphic::UniformBuffer& _objectConstants,
-			const Math::Mat4x4& _modelViewProjection,
-			const Input::Camera& _camera,
-			const Math::Vec3& _modelPosition );
-
-		/// \brief Compute the visible voxel set vertex buffer.
-		/// \details TODO: This can be done parallel to the render thread because it
-		///		only fills the VB and does not upload it.
-		///		CURRENTLY IT COMMITS THE BUFFER
-		void ComputeVertexBuffer();
+			const Math::Mat4x4& _modelViewProjection );
 
 		/// \brief Set position relative to the model.
-		void SetPosition( const Math::Vec3& _position )	{ m_position = _position; }
+		//void SetPosition( const Math::Vec3& _position )	{ m_position = _position; }
 
 		Math::Vec3 GetPosition()		{ return m_position; }
+
+		/// \brief Get the number of voxels in this chunk
+		int NumVoxels() const			{ return m_voxels.GetNumVertices(); }
 	private:
 		/// \brief Reference to the parent model used to access data.
 		const Model* m_model;
 
-		/// \brief Position of the root node from this chunk in the model's
-		///		octree.
-		Math::IVec3 m_nodePostion;
-
-		/// \brief Level of the chunk root node.
-		/// \details This should most times be at least 4 (lvl0 is highest
-		///		resolution lvl4 covers 32^3 of that resolution).
-		int m_level;
+		float m_scale;					///< Rendering parameter derived from Octree node size
 
 		Graphic::VertexBuffer m_voxels;	///< One VoxelVertex value per surface voxel.
 
 		Math::Vec3 m_position;			///< Relative position of the chunk respective to the model.
+
+		/// \brief Compute the initial visible voxel set vertex buffer.
+		/// \details TODO: This can be done parallel to the render thread because it
+		///		only fills the VB and does not upload it.
+		///		CURRENTLY IT COMMITS THE BUFFER
+		void ComputeVertexBuffer( const Math::IVec3& _nodePostion, int _level );
+
+		// Prevent copy constructor and operator = being generated.
+		Chunk(const Chunk&);
+		const Chunk& operator = (const Chunk&);
 	};
 
 	/// \brief A general loop to make voxel iteration easier. The voxel

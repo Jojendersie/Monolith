@@ -18,8 +18,20 @@ namespace Voxel {
 #	define INDEX2(X,Y,Z, L)	(LEVEL_OFFSETS[L] + (X) + (1<<(L))*((Y) + (1<<(L))*(Z)))
 
 
-	Chunk::Chunk() :
-		m_voxels( "u", Graphic::VertexBuffer::PrimitiveType::POINT )
+	Chunk::Chunk(const Model* _model, const Math::IVec4& _nodePostion) :
+		m_model( _model ),
+		m_scale( float(1<<(_nodePostion[3]-5)) ),
+		m_voxels( "u", Graphic::VertexBuffer::PrimitiveType::POINT ),
+		m_position( _nodePostion[0]<<5, _nodePostion[1]<<5, _nodePostion[2]<<5 )
+	{
+		ComputeVertexBuffer(Math::IVec3((const int*)_nodePostion), _nodePostion[3] );
+	}
+
+	Chunk::Chunk( Chunk&& _chunk ) :
+		m_model( _chunk.m_model ),
+		m_scale( _chunk.m_scale ),
+		m_voxels( std::move(_chunk.m_voxels) ),
+		m_position( _chunk.m_position )
 	{
 	}
 
@@ -28,7 +40,7 @@ namespace Voxel {
 	{
 	}
 
-	void Chunk::ComputeVertexBuffer()
+	void Chunk::ComputeVertexBuffer( const Math::IVec3& _nodePostion, int _level )
 	{
 		m_voxels.Clear();
 
@@ -36,36 +48,37 @@ namespace Voxel {
 		// sampling avoids the expensive resampling for many voxels.
 		// (Inner voxels would be sampled 7 times!)
 		VoxelType* volume = new VoxelType[34*34*34];
-		int level = Math::max( 0, m_level - 4 );
-		IVec3 pmin = (m_nodePostion << (m_level - level)) - IVec3(1);
+		int level = Math::max( 0, _level - 5 );
+		IVec3 pmin = (_nodePostion << (_level - level)) - IVec3(1);
 		IVec3 pmax = pmin + IVec3(34);
 		IVec3 pos;
 		for( pos[2]=pmin[2]; pos[2]<pmax[2]; ++pos[2] )
 			for( pos[1]=pmin[1]; pos[1]<pmax[1]; ++pos[1] )
 				for( pos[0]=pmin[0]; pos[0]<pmax[0]; ++pos[0] )
-					m_model->Get(pos, level);
+					volume[pos[0]-pmin[0] + 34 * (pos[1]-pmin[1] + 34 * (pos[2]-pmin[2]))] = m_model->Get(pos, level);
 
 		// Iterate over volume and add any surface voxel to vertex buffer
-		pmin += 1;
-		pmax -= 1;
-		for( pos[2]=pmin[2]; pos[2]<pmax[2]; ++pos[2] )
-			for( pos[1]=pmin[1]; pos[1]<pmax[1]; ++pos[1] )
-				for( pos[0]=pmin[0]; pos[0]<pmax[0]; ++pos[0] )
+		for( pos[2]=1; pos[2]<33; ++pos[2] )
+			for( pos[1]=1; pos[1]<33; ++pos[1] )
+				for( pos[0]=1; pos[0]<33; ++pos[0] )
 				{
+					VoxelType current = volume[pos[0] + 34 * (pos[1] + 34 * pos[2])];
+					int left = (volume[pos[0] - 1 + 34 * (pos[1] + 34 * pos[2])] == VoxelType::NONE);
+					int right = (volume[pos[0] + 1 + 34 * (pos[1] + 34 * pos[2])] == VoxelType::NONE);
+					int bottom = (volume[pos[0] + 34 * (pos[1] - 1 + 34 * pos[2])] == VoxelType::NONE);
+					int top = (volume[pos[0] + 34 * (pos[1] + 1 + 34 * pos[2])] == VoxelType::NONE);
+					int front = (volume[pos[0] + 34 * (pos[1] + 34 * (pos[2] - 1))] == VoxelType::NONE);
+					int back = (volume[pos[0] + 34 * (pos[1] + 34 * (pos[2] + 1))] == VoxelType::NONE);
 					// Check if at least one neighbor is NONE and this is not
 					// none -> surface
-					if( (volume[pos[0] + 34 * (pos[1] + 34 * pos[2])] != VoxelType::NONE) &&
-						((volume[pos[0] - 1 + 34 * (pos[1] + 34 * pos[2])] == VoxelType::NONE) ||
-						 (volume[pos[0] + 1 + 34 * (pos[1] + 34 * pos[2])] != VoxelType::NONE) ||
-						 (volume[pos[0] + 34 * (pos[1] - 1 + 34 * pos[2])] != VoxelType::NONE) ||
-						 (volume[pos[0] + 34 * (pos[1] + 1 + 34 * pos[2])] != VoxelType::NONE) ||
-						 (volume[pos[0] + 34 * (pos[1] + 34 * (pos[2] - 1))] != VoxelType::NONE) ||
-						 (volume[pos[0] + 34 * (pos[1] + 34 * (pos[2] + 1))] != VoxelType::NONE)) )
+					if( (current != VoxelType::NONE) &&
+						(left || right || bottom || top || front || back) )
 					{
 						VoxelVertex V;
-						V.SetPosition( pos );
+						V.SetPosition( pos-1 );
 						V.SetSize( 0 );	// TODO: deprecated
-						V.SetTexture( int(volume[pos[0] + 34 * (pos[1] + 34 * pos[2])]) );
+						V.SetTexture( int(current) );
+						V.SetVisibility(left, right, bottom, top, front, back);
 						m_voxels.Add( V );
 					}
 				}
@@ -77,92 +90,20 @@ namespace Voxel {
 	}
 
 
-	/*void Chunk::FillVBRecursive( const Model::SVON* _current, int _level,
-		const Model::SVON* _left, const Model::SVON* _right,
-		const Model::SVON* _bottom, const Model::SVON* _top,
-		const Model::SVON* _front, const Model::SVON* _back )
-	{
-		// TODO: undefined nodes and blue prints
-		
-		// Stop at empty voxels
-		if( _current->type==VoxelType::NONE ) return;
-
-		// Several stop-options: Target level reached or tree not subdevided more
-		if( _level == 0 || !_current->children )
-		{
-			// Is this voxel visible?
-			if( _left->IsSolid() && _right->IsSolid() &&
-				_bottom->IsSolid() && _top->IsSolid() &&
-				_front->IsSolid() && _back->IsSolid() )
-			{
-				// Add a vertex
-			}
-		} else if(_current->children)
-		{
-			--_level;
-			// Recursion
-			FillVBRecursive(&_current->children[0], _level, &_left->children[4], &_current->children[4], &_bottom->children[2], &_current->children[2], &_front->children[1], &_current->children[1]);
-			FillVBRecursive(&_current->children[1], _level, &_left->children[5], &_current->children[5], &_bottom->children[3], &_current->children[3], &_front->children[1], &_current->children[1]);
-		}
-
-		// Recursion required?
-		// If all children have the same type stop recursion.
-		bool hasChildren = !T.IsUniform() && (_level < 5);
-
-		if( T.GetType()!=VoxelType::NONE && !hasChildren )
-		{
-			// Add the current node (at least it is added for the LOD)
-			VoxelVertex V;
-			V.SetVisibility((Get( Math::IVec3(_position.x-1, _position.y, _position.z), _level )).IsSolid() ? 0 : 1 ,
-							(Get( Math::IVec3(_position.x+1, _position.y, _position.z), _level )).IsSolid() ? 0 : 1 ,
-							(Get( Math::IVec3(_position.x, _position.y-1, _position.z), _level )).IsSolid() ? 0 : 1 ,
-							(Get( Math::IVec3(_position.x, _position.y+1, _position.z), _level )).IsSolid() ? 0 : 1 ,
-							(Get( Math::IVec3(_position.x, _position.y, _position.z-1), _level )).IsSolid() ? 0 : 1 ,
-							(Get( Math::IVec3(_position.x, _position.y, _position.z+1), _level )).IsSolid() ? 0 : 1 );
-			if( V.IsVisible() )
-			{
-				V.SetPosition( _position );
-				V.SetSize( 5-_level );
-				V.SetTexture( int(T.GetType()) );
-				m_voxels.Add( &V );
-			}
-		}
-
-		if( hasChildren )
-		{
-			FillVBRecursive( _position * 2 + Math::IVec3(0,0,0), _level+1 );
-			FillVBRecursive( _position * 2 + Math::IVec3(1,0,0), _level+1 );
-			FillVBRecursive( _position * 2 + Math::IVec3(0,1,0), _level+1 );
-			FillVBRecursive( _position * 2 + Math::IVec3(1,1,0), _level+1 );
-			FillVBRecursive( _position * 2 + Math::IVec3(0,0,1), _level+1 );
-			FillVBRecursive( _position * 2 + Math::IVec3(1,0,1), _level+1 );
-			FillVBRecursive( _position * 2 + Math::IVec3(0,1,1), _level+1 );
-			FillVBRecursive( _position * 2 + Math::IVec3(1,1,1), _level+1 );
-		}
-	}*/
-
 	void Chunk::Draw( Graphic::UniformBuffer& _objectConstants,
-			const Math::Mat4x4& _modelViewProjection,
-			const Input::Camera& _camera,
-			const Math::Vec3& _modelPosition )
+			const Math::Mat4x4& _modelViewProjection )
 	{
-		// TODO: culling & LOD
-		Vec3 chunkWorldPos = m_position + _modelPosition;
-		int lod = (int)Math::min(5.0f, 5.0f/(_camera.GetPosition() - chunkWorldPos).LengthSq() );
-		int lodOffset = 0;
-		//for( int i=0; i<lod; ++i) lodOffset += m_lodVoxelNum[i];
-
 		// Translation to center the chunks
-		_objectConstants["WorldViewProjection"] = Mat4x4::Translation(m_position) * _modelViewProjection;
+		_objectConstants["WorldViewProjection"] = Mat4x4::Translation(m_position) * Mat4x4::Scaling(m_scale) * _modelViewProjection;
 
-		_objectConstants["Corner000"] = Vec4( -0.5f, -0.5f, -0.5f, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner001"] = Vec4( -0.5f, -0.5f,  0.5f, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner010"] = Vec4( -0.5f,  0.5f, -0.5f, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner011"] = Vec4( -0.5f,  0.5f,  0.5f, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner100"] = Vec4(  0.5f, -0.5f, -0.5f, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner101"] = Vec4(  0.5f, -0.5f,  0.5f, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner110"] = Vec4(  0.5f,  0.5f, -0.5f, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner111"] = Vec4(  0.5f,  0.5f,  0.5f, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner000"] = Vec4( -m_scale, -m_scale, -m_scale, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner001"] = Vec4( -m_scale, -m_scale,  m_scale, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner010"] = Vec4( -m_scale,  m_scale, -m_scale, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner011"] = Vec4( -m_scale,  m_scale,  m_scale, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner100"] = Vec4(  m_scale, -m_scale, -m_scale, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner101"] = Vec4(  m_scale, -m_scale,  m_scale, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner110"] = Vec4(  m_scale,  m_scale, -m_scale, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner111"] = Vec4(  m_scale,  m_scale,  m_scale, 0.0f ) * _modelViewProjection;
 
 		Graphic::Device::DrawVertices( m_voxels, 0, m_voxels.GetNumVertices() );
 	}

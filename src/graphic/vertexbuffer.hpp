@@ -86,6 +86,10 @@ namespace Graphic {
 		/// \brief Create a dynamic vertex buffer with arbitrary interleaved data.
 		/// \details \see VertexBuffer
 		VertexBuffer( const char* _vertexDeclaration, PrimitiveType _type = PrimitiveType::INDEXED );
+
+		/// \brief RValue - Move constructor.
+		VertexBuffer(VertexBuffer&&);
+
 		~VertexBuffer();
 
 		/// \brief Add one vertex at the end of the buffer.

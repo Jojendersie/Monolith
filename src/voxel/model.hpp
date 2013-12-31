@@ -32,7 +32,8 @@ namespace Voxel {
 		///		which must be filled.
 		/// \param [in] _camera The actual camera for transformation, culling
 		///		and LOD computations.
-		void Draw( Graphic::UniformBuffer& _objectConstants, const Input::Camera& _camera );
+		///	\return The number of drawn voxels.
+		int Draw( Graphic::UniformBuffer& _objectConstants, const Input::Camera& _camera );
 
 		/// \brief Set a voxel in the model and update mass properties.
 		/// \see SparseVoxelOctree::Set.
@@ -43,7 +44,7 @@ namespace Voxel {
 		///	\details If the position is outside the return value is UNDEFINED. For
 		///		levels other than 0 the returned value will be some
 		///		approximating LOD (majority) of the children.
-		VoxelType Get( const Math::IVec3& _position, int _level ) const			{ return m_voxelTree.Get(_position, _level); }
+		VoxelType Get( const Math::IVec3& _position, int _level ) const;
 
 		/// \brief Get the center of gravity (mass center)
 		Math::Vec3 GetCenter() const		{ return m_center + m_position; }
@@ -55,11 +56,11 @@ namespace Voxel {
 		/// \details If a voxel is deleted _newType is NONE. If a new voxel
 		///		is created _oldType is NONE. Overwrite operations define both
 		///		(deletion and creation).
-		/// \param [in] _position Which voxel was exchanged?
-		/// \param [in] _size Logarithmic scale of the voxel 0 means the
-		///		highest detail 2^0.
+		/// \param [in] _position Which voxel was exchanged? The fourth
+		///		component is the size with logarithmic scale of the voxel.
+		///		0 denotes the highest detail 2^0.
 		///	\param [in] _oldType The type of the voxel which was before.
-		void Update( const Math::IVec3& _position, int _size, VoxelType _oldType, VoxelType _newType );
+		void Update( const Math::IVec4& _position, VoxelType _oldType, VoxelType _newType );
 
 	protected:
 		std::unordered_map<Math::IVec4, Chunk> m_chunks;
@@ -83,7 +84,7 @@ namespace Voxel {
 		///		is visible (culling).
 		/// \details If the voxel is drawn the traversal is stopped and a chunk
 		///		is created/rendered.
-		static bool DecideToDraw(const Math::IVec3& _position, int _size, VoxelType _type, DrawParam* _param);
+		static bool DecideToDraw(const Math::IVec4& _position, VoxelType _type, DrawParam* _param);
 		
 		friend class Chunk;
 	};

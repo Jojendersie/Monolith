@@ -164,16 +164,39 @@ VertexBuffer::VertexBuffer( const char* _vertexDeclaration, PrimitiveType _type 
 }
 
 // ************************************************************************* //
+VertexBuffer::VertexBuffer( VertexBuffer&& _buffer ) :
+	m_cursor( _buffer.m_cursor ),
+	m_data( _buffer.m_data ),
+	m_firstDirtyIndex( _buffer.m_firstDirtyIndex ),
+	m_lastDirtyIndex( _buffer.m_lastDirtyIndex ),
+	m_maxNumVertices( _buffer.m_maxNumVertices ),
+	m_normalOffset( _buffer.m_normalOffset ),
+	m_positionOffset( _buffer.m_positionOffset ),
+	m_primitiveType( _buffer.m_primitiveType ),
+	m_tangentOffset( _buffer.m_tangentOffset ),
+	m_VAO( _buffer.m_VAO ),
+	m_VBO( _buffer.m_VBO ),
+	m_vertexSize( _buffer.m_vertexSize )
+{
+	_buffer.m_VAO = 0;
+	_buffer.m_VBO = 0;
+	_buffer.m_data = nullptr;
+}
+
+// ************************************************************************* //
 VertexBuffer::~VertexBuffer()
 {
-	// Detach and delete Vertex buffer
-	glBindVertexArray(m_VAO);
-	//glDisableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glDeleteBuffers(1, &m_VBO);
-	// Detach and delete array
-	glBindVertexArray(0);
-	glDeleteVertexArrays(1, &m_VAO);
+	if( m_VAO )
+	{
+		// Detach and delete Vertex buffer
+		glBindVertexArray(m_VAO);
+		//glDisableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glDeleteBuffers(1, &m_VBO);
+		// Detach and delete array
+		glBindVertexArray(0);
+		glDeleteVertexArrays(1, &m_VAO);
+	}
 
 	free(m_data);
 	m_data = nullptr;

@@ -75,7 +75,7 @@ namespace Graphic
 			CV.thickness = 0.5f;
 			CV.color = 0xffffffff;
 			//line break
-			if(m_text[i] == 13){currentPos.x = m_screenPos.x; currentPos.y -= m_font->m_sizeTable[m_text[i]].y;}
+			if(m_text[i] == '\n'){currentPos.x = m_screenPos.x; currentPos.y -= m_font->m_sizeTable[m_text[i]].y;}
 			else currentPos.x += m_font->m_sizeTable[m_text[i]].x; 
  			m_characters.Add(CV);
 		}
