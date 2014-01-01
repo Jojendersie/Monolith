@@ -50,7 +50,10 @@ namespace Voxel {
 		/// \brief Constructs a chunk without any voxel (type NONE).
 		/// \param [in] _nodePostion Position of the root node from this chunk
 		///		in the model's octree.
-		Chunk(const Model* _model, const Math::IVec4& _nodePostion);
+		///	\param [in] _depth Detail depth respective to the _nodePosition.
+		///		The maximum is 5 which means that _nodePosition is the root
+		///		of a 32^3 chunk.
+		Chunk(const Model* _model, const Math::IVec4& _nodePostion, int _depth);
 
 		/// \brief Move construction
 		Chunk(Chunk&& _chunk);
@@ -79,6 +82,7 @@ namespace Voxel {
 		const Model* m_model;
 
 		float m_scale;					///< Rendering parameter derived from Octree node size
+		int m_depth;					///< The depth in the octree respective to this chunk's root. Maximum is 5.
 
 		Graphic::VertexBuffer m_voxels;	///< One VoxelVertex value per surface voxel.
 

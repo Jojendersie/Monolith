@@ -18,11 +18,12 @@ namespace Voxel {
 #	define INDEX2(X,Y,Z, L)	(LEVEL_OFFSETS[L] + (X) + (1<<(L))*((Y) + (1<<(L))*(Z)))
 
 
-	Chunk::Chunk(const Model* _model, const Math::IVec4& _nodePostion) :
+	Chunk::Chunk(const Model* _model, const Math::IVec4& _nodePostion, int _depth) :
 		m_model( _model ),
-		m_scale( float(1<<(_nodePostion[3]-5)) ),
+		m_scale( float(1<<(_nodePostion[3]-_depth)) ),
+		m_depth( _depth ),
 		m_voxels( "u", Graphic::VertexBuffer::PrimitiveType::POINT ),
-		m_position( float(_nodePostion[0]<<5), float(_nodePostion[1]<<5), float(_nodePostion[2]<<5) )
+		m_position( float(_nodePostion[0]<<_depth), float(_nodePostion[1]<<_depth), float(_nodePostion[2]<<_depth) )
 	{
 		ComputeVertexBuffer(Math::IVec3((const int*)_nodePostion), _nodePostion[3] );
 	}
@@ -44,31 +45,32 @@ namespace Voxel {
 	{
 		m_voxels.Clear();
 
-		// Sample a 34^3 volume (neighborhood for visibility). This initial
-		// sampling avoids the expensive resampling for many voxels.
+		// Sample a (2^d+2)^3 volume (neighborhood for visibility). This
+		// initial sampling avoids the expensive resampling for many voxels.
 		// (Inner voxels would be sampled 7 times!)
-		VoxelType* volume = new VoxelType[34*34*34];
-		int level = Math::max( 0, _level - 5 );
+		int edgeLength = (1 << m_depth) + 2;
+		VoxelType* volume = new VoxelType[edgeLength*edgeLength*edgeLength];
+		int level = Math::max( 0, _level - m_depth );
 		IVec3 pmin = (_nodePostion << (_level - level)) - IVec3(1);
-		IVec3 pmax = pmin + IVec3(34);
+		IVec3 pmax = pmin + IVec3(edgeLength);
 		IVec3 pos;
 		for( pos[2]=pmin[2]; pos[2]<pmax[2]; ++pos[2] )
 			for( pos[1]=pmin[1]; pos[1]<pmax[1]; ++pos[1] )
 				for( pos[0]=pmin[0]; pos[0]<pmax[0]; ++pos[0] )
-					volume[pos[0]-pmin[0] + 34 * (pos[1]-pmin[1] + 34 * (pos[2]-pmin[2]))] = m_model->Get(pos, level);
+					volume[pos[0]-pmin[0] + edgeLength * (pos[1]-pmin[1] + edgeLength * (pos[2]-pmin[2]))] = m_model->Get(pos, level);
 
 		// Iterate over volume and add any surface voxel to vertex buffer
-		for( pos[2]=1; pos[2]<33; ++pos[2] )
-			for( pos[1]=1; pos[1]<33; ++pos[1] )
-				for( pos[0]=1; pos[0]<33; ++pos[0] )
+		for( pos[2]=1; pos[2]<edgeLength-1; ++pos[2] )
+			for( pos[1]=1; pos[1]<edgeLength-1; ++pos[1] )
+				for( pos[0]=1; pos[0]<edgeLength-1; ++pos[0] )
 				{
-					VoxelType current = volume[pos[0] + 34 * (pos[1] + 34 * pos[2])];
-					int left = (volume[pos[0] - 1 + 34 * (pos[1] + 34 * pos[2])] == VoxelType::NONE);
-					int right = (volume[pos[0] + 1 + 34 * (pos[1] + 34 * pos[2])] == VoxelType::NONE);
-					int bottom = (volume[pos[0] + 34 * (pos[1] - 1 + 34 * pos[2])] == VoxelType::NONE);
-					int top = (volume[pos[0] + 34 * (pos[1] + 1 + 34 * pos[2])] == VoxelType::NONE);
-					int front = (volume[pos[0] + 34 * (pos[1] + 34 * (pos[2] - 1))] == VoxelType::NONE);
-					int back = (volume[pos[0] + 34 * (pos[1] + 34 * (pos[2] + 1))] == VoxelType::NONE);
+					VoxelType current = volume[pos[0] + edgeLength * (pos[1] + edgeLength * pos[2])];
+					int left = (volume[pos[0] - 1 + edgeLength * (pos[1] + edgeLength * pos[2])] == VoxelType::NONE);
+					int right = (volume[pos[0] + 1 + edgeLength * (pos[1] + edgeLength * pos[2])] == VoxelType::NONE);
+					int bottom = (volume[pos[0] + edgeLength * (pos[1] - 1 + edgeLength * pos[2])] == VoxelType::NONE);
+					int top = (volume[pos[0] + edgeLength * (pos[1] + 1 + edgeLength * pos[2])] == VoxelType::NONE);
+					int front = (volume[pos[0] + edgeLength * (pos[1] + edgeLength * (pos[2] - 1))] == VoxelType::NONE);
+					int back = (volume[pos[0] + edgeLength * (pos[1] + edgeLength * (pos[2] + 1))] == VoxelType::NONE);
 					// Check if at least one neighbor is NONE and this is not
 					// none -> surface
 					if( (current != VoxelType::NONE) &&

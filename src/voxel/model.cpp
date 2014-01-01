@@ -59,17 +59,24 @@ namespace Voxel {
 
 		// LOD - calculate a target level. If the current level is less or
 		// equal the target draw.
-		float distance = pow((chunkPos - _param->camera.GetPosition()).Length(), 0.25f);
-		int targetLOD = max(5, Math::ceil(distance / 1.0f));
+		float detailResolution = 0.44f * log( (chunkPos - _param->camera.GetPosition()).LengthSq() );
+			//pow((chunkPos - _param->camera.GetPosition()).Length(), 0.25f);
+		int targetLOD = max(5, Math::ceil(detailResolution));
 //		std::cout << targetLOD << '\n';
 		if( _position[3] <= targetLOD )
 		{
-			auto chunk = _param->model->m_chunks.find(_position);
+			// For very far objects a chunk might be too detailed. In this case
+			// a coarser level is used (usually 5 -> 32^3 chunks)
+			int levels = max(0, 5 - (targetLOD - _position[3]));
+			// Encode in position -> part of the key / hash
+			IVec4 position(_position);
+			position[3] |= levels << 16;
+			auto chunk = _param->model->m_chunks.find(position);
 			if( chunk == _param->model->m_chunks.end() )
 			{
 				// Chunk does not exist -> create
 				chunk = _param->model->m_chunks.insert(
-					std::make_pair(_position, std::move(Chunk(_param->model, _position)))
+					std::make_pair(position, std::move(Chunk(_param->model, _position, levels)))
 					).first;
 			}
 			// There are empty inner chunks
