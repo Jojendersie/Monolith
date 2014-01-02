@@ -54,19 +54,17 @@ namespace Input {
 	// ********************************************************************* //
 	bool Manager::IsKeyPressed( Keys _key )
 	{
-		// TODO: more than mouse...
 		Jo::Files::MetaFileWrapper::Node& currentKeys = *InputManagerInstance.m_keyMap[(int)_key];
 		for( int i=0; i<currentKeys.Size(); ++i ) {
 			int key = (int)currentKeys[i];
+			bool isPressed;
 			if( key < 32 )
-				return GLFW_PRESS == glfwGetMouseButton( InputManagerInstance.m_window, key );
+				isPressed = GLFW_PRESS == glfwGetMouseButton( InputManagerInstance.m_window, key );
 			else
-				return GLFW_PRESS == glfwGetKey( InputManagerInstance.m_window, key );
+				isPressed = GLFW_PRESS == glfwGetKey( InputManagerInstance.m_window, key );
+			// Stop if any of the buttons from the list is pressed
+			if( isPressed ) return true;
 		}
-/*		if( _key == Keys::MOVE_CAMERA )
-			return GLFW_PRESS == glfwGetMouseButton( InputManagerInstance.m_window, GLFW_MOUSE_BUTTON_RIGHT );
-		if( _key == Keys::ROTATE_CAMERA )
-			return GLFW_PRESS == glfwGetMouseButton( InputManagerInstance.m_window, GLFW_MOUSE_BUTTON_MIDDLE );*/
 		return false;
 	}
 

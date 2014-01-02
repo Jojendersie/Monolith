@@ -14,7 +14,7 @@ using namespace Math;
 // ************************************************************************* //
 GSMain::GSMain(Monolith* _parent) : IGameState(_parent)
 {
-	m_astTest = new Generators::Asteroid( 256, 256, 256, 2 );
+	m_astTest = new Generators::Asteroid( 80, 50, 30, 2 );
 	//m_astTest->ComputeVertexBuffer();
 	//m_astTest->SetPosition( Vec3( 0.0f, 0.0f, 0.0f ) );
 
@@ -80,9 +80,9 @@ void GSMain::UpdateInput()
 // ************************************************************************* //
 void GSMain::MouseMove( double _dx, double _dy )
 {
+	// Read config file for speed
 	double rotSpeed = m_parent->Config[std::string("Input")][std::string("CameraRotationSpeed")];
 	double moveSpeed = m_parent->Config[std::string("Input")][std::string("CameraMovementSpeed")];
-	// TODO: config file for speed
 	if( Input::Manager::IsKeyPressed(Input::Keys::ROTATE_CAMERA) )
 		m_camera->Rotate( float(_dy * rotSpeed), float(_dx * rotSpeed) );
 	else if( Input::Manager::IsKeyPressed(Input::Keys::MOVE_CAMERA) )
