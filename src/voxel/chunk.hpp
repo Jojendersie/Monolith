@@ -1,9 +1,11 @@
 #pragma once
 
 #include <cstdint>
+#include <cassert>
+#include "../predeclarations.hpp"
+#include "../math/vector.hpp"
 #include "../graphic/vertexbuffer.hpp"
 #include "voxel.hpp"
-#include <cassert>
 
 namespace Graphic { class UniformBuffer; }
 
@@ -11,7 +13,7 @@ namespace Voxel {
 
 	struct VoxelVertex
 	{
-		/// \brief A lot of discrete infromation.
+		/// \brief A lot of discrete information.
 		///	\details Single bits or groups of bits have different meanings:
 		///		0-5: Draw a side (1) or not (0). The order is: Left, Right,
 		///			 Bottom, Top, Front, Back
@@ -30,7 +32,7 @@ namespace Voxel {
 
 		void SetVisibility( int _iL, int _iR, int _iBo, int _iT, int _iF, int _iBa )	{ flags = (flags & 0xffffffa0) | _iL | _iR<<1 | _iBo<<2 | _iT<<3 | _iF<<4 | _iBa<<5; }
 		void SetSize( int _level )							{ assert(0<=_level && _level<=5); flags = (flags & 0xfffffe3f) | (_level<<6); }
-		void SetPosition( const Math::IVec3& _position )	{ flags = (flags & 0xff0001ff) | (_position.x << 9) | (_position.y<<14) | (_position.z<<19); }
+		void SetPosition( const Math::IVec3& _position )	{ flags = (flags & 0xff0001ff) | (_position[0] << 9) | (_position[1] << 14) | (_position[2] << 19); }
 		void SetTexture( int _iTextureIndex )				{ flags = (flags & 0x00ffffff) | (_iTextureIndex << 24); }
 //		void SetHasChildren( bool _bHasChildren )			{ flags = (flags & 0x7fffffff) | (_bHasChildren?0x80000000:0); }
 
@@ -41,12 +43,20 @@ namespace Voxel {
 
 	/// \brief A block of volume information which is rendered in one call
 	///		if visible.
-	/// \details One chunk consists of exactly 32x32x32 voxels.
+	/// \details One chunk covers exactly 32x32x32 voxels (of any size).
 	class Chunk
 	{
 	public:
 		/// \brief Constructs a chunk without any voxel (type NONE).
-		Chunk();
+		/// \param [in] _nodePostion Position of the root node from this chunk
+		///		in the model's octree.
+		///	\param [in] _depth Detail depth respective to the _nodePosition.
+		///		The maximum is 5 which means that _nodePosition is the root
+		///		of a 32^3 chunk.
+		Chunk(const Model* _model, const Math::IVec4& _nodePostion, int _depth);
+
+		/// \brief Move construction
+		Chunk(Chunk&& _chunk);
 
 		virtual ~Chunk();
 
@@ -55,66 +65,45 @@ namespace Voxel {
 		/// \details The effect must be set outside.
 		/// \param [out] _objectConstants A reference to the constant buffer
 		///		which must be filled.
-		/// \param [in] _viewProjection The actual view projection matrix. TODO: camera mit culling
+		/// \param [in] _modelViewProjection The actual view projection matrix.
 		///		This matrix should contain the general model transformation too.
-		void Draw( Graphic::UniformBuffer& _objectConstants, const Math::Mat4x4& _viewProjection );
-
-		/// \brief Compute the visible voxel set vertex buffer.
-		/// \details The current implementation uses CPU later this will be
-		///		done on GPU
-		void ComputeVertexBuffer();
-
-		/// \brief Set a voxel in the octree.
-		/// \details All children of the current node and there children
-		///		recursive are set to the same value. If all 8 nodes on the 
-		///		target level become one type the parent node is updated too.
-		/// \param [in] _position Position in [0,31]^3 or [0,1]^3 depending of
-		///		the ground size of the current voxel.
-		/// \param [in] _level The octree depth. Level 0 is the root node and
-		///		5 is the maximal depth.
-		void Set( const Math::IVec3& _position, int _level, VoxelType _type );
-
-		struct OctreeNode {
-			VoxelType GetType() const { return type; }
-			bool IsSolid() const { return (flags & 0x01) ? true : false; }
-			bool IsUniform() const { return (flags & 0x02) ? true : false; }
-			bool IsEmpty() const { return type == VoxelType::NONE; }
-		private: friend class Chunk;
-			VoxelType type;
-			/// \brief Additional structure information.
-			/// \details Each bit has its own meaning:
-			///		0: Solid. If 0 this voxel has some children with type NONE.
-			///		1: Uniform: All children have the same type.
-			uint8_t flags;
-
-			OctreeNode() : flags(0x02), type(VoxelType::NONE)	{}
-		};
-
-		/// \brief Get a single octree voxel.
-		/// \details If the octree ends earlier it terminates with NONE.
-		OctreeNode Get( const Math::IVec3& _position, int _level );
+		void Draw( Graphic::UniformBuffer& _objectConstants,
+			const Math::Mat4x4& _modelViewProjection );
 
 		/// \brief Set position relative to the model.
-		void SetPosition( const Math::Vec3& _position )	{ m_position = _position; }
+		//void SetPosition( const Math::Vec3& _position )	{ m_position = _position; }
 
 		Math::Vec3 GetPosition()		{ return m_position; }
+
+		/// \brief Get the number of voxels in this chunk
+		int NumVoxels() const			{ return m_voxels.GetNumVertices(); }
 	private:
-		/// \brief One memory block for all levels of the octree. Each level
-		///		is saved as x+w*(y+w*z) block. Each element is a typeID.
-		OctreeNode* m_octree;		
+		/// \brief Reference to the parent model used to access data.
+		const Model* m_model;
 
-		Graphic::VertexBuffer m_voxels;	///< One VoxelVertex value per visible voxel.
+		float m_scale;					///< Rendering parameter derived from Octree node size
+		int m_depth;					///< The depth in the octree respective to this chunk's root. Maximum is 5.
 
-		void FillVBRecursive( const Math::IVec3& _position, int _level );
+		Graphic::VertexBuffer m_voxels;	///< One VoxelVertex value per surface voxel.
 
 		Math::Vec3 m_position;			///< Relative position of the chunk respective to the model.
+
+		/// \brief Compute the initial visible voxel set vertex buffer.
+		/// \details TODO: This can be done parallel to the render thread because it
+		///		only fills the VB and does not upload it.
+		///		CURRENTLY IT COMMITS THE BUFFER
+		void ComputeVertexBuffer( const Math::IVec3& _nodePostion, int _level );
+
+		// Prevent copy constructor and operator = being generated.
+		Chunk(const Chunk&);
+		const Chunk& operator = (const Chunk&);
 	};
 
-	/// \brief A generall loop to make voxel iteration easier. The voxel
+	/// \brief A general loop to make voxel iteration easier. The voxel
 	///		position is defined through x,y,z insde the loop.
 #	define FOREACH_VOXEL(MaxX, MaxY, MaxZ) \
-		for( int z=0; z<(MaxZ); ++z ) \
-			for( int y=0; y<(MaxY); ++y ) \
-				for( int x=0; x<(MaxX); ++x )
+	for( int z=0; z<(MaxZ); ++z ) \
+		for( int y=0; y<(MaxY); ++y ) \
+			for( int x=0; x<(MaxX); ++x )
 
 };

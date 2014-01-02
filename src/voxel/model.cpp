@@ -1,85 +1,150 @@
 #include "model.hpp"
-#include "voxel.hpp"
+#include "chunk.hpp"
 #include <cstdlib>
+#include "../input/camera.hpp"
+#include "../graphic/uniformbuffer.hpp"
+#include <iostream>
 
 using namespace Math;
 
 namespace Voxel {
 
 	Model::Model() :
-		m_chunks(nullptr),
-		m_numChunks(0),
+		m_numVoxels(0),
 		m_position(0.0f),
 		m_mass(0.0f),
 		m_center(0.0f),
-		m_boundingSphereRadius(0.0f)
+		m_boundingSphereRadius(0.0f),
+		m_voxelTree(VoxelType::UNDEFINED, this)
 	{
+		auto x = IVec3(3) * 0.5f;
 	}
 
 	Model::~Model()
 	{
-		for( int i=0; i<m_numChunks; ++i )
-			delete m_chunks[i];
-		free(m_chunks);
 	}
 
-	void Model::Draw( Graphic::UniformBuffer& _objectConstants, const Math::Mat4x4& _viewProjection )
+	// ********************************************************************* //
+	struct DrawParam
 	{
+		const Input::Camera& camera;	// Required for culling and LOD
+		Model* model;					// Create or find chunks here.
+		Graphic::UniformBuffer& objectConstants;
+		const Math::Mat4x4& modelTransform;
+		const Math::Mat4x4& modelViewProjection;
+		int numVoxels;
+
+		DrawParam(const Input::Camera& _camera, Model* _model,
+				Graphic::UniformBuffer& _objectConstants,
+				const Math::Mat4x4& _modelViewProjection,
+				const Math::Mat4x4& _modelTransform) :
+			camera(_camera), model(_model),
+			objectConstants(_objectConstants),
+			modelTransform(_modelTransform),
+			modelViewProjection(_modelViewProjection),
+			numVoxels(0)
+		{}
+	};
+
+	bool Model::DecideToDraw(const Math::IVec4& _position, VoxelType _type, DrawParam* _param)
+	{
+		if( !IsSolid( _type ) ) return false;
+
+		// Compute a world space position
+		float chunkLength = float(1 << _position[3]);
+		Vec3 chunkPos(_position[0] * chunkLength, _position[1] * chunkLength, _position[2] * chunkLength);
+		chunkPos = chunkPos * _param->modelTransform;
+
 		// TODO: culling
 
-		// Create a new model space transformation
-		Math::Mat4x4 mModelViewProjection = Mat4x4::Translation(-m_center) * Mat4x4::Rotation(m_rotation) * Mat4x4::Translation( m_position+m_center ) * _viewProjection;
-
-		// Draw all chunks
-		for( int i=0; i<m_numChunks; ++i )
+		// LOD - calculate a target level. If the current level is less or
+		// equal the target draw.
+		float detailResolution = 0.44f * log( (chunkPos - _param->camera.GetPosition()).LengthSq() );
+			//pow((chunkPos - _param->camera.GetPosition()).Length(), 0.25f);
+		int targetLOD = max(5, Math::ceil(detailResolution));
+//		std::cout << targetLOD << '\n';
+		if( _position[3] <= targetLOD )
 		{
-			m_chunks[i]->Draw( _objectConstants, mModelViewProjection );
+			// For very far objects a chunk might be too detailed. In this case
+			// a coarser level is used (usually 5 -> 32^3 chunks)
+			int levels = max(0, 5 - (targetLOD - _position[3]));
+			// Encode in position -> part of the key / hash
+			IVec4 position(_position);
+			position[3] |= levels << 16;
+			auto chunk = _param->model->m_chunks.find(position);
+			if( chunk == _param->model->m_chunks.end() )
+			{
+				// Chunk does not exist -> create
+				chunk = _param->model->m_chunks.insert(
+					std::make_pair(position, std::move(Chunk(_param->model, _position, levels)))
+					).first;
+			}
+			// There are empty inner chunks
+			if( chunk->second.NumVoxels() > 0 )
+			{
+				_param->numVoxels += chunk->second.NumVoxels();
+				chunk->second.Draw( _param->objectConstants, _param->modelViewProjection );
+			}
+			return false;
 		}
+		return true;
 	}
 
-	void Model::Set( const Math::IVec3& _position, int _level, VoxelType _type )
+	int Model::Draw( Graphic::UniformBuffer& _objectConstants, const Input::Camera& _camera )
 	{
-		// Compute which chunk is searched. The chunk position is in units of
-		// the smallest voxels but rounded to 32 voxel alignment.
-		IVec3 chunkPos = _position / (1<<_level);
-		IVec3 posInsideChunk = _position - chunkPos * (1<<_level);
-		chunkPos *= 32;
 
-		Chunk* targetChunk = nullptr;
+		// Create a new model space transformation
+		Math::Mat4x4 modelTransform = Mat4x4::Translation(-m_center) * Mat4x4::Rotation(m_rotation) * Mat4x4::Translation( m_position + m_center );
+		Math::Mat4x4 modelViewProjection = modelTransform * _camera.GetViewProjection();
 
-		// Search the correct chunk
-		for( int i=0; i<m_numChunks; ++i )
-		{
-			if( m_chunks[i]->GetPosition() == chunkPos )
-			{
-				// Add, update and ready
-				targetChunk = m_chunks[i];
-				break;
-			}
-		}
+		// Iterate through the octree and render chunks depending on the lod.
+		DrawParam param(_camera, this, _objectConstants, modelViewProjection, modelTransform);
+		m_voxelTree.Traverse( DecideToDraw, &param );
 
-		// Nothing found create a new chunk
-		if( !targetChunk )
-		{
-			m_chunks = (Chunk**)realloc(m_chunks, sizeof(Chunk*) * (m_numChunks+1));
-			targetChunk = m_chunks[m_numChunks] = new Chunk();
-			targetChunk->SetPosition( chunkPos );
-			++m_numChunks;
-		}
+		return param.numVoxels;
+	}
 
-		targetChunk->Set(posInsideChunk, _level, _type);
+	// ********************************************************************* //
+	VoxelType Model::Get( const Math::IVec3& _position, int _level ) const
+	{
+		VoxelType type = m_voxelTree.Get(_position, _level);
 
-		// Update mass center
-		if( m_mass == 0.0f )
-			m_center = Vec3(_position);
-		else
-			m_center = (m_center * m_mass + _position * VOXEL_INFO[int(_type)].mass) / (m_mass + VOXEL_INFO[int(_type)].mass);
-		m_mass += VOXEL_INFO[int(_type)].mass;
+		// TODO Search in blue print.
+		if( type == VoxelType::UNDEFINED ) type = VoxelType::NONE;
 
-		// TEMP: approximate a sphere; TODO Grow and shrink a real bounding volume
-		m_boundingSphereRadius = Math::max(m_boundingSphereRadius, (m_center - _position).Length() );
+		return type;		
 	}
 
 
 	// ********************************************************************* //
+	void Model::Update( const Math::IVec4& _position, VoxelType _oldType, VoxelType _newType )
+	{
+		// Compute real volume from logarithmic size
+		int size = 1 << _position[3];
+		size = size * size * size;
+
+		// Remove the old voxel
+		if( IsSolid(_oldType) )
+		{
+			float oldMass = VOXEL_INFO[int(_oldType)].mass * size;
+			// TODO remove Math::Vec3 if replaced by template
+			m_center = (m_center * m_mass - Math::Vec3(_position * oldMass)) / m_mass;
+			m_mass -= oldMass;
+			m_numVoxels -= size;
+		}
+
+		// Add new voxel
+		if( IsSolid(_newType) )
+		{
+			float newMass = VOXEL_INFO[int(_newType)].mass * size;
+			m_center = (m_center * m_mass + Math::Vec3(_position * newMass)) / (m_mass + newMass);
+			m_mass += newMass;
+			m_numVoxels += size;
+		}
+
+		// TEMP: approximate a sphere; TODO Grow and shrink a real bounding volume
+		// TODO remove Math::Vector if replaced by template
+		m_boundingSphereRadius = Math::max(m_boundingSphereRadius, Math::length(Math::Vector<3,float>(m_center) - Math::Vector<3,int>(_position)) );
+	}
+
 };

@@ -110,6 +110,7 @@
     <ClCompile Include="src\voxel\model.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\algorithm\smallsort.hpp" />
     <ClInclude Include="src\game.hpp" />
     <ClInclude Include="src\generators\asteroid.hpp" />
     <ClInclude Include="src\generators\random.hpp" />
@@ -132,6 +133,7 @@
     <ClInclude Include="src\math\matrix.hpp" />
     <ClInclude Include="src\math\plane.hpp" />
     <ClInclude Include="src\math\sphere.hpp" />
+    <ClInclude Include="src\math\vector.hpp" />
     <ClInclude Include="src\math\vector2.hpp" />
     <ClInclude Include="src\math\vector3.hpp" />
     <ClInclude Include="src\math\vector4.hpp" />
@@ -141,6 +143,7 @@
     <ClInclude Include="src\utilities\color.hpp" />
     <ClInclude Include="src\voxel\chunk.hpp" />
     <ClInclude Include="src\voxel\model.hpp" />
+    <ClInclude Include="src\voxel\sparseoctree.hpp" />
     <ClInclude Include="src\voxel\voxel.hpp" />
   </ItemGroup>
   <ItemGroup>

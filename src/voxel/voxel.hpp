@@ -11,6 +11,7 @@ namespace Voxel {
 		ROCK_2,
 		ROCK_3,
 		ROCK_4,
+		UNDEFINED = 0xff
 	};
 
 	/// \brief General information about a voxel of a specific type.
@@ -43,4 +44,7 @@ namespace Voxel {
 	// TODO: move to ideas
 	// Tramsformation: 1 Water + 1 Mineral -> 2 Polymere
 	//				   4 Metal + 1 Rare Metal -> 5 Alloy
+
+
+	inline bool IsSolid( VoxelType _v )	{ return (_v != VoxelType::NONE) && (_v != VoxelType::UNDEFINED); }
 };

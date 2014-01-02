@@ -14,14 +14,14 @@ using namespace Math;
 // ************************************************************************* //
 GSMain::GSMain(Monolith* _parent) : IGameState(_parent)
 {
-	m_astTest = new Generators::Asteroid( 80, 50, 30, 2 );
+	m_astTest = new Generators::Asteroid( 256, 256, 256, 2 );
 	//m_astTest->ComputeVertexBuffer();
 	//m_astTest->SetPosition( Vec3( 0.0f, 0.0f, 0.0f ) );
 
 	m_fontTest = new Graphic::Font("arial", _parent->m_graficContent);
 	m_textTest = new Graphic::TextRender(m_fontTest);
 	//m_textTest->SetPos(Math::Vec2(-1.f,-1.f));
-	m_textTest->SetPos(Math::Vec2(0.7f,0.7f));
+	m_textTest->SetPos(Math::Vec2(0.7f,0.9f));
 
 	m_textures = new Graphic::Texture("texture/rock1.png");
 
@@ -65,9 +65,9 @@ void GSMain::Render( double _time, double _deltaTime )
 	Graphic::Device::SetEffect(	m_parent->m_graficContent->voxelRenderEffect );
 	Graphic::Device::SetTexture( *m_parent->m_graficContent->voxelTextures, 0 );
 
-	m_astTest->Draw( m_parent->m_graficContent->objectUBO, m_parent->m_graficContent->cameraUBO["ViewProjection"] );
+	int numDrawn = m_astTest->Draw( m_parent->m_graficContent->objectUBO, *m_camera );
 	
-	m_textTest->SetText(std::to_string(_deltaTime));
+	m_textTest->SetText(std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(numDrawn));
 	m_textTest->Draw();
 }
 

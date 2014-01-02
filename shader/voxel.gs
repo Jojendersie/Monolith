@@ -33,18 +33,17 @@ layout(std140) uniform Camera
 
 void main(void)
 {
-	float s = uint(1)<<((vs_out_VoxelCode[0] >> 6) & uint(0x7));
-	float x = (float((vs_out_VoxelCode[0] >> 9 ) & uint(0x1f)) + 0.5) * s;
-	float y = (float((vs_out_VoxelCode[0] >> 14) & uint(0x1f)) + 0.5) * s;
-	float z = (float((vs_out_VoxelCode[0] >> 19) & uint(0x1f)) + 0.5) * s;
+	float x = float((vs_out_VoxelCode[0] >> 9 ) & uint(0x1f)) + 0.5;
+	float y = float((vs_out_VoxelCode[0] >> 14) & uint(0x1f)) + 0.5;
+	float z = float((vs_out_VoxelCode[0] >> 19) & uint(0x1f)) + 0.5;
 	float type = float(vs_out_VoxelCode[0] >> 24);
 
 	vec4 vPos = vec4( x, y, z, 1 ) * c_mWorldViewProjection;
 
 	// Discard voxel outside the viewing volume
 	if( vPos.z+c_mProjection[2][2] < 0 || vPos.z-c_mProjection[2][2] < c_fFar ||
-		(vPos.x+c_mProjection[0][0]*s) < -vPos.w || (vPos.x-c_mProjection[0][0]*s) > vPos.w ||
-		(vPos.y+c_mProjection[1][1]*s) < -vPos.w || (vPos.y-c_mProjection[1][1]*s) > vPos.w)
+		(vPos.x+c_mProjection[0][0]) < -vPos.w || (vPos.x-c_mProjection[0][0]) > vPos.w ||
+		(vPos.y+c_mProjection[1][1]) < -vPos.w || (vPos.y-c_mProjection[1][1]) > vPos.w)
 		return;
 
 	// To determine the culling the projective position is inverse transformed
@@ -53,8 +52,7 @@ void main(void)
 	// where the scale plays no rule (no normalization required).
 	// The 8 corner direction vectors can be added such that the result shows
 	// in normal direction in project space. This direction must be rescaled
-	// too to be in view space. Than culling is decided by a dot product.
-
+	// too to be in view space. Then culling is decided by a dot product.
 	vec3 vZDir = vPos.xyz * c_vInverseProjection + vec3(0,0,c_vInverseProjection.z);
 	
 	if( dot((c_vCorner000.xyz+c_vCorner110.xyz)*c_vInverseProjection, vZDir) < 0 ) {
@@ -62,16 +60,16 @@ void main(void)
 		{
 			gs_normal = vec3(0,0,-1);
 			gs_texCoord = vec3(0,0,type);
-			gl_Position = c_vCorner000 * s + vPos;
+			gl_Position = c_vCorner000 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(s,0,type);
-			gl_Position = c_vCorner100 * s + vPos;
+			gs_texCoord = vec3(1,0,type);
+			gl_Position = c_vCorner100 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(0,s,type);
-			gl_Position = c_vCorner010 * s + vPos;
+			gs_texCoord = vec3(0,1,type);
+			gl_Position = c_vCorner010 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(s,s,type);
-			gl_Position = c_vCorner110 * s + vPos;
+			gs_texCoord = vec3(1,1,type);
+			gl_Position = c_vCorner110 + vPos;
 			EmitVertex();
 			EndPrimitive();
 		}
@@ -80,16 +78,16 @@ void main(void)
 		{
 			gs_normal = vec3(0,0,1);
 			gs_texCoord = vec3(0,0,type);
-			gl_Position = c_vCorner011 * s + vPos;
+			gl_Position = c_vCorner011 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(s,0,type);
-			gl_Position = c_vCorner111 * s + vPos;
+			gs_texCoord = vec3(1,0,type);
+			gl_Position = c_vCorner111 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(0,s,type);
-			gl_Position = c_vCorner001 * s + vPos;
+			gs_texCoord = vec3(0,1,type);
+			gl_Position = c_vCorner001 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(s,s,type);
-			gl_Position = c_vCorner101 * s + vPos;
+			gs_texCoord = vec3(1,1,type);
+			gl_Position = c_vCorner101 + vPos;
 			EmitVertex();
 			EndPrimitive();
 		}
@@ -100,16 +98,16 @@ void main(void)
 		{
 			gs_normal = vec3(0,1,0);
 			gs_texCoord = vec3(0,0,type);
-			gl_Position = c_vCorner010 * s + vPos;
+			gl_Position = c_vCorner010 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(s,0,type);
-			gl_Position = c_vCorner110 * s + vPos;
+			gs_texCoord = vec3(1,0,type);
+			gl_Position = c_vCorner110 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(0,s,type);
-			gl_Position = c_vCorner011 * s + vPos;
+			gs_texCoord = vec3(0,1,type);
+			gl_Position = c_vCorner011 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(s,s,type);
-			gl_Position = c_vCorner111 * s + vPos;
+			gs_texCoord = vec3(1,1,type);
+			gl_Position = c_vCorner111 + vPos;
 			EmitVertex();
 			EndPrimitive();
 		}
@@ -118,16 +116,16 @@ void main(void)
 		{
 			gs_normal = vec3(0,-1,0);
 			gs_texCoord = vec3(0,0,type);
-			gl_Position = c_vCorner100 * s + vPos;
+			gl_Position = c_vCorner100 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(s,0,type);
-			gl_Position = c_vCorner000 * s + vPos;
+			gs_texCoord = vec3(1,0,type);
+			gl_Position = c_vCorner000 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(0,s,type);
-			gl_Position = c_vCorner101 * s + vPos;
+			gs_texCoord = vec3(0,1,type);
+			gl_Position = c_vCorner101 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(s,s,type);
-			gl_Position = c_vCorner001 * s + vPos;
+			gs_texCoord = vec3(1,1,type);
+			gl_Position = c_vCorner001 + vPos;
 			EmitVertex();
 			EndPrimitive();
 		}
@@ -138,16 +136,16 @@ void main(void)
 		{
 			gs_normal = vec3(-1,0,0);
 			gs_texCoord = vec3(0,0,type);
-			gl_Position = c_vCorner000 * s + vPos;
+			gl_Position = c_vCorner000 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(s,0,type);
-			gl_Position = c_vCorner010 * s + vPos;
+			gs_texCoord = vec3(1,0,type);
+			gl_Position = c_vCorner010 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(0,s,type);
-			gl_Position = c_vCorner001 * s + vPos;
+			gs_texCoord = vec3(0,1,type);
+			gl_Position = c_vCorner001 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(s,s,type);
-			gl_Position = c_vCorner011 * s + vPos;
+			gs_texCoord = vec3(1,1,type);
+			gl_Position = c_vCorner011 + vPos;
 			EmitVertex();
 			EndPrimitive();
 		}
@@ -156,16 +154,16 @@ void main(void)
 		{
 			gs_normal = vec3(1,0,0);
 			gs_texCoord = vec3(0,0,type);
-			gl_Position = c_vCorner110 * s + vPos;
+			gl_Position = c_vCorner110 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(s,0,type);
-			gl_Position = c_vCorner100 * s + vPos;
+			gs_texCoord = vec3(1,0,type);
+			gl_Position = c_vCorner100 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(0,s,type);
-			gl_Position = c_vCorner111 * s + vPos;
+			gs_texCoord = vec3(0,1,type);
+			gl_Position = c_vCorner111 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(s,s,type);
-			gl_Position = c_vCorner101 * s + vPos;
+			gs_texCoord = vec3(1,1,type);
+			gl_Position = c_vCorner101 + vPos;
 			EmitVertex();
 			EndPrimitive();
 		}

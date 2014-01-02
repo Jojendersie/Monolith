@@ -17,18 +17,29 @@ namespace Graphic {
 			INDEXED
 		};
 	private:
-		unsigned	m_VBO;				///< Only one vertexbuffer is used for the whole array
+		unsigned	m_VBO;				///< Only one vertex buffer is used for the whole array
 		unsigned	m_VAO;				///< The OpenGL ID for the whole mesh-vertices
 		unsigned	m_maxNumVertices;	///< Maximum size set at construction
 		unsigned	m_cursor;			///< Cursor for stream write methods
 		int			m_vertexSize;		///< Size of one vertex in bytes if single interleaved buffer, size of all components in an not interleaved buffer.
 		uint8_t*	m_data;				///< A CPU copy of the data or nullptr for static buffers
-		bool		m_dirty;
+		int			m_firstDirtyIndex;	///< If there is a non committed change which is the first updated vertex?
+		int			m_lastDirtyIndex;	///< If there is a non committed change which is the last updated vertex? A negative value (-1) determines a clean buffer.
 		PrimitiveType m_primitiveType;	///< What form of geometry is stored?
 
 		unsigned	m_positionOffset;	///< Byte offset inside a vertex to the position vector
 		unsigned	m_normalOffset;		///< Byte offset inside a vertex to the normal vector
 		unsigned	m_tangentOffset;	///< Byte offset inside a vertex to the tangent vector
+
+		/// \brief Create the VBO and VAO (vertex declaration)
+		/// \details Also sets the positionOffset, ..
+		void CreateVAO(const char* _vertexDeclaration);
+
+		/// \brief Reallocate CPU and GPU memory.
+		/// \details Increasing or decreasing are both allowed. The dirtiness
+		///		is not touched.
+		/// \param [in] _numVertices
+		void Resize(unsigned _numVertices);
 
 		// Prevent copy constructor and operator = being generated.
 		VertexBuffer(const VertexBuffer&);
@@ -53,8 +64,7 @@ namespace Graphic {
 			VEC				= 11
 		};
 
-		/// \brief Creating a vertex buffer with arbitary interleaved data
-		/// \param [in] _maxNumVertices Capacity/total number of usable vertices
+		/// \brief Creating a static vertex buffer with arbitrary interleaved data
 		/// \param [in] _vertexDeclaration Vertex definition/declaration specifies the
 		///		format of one vertex. Each character determines a binding
 		///		location and its positions the position in the per vertex data.
@@ -69,33 +79,43 @@ namespace Graphic {
 		///					c - 4 byte color (BIND_COLOR+y)
 		///					u - 1 uint32 (BIND_UINT+z)
 		/// \param [in] _type What form of geometry will be stored? The standard
-		///		case is indexed where the accoring index buffer will dertermine
+		///		case is indexed where the according index buffer will determine
 		///		the primitive type. This is required for direct vertex-draw calls
-		VertexBuffer(unsigned _maxNumVertices, const char* _vertexDeclaration, PrimitiveType _type = PrimitiveType::INDEXED );
+		VertexBuffer( const char* _vertexDeclaration, void* _data, int _size, PrimitiveType _type = PrimitiveType::INDEXED );
+
+		/// \brief Create a dynamic vertex buffer with arbitrary interleaved data.
+		/// \details \see VertexBuffer
+		VertexBuffer( const char* _vertexDeclaration, PrimitiveType _type = PrimitiveType::INDEXED );
+
+		/// \brief RValue - Move constructor.
+		VertexBuffer(VertexBuffer&&);
+
 		~VertexBuffer();
 
 		/// \brief Add one vertex at the end of the buffer.
 		/// \details This copies as much bytes as specified through _vertexDeclaration in
 		///		constructor.
-		void Add(void* _value);
+		template<typename T>
+		void Add(const T& _value);
 
 		// \brief Overrides a index in the memory copy. Does nothing if static.
 		/// \param [in] _index Index of the vertex which should be in
 		///		[0,GetNumVertices()[.
-		/// \param [in] _value Pointer to a vertex structure.
-		void Set(unsigned _index, const void* _value);
+		/// \param [in] _value A vertex structure.
+		template<typename T>
+		void Set(unsigned _index, const T& _value);
 
-		/// \brief Reads from memory copy. Does nothing if static.
-		void* Get(unsigned _index);
+		/// \brief Reads from memory copy. Does nothing if static (nullptr).
+		template<typename T>
+		const T* Get(unsigned _index) const;
 
 		/// \brief Set the number of vertices back to 0.
-		void Clear()		{ m_cursor = 0; }
-
-		/// \brief Uploads data and removes the memory copy for read and write
-		///		operations.
-		void MakeStatic();
+		/// \details Only possible for dynamic buffers. The storage will not
+		///		be reduced!
+		void Clear();
 		
-		/// \brief Upload complete buffer objects to GPU.
+		/// \brief Upload changed part of a buffer to GPU.
+		/// \details If the buffer was created static this is not necessary.
 		void Commit();
 
 		/// \brief Moving the last vertex to the specified index and overwrites the
@@ -103,7 +123,7 @@ namespace Graphic {
 		void DeleteVertex(unsigned _index);
 
 		/// \brief Invert the sign of all normal vectors.
-		/// \details If there are no normals in vertexformat it does nothing.
+		/// \details If there are no normals in vertex format it does nothing.
 		void FlipNormals();
 
 		/// \brief Bind the buffer for the draw call
@@ -112,9 +132,9 @@ namespace Graphic {
 		unsigned GetNumVertices() const			{ return m_cursor; }
 		int GetVertexSize() const				{ return m_vertexSize; }
 		PrimitiveType GetPrimitiveType() const	{ return m_primitiveType; }
-		void SetDirty()							{ m_dirty = true;}
+		//void SetDirty()							{ m_dirty = true;}
 		bool IsStatic() const					{ return m_data==nullptr; }
-		bool IsDirty() const					{ return m_dirty; }
+		bool IsDirty() const					{ return m_lastDirtyIndex != -1; }
 
 		unsigned GetPositionOffset() const		{ return m_positionOffset; }
 		unsigned GetNormalOffset() const		{ return m_normalOffset; }
@@ -125,5 +145,49 @@ namespace Graphic {
 		const Math::Vec3& GetTangent(unsigned _index) const		{ return *(Math::Vec3*)(m_data + _index*m_vertexSize + m_tangentOffset); }
 	};
 	typedef VertexBuffer* VertexBufferP;
+
+
+	// ************************************************************************* //
+	template<typename T>
+	void VertexBuffer::Add(const T& _value)
+	{
+		// TODO: logging
+		//if( IsStatic() ) {std::cout << "[VertexBuffer::Add] Cannot add vertices to a static buffer.\n"; return;}
+		if( m_cursor == m_maxNumVertices )
+		{
+			// Grow on CPU side
+			Resize( m_maxNumVertices * 2 );
+		}
+
+		// At least the vertex at the cursor is dirty now
+		m_firstDirtyIndex = Math::min((int)m_cursor, m_firstDirtyIndex);
+		m_lastDirtyIndex = Math::max((int)m_cursor, m_lastDirtyIndex);
+
+		memcpy(m_data + m_cursor * m_vertexSize, &_value, m_vertexSize);
+		++m_cursor;
+	}
+
+	// ************************************************************************* //
+	template<typename T>
+	void VertexBuffer::Set(unsigned _index, const T& _value)
+	{
+		// TODO: logging
+		//if( IsStatic() ) {std::cout << "[VertexBuffer::Set] Cannot set vertices in a static buffer.\n"; return;}
+		assert( 0<=_index && _index < GetNumVertices() );
+		memcpy(m_data + _index * m_vertexSize, _value, m_vertexSize);
+
+		m_firstDirtyIndex = Math::min(_index, m_firstDirtyIndex);
+		m_lastDirtyIndex = Math::max(_index, m_lastDirtyIndex);
+	}
+
+	// ************************************************************************* //
+	template<typename T>
+	const T* VertexBuffer::Get(unsigned _index) const
+	{
+		// TODO: logging
+		//if( IsStatic() ) {std::cout << "[VertexBuffer::Get] Cannot get vertices in a static buffer.\n"; return nullptr;}
+		assert( 0<=_index && _index < GetNumVertices() );
+		return (T*)(m_data + _index * m_vertexSize);
+	}
 
 };

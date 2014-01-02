@@ -31,7 +31,7 @@ namespace Graphic
 
 	TextRender::TextRender(Font* _font) :
 		m_font(_font),
-		m_characters( 1000, "222c11", VertexBuffer::PrimitiveType::POINT ),//222c11
+		m_characters( "222c11", VertexBuffer::PrimitiveType::POINT ),//222c11
 		m_screenPos( 0.0f )
 	{
 		SetText("bla");
@@ -75,9 +75,9 @@ namespace Graphic
 			CV.thickness = 0.5f;
 			CV.color = 0xffffffff;
 			//line break
-			if(m_text[i] == 13){currentPos.x = m_screenPos.x; currentPos.y -= m_font->m_sizeTable[m_text[i]].y;}
+			if(m_text[i] == '\n'){currentPos.x = m_screenPos.x; currentPos.y -= m_font->m_sizeTable[m_text[i]].y;}
 			else currentPos.x += m_font->m_sizeTable[m_text[i]].x; 
- 			m_characters.Add(&CV);
+ 			m_characters.Add(CV);
 		}
 		m_characters.Commit();
 	}

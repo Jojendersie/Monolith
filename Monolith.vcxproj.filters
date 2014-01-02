@@ -30,6 +30,9 @@
     <Filter Include="Source Files\input">
       <UniqueIdentifier>{3bb628ef-e624-4ab4-bd09-a60a30939490}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\algorithm">
+      <UniqueIdentifier>{35018c71-d10d-4ffc-80d0-4ff71337ad42}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files\utilities">
       <UniqueIdentifier>{48cb2e38-bcdc-47bb-ab0c-8e95eb1430c5}</UniqueIdentifier>
     </Filter>
@@ -214,11 +217,20 @@
     <ClInclude Include="src\math\sphere.hpp">
       <Filter>Source Files\math</Filter>
     </ClInclude>
+    <ClInclude Include="src\algorithm\smallsort.hpp">
+      <Filter>Source Files\algorithm</Filter>
+    </ClInclude>
     <ClInclude Include="src\graphic\content.hpp">
       <Filter>Source Files\graphic</Filter>
     </ClInclude>
     <ClInclude Include="src\utilities\color.hpp">
       <Filter>Source Files\utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\voxel\sparseoctree.hpp">
+      <Filter>Source Files\voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\vector.hpp">
+      <Filter>Source Files\math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

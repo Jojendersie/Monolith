@@ -24,15 +24,7 @@ inline int VectorSize(char a)
 }
 
 // Creating a vertex buffer with arbitrary interleaved data
-VertexBuffer::VertexBuffer(unsigned _maxNumVertices, const char* _vertexDeclaration, PrimitiveType _type) :
-	m_data(nullptr),
-	m_maxNumVertices(_maxNumVertices),
-	m_dirty(true),
-	m_cursor(0),
-	m_positionOffset(0xffffffff),
-	m_normalOffset(0xffffffff),
-	m_tangentOffset(0xffffffff),
-	m_primitiveType(_type)
+void VertexBuffer::CreateVAO(const char* _vertexDeclaration)
 {
 	// First step analyzing the string
 		// Counting VBO's size and string length
@@ -124,79 +116,135 @@ VertexBuffer::VertexBuffer(unsigned _maxNumVertices, const char* _vertexDeclarat
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
 
-	if( m_maxNumVertices * m_vertexSize )
-	{
-		m_data = (uint8_t*)malloc(m_maxNumVertices * m_vertexSize);
-	}
+// ************************************************************************* //
+// Creating a static vertex buffer with arbitrary interleaved data.
+VertexBuffer::VertexBuffer( const char* _vertexDeclaration, void* _data, int _size, PrimitiveType _type ) :
+	m_data(nullptr),
+	m_firstDirtyIndex(std::numeric_limits<int>::max()),
+	m_lastDirtyIndex(-1),
+	m_positionOffset(0xffffffff),
+	m_normalOffset(0xffffffff),
+	m_tangentOffset(0xffffffff),
+	m_primitiveType(_type)
+{
+	CreateVAO(_vertexDeclaration);
+
+	// Upload the data
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+	glBufferData(GL_ARRAY_BUFFER, _size, _data, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	// Derive the statistic data
+	m_cursor = m_maxNumVertices = _size / m_vertexSize;
+}
+
+// ************************************************************************* //
+// Creating a dynamic vertex buffer with arbitrary interleaved data.
+VertexBuffer::VertexBuffer( const char* _vertexDeclaration, PrimitiveType _type ) :
+	m_data(nullptr),
+	m_firstDirtyIndex(std::numeric_limits<int>::max()),
+	m_lastDirtyIndex(-1),
+	m_cursor(0),
+	m_maxNumVertices(64),
+	m_positionOffset(0xffffffff),
+	m_normalOffset(0xffffffff),
+	m_tangentOffset(0xffffffff),
+	m_primitiveType(_type)
+{
+	CreateVAO(_vertexDeclaration);
+
+	// Create the data on GPU side
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+	glBufferData(GL_ARRAY_BUFFER, m_vertexSize * m_maxNumVertices, 0, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	// Data on CPU side
+	m_data = (uint8_t*)malloc( m_vertexSize * m_maxNumVertices );
+}
+
+// ************************************************************************* //
+VertexBuffer::VertexBuffer( VertexBuffer&& _buffer ) :
+	m_cursor( _buffer.m_cursor ),
+	m_data( _buffer.m_data ),
+	m_firstDirtyIndex( _buffer.m_firstDirtyIndex ),
+	m_lastDirtyIndex( _buffer.m_lastDirtyIndex ),
+	m_maxNumVertices( _buffer.m_maxNumVertices ),
+	m_normalOffset( _buffer.m_normalOffset ),
+	m_positionOffset( _buffer.m_positionOffset ),
+	m_primitiveType( _buffer.m_primitiveType ),
+	m_tangentOffset( _buffer.m_tangentOffset ),
+	m_VAO( _buffer.m_VAO ),
+	m_VBO( _buffer.m_VBO ),
+	m_vertexSize( _buffer.m_vertexSize )
+{
+	_buffer.m_VAO = 0;
+	_buffer.m_VBO = 0;
+	_buffer.m_data = nullptr;
 }
 
 // ************************************************************************* //
 VertexBuffer::~VertexBuffer()
 {
-	// Detach and delete Vertex buffer
-	glBindVertexArray(m_VAO);
-	//glDisableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glDeleteBuffers(1, &m_VBO);
-	// Detach and delete array
-	glBindVertexArray(0);
-	glDeleteVertexArrays(1, &m_VAO);
+	if( m_VAO )
+	{
+		// Detach and delete Vertex buffer
+		glBindVertexArray(m_VAO);
+		//glDisableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glDeleteBuffers(1, &m_VBO);
+		// Detach and delete array
+		glBindVertexArray(0);
+		glDeleteVertexArrays(1, &m_VAO);
+	}
 
 	free(m_data);
 	m_data = nullptr;
 }
 
-// ************************************************************************* //
-void VertexBuffer::Add(void* _value)
-{
-	if(m_cursor == m_maxNumVertices)
-	{std::cout << "[VertexBuffer::Add] Vertex buffer full (capacity: "<<m_maxNumVertices<<"). Add has no effect.\n"; return;}
-
-	memcpy(m_data + m_cursor * m_vertexSize, _value, m_vertexSize);
-	++m_cursor;
-	m_dirty = true;
-}
-
-// ************************************************************************* //
-void VertexBuffer::Set(unsigned _index, const void* _value)
-{
-	if( IsStatic() ) {std::cout << "[VertexBuffer::Set] Cannot set vertices in a static buffer.\n"; return;}
-	assert( 0<=_index && _index < GetNumVertices() );
-	memcpy(m_data + _index * m_vertexSize, _value, m_vertexSize);
-	m_dirty = true;
-}
-
-// ************************************************************************* //
-void* VertexBuffer::Get(unsigned _index)
-{
-	if( IsStatic() ) {std::cout << "[VertexBuffer::Get] Cannot get vertices in a static buffer.\n"; return nullptr;}
-	assert( 0<=_index && _index < GetNumVertices() );
-	// Assume write access from outside
-	m_dirty = true;
-	return m_data + _index * m_vertexSize;
-}
 
 // ******************************************************************************** //
-void VertexBuffer::MakeStatic()
+void VertexBuffer::Resize(unsigned _numVertices)
 {
-	if(m_dirty) Commit();
-	free(m_data);
-	m_data = nullptr;
+	// Private method should never be called for static buffers!
+	assert(!IsStatic());
+
+	m_maxNumVertices = _numVertices;
+
+	// Discard on GPU side
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+	glBufferData(GL_ARRAY_BUFFER, m_vertexSize * _numVertices, 0, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	m_data = (uint8_t*)realloc(m_data, _numVertices * m_vertexSize);
+}
+
+
+// ******************************************************************************** //
+// Set the number of vertices back to 0.
+void VertexBuffer::Clear()
+{
+	assert(!IsStatic());
+	m_cursor = 0;
+	m_firstDirtyIndex = std::numeric_limits<int>::max();
+	m_lastDirtyIndex = -1;
 }
 
 // ******************************************************************************** //
 void VertexBuffer::Commit()
 {
-	if(m_data && m_dirty)
+	if(m_data && IsDirty())
 	{
-		//glBindVertexArray(m_VAO);
-		// Discard everything on gpu and upload new
+		// Discard everything in a range where vertices are dirty
 		glBindBuffer( GL_ARRAY_BUFFER, m_VBO );
-		glBufferSubData( GL_ARRAY_BUFFER, 0, m_cursor * m_vertexSize, m_data );
-		//glBufferData(GL_ARRAY_BUFFER, 0, 0, GL_STATIC_DRAW);
-		//glBufferData(GL_ARRAY_BUFFER, m_cursor * m_vertexSize, m_data, GL_DYNAMIC_DRAW);//GL_STATIC_DRAW);
-		m_dirty = false;
+		glBufferSubData( GL_ARRAY_BUFFER,
+			m_firstDirtyIndex * m_vertexSize,
+			(m_lastDirtyIndex - m_firstDirtyIndex + 1) * m_vertexSize,
+			m_data );
+		glBindBuffer( GL_ARRAY_BUFFER, 0 );
+		LogGlError("[VertexBuffer::Commit] Update of dynamic data failed.");
+
+		m_firstDirtyIndex = std::numeric_limits<int>::max();
+		m_lastDirtyIndex = -1;
 		glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	}
 }
@@ -207,7 +255,9 @@ void VertexBuffer::DeleteVertex(unsigned _index)
 	assert( m_cursor > 0 );	// Number of vertices
 	if(m_cursor <= _index) std::cout << "[VertexBuffer::DeleteVertex] Vertex cannot be deleted: Index too large.\n";
 	--m_cursor;
-	if(_index != m_cursor) Set(_index, Get(m_cursor));
+	if(_index != m_cursor) {
+		memcpy(m_data + m_vertexSize * _index, m_data + m_vertexSize * m_cursor, m_vertexSize );
+	}
 }
 
 // ******************************************************************************** //
@@ -216,17 +266,16 @@ void VertexBuffer::FlipNormals()
 	if(m_normalOffset == 0xffffffff) return;
 	for(unsigned i=0; i<GetNumVertices(); ++i)
 	{
-		// TODO: if vector existing
-	//	OrE::Math::Vec3* pN = (OrE::Math::Vec3*)(((uint8_t*)m_data)+i*m_vertexSize+m_normalOffset);
-	//	(*pN) = -(*pN);
+		Math::Vec3* pN = (Math::Vec3*)(((uint8_t*)m_data)+i*m_vertexSize+m_normalOffset);
+		(*pN) = -(*pN);
 	}
 }
 
 // ******************************************************************************** //
 void VertexBuffer::Bind() const
 {
-	// Don't use a empty buffer. Call MakeStatic or Commit before.
-	assert( !m_dirty );
+	// Don't use a empty buffer. Call Commit before.
+	assert( !IsDirty() );
 
 	glBindVertexArray(m_VAO);
 }
