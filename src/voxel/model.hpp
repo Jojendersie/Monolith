@@ -32,8 +32,7 @@ namespace Voxel {
 		///		which must be filled.
 		/// \param [in] _camera The actual camera for transformation, culling
 		///		and LOD computations.
-		///	\return The number of drawn voxels.
-		int Draw( Graphic::UniformBuffer& _objectConstants, const Input::Camera& _camera );
+		void Draw( Graphic::UniformBuffer& _objectConstants, const Input::Camera& _camera );
 
 		/// \brief Set a voxel in the model and update mass properties.
 		/// \see SparseVoxelOctree::Set.
@@ -45,6 +44,11 @@ namespace Voxel {
 		///		levels other than 0 the returned value will be some
 		///		approximating LOD (majority) of the children.
 		VoxelType Get( const Math::IVec3& _position, int _level ) const;
+
+		/// \see SparseVoxelOctree::IsEachChild
+		bool IsEachChild( const Math::IVec3& _position, int _level, bool(*_predicate)(VoxelType), VoxelType& _out ) const	{ return m_voxelTree.IsEachChild(_position, _level, _predicate, _out); }
+		/// \see SparseVoxelOctree::IsAnyChild
+		bool IsAnyChild( const Math::IVec3& _position, int _level, bool(*_predicate)(VoxelType), VoxelType& _out ) const	{ return m_voxelTree.IsAnyChild(_position, _level, _predicate, _out); }
 
 		/// \brief Get the center of gravity (mass center)
 		Math::Vec3 GetCenter() const		{ return m_center + m_position; }

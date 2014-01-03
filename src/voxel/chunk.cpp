@@ -43,13 +43,17 @@ namespace Voxel {
 
 	void Chunk::ComputeVertexBuffer( const Math::IVec3& _nodePostion, int _level )
 	{
+		struct PerVoxelInfo {
+			VoxelType type;
+			bool solid;
+		};
 		m_voxels.Clear();
 
 		// Sample a (2^d+2)^3 volume (neighborhood for visibility). This
 		// initial sampling avoids the expensive resampling for many voxels.
 		// (Inner voxels would be sampled 7 times!)
 		int edgeLength = (1 << m_depth) + 2;
-		VoxelType* volume = new VoxelType[edgeLength*edgeLength*edgeLength];
+		PerVoxelInfo* volume = new PerVoxelInfo[edgeLength*edgeLength*edgeLength];
 		int level = Math::max( 0, _level - m_depth );
 		IVec3 pmin = (_nodePostion << (_level - level)) - IVec3(1);
 		IVec3 pmax = pmin + IVec3(edgeLength);
@@ -57,23 +61,26 @@ namespace Voxel {
 		for( pos[2]=pmin[2]; pos[2]<pmax[2]; ++pos[2] )
 			for( pos[1]=pmin[1]; pos[1]<pmax[1]; ++pos[1] )
 				for( pos[0]=pmin[0]; pos[0]<pmax[0]; ++pos[0] )
-					volume[pos[0]-pmin[0] + edgeLength * (pos[1]-pmin[1] + edgeLength * (pos[2]-pmin[2]))] = m_model->Get(pos, level);
+				{
+					PerVoxelInfo& voxelInfo = volume[pos[0]-pmin[0] + edgeLength * (pos[1]-pmin[1] + edgeLength * (pos[2]-pmin[2]))];
+					voxelInfo.solid = m_model->IsEachChild(pos, level, IsSolid, voxelInfo.type);
+				}
 
 		// Iterate over volume and add any surface voxel to vertex buffer
 		for( pos[2]=1; pos[2]<edgeLength-1; ++pos[2] )
 			for( pos[1]=1; pos[1]<edgeLength-1; ++pos[1] )
 				for( pos[0]=1; pos[0]<edgeLength-1; ++pos[0] )
 				{
-					VoxelType current = volume[pos[0] + edgeLength * (pos[1] + edgeLength * pos[2])];
-					int left = (volume[pos[0] - 1 + edgeLength * (pos[1] + edgeLength * pos[2])] == VoxelType::NONE);
-					int right = (volume[pos[0] + 1 + edgeLength * (pos[1] + edgeLength * pos[2])] == VoxelType::NONE);
-					int bottom = (volume[pos[0] + edgeLength * (pos[1] - 1 + edgeLength * pos[2])] == VoxelType::NONE);
-					int top = (volume[pos[0] + edgeLength * (pos[1] + 1 + edgeLength * pos[2])] == VoxelType::NONE);
-					int front = (volume[pos[0] + edgeLength * (pos[1] + edgeLength * (pos[2] - 1))] == VoxelType::NONE);
-					int back = (volume[pos[0] + edgeLength * (pos[1] + edgeLength * (pos[2] + 1))] == VoxelType::NONE);
+					VoxelType current = volume[pos[0] + edgeLength * (pos[1] + edgeLength * pos[2])].type;
+					int left = !volume[pos[0] - 1 + edgeLength * (pos[1] + edgeLength * pos[2])].solid;
+					int right = !volume[pos[0] + 1 + edgeLength * (pos[1] + edgeLength * pos[2])].solid;
+					int bottom = !volume[pos[0] + edgeLength * (pos[1] - 1 + edgeLength * pos[2])].solid;
+					int top = !volume[pos[0] + edgeLength * (pos[1] + 1 + edgeLength * pos[2])].solid;
+					int front = !volume[pos[0] + edgeLength * (pos[1] + edgeLength * (pos[2] - 1))].solid;
+					int back = !volume[pos[0] + edgeLength * (pos[1] + edgeLength * (pos[2] + 1))].solid;
 					// Check if at least one neighbor is NONE and this is not
 					// none -> surface
-					if( (current != VoxelType::NONE) &&
+					if( IsSolid(current) &&
 						(left || right || bottom || top || front || back) )
 					{
 						VoxelVertex V;
@@ -98,14 +105,15 @@ namespace Voxel {
 		// Translation to center the chunks
 		_objectConstants["WorldViewProjection"] = Mat4x4::Translation(m_position) * Mat4x4::Scaling(m_scale) * _modelViewProjection;
 
-		_objectConstants["Corner000"] = Vec4( -m_scale, -m_scale, -m_scale, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner001"] = Vec4( -m_scale, -m_scale,  m_scale, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner010"] = Vec4( -m_scale,  m_scale, -m_scale, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner011"] = Vec4( -m_scale,  m_scale,  m_scale, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner100"] = Vec4(  m_scale, -m_scale, -m_scale, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner101"] = Vec4(  m_scale, -m_scale,  m_scale, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner110"] = Vec4(  m_scale,  m_scale, -m_scale, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner111"] = Vec4(  m_scale,  m_scale,  m_scale, 0.0f ) * _modelViewProjection;
+		float halfScale = m_scale * 0.5f;
+		_objectConstants["Corner000"] = Vec4( -halfScale, -halfScale, -halfScale, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner001"] = Vec4( -halfScale, -halfScale,  halfScale, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner010"] = Vec4( -halfScale,  halfScale, -halfScale, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner011"] = Vec4( -halfScale,  halfScale,  halfScale, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner100"] = Vec4(  halfScale, -halfScale, -halfScale, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner101"] = Vec4(  halfScale, -halfScale,  halfScale, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner110"] = Vec4(  halfScale,  halfScale, -halfScale, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner111"] = Vec4(  halfScale,  halfScale,  halfScale, 0.0f ) * _modelViewProjection;
 
 		Graphic::Device::DrawVertices( m_voxels, 0, m_voxels.GetNumVertices() );
 	}

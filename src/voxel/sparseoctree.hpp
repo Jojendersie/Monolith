@@ -38,6 +38,30 @@ namespace Voxel {
 		///		approximating LOD (majority) of the children.
 		T Get( const Math::IVec3& _position, int _level ) const;
 
+		/// \brief Test if a property is fulfilled for all children and get the
+		///		voxel data.
+		/// \details Applies a predicate too all children of a specified voxel.
+		///		Only if all children fulfill the predicate the return value is
+		///		true.
+		///		If the node does not have children the return value is
+		///		_predicate(_voxelOut). This means all children are assumed to
+		///		be the same as the parent (uniform node).
+		///		
+		///		Additionally the type of the voxel is returned.
+		/// \param [in] _position Position inside the given level. If the
+		///		position is outside the return value is false and the voxel
+		///		type is the default value.
+		/// \param [in] _level Depth in the grid hierarchy.
+		/// \param [in] _predicate The unary predicate function.
+		/// \param [out] _voxelOut Return of the voxels type itself -
+		///		which is a gratis get.
+		bool IsEachChild( const Math::IVec3& _position, int _level, bool(*_predicate)(T), T& _voxelOut ) const;
+
+		/// \brief Test if a property is fulfilled for any child and get the
+		///		voxel data.
+		///	\details similar to SparseVoxelOctree::IsEachChild.
+		bool IsAnyChild( const Math::IVec3& _position, int _level, bool(*_predicate)(T), T& _voxelOut ) const;
+
 		/// \brief Traverse through the whole tree in preorder and call the
 		///		callback.
 		/// \param [in] _callback This function is called for each voxel. It
@@ -125,6 +149,8 @@ namespace Voxel {
 		int m_rootSize;				///< Level of the node which contains the 8 roots where 0 is the highest possible resolution.
 		SVON m_root;				///< The single top level root node
 
+		/// \brief Internal getter which returns a node reference.
+		const SVON* _Get( const Math::IVec3& _position, int _level ) const;
 	};
 
 
@@ -201,7 +227,7 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	template<typename T, typename Listener>
-	T SparseVoxelOctree<T,Listener>::Get( const Math::IVec3& _position, int _level ) const
+	typename const SparseVoxelOctree<T,Listener>::SVON* SparseVoxelOctree<T,Listener>::_Get( const Math::IVec3& _position, int _level ) const
 	{
 		// Get on an empty model? Would be better if this never happens ->
 		// better performance because no 'if' on m_rootSize required.
@@ -209,9 +235,9 @@ namespace Voxel {
 
 		// Special cases: not inside octree
 		int scale = m_rootSize-_level;
-		if( scale < 0 ) return m_defaultData;
+		if( scale < 0 ) return nullptr;
 		Math::IVec3 position = _position >> scale;
-		if( ((position-m_rootPosition) & Math::IVec3(0xfffffffe)) != Math::IVec3(0) ) return m_defaultData;
+		if( ((position-m_rootPosition) & Math::IVec3(0xfffffffe)) != Math::IVec3(0) ) return nullptr;
 
 		// Search in the octree (while not on target level or tree ends)
 		const SVON* current = &m_root;
@@ -221,7 +247,49 @@ namespace Voxel {
 			current = &current->children[ (position[0] & 1) + (position[1] & 1) * 2 + (position[2] & 1) * 4 ];
 		}
 
-		return current->voxel;
+		return current;
+	}
+
+	// ********************************************************************* //
+	template<typename T, typename Listener>
+	T SparseVoxelOctree<T,Listener>::Get( const Math::IVec3& _position, int _level ) const
+	{
+		const SVON* node = _Get(_position, _level);
+		return node ? node->voxel : m_defaultData;
+	}
+
+	// ********************************************************************* //
+	template<typename T, typename Listener>
+	bool SparseVoxelOctree<T,Listener>::IsEachChild( const Math::IVec3& _position, int _level, bool(*_predicate)(T), T& _voxelOut ) const
+	{
+		const SVON* node = _Get(_position, _level);
+
+		if( !node ) { _voxelOut = m_defaultData; return false; }
+		_voxelOut = node->voxel;
+		if( !node->children ) return _predicate(node->voxel);
+
+		// Test all children - stop if any does not have the searched property
+		for( int i=0; i<8; ++i )
+			if( !_predicate(node->children[i].voxel) ) return false;
+
+		return true;
+	}
+
+	// ********************************************************************* //
+	template<typename T, typename Listener>
+	bool SparseVoxelOctree<T,Listener>::IsAnyChild( const Math::IVec3& _position, int _level, bool(*_predicate)(T), T& _voxelOut ) const
+	{
+		const SVON* node = _Get(_position, _level);
+
+		if( !node ) { _voxelOut = m_defaultData; return false; }
+		_voxelOut = node->voxel;
+		if( !node->children ) return _predicate(node->voxel);
+
+		// Test all children - stop if any does have the searched property
+		for( int i=0; i<8; ++i )
+			if( _predicate(node->children[i].voxel) ) return true;
+
+		return false;
 	}
 
 	// ********************************************************************* //

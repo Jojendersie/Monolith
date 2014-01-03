@@ -7,6 +7,11 @@
 
 using namespace Math;
 
+namespace RenderStat {
+	extern int g_numVoxels;
+	extern int g_numChunks;
+}
+
 namespace Voxel {
 
 	Model::Model() :
@@ -32,7 +37,6 @@ namespace Voxel {
 		Graphic::UniformBuffer& objectConstants;
 		const Math::Mat4x4& modelTransform;
 		const Math::Mat4x4& modelViewProjection;
-		int numVoxels;
 
 		DrawParam(const Input::Camera& _camera, Model* _model,
 				Graphic::UniformBuffer& _objectConstants,
@@ -41,8 +45,7 @@ namespace Voxel {
 			camera(_camera), model(_model),
 			objectConstants(_objectConstants),
 			modelTransform(_modelTransform),
-			modelViewProjection(_modelViewProjection),
-			numVoxels(0)
+			modelViewProjection(_modelViewProjection)
 		{}
 	};
 
@@ -59,7 +62,8 @@ namespace Voxel {
 
 		// LOD - calculate a target level. If the current level is less or
 		// equal the target draw.
-		float detailResolution = 0.44f * log( (chunkPos - _param->camera.GetPosition()).LengthSq() );
+		//float detailResolution = 0.44f * log( (chunkPos - _param->camera.GetPosition()).LengthSq() );
+		float detailResolution = 0.025f * sqr(log( (chunkPos - _param->camera.GetPosition()).LengthSq() ));
 			//pow((chunkPos - _param->camera.GetPosition()).Length(), 0.25f);
 		int targetLOD = max(5, Math::ceil(detailResolution));
 //		std::cout << targetLOD << '\n';
@@ -82,7 +86,8 @@ namespace Voxel {
 			// There are empty inner chunks
 			if( chunk->second.NumVoxels() > 0 )
 			{
-				_param->numVoxels += chunk->second.NumVoxels();
+				RenderStat::g_numVoxels += chunk->second.NumVoxels();
+				RenderStat::g_numChunks++;
 				chunk->second.Draw( _param->objectConstants, _param->modelViewProjection );
 			}
 			return false;
@@ -90,7 +95,7 @@ namespace Voxel {
 		return true;
 	}
 
-	int Model::Draw( Graphic::UniformBuffer& _objectConstants, const Input::Camera& _camera )
+	void Model::Draw( Graphic::UniformBuffer& _objectConstants, const Input::Camera& _camera )
 	{
 
 		// Create a new model space transformation
@@ -100,8 +105,6 @@ namespace Voxel {
 		// Iterate through the octree and render chunks depending on the lod.
 		DrawParam param(_camera, this, _objectConstants, modelViewProjection, modelTransform);
 		m_voxelTree.Traverse( DecideToDraw, &param );
-
-		return param.numVoxels;
 	}
 
 	// ********************************************************************* //

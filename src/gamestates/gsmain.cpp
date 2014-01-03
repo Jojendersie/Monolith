@@ -11,6 +11,11 @@ using namespace Math;
 #include "../graphic/font.hpp"
 #include "../graphic/texture.hpp"
 
+namespace RenderStat {
+	int g_numVoxels;
+	int g_numChunks;
+}
+
 // ************************************************************************* //
 GSMain::GSMain(Monolith* _parent) : IGameState(_parent)
 {
@@ -50,6 +55,8 @@ void GSMain::Update( double _time, double _deltaTime )
 // ************************************************************************* //
 void GSMain::Render( double _time, double _deltaTime )
 {
+	RenderStat::g_numVoxels = 0;
+	RenderStat::g_numChunks = 0;
 //	_time = 0.1 * cos(_time*0.5);
 	//Matrix view = MatrixCamera( Vec3(sin(_time)*250,80.0f,cos(_time)*250), Vec3(0.0f,0.0f,0.0f) );
 	//Matrix projection = MatrixProjection( 0.3f, 1.3f, 0.5f, 400.0f );
@@ -65,9 +72,9 @@ void GSMain::Render( double _time, double _deltaTime )
 	Graphic::Device::SetEffect(	m_parent->m_graficContent->voxelRenderEffect );
 	Graphic::Device::SetTexture( *m_parent->m_graficContent->voxelTextures, 0 );
 
-	int numDrawn = m_astTest->Draw( m_parent->m_graficContent->objectUBO, *m_camera );
+	m_astTest->Draw( m_parent->m_graficContent->objectUBO, *m_camera );
 	
-	m_textTest->SetText(std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(numDrawn));
+	m_textTest->SetText(std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(RenderStat::g_numVoxels) + "\n#Chunks: " + std::to_string(RenderStat::g_numChunks));
 	m_textTest->Draw();
 }
 
