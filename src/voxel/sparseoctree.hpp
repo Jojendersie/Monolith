@@ -243,8 +243,12 @@ namespace Voxel {
 		const SVON* current = &m_root;
 		while( (scale > 0) && current->children ) {
 			--scale;
-			position = _position >> scale;
-			current = &current->children[ (position[0] & 1) + (position[1] & 1) * 2 + (position[2] & 1) * 4 ];
+			int x = (_position[0] >> scale) & 1;
+			int y = (_position[1] >> scale) & 1;
+			int z = (_position[2] >> scale) & 1;
+			current = &current->children[ x + y * 2 + z * 4 ];
+			//position = _position >> scale;
+			//current = &current->children[ (position[0] & 1) + (position[1] & 1) * 2 + (position[2] & 1) * 4 ];
 		}
 
 		return current;
@@ -348,8 +352,9 @@ namespace Voxel {
 				RemoveSubTree(IVec4(position, _currentSize), _parent, false);
 				//_parent->m_listener->Update(position, _currentSize, type, _type);
 				voxel = _type;
-			} else {
+			} else if(_type != voxel && IsSolid(_type)) {
 				// Update the current type based one the (maybe) changed child types.
+				// If the majority was already of the new type nothing can happen.
 				voxel = MajorVoxelType();
 			}
 		}

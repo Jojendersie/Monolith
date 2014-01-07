@@ -6,7 +6,41 @@
 
 namespace Generators {
 
-	static uint32_t HashInt( uint32_t _a )
+	// Xorshift32 as integer hashing - very bad
+	/*static uint32_t HashInt( uint32_t _a )
+	{
+		_a ^= _a << 13;
+		_a ^= _a >> 17;
+		_a ^= _a << 5;
+		return _a;
+	}*/
+
+	/*static uint32_t HashInt( uint32_t _a )
+	{
+		_a *= _a << 13;
+		_a ^= _a >> 17;
+		_a += _a << 5;
+		return _a;
+	}*/
+
+	/*static uint32_t HashInt( uint32_t _a )
+	{
+		_a *= 2654435761;
+		return _a;
+	}*/
+
+	/*static uint32_t HashInt( uint32_t _a )
+	{
+		_a += ~(_a<<15);
+		_a ^=  (_a>>10);
+		_a +=  (_a<<3);
+		_a ^=  (_a>>6);
+		_a += ~(_a<<11);
+		_a ^=  (_a>>16);
+		return _a;
+	}*/
+
+	/*static uint32_t HashInt( uint32_t _a )
 	{
 		_a -= _a << 6;
 		_a ^= _a >> 17;
@@ -16,7 +50,7 @@ namespace Generators {
 		_a ^= _a << 10;
 		_a ^= _a >> 15;
 		return _a;
-	} 
+	} */
 
 
 	// ********************************************************************* //
@@ -39,7 +73,7 @@ namespace Generators {
 	int32_t Random::Uniform( int32_t _min, int32_t _max )
 	{
 		uint32_t interval = uint32_t(_max - _min + 1);
-		// Do not use interger maximum bounds!
+		// Do not use integer maximum bounds!
 		assert(interval != 0);
 
 		uint32_t value = Xorshift128();
@@ -61,8 +95,8 @@ namespace Generators {
 			if( u1 <= 0.0f ) r = 1487.0;	// -2*log(e-323) == 1487.493849482
 			else if( u1 >= 1.0f ) continue;
 			else r = sqrt(-2.0*log(u1));
-			// Use both indipendent samples to generate one sample of a
-			// heigher quality.
+			// Use both independent samples to generate one sample of a
+			// higher quality.
 			n += r*cos(6.28318530718*u2) + r*sin(6.28318530718*u2);
 		}
 		return float(sqrt(_variance / 6.0) * n);
@@ -88,7 +122,18 @@ namespace Generators {
 		// Use states of xorshift to apply seeding
 		_x ^= m_state[0]; _y ^= m_state[1]; _z ^= m_state[2];
 
-		uint32_t value = HashInt(_x) ^ HashInt(_y) ^ HashInt(_z);
+		//uint32_t value = HashInt(_x) ^ HashInt(_y) ^ HashInt(_z);
+		/*uint32_t value = _x ^ (_y << 11);
+		m_state[0] = m_state[1];
+		m_state[1] = m_state[2];
+		m_state[2] = m_state[3];
+		value = _z ^ ((_y >> 19) ^ value ^ (value >> 8));*/
+
+		uint32_t value =
+			  (_x * 0x9E3719B1 - (_z >> 17))
+			^ (_y * 0xAFFE3141 - (_x >> 17))
+			^ (_z * 0x27f161e8 - (_y >> 17));
+
 		return value * 2.328306437e-10f;
 	}
 
