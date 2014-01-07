@@ -12,9 +12,13 @@ namespace Algo {
 		// This is doing a real copy - which is good for primitive types but
 		// there could be a better method (advantage of this solution:
 		// no branches! - which is not possible with std::swap)
-		const T t = _data[_x] < _data[_y] ? _data[_x] : _data[_y];
+	/*	const T t = _data[_x] < _data[_y] ? _data[_x] : _data[_y];
 		_data[_y] = _data[_x] < _data[_y] ? _data[_y] : _data[_x];
-		_data[_x] = std::move(t);
+		_data[_x] = std::move(t);*/
+
+		// Tested: this one is three times faster.
+		if(_data[_x] > _data[_y])
+			std::swap(_data[_x], _data[_y]);
 	}
 
 	/// \brief Function to sort two elements as fast as possible

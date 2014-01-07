@@ -78,6 +78,16 @@ namespace Voxel {
 #ifdef _DEBUG
 		size_t MemoryConsumption() const;
 #endif
+
+
+	private:
+		// Collection of all constant parameters for SVON::Set
+		struct SetParam {
+			Math::IVec4 position;
+			SparseVoxelOctree* parent;
+			T type;
+		};
+
 	protected:
 		T m_defaultData;
 		Listener* m_listener;
@@ -99,7 +109,7 @@ namespace Voxel {
 			///	\param [in] _type The new type.
 			/// \param [in] _model The model for all update steps if voxels are
 			///		overwritten.
-			void Set(int _currentSize, const Math::IVec3& _position, int _size, T _type, SparseVoxelOctree* _parent);
+			void Set(int _currentSize, const SetParam& _param);
 
 			/// \brief Set all children to _defaultData to do an correct update and than
 			///		delete the memory block.
@@ -124,7 +134,7 @@ namespace Voxel {
 
 			/// \brief Computes the child array index [0,7] assuming that the
 			///		target position is within the current voxels children
-			static int ComputeChildIndex(const Math::IVec3& _targetPosition, int _targetSize, int _childSize);
+			static int ComputeChildIndex(const Math::IVec4& _targetPosition, int _childSize);
 
 			/// \brief Temporarily method to benchmark the tree
 #ifdef _DEBUG
@@ -139,18 +149,17 @@ namespace Voxel {
 
 		/// \brief Use the pool allocator and call the constructor 8 times
 		SVON* NewSVON();
-		//void DeleteSVON(SVON* _node)	{ m_SVONAllocator.Free(_node); }
 
 		/// \brief A sparse voxel octree root.
 		///	\details Each pointer points to a set of 8 children. So on root level there
-		///		are always 8 nodes.
-//		SVON* m_roots;			
+		///		are always 8 nodes.		
 		Math::IVec3 m_rootPosition;	///< Position of the root node in grid space of the node which covers all 8 roots.
 		int m_rootSize;				///< Level of the node which contains the 8 roots where 0 is the highest possible resolution.
 		SVON m_root;				///< The single top level root node
 
 		/// \brief Internal getter which returns a node reference.
 		const SVON* _Get( const Math::IVec3& _position, int _level ) const;
+
 	};
 
 
@@ -222,7 +231,14 @@ namespace Voxel {
 		// One of the eight children must contain the target position.
 		// Most things from ComputeChildIndex are already computed
 		// -> use last line inline.
-		m_root.Set(m_rootSize, _position, _level, _type, this);
+		SetParam param;
+		param.position[0] = _position[0];
+		param.position[1] = _position[1];
+		param.position[2] = _position[2];
+		param.position[3] = _level;
+		param.type = _type;
+		param.parent = this;
+		m_root.Set(m_rootSize, param);
 	}
 
 	// ********************************************************************* //
@@ -237,7 +253,10 @@ namespace Voxel {
 		int scale = m_rootSize-_level;
 		if( scale < 0 ) return nullptr;
 		Math::IVec3 position = _position >> scale;
-		if( ((position-m_rootPosition) & Math::IVec3(0xfffffffe)) != Math::IVec3(0) ) return nullptr;
+		//if( ((position-m_rootPosition) & Math::IVec3(0xfffffffe)) != Math::IVec3(0) ) return nullptr;
+		if( ((position[0]-m_rootPosition[0]) & 0xfffffffe) != 0 
+		 || ((position[1]-m_rootPosition[1]) & 0xfffffffe) != 0
+		 || ((position[2]-m_rootPosition[2]) & 0xfffffffe) != 0) return nullptr;
 
 		// Search in the octree (while not on target level or tree ends)
 		const SVON* current = &m_root;
@@ -321,38 +340,40 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	template<typename T, typename Listener>
-	void SparseVoxelOctree<T,Listener>::SVON::Set(int _currentSize, const Math::IVec3& _position, int _size, T _type, SparseVoxelOctree* _parent)
+	void SparseVoxelOctree<T,Listener>::SVON::Set(int _currentSize, const SetParam& _param)
 	{
-		if( _currentSize == _size )
+		if( _currentSize == _param.position[3] )
 		{
 			// This is the target voxel. Delete everything below.
-			if( children ) RemoveSubTree(IVec4(_position, _size), _parent, true);
+			if( children ) RemoveSubTree(_param.position, _param.parent, true);
 			// Physical update of this voxel
-			_parent->m_listener->Update(IVec4(_position, _size), voxel, _type);
-			voxel = _type;
+			_param.parent->m_listener->Update(_param.position, voxel, _param.type);
+			voxel = _param.type;
 		} else {
 			// Go into recursion
-			int childIndex = ComputeChildIndex(_position, _size, _currentSize-1);
+			int childIndex = ComputeChildIndex(_param.position, _currentSize-1);
 			if( !children )
 			{ // Create new children
-				children = _parent->NewSVON();
+				children = _param.parent->NewSVON();
 				// Set all children to the same type as this node.
 				// It was uniform before!
 				for(int i=0; i<8; ++i) children[i].voxel = voxel;
 			}
-			children[childIndex].Set(_currentSize-1, _position, _size, _type, _parent);
+			children[childIndex].Set(_currentSize-1, _param);
 			// It could be that the children were deleted or are of the same
 			// type now.
 			if( IsUniform() )
 			{
 				// To do the model update the current position must be computed.
-				int scale = _currentSize-_size;
-				Math::IVec3 position = _position>>scale;
+				int scale = _currentSize-_param.position[3];
+				int x = _param.position[0] >> scale;
+				int y = _param.position[1] >> scale;
+				int z = _param.position[2] >> scale;
 				// A uniform node does not need its children.
-				RemoveSubTree(IVec4(position, _currentSize), _parent, false);
+				RemoveSubTree(IVec4(x, y, z, _currentSize), _param.parent, false);
 				//_parent->m_listener->Update(position, _currentSize, type, _type);
-				voxel = _type;
-			} else if(_type != voxel && IsSolid(_type)) {
+				voxel = _param.type;
+			} else if(_param.type != voxel && IsSolid(_param.type)) {
 				// Update the current type based one the (maybe) changed child types.
 				// If the majority was already of the new type nothing can happen.
 				voxel = MajorVoxelType();
@@ -438,13 +459,15 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	template<typename T, typename Listener>
-	int SparseVoxelOctree<T,Listener>::SVON::ComputeChildIndex(const Math::IVec3& _targetPosition, int _targetSize, int _childSize)
+	int SparseVoxelOctree<T,Listener>::SVON::ComputeChildIndex(const Math::IVec4& _targetPosition, int _childSize)
 	{
 		// Find out the correct position
-		int scale = _childSize-_targetSize;
-		Math::IVec3 position = _targetPosition>>scale;
+		int scale = _childSize-_targetPosition[3];
+		int x = (_targetPosition[0] >> scale) & 1;
+		int y = (_targetPosition[1] >> scale) & 1;
+		int z = (_targetPosition[2] >> scale) & 1;
 		// Now compute the index from the position
-		return (position[0] & 1) + (position[1] & 1) * 2 + (position[2] & 1) * 4;
+		return x + y * 2 + z * 4;
 	}
 
 
