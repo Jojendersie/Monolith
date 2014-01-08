@@ -37,15 +37,18 @@ namespace Voxel {
 		Graphic::UniformBuffer& objectConstants;
 		const Math::Mat4x4& modelTransform;
 		const Math::Mat4x4& modelViewProjection;
+		ChunkBuilder* builder;
 
 		DrawParam(const Input::Camera& _camera, Model* _model,
 				Graphic::UniformBuffer& _objectConstants,
 				const Math::Mat4x4& _modelViewProjection,
-				const Math::Mat4x4& _modelTransform) :
+				const Math::Mat4x4& _modelTransform,
+				ChunkBuilder* _builder) :
 			camera(_camera), model(_model),
 			objectConstants(_objectConstants),
 			modelTransform(_modelTransform),
-			modelViewProjection(_modelViewProjection)
+			modelViewProjection(_modelViewProjection),
+			builder(_builder)
 		{}
 	};
 
@@ -82,6 +85,7 @@ namespace Voxel {
 				chunk = _param->model->m_chunks.insert(
 					std::make_pair(position, std::move(Chunk(_param->model, _position, levels)))
 					).first;
+				_param->builder->RecomputeVertexBuffer(chunk->second);
 			}
 			// There are empty inner chunks
 			if( chunk->second.NumVoxels() > 0 )
@@ -103,8 +107,10 @@ namespace Voxel {
 		Math::Mat4x4 modelViewProjection = modelTransform * _camera.GetViewProjection();
 
 		// Iterate through the octree and render chunks depending on the lod.
-		DrawParam param(_camera, this, _objectConstants, modelViewProjection, modelTransform);
+		ChunkBuilder* builder = new ChunkBuilder(); // TEMP -> in job verschieben
+		DrawParam param(_camera, this, _objectConstants, modelViewProjection, modelTransform, builder);
 		m_voxelTree.Traverse( DecideToDraw, &param );
+		delete builder;
 	}
 
 	// ********************************************************************* //

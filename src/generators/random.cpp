@@ -180,8 +180,8 @@ namespace Generators {
 		float s111 = (float)At(ix+1, iy+1, iz+1);
 
 		return Math::lerp(
-			Math::lerp(Math::lerp( s000, s100, fx ), Math::lerp( s010, s110, fx ), fy),
-			Math::lerp(Math::lerp( s001, s101, fx ), Math::lerp( s011, s111, fx ), fy), fz );
+			Math::bilerp(s000, s100, s010, s110, fx , fy),
+			Math::bilerp(s001, s101, s011, s111, fx , fy), fz );
 	}
 
 	// ********************************************************************* //

@@ -22,15 +22,18 @@ namespace Voxel {
 		m_model( _model ),
 		m_scale( float(1<<(_nodePostion[3]-_depth)) ),
 		m_depth( _depth ),
-		m_voxels( "u", Graphic::VertexBuffer::PrimitiveType::POINT ),
+		m_root( _nodePostion ),
+		m_voxels( "u", nullptr, 0, Graphic::VertexBuffer::PrimitiveType::POINT ),
 		m_position( float(_nodePostion[0]<<_depth), float(_nodePostion[1]<<_depth), float(_nodePostion[2]<<_depth) )
 	{
-		ComputeVertexBuffer(Math::IVec3((const int*)_nodePostion), _nodePostion[3] );
+		//ComputeVertexBuffer(Math::IVec3((const int*)_nodePostion), _nodePostion[3] );
 	}
 
 	Chunk::Chunk( Chunk&& _chunk ) :
 		m_model( _chunk.m_model ),
 		m_scale( _chunk.m_scale ),
+		m_depth( _chunk.m_depth ),
+		m_root( _chunk.m_root ),
 		m_voxels( std::move(_chunk.m_voxels) ),
 		m_position( _chunk.m_position )
 	{
@@ -85,7 +88,6 @@ namespace Voxel {
 					{
 						VoxelVertex V;
 						V.SetPosition( pos-1 );
-						V.SetSize( 0 );	// TODO: deprecated
 						V.SetTexture( int(current) );
 						V.SetVisibility(left, right, bottom, top, front, back);
 						m_voxels.Add( V );
@@ -117,4 +119,54 @@ namespace Voxel {
 
 		Graphic::Device::DrawVertices( m_voxels, 0, m_voxels.GetNumVertices() );
 	}
+
+
+
+	// ********************************************************************* //
+	void ChunkBuilder::RecomputeVertexBuffer( Chunk& _chunk )
+	{
+		// Sample a (2^d+2)^3 volume (neighborhood for visibility). This
+		// initial sampling avoids the expensive resampling for many voxels.
+		// (Inner voxels would be sampled 7 times!)
+		int edgeLength = (1 << _chunk.m_depth) + 2;
+		int level = Math::max( 0, _chunk.m_root[3] - _chunk.m_depth );
+		IVec3 pmin = (IVec3(_chunk.m_root) << (_chunk.m_root[3] - level)) - 1;//IVec3(1);
+		IVec3 pmax = pmin + IVec3(edgeLength);
+		IVec3 pos;
+		for( pos[2]=pmin[2]; pos[2]<pmax[2]; ++pos[2] )
+			for( pos[1]=pmin[1]; pos[1]<pmax[1]; ++pos[1] )
+				for( pos[0]=pmin[0]; pos[0]<pmax[0]; ++pos[0] )
+				{
+					PerVoxelInfo& voxelInfo = m_volumeBuffer[pos[0]-pmin[0] + edgeLength * (pos[1]-pmin[1] + edgeLength * (pos[2]-pmin[2]))];
+					voxelInfo.solid = _chunk.m_model->IsEachChild(pos, level, IsSolid, voxelInfo.type);
+				}
+
+		// Iterate over volume and add any surface voxel to vertex buffer
+		int numVoxels = 0;
+		for( pos[2]=1; pos[2]<edgeLength-1; ++pos[2] )
+			for( pos[1]=1; pos[1]<edgeLength-1; ++pos[1] )
+				for( pos[0]=1; pos[0]<edgeLength-1; ++pos[0] )
+				{
+					VoxelType current = m_volumeBuffer[pos[0] + edgeLength * (pos[1] + edgeLength * pos[2])].type;
+					int left = !m_volumeBuffer[pos[0] - 1 + edgeLength * (pos[1] + edgeLength * pos[2])].solid;
+					int right = !m_volumeBuffer[pos[0] + 1 + edgeLength * (pos[1] + edgeLength * pos[2])].solid;
+					int bottom = !m_volumeBuffer[pos[0] + edgeLength * (pos[1] - 1 + edgeLength * pos[2])].solid;
+					int top = !m_volumeBuffer[pos[0] + edgeLength * (pos[1] + 1 + edgeLength * pos[2])].solid;
+					int front = !m_volumeBuffer[pos[0] + edgeLength * (pos[1] + edgeLength * (pos[2] - 1))].solid;
+					int back = !m_volumeBuffer[pos[0] + edgeLength * (pos[1] + edgeLength * (pos[2] + 1))].solid;
+					// Check if at least one neighbor is NONE and this is not
+					// none -> surface
+					if( IsSolid(current) &&
+						(left || right || bottom || top || front || back) )
+					{
+						m_vertexBuffer[numVoxels].SetPosition( pos-1 );
+						m_vertexBuffer[numVoxels].SetTexture( int(current) );
+						m_vertexBuffer[numVoxels].SetVisibility(left, right, bottom, top, front, back);
+						++numVoxels;
+					}
+				}
+
+		_chunk.m_voxels.Commit(m_vertexBuffer, numVoxels * sizeof(VoxelVertex));
+	}
+
 };

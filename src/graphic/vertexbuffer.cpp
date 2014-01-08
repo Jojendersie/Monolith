@@ -111,9 +111,6 @@ void VertexBuffer::CreateVAO(const char* _vertexDeclaration)
 			++i;
 		}
 
-	// Allocate on GPU memory
-	glBufferData(GL_ARRAY_BUFFER, m_maxNumVertices * m_vertexSize, 0, GL_DYNAMIC_DRAW);// TODO: choose the right draw type
-
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
@@ -130,14 +127,12 @@ VertexBuffer::VertexBuffer( const char* _vertexDeclaration, void* _data, int _si
 	m_primitiveType(_type)
 {
 	CreateVAO(_vertexDeclaration);
+	LogGlError("VAO creation got wrong.");
 
 	// Upload the data
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glBufferData(GL_ARRAY_BUFFER, _size, _data, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	// Derive the statistic data
-	m_cursor = m_maxNumVertices = _size / m_vertexSize;
+	if(_data)
+		Commit(_data, _size);
+	else m_maxNumVertices = m_cursor = 0;
 }
 
 // ************************************************************************* //
@@ -247,6 +242,21 @@ void VertexBuffer::Commit()
 		m_lastDirtyIndex = -1;
 		glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	}
+}
+
+void VertexBuffer::Commit(void* _data, int _size)
+{
+	assert(IsStatic());
+	assert(_data);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+	glBufferData(GL_ARRAY_BUFFER, _size, _data, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	LogGlError("Could not upload vertex data");
+
+	// Derive the statistic data
+	m_cursor = m_maxNumVertices = _size / m_vertexSize;
 }
 
 // ******************************************************************************** //

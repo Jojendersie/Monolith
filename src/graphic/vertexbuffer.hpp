@@ -78,6 +78,8 @@ namespace Graphic {
 		///					4 - 4 float components (BIND_VEC+x)
 		///					c - 4 byte color (BIND_COLOR+y)
 		///					u - 1 uint32 (BIND_UINT+z)
+		///	\param [in] _data The data to upload to GPU. It is possible to give
+		///		a nullptr and upload data later by Commit(data, size).
 		/// \param [in] _type What form of geometry will be stored? The standard
 		///		case is indexed where the according index buffer will determine
 		///		the primitive type. This is required for direct vertex-draw calls
@@ -117,6 +119,10 @@ namespace Graphic {
 		/// \brief Upload changed part of a buffer to GPU.
 		/// \details If the buffer was created static this is not necessary.
 		void Commit();
+
+		/// \brief Upload static vertex buffer direct.
+		/// \details In case of dynamic buffers the operation is invalid.
+		void Commit(void* _data, int _size);
 
 		/// \brief Moving the last vertex to the specified index and overwrites the
 		///		one there. Then removing the last vertex.

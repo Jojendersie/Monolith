@@ -2,6 +2,7 @@
 
 #include "../math/vector.hpp"
 #include "../algorithm/smallsort.hpp"
+#include <hybridarray.hpp>
 #include <poolallocator.hpp>
 
 namespace Voxel {
@@ -80,14 +81,6 @@ namespace Voxel {
 #endif
 
 
-	private:
-		// Collection of all constant parameters for SVON::Set
-		struct SetParam {
-			Math::IVec4 position;
-			SparseVoxelOctree* parent;
-			T type;
-		};
-
 	protected:
 		T m_defaultData;
 		Listener* m_listener;
@@ -104,12 +97,13 @@ namespace Voxel {
 			/// \param [in] _currentSize The voxel size in the current recursion
 			///		level. This can be used to compute the full actual position.
 			///	\param [in] _position Position where to set the new voxel.
-			///	\param [in] _size Logarithmic size of the voxel to be set. 0 is
+			///		_position[3] is the logarithmic size of the voxel to be set. 0 is
 			///		the layer with the highest resolution.
 			///	\param [in] _type The new type.
 			/// \param [in] _model The model for all update steps if voxels are
 			///		overwritten.
-			void Set(int _currentSize, const SetParam& _param);
+			static void Set(SVON* _this, int _currentSize, const Math::IVec4& _position,
+				T _type, SparseVoxelOctree* _model);
 
 			/// \brief Set all children to _defaultData to do an correct update and than
 			///		delete the memory block.
@@ -229,16 +223,7 @@ namespace Voxel {
 		}
 
 		// One of the eight children must contain the target position.
-		// Most things from ComputeChildIndex are already computed
-		// -> use last line inline.
-		SetParam param;
-		param.position[0] = _position[0];
-		param.position[1] = _position[1];
-		param.position[2] = _position[2];
-		param.position[3] = _level;
-		param.type = _type;
-		param.parent = this;
-		m_root.Set(m_rootSize, param);
+		SVON::Set(&m_root, m_rootSize, IVec4(_position, _level), _type, this);
 	}
 
 	// ********************************************************************* //
@@ -340,45 +325,73 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	template<typename T, typename Listener>
-	void SparseVoxelOctree<T,Listener>::SVON::Set(int _currentSize, const SetParam& _param)
+	void SparseVoxelOctree<T,Listener>::SVON::Set(SVON* _this, int _currentSize,
+		const Math::IVec4& _position,
+		T _type, SparseVoxelOctree* _model)
 	{
-		if( _currentSize == _param.position[3] )
+		// A stack with 'this' pointers for recursion. The recursion is unrolled
+		// automatically because this allows 'longjump' optimizations. Not
+		// everything must be updated after recursion and unrolling the stack
+		// stops as early as possible.
+		Jo::HybridArray<SVON*, 16> callStack;
+		SVON* currentElement = _this;
+
+		// Go downwards
+		while( _currentSize > _position[3] )
 		{
-			// This is the target voxel. Delete everything below.
-			if( children ) RemoveSubTree(_param.position, _param.parent, true);
-			// Physical update of this voxel
-			_param.parent->m_listener->Update(_param.position, voxel, _param.type);
-			voxel = _param.type;
-		} else {
-			// Go into recursion
-			int childIndex = ComputeChildIndex(_param.position, _currentSize-1);
-			if( !children )
+			int childIndex = ComputeChildIndex(_position, _currentSize-1);
+			if( !currentElement->children )
 			{ // Create new children
-				children = _param.parent->NewSVON();
+				currentElement->children = _model->NewSVON();
 				// Set all children to the same type as this node.
 				// It was uniform before!
-				for(int i=0; i<8; ++i) children[i].voxel = voxel;
+				for(int i=0; i<8; ++i) currentElement->children[i].voxel = currentElement->voxel;
 			}
-			children[childIndex].Set(_currentSize-1, _param);
+			--_currentSize;
+			callStack.PushBack(currentElement);
+			currentElement = &currentElement->children[childIndex];
+		}
+		assert( _currentSize == _position[3] );
+
+		// This is the target voxel. Delete everything below.
+		if( currentElement->children ) currentElement->RemoveSubTree(_position, _model, true);
+		// Physical update of this voxel
+		_model->m_listener->Update(_position, currentElement->voxel, _type);
+		currentElement->voxel = _type;
+
+		// Unroll stack as long as the voxel type in hierarchy changes.
+		bool typeChanged = true;
+		while( typeChanged && callStack.Size()>0 )
+		{
+			currentElement = callStack.PopBack();
+			// Was the same before and number of children with that type only
+			// increased.
+			typeChanged = currentElement->voxel != _type;
+
 			// It could be that the children were deleted or are of the same
 			// type now.
-			if( IsUniform() )
+			if( currentElement->IsUniform() )
 			{
 				// To do the model update the current position must be computed.
-				int scale = _currentSize-_param.position[3];
-				int x = _param.position[0] >> scale;
-				int y = _param.position[1] >> scale;
-				int z = _param.position[2] >> scale;
+				int scale = _currentSize-_position[3];
+				int x = _position[0] >> scale;
+				int y = _position[1] >> scale;
+				int z = _position[2] >> scale;
 				// A uniform node does not need its children.
-				RemoveSubTree(IVec4(x, y, z, _currentSize), _param.parent, false);
-				//_parent->m_listener->Update(position, _currentSize, type, _type);
-				voxel = _param.type;
-			} else if(_param.type != voxel && IsSolid(_param.type)) {
-				// Update the current type based one the (maybe) changed child types.
-				// If the majority was already of the new type nothing can happen.
-				voxel = MajorVoxelType();
+				currentElement->RemoveSubTree(IVec4(x, y, z, _currentSize), _model, false);
+				//_model->m_listener->Update(position, _currentSize, type, _type);
+				assert( currentElement->voxel == _type );
+			} else if(typeChanged) {
+				// Update the current type based one the changed child types.
+				// If the majority was already of the new type nothing can happen
+				// (So typeChanged is necessary that something might happen).
+				T oldType = currentElement->voxel;
+				currentElement->voxel = currentElement->MajorVoxelType();
+				// Still a change?
+				typeChanged = currentElement->voxel != oldType;
 			}
 		}
+
 	}
 
 

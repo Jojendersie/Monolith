@@ -70,6 +70,10 @@ namespace Math {
 
 		/// \brief Swap rows and columns
 		Derived Transpose() const;
+
+		/// \brief Column vector access.
+		Vector<n, float>& Column(int _index)				{ return m_data[_index*n]; }
+		const Vector<n, float>& Column(int _index) const	{ return m_data[_index*n]; }
 	protected:
 		float m_data[n*n];
 	};

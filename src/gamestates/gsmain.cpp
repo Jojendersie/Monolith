@@ -19,7 +19,7 @@ namespace RenderStat {
 // ************************************************************************* //
 GSMain::GSMain(Monolith* _parent) : IGameState(_parent)
 {
-	m_astTest = new Generators::Asteroid( 280, 280, 280, 2 );
+	m_astTest = new Generators::Asteroid( 256, 256, 256, 2 );
 	//m_astTest->ComputeVertexBuffer();
 	//m_astTest->SetPosition( Vec3( 0.0f, 0.0f, 0.0f ) );
 

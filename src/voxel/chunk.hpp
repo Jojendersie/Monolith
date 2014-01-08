@@ -18,7 +18,7 @@ namespace Voxel {
 		///		0-5: Draw a side (1) or not (0). The order is: Left, Right,
 		///			 Bottom, Top, Front, Back
 		///		6-8: These three bits form a number s in [0,7] which denotes
-		///			 the voxel size 2^s.
+		///			 the voxel size 2^s. DEPRECATED
 		///		9-13: X coordinate of voxel relative to the grid corner of the
 		///			 respective size-dimension (2^s).
 		///		14-18: Y coordinate of voxel relative to the grid corner of the
@@ -31,7 +31,7 @@ namespace Voxel {
 		VoxelVertex() : flags(0)	{}
 
 		void SetVisibility( int _iL, int _iR, int _iBo, int _iT, int _iF, int _iBa )	{ flags = (flags & 0xffffffa0) | _iL | _iR<<1 | _iBo<<2 | _iT<<3 | _iF<<4 | _iBa<<5; }
-		void SetSize( int _level )							{ assert(0<=_level && _level<=5); flags = (flags & 0xfffffe3f) | (_level<<6); }
+// DEPRECATED		void SetSize( int _level )							{ assert(0<=_level && _level<=5); flags = (flags & 0xfffffe3f) | (_level<<6); }
 		void SetPosition( const Math::IVec3& _position )	{ flags = (flags & 0xff0001ff) | (_position[0] << 9) | (_position[1] << 14) | (_position[2] << 19); }
 		void SetTexture( int _iTextureIndex )				{ flags = (flags & 0x00ffffff) | (_iTextureIndex << 24); }
 //		void SetHasChildren( bool _bHasChildren )			{ flags = (flags & 0x7fffffff) | (_bHasChildren?0x80000000:0); }
@@ -83,10 +83,13 @@ namespace Voxel {
 
 		float m_scale;					///< Rendering parameter derived from Octree node size
 		int m_depth;					///< The depth in the octree respective to this chunk's root. Maximum is 5.
+		Math::IVec4 m_root;				///< Position of the root node from this chunk in the model's octree.
 
 		Graphic::VertexBuffer m_voxels;	///< One VoxelVertex value per surface voxel.
 
 		Math::Vec3 m_position;			///< Relative position of the chunk respective to the model.
+
+		friend class ChunkBuilder;
 
 		/// \brief Compute the initial visible voxel set vertex buffer.
 		/// \details TODO: This can be done parallel to the render thread because it
@@ -99,8 +102,27 @@ namespace Voxel {
 		const Chunk& operator = (const Chunk&);
 	};
 
+
+	/// \brief A class to recompute the vertex buffers of chunks.
+	/// \details This class contains buffers which are reused in each chunk
+	///		rebuild such that less allocations and memory are required.
+	class ChunkBuilder
+	{
+	public:
+		void RecomputeVertexBuffer( Chunk& _chunk );
+	private:
+		/// \brief Information from the target volume out of the octree
+		struct PerVoxelInfo {
+			VoxelType type;	///< type of the target voxel -> texture.
+			bool solid;		///< solidity is required to compute neighbor visibility
+		};
+
+		PerVoxelInfo m_volumeBuffer[34*34*34];
+		VoxelVertex m_vertexBuffer[32*32*32];
+	};
+
 	/// \brief A general loop to make voxel iteration easier. The voxel
-	///		position is defined through x,y,z insde the loop.
+	///		position is defined through x,y,z inside the loop.
 #	define FOREACH_VOXEL(MaxX, MaxY, MaxZ) \
 	for( int z=0; z<(MaxZ); ++z ) \
 		for( int y=0; y<(MaxY); ++y ) \
