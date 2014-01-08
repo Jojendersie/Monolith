@@ -15,7 +15,7 @@ namespace Generators {
 			// Build ellipsoid base form
 			Vec3 position(float(x)/_sizeX, float(y)/_sizeY, float(z)/_sizeZ);
 			// (x-sx/2)/sx
-			float d = sqr( position.x - 0.5f ) + sqr( position.y - 0.5f ) + sqr( position.z - 0.5f ) - 0.25f;
+			float d = lengthSq(position - 0.5f) - 0.25f;
 			// Add noise
 			for( int i=0; i<3; ++i )
 				d += 0.15f * Noise.At( position * (4.0f * (1<<i)) ) / (1<<i);

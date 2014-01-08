@@ -86,15 +86,6 @@
     <ClCompile Include="src\math\matrix.cpp">
       <Filter>Source Files\math</Filter>
     </ClCompile>
-    <ClCompile Include="src\math\vector2.cpp">
-      <Filter>Source Files\math</Filter>
-    </ClCompile>
-    <ClCompile Include="src\math\vector3.cpp">
-      <Filter>Source Files\math</Filter>
-    </ClCompile>
-    <ClCompile Include="src\math\vector4.cpp">
-      <Filter>Source Files\math</Filter>
-    </ClCompile>
     <ClCompile Include="src\generators\asteroid.cpp">
       <Filter>Source Files\generators</Filter>
     </ClCompile>
@@ -124,6 +115,9 @@
     </ClCompile>
     <ClCompile Include="src\utilities\color.cpp">
       <Filter>Source Files\utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\quaternion.cpp">
+      <Filter>Source Files\math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -175,15 +169,6 @@
     <ClInclude Include="src\math\plane.hpp">
       <Filter>Source Files\math</Filter>
     </ClInclude>
-    <ClInclude Include="src\math\vector2.hpp">
-      <Filter>Source Files\math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\math\vector3.hpp">
-      <Filter>Source Files\math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\math\vector4.hpp">
-      <Filter>Source Files\math</Filter>
-    </ClInclude>
     <ClInclude Include="src\math\math.hpp">
       <Filter>Source Files\math</Filter>
     </ClInclude>
@@ -230,6 +215,9 @@
       <Filter>Source Files\voxel</Filter>
     </ClInclude>
     <ClInclude Include="src\math\vector.hpp">
+      <Filter>Source Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\quaternion.hpp">
       <Filter>Source Files\math</Filter>
     </ClInclude>
   </ItemGroup>

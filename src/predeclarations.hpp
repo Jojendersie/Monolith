@@ -41,11 +41,12 @@ namespace Math {
 	class Plane;
 	struct Sphere;
 	template<int n, class Data>	class Vector;
+	typedef Vector<2,int> IVec2;
 	typedef Vector<3,int> IVec3;
 	typedef Vector<4,int> IVec4;
-	class Vec2;
-	class Vec3;
-	class Vec4;
+	typedef Vector<2,float> Vec2;
+	typedef Vector<3,float> Vec3;
+	typedef Vector<4,float> Vec4;
 } // namespace Math
 
 namespace Utils {

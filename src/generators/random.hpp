@@ -1,16 +1,12 @@
 #pragma once
 
 #include <cstdint>
-
-namespace Math {
-	class Vec2;
-	class Vec3;
-};
+#include "../predeclarations.hpp"
 
 namespace Generators {
 
 	/// \brief A pseudo random number generator.
-	/// \details The random number generator objects are idipendent of each
+	/// \details The random number generator objects are independent of each
 	///		other. This allows deterministic sequences even in a multi-threaded
 	///		application.
 	///

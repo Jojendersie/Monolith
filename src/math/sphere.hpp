@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vector3.hpp"
+#include "vector.hpp"
 #include <list>
 
 namespace Math {
@@ -34,7 +34,7 @@ namespace Math {
 		/// \details A point on the boundary is counted as inside to.
 		bool Encloses( const Vec3& _p )
 		{
-			return (m_center - _p).LengthSq() <= m_radiusSqr;
+			return lengthSq(m_center - _p) <= m_radiusSqr;
 		}
 	};
 

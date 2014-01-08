@@ -27,6 +27,9 @@ namespace Input {
 		m_viewProjection = m_view * m_projection;
 		m_inverseView = m_view.Inverse();
 		m_inverseViewProjection = m_viewProjection.Inverse();
+
+		// Compute frustum planes from viewProjection
+		m_frustum[0] = m_viewProjection.Column(3) + m_viewProjection.Column(0);
 	}
 
 
@@ -52,8 +55,8 @@ namespace Input {
 		// Scale _dy and _dx depending on object distance
 		if( m_attachedTo )
 		{
-			_dx *= m_referencePos.z * m_fov;
-			_dy *= m_referencePos.z * m_fov;
+			_dx *= m_referencePos[2] * m_fov;
+			_dy *= m_referencePos[2] * m_fov;
 		}
 		// Compute actual xy directions in camera space
 		m_position += m_rotation.YAxis() * _dy - m_rotation.XAxis() * _dx;
@@ -67,13 +70,13 @@ namespace Input {
 		if( m_attachedTo )
 		{
 			// Increasing scroll speed with increasing distance.
-			_dz = m_referencePos.z * _dz * 0.01f;
+			_dz = m_referencePos[2] * _dz * 0.01f;
 			// Avoid scrolling into the object
-			_dz = Math::max( _dz, m_attachedTo->GetRadius() * 0.75f - m_referencePos.z );
+			_dz = Math::max( _dz, m_attachedTo->GetRadius() * 0.75f - m_referencePos[2] );
 		} // Linear movement otherwise
 
 		m_position -= m_rotation.ZAxis() * _dz;
-		m_referencePos.z += _dz;
+		m_referencePos[2] += _dz;
 	}
 
 	// ********************************************************************* //
@@ -81,10 +84,10 @@ namespace Input {
 	{
 		m_attachedTo = &_model;
 		m_hardAttached = true;
-		m_referencePos.x = 0.0f;
-		m_referencePos.y = 0.0f;
+		m_referencePos[0] = 0.0f;
+		m_referencePos[1] = 0.0f;
 		// Compute required distance to the model
-		m_referencePos.z = _model.GetRadius() / m_fov;
+		m_referencePos[2] = _model.GetRadius() / m_fov;
 
 		m_mutex.lock();
 		NormalizeReference();

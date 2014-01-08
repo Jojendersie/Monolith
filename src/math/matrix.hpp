@@ -1,10 +1,9 @@
 #pragma once
 
-#include "math.hpp"
+#include "../predeclarations.hpp"
+#include "vector.hpp"
 
 namespace Math {
-
-	class Plane;
 
 	class NoExtraMatrixFunctions;
 
@@ -72,8 +71,8 @@ namespace Math {
 		Derived Transpose() const;
 
 		/// \brief Column vector access.
-		Vector<n, float>& Column(int _index)				{ return m_data[_index*n]; }
-		const Vector<n, float>& Column(int _index) const	{ return m_data[_index*n]; }
+		Vector<n, float>& Column(int _index)				{ return *(Vector<n, float>*)&m_data[_index*n]; }
+		const Vector<n, float>& Column(int _index) const	{ return *(Vector<n, float>*)&m_data[_index*n]; }
 	protected:
 		float m_data[n*n];
 	};
@@ -328,7 +327,7 @@ namespace Math {
 		static Mat4x4 RotationY(const float _a);						///< Calculate rotation around the y axis
 		static Mat4x4 RotationZ(const float _a);						///< Calculate rotation around the z axis
 		static Mat4x4 Rotation(float _a, float _b, float _c);			///< Rotate around all three axis. This is the same as RotationZ(_c) * RotationX(_b) * RotationY(_a)
-		static Mat4x4 Rotation(const Vec3& _angles) {return Rotation(_angles.x, _angles.y, _angles.z);}	///< Rotate around all three axis. This is the same as RotationZ(z) * RotationX(x) * RotationY(y)
+		static Mat4x4 Rotation(const Vec3& _angles) {return Rotation(_angles[0], _angles[1], _angles[2]);}	///< Rotate around all three axis. This is the same as RotationZ(z) * RotationX(x) * RotationY(y)
 		static Mat4x4 Rotation(const Vec3& _axis, float _angle);		///< Rotate around an arbitrary axis
 		static Mat4x4 Rotation(const Quaternion& _rotation);			///< Matrix from quaternion
 
@@ -413,7 +412,7 @@ namespace Math {
 		static Mat3x3 RotationY(const float _a);						///< Calculate rotation around the y axis
 		static Mat3x3 RotationZ(const float _a);						///< Calculate rotation around the z axis
 		static Mat3x3 Rotation(float _a, float _b, float _c);			///< Rotate around all three axis. This is the same as RotationZ(_c) * RotationX(_b) * RotationY(_a)
-		static Mat3x3 Rotation(const Vec3& _angles) {return Rotation(_angles.x, _angles.y, _angles.z);}	///< Rotate around all three axis. This is the same as RotationZ(z) * RotationX(x) * RotationY(y)
+		static Mat3x3 Rotation(const Vec3& _angles) {return Rotation(_angles[0], _angles[1], _angles[2]);}	///< Rotate around all three axis. This is the same as RotationZ(z) * RotationX(x) * RotationY(y)
 		static Mat3x3 Rotation(const Vec3& _axis, float _angle);		///< Rotate around an arbitrary axis
 		static Mat3x3 Rotation(const Quaternion& _rotation);			///< Matrix from quaternion
 

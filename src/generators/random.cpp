@@ -151,8 +151,8 @@ namespace Generators {
 	// ********************************************************************* //
 	float Random::At( const Math::Vec2& _position )
 	{
-		int ix = Math::floor(_position.x);		float fx = Math::smooth(_position.x - ix);
-		int iy = Math::floor(_position.y);		float fy = Math::smooth(_position.y - iy);
+		int ix = Math::floor(_position[0]);		float fx = Math::smooth(_position[0] - ix);
+		int iy = Math::floor(_position[1]);		float fy = Math::smooth(_position[1] - iy);
 
 		float s00 = (float)At(ix,   iy,   0);
 		float s10 = (float)At(ix+1, iy,   0);
@@ -166,9 +166,9 @@ namespace Generators {
 	// ********************************************************************* //
 	float Random::At( const Math::Vec3& _position )
 	{
-		int ix = Math::floor(_position.x);		float fx = Math::smooth(_position.x - ix);
-		int iy = Math::floor(_position.y);		float fy = Math::smooth(_position.y - iy);
-		int iz = Math::floor(_position.z);		float fz = Math::smooth(_position.z - iz);
+		int ix = Math::floor(_position[0]);		float fx = Math::smooth(_position[0] - ix);
+		int iy = Math::floor(_position[1]);		float fy = Math::smooth(_position[1] - iy);
+		int iz = Math::floor(_position[2]);		float fz = Math::smooth(_position[2] - iz);
 
 		float s000 = (float)At(ix,   iy,   iz  );
 		float s100 = (float)At(ix+1, iy,   iz  );
@@ -206,12 +206,12 @@ namespace Generators {
 	// ********************************************************************* //
 	float Random::AtQ( const Math::Vec2& _position, int _iz )
 	{
-		int iy = Math::floor(_position.y);	float fy = _position.y - iy;
+		int iy = Math::floor(_position[1]);	float fy = _position[1] - iy;
 
-		float s0 = AtQ(_position.x, iy,   _iz);
-		float s1 = AtQ(_position.x, iy+1, _iz);
-		float s2 = AtQ(_position.x, iy+2, _iz);
-		float s3 = AtQ(_position.x, iy+3, _iz);
+		float s0 = AtQ(_position[0], iy,   _iz);
+		float s1 = AtQ(_position[0], iy+1, _iz);
+		float s2 = AtQ(_position[0], iy+2, _iz);
+		float s3 = AtQ(_position[0], iy+3, _iz);
 
 		// the 1/2 is moved to the very out side
 		float h0 = fy*((2-fy)*fy-1);
@@ -226,9 +226,10 @@ namespace Generators {
 	// ********************************************************************* //
 	float Random::AtQ( const Math::Vec3& _position )
 	{
-		int iz = Math::floor(_position.z);		float fz = Math::smooth(_position.z - iz);
+		int iz = Math::floor(_position[2]);		float fz = Math::smooth(_position[2] - iz);
 
-		Math::Vec2 position(_position.x, _position.y);
+		// Prune vector
+		Math::Vec2 position(_position);
 		float s0 = AtQ(position, iz);
 		float s1 = AtQ(position, iz+1);
 		float s2 = AtQ(position, iz+2);

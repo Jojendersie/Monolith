@@ -1,6 +1,6 @@
 #pragma once
 
-#include "math.hpp"
+#include "mathbase.hpp"
 
 namespace Math {
 	
@@ -39,7 +39,7 @@ namespace Math {
 		/// \brief Read access to elements
 		Data operator [](int _pos) const	{ return m_data[_pos]; }
 
-		// assignment operators
+		// Assignment operators
 		Vector<n, Data>& operator = (const Vector<n, Data>& _v)			{ for (int i = 0; i < n; i++) m_data[i] = _v.m_data[i]; return *this; }
 		Vector<n, Data>& operator += (const Vector<n, Data>& _v)		{ for (int i = 0; i < n; i++) m_data[i] += _v.m_data[i]; return *this; }
 		Vector<n, Data>& operator -= (const Vector<n, Data>& _v)		{ for (int i = 0; i < n; i++) m_data[i] -= _v.m_data[i]; return *this; }
@@ -51,7 +51,10 @@ namespace Math {
 		Vector<n, Data>& operator *= (const Data _d)					{ for (int i = 0; i < n; i++) m_data[i] /= _d; return *this; }
 		Vector<n, Data>& operator /= (const Data _d)					{ for (int i = 0; i < n; i++) m_data[i] *= _d; return *this; }
 
-		//Arithmetic operators
+		// Unary minus
+		Vector<n, Data> operator - () const								{ Vector<n, Data> result; for (int i = 0; i < n; i++) result[i] = -m_data[i]; return result; }
+
+		// Arithmetic operators
 		template<class Data2>
 		Vector<n, decltype(Data(0)+Data2(0))> operator+ (const Vector<n, Data2>& _v) const		{ Vector<n, decltype(Data(0)+Data2(0))> result; for (int i = 0; i < n; i++) result[i] = m_data[i] + _v[i]; return result; }
 		template<class Data2>
@@ -110,7 +113,7 @@ namespace Math {
 		Data m_data[n];
 	}; // class Vector
 
-	//Arithmetic operators with Vector as RH
+	// Arithmetic operators with Vector as RH
 	template<int n, class Data>
 	Vector<n, Data> operator+ (const Data _d, const Vector<n, Data>& _v) 				{ return Vector<n, Data>(_v) += _d; }
 	template<int n, class Data>
@@ -144,9 +147,9 @@ namespace Math {
 	Vector<3, Data> cross(const Vector<3, Data>& _v1, const Vector<3, Data>& _v2)
 	{
 		Vector<3, Data> result;
-		result.x = _v1.y * _v2.z - _v1.z * _v2.y;
-		result.y = _v1.z * _v2.x - _v1.x * _v2.z;
-		result.z = _v1.x * _v2.y - _v1.y * _v2.x;
+		result[0] = _v1[1] * _v2[2] - _v1[2] * _v2[1];
+		result[1] = _v1[2] * _v2[0] - _v1[0] * _v2[2];
+		result[2] = _v1[0] * _v2[1] - _v1[1] * _v2[0];
 		return result;
 	}
 
@@ -168,6 +171,12 @@ namespace Math {
 	float length(const Vector<n, float>& _v)				{ return sqrt( lengthSq(_v) ); }
 	template<int n>
 	double length(const Vector<n, double>& _v)				{ return sqrt( lengthSq(_v) ); }
+
+	/// \brief Normalization for floating point vectors
+	template<int n>
+	Vector<n, float> normalize(const Vector<n, float>& _v)	{ return _v * (1.0f/length(_v)); }
+	template<int n>
+	Vector<n, double> normalize(const Vector<n, double>& _v){ return _v * (1.0f/length(_v)); }
 
 	/// \brief Component wise maximum.
 	template<int n, class Data>
@@ -201,10 +210,18 @@ namespace Math {
 
 	// ********************************************************************* //
 	// Common vector typedefs
+	// ********************************************************************* //
+	typedef Vector<2,int> IVec2;
 	typedef Vector<3,int> IVec3;
 	typedef Vector<4,int> IVec4;
+	typedef Vector<2,float> Vec2;
+	typedef Vector<3,float> Vec3;
+	typedef Vector<4,float> Vec4;
 
 } // namespace Math
+
+
+
 
 
 namespace std {

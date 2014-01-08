@@ -1,6 +1,7 @@
 #include "mathbase.hpp"
 #include "matrix.hpp"
 #include "plane.hpp"
+#include "quaternion.hpp"
 #include <cstring>
 
 namespace Math {
@@ -20,15 +21,15 @@ namespace Math {
 		return Mat4x4(1.0f, 0.0f, 0.0f, 0.0f,
 					  0.0f, 1.0f, 0.0f, 0.0f,
 					  0.0f, 0.0f, 1.0f, 0.0f,
-					  _vector.x,  _vector.y,  _vector.z,  1.0f);
+					  _vector[0],  _vector[1],  _vector[2],  1.0f);
 	}
 
 	// Setup a translation matrix
 	Mat4x4 Mat4x4::Scaling(const Vec3& _scale)
 	{
-		return Mat4x4(_scale.x,  0.0f, 0.0f, 0.0f,
-					  0.0f, _scale.y,  0.0f, 0.0f,
-					  0.0f, 0.0f, _scale.z,  0.0f,
+		return Mat4x4(_scale[0],  0.0f, 0.0f, 0.0f,
+					  0.0f, _scale[1],  0.0f, 0.0f,
+					  0.0f, 0.0f, _scale[2],  0.0f,
 					  0.0f, 0.0f, 0.0f,	1.0f);
 	}
 
@@ -104,22 +105,22 @@ namespace Math {
 		const double fSin = sin(double(-_angle));
 		const double fCos = cos(double(-_angle));
 		const double fOneMinusCos = 1.0 - fCos;
-		const double AxSin = _axis.x * fSin;
-		const double AySin = _axis.y * fSin;
-		const double AzSin = _axis.z * fSin;
+		const double AxSin = _axis[0] * fSin;
+		const double AySin = _axis[1] * fSin;
+		const double AzSin = _axis[2] * fSin;
 
 		// Create matrix and close up the calculation
-		return Mat4x4(float((_axis.x * _axis.x) * fOneMinusCos + fCos),
-			float((_axis.x * _axis.y) * fOneMinusCos - (AzSin)),
-			float((_axis.x * _axis.z) * fOneMinusCos + (AySin)),
+		return Mat4x4(float((_axis[0] * _axis[0]) * fOneMinusCos + fCos),
+			float((_axis[0] * _axis[1]) * fOneMinusCos - (AzSin)),
+			float((_axis[0] * _axis[2]) * fOneMinusCos + (AySin)),
 			0.0f,
-			float((_axis.y * _axis.x) * fOneMinusCos + (AzSin)),
-			float((_axis.y * _axis.y) * fOneMinusCos + fCos),
-			float((_axis.y * _axis.z) * fOneMinusCos - (AxSin)),
+			float((_axis[1] * _axis[0]) * fOneMinusCos + (AzSin)),
+			float((_axis[1] * _axis[1]) * fOneMinusCos + fCos),
+			float((_axis[1] * _axis[2]) * fOneMinusCos - (AxSin)),
 			0.0f,
-			float((_axis.z * _axis.x) * fOneMinusCos - (AySin)),
-			float((_axis.z * _axis.y) * fOneMinusCos + (AxSin)),
-			float((_axis.z * _axis.z) * fOneMinusCos + fCos),
+			float((_axis[2] * _axis[0]) * fOneMinusCos - (AySin)),
+			float((_axis[2] * _axis[1]) * fOneMinusCos + (AxSin)),
+			float((_axis[2] * _axis[2]) * fOneMinusCos + fCos),
 			0.0f,
 			0.0f,
 			0.0f,
@@ -139,9 +140,9 @@ namespace Math {
 	// Setup an axis matrix - a vector base
 	Mat4x4 Mat4x4::Axis(const Vec3& _xAxis, const Vec3& _yAxis, const Vec3& _zAxis)
 	{
-		return Mat4x4(_xAxis.x, _xAxis.y, _xAxis.z, 0.0f,
-					  _yAxis.x, _yAxis.y, _yAxis.z, 0.0f,
-					  _zAxis.x, _zAxis.y, _zAxis.z, 0.0f,
+		return Mat4x4(_xAxis[0], _xAxis[1], _xAxis[2], 0.0f,
+					  _yAxis[0], _yAxis[1], _yAxis[2], 0.0f,
+					  _zAxis[0], _zAxis[1], _zAxis[2], 0.0f,
 					  0.0f,     0.0f,     0.0f,     1.0f);
 	}
 
@@ -196,9 +197,9 @@ namespace Math {
 
 		// Create rotation matrix simply from local coordinate system and move
 		return Mat4x4::Translation(-_position) *
-			Mat4x4(xAxis.x, yAxis.x, zAxis.x, 0.0f,
-				   xAxis.y, yAxis.y, zAxis.y, 0.0f,
-				   xAxis.z, yAxis.z, zAxis.z, 0.0f,
+			Mat4x4(xAxis[0], yAxis[0], zAxis[0], 0.0f,
+				   xAxis[1], yAxis[1], zAxis[1], 0.0f,
+				   xAxis[2], yAxis[2], zAxis[2], 0.0f,
 				   0.0f,    0.0f,    0.0f,    1.0f);
 	}
 
@@ -207,9 +208,9 @@ namespace Math {
 	{
 		// Easy way - all axis already given
 		return Mat4x4::Translation(-_position) *
-			Mat4x4(_bidir.x, _up.x, _direction.x, 0.0f,
-				   _bidir.y, _up.y, _direction.y, 0.0f,
-				   _bidir.z, _up.z, _direction.z, 0.0f,
+			Mat4x4(_bidir[0], _up[0], _direction[0], 0.0f,
+				   _bidir[1], _up[1], _direction[1], 0.0f,
+				   _bidir[2], _up[2], _direction[2], 0.0f,
 				   0.0f,     0.0f,  0.0f,         1.0f);
 	}
 
@@ -226,39 +227,59 @@ namespace Math {
 	Mat4x4 Mat4x4::Orthonormal(const Vec3& _normal)
 	{
 		// Calculate a second orthogonal vector with scalar product
-		Vec3 v2 = (_normal.x==1.0f)?Vec3(0.0f, 1.0f, 0.0f): normalize((_normal.y != 0.0f)? Vec3(1.0f, -_normal.x/_normal.y, 0.0f) : Vec3(1.0f, 0.0f, -_normal.x/_normal.z));
+		Vec3 v2 = (_normal[0]==1.0f)?Vec3(0.0f, 1.0f, 0.0f): normalize((_normal[1] != 0.0f)? Vec3(1.0f, -_normal[0]/_normal[1], 0.0f) : Vec3(1.0f, 0.0f, -_normal[0]/_normal[2]));
 		// 3. Vector is simple the cross product
 		Vec3 v3 = cross(_normal, v2);
-		return Mat4x4(v2.x,		 v2.y,		v2.z,		0.0f,
-					  v3.x,		 v3.y,		v3.z,		0.0f,
-					  _normal.x, _normal.y,	_normal.z,	0.0f,
+		return Mat4x4(v2[0],		 v2[1],		v2[2],		0.0f,
+					  v3[0],		 v3[1],		v3[2],		0.0f,
+					  _normal[0], _normal[1],	_normal[2],	0.0f,
 					  0.0f,		 0.0f,		0.0f,		1.0f);
 	}
 
 	// Transform a position vector.
 	Vec3 Mat4x4::Transform(const Vec3& _v) const
 	{
-		return Vec3(_v.x*(*this)(0,0)+_v.y*(*this)(1,0)+_v.z*(*this)(2,0)+(*this)(3,0),
-					_v.x*(*this)(0,1)+_v.y*(*this)(1,1)+_v.z*(*this)(2,1)+(*this)(3,1),
-					_v.x*(*this)(0,2)+_v.y*(*this)(1,2)+_v.z*(*this)(2,2)+(*this)(3,2));
+		return Vec3(_v[0]*(*this)(0,0)+_v[1]*(*this)(1,0)+_v[2]*(*this)(2,0)+(*this)(3,0),
+					_v[0]*(*this)(0,1)+_v[1]*(*this)(1,1)+_v[2]*(*this)(2,1)+(*this)(3,1),
+					_v[0]*(*this)(0,2)+_v[1]*(*this)(1,2)+_v[2]*(*this)(2,2)+(*this)(3,2));
 	}
 
 	// Transform a direction vector.
 	Vec3 Mat4x4::TransformDirection(const Vec3& _v) const
 	{
-		return Vec3(_v.x*(*this)(0,0)+_v.y*(*this)(1,0)+_v.z*(*this)(2,0),
-					_v.x*(*this)(0,1)+_v.y*(*this)(1,1)+_v.z*(*this)(2,1),
-					_v.x*(*this)(0,2)+_v.y*(*this)(1,2)+_v.z*(*this)(2,2));
+		return Vec3(_v[0]*(*this)(0,0)+_v[1]*(*this)(1,0)+_v[2]*(*this)(2,0),
+					_v[0]*(*this)(0,1)+_v[1]*(*this)(1,1)+_v[2]*(*this)(2,1),
+					_v[0]*(*this)(0,2)+_v[1]*(*this)(1,2)+_v[2]*(*this)(2,2));
 	}
 
 	// Transform a position vector and do division through the w part.
 	Vec3 Mat4x4::TransformPerspective(const Vec3& _v) const
 	{
-		float wInf = 1.0f / (_v.x*(*this)(0,3)+_v.y*(*this)(1,3)+_v.z*(*this)(2,3)+(*this)(3,3));
-		return Vec3(_v.x*(*this)(0,0)+_v.y*(*this)(1,0)+_v.z*(*this)(2,0)+(*this)(3,0),
-					_v.x*(*this)(0,1)+_v.y*(*this)(1,1)+_v.z*(*this)(2,1)+(*this)(3,1),
-					_v.x*(*this)(0,2)+_v.y*(*this)(1,2)+_v.z*(*this)(2,2)+(*this)(3,2)) * wInf;
+		float wInf = 1.0f / (_v[0]*(*this)(0,3)+_v[1]*(*this)(1,3)+_v[2]*(*this)(2,3)+(*this)(3,3));
+		return Vec3(_v[0]*(*this)(0,0)+_v[1]*(*this)(1,0)+_v[2]*(*this)(2,0)+(*this)(3,0),
+					_v[0]*(*this)(0,1)+_v[1]*(*this)(1,1)+_v[2]*(*this)(2,1)+(*this)(3,1),
+					_v[0]*(*this)(0,2)+_v[1]*(*this)(1,2)+_v[2]*(*this)(2,2)+(*this)(3,2)) * wInf;
 
+	}
+
+
+	Vec4 cross(const Vec4& v1, const Vec4& v2, const Vec4& v3)
+	{
+		return Vec4(v1[1] * (v2[2] * v3[3] - v2[3] * v3[2]) -
+			v1[2] * (v2[1] * v3[3] - v2[3] * v3[1]) +
+			v1[3] * (v2[1] * v3[2] - v2[2] * v3[1]),
+
+			-(v1[0] * (v2[2] * v3[3] - v3[2] * v2[3]) -
+			v1[2] * (v2[0] * v3[3] - v3[0] * v2[3]) +
+			v1[3] * (v2[0] * v3[2] - v3[0] * v2[2])),
+
+			v1[0] * (v2[1] * v3[3] - v3[1] * v2[3]) -
+			v1[1] * (v2[0] * v3[3] - v3[0] * v2[3]) +
+			v1[3] * (v2[0] * v3[1] - v3[0] * v2[1]),
+
+			-(v1[0] * (v2[1] * v3[2] - v3[1] * v2[2]) -
+			v1[1] * (v2[0] * v3[2] - v3[0] * v2[2]) +
+			v1[2] * (v2[0] * v3[1] - v3[0] * v2[1])) );
 	}
 
 	// Compute the inverse with determinant method
@@ -279,13 +300,13 @@ namespace Math {
 		for(int i=0; i<4; i++)
 		{
 			// Calculate determinant as cross product
-			v = cross((Vec4)&m_data[0<i?0:4], (Vec4)&m_data[1<i?4:8], (Vec4)&m_data[2<i?8:12]);
+			v = cross(*(Vec4*)&m_data[0<i?0:4], *(Vec4*)&m_data[1<i?4:8], *(Vec4*)&m_data[2<i?8:12]);
 
 			// Sign * Determinant_i / Determinante
-			result(i,0) = signDet * v.x;
-			result(i,1) = signDet * v.y;
-			result(i,2) = signDet * v.z;
-			result(i,3) = signDet * v.w;
+			result(i,0) = signDet * v[0];
+			result(i,1) = signDet * v[1];
+			result(i,2) = signDet * v[2];
+			result(i,3) = signDet * v[3];
 			signDet *= -1.0f;
 		}
 
@@ -324,38 +345,38 @@ namespace Math {
 	// Computes (_v,1) * _A which is the same as Transform().
 	Vec3 operator * (const Vec3& _v, const Mat4x4& _A)
 	{
-		return Vec3(_v.x*_A(0,0)+_v.y*_A(1,0)+_v.z*_A(2,0)+_A(3,0),
-					_v.x*_A(0,1)+_v.y*_A(1,1)+_v.z*_A(2,1)+_A(3,1),
-					_v.x*_A(0,2)+_v.y*_A(1,2)+_v.z*_A(2,2)+_A(3,2));
+		return Vec3(_v[0]*_A(0,0)+_v[1]*_A(1,0)+_v[2]*_A(2,0)+_A(3,0),
+					_v[0]*_A(0,1)+_v[1]*_A(1,1)+_v[2]*_A(2,1)+_A(3,1),
+					_v[0]*_A(0,2)+_v[1]*_A(1,2)+_v[2]*_A(2,2)+_A(3,2));
 	}
 
 	// ********************************************************************* //
 	// Computes _A * (_v,1) which is the same as Transpose().Transform().
 	Vec3 operator * (const Mat4x4& _A, const Vec3& _v)
 	{
-		return Vec3(_v.x*_A(0,0)+_v.y*_A(0,1)+_v.z*_A(0,2)+_A(0,3),
-					_v.x*_A(1,0)+_v.y*_A(1,1)+_v.z*_A(1,2)+_A(1,3),
-					_v.x*_A(2,0)+_v.y*_A(2,1)+_v.z*_A(2,2)+_A(2,3));
+		return Vec3(_v[0]*_A(0,0)+_v[1]*_A(0,1)+_v[2]*_A(0,2)+_A(0,3),
+					_v[0]*_A(1,0)+_v[1]*_A(1,1)+_v[2]*_A(1,2)+_A(1,3),
+					_v[0]*_A(2,0)+_v[1]*_A(2,1)+_v[2]*_A(2,2)+_A(2,3));
 	}
 
 	// ********************************************************************* //
 	// Computes _v * _A.
 	Vec4 operator * (const Vec4& _v, const Mat4x4& _A)
 	{
-		return Vec4(_v.x*_A(0,0)+_v.y*_A(1,0)+_v.z*_A(2,0)+_v.w*_A(3,0),
-					_v.x*_A(0,1)+_v.y*_A(1,1)+_v.z*_A(2,1)+_v.w*_A(3,1),
-					_v.x*_A(0,2)+_v.y*_A(1,2)+_v.z*_A(2,2)+_v.w*_A(3,2),
-					_v.x*_A(0,3)+_v.y*_A(1,3)+_v.z*_A(2,3)+_v.w*_A(3,3));
+		return Vec4(_v[0]*_A(0,0)+_v[1]*_A(1,0)+_v[2]*_A(2,0)+_v[3]*_A(3,0),
+					_v[0]*_A(0,1)+_v[1]*_A(1,1)+_v[2]*_A(2,1)+_v[3]*_A(3,1),
+					_v[0]*_A(0,2)+_v[1]*_A(1,2)+_v[2]*_A(2,2)+_v[3]*_A(3,2),
+					_v[0]*_A(0,3)+_v[1]*_A(1,3)+_v[2]*_A(2,3)+_v[3]*_A(3,3));
 	}
 
 	// ********************************************************************* //
 	// Computes _A * _v.
 	Vec4 operator * (const Mat4x4& _A, const Vec4& _v)
 	{
-		return Vec4(_v.x*_A(0,0)+_v.y*_A(0,1)+_v.z*_A(0,2)+_v.w*_A(0,3),
-					_v.x*_A(1,0)+_v.y*_A(1,1)+_v.z*_A(1,2)+_v.w*_A(1,3),
-					_v.x*_A(2,0)+_v.y*_A(2,1)+_v.z*_A(2,2)+_v.w*_A(2,3),
-					_v.x*_A(3,0)+_v.y*_A(3,1)+_v.z*_A(3,2)+_v.w*_A(3,3));
+		return Vec4(_v[0]*_A(0,0)+_v[1]*_A(0,1)+_v[2]*_A(0,2)+_v[3]*_A(0,3),
+					_v[0]*_A(1,0)+_v[1]*_A(1,1)+_v[2]*_A(1,2)+_v[3]*_A(1,3),
+					_v[0]*_A(2,0)+_v[1]*_A(2,1)+_v[2]*_A(2,2)+_v[3]*_A(2,3),
+					_v[0]*_A(3,0)+_v[1]*_A(3,1)+_v[2]*_A(3,2)+_v[3]*_A(3,3));
 	}
 
 
@@ -426,9 +447,9 @@ namespace Math {
 	// Setup a translation matrix
 	Mat3x3 Mat3x3::Scaling( const Vec3& _scale )
 	{
-		return Mat3x3(_scale.x,  0.0f, 0.0f,
-					  0.0f, _scale.y,  0.0f,
-					  0.0f, 0.0f, _scale.z);
+		return Mat3x3(_scale[0],  0.0f, 0.0f,
+					  0.0f, _scale[1],  0.0f,
+					  0.0f, 0.0f, _scale[2]);
 	}
 
 	// Setup a translation matrix
@@ -500,20 +521,20 @@ namespace Math {
 		const double fSin = sin(double(-_angle));
 		const double fCos = cos(double(-_angle));
 		const double fOneMinusCos = 1.0 - fCos;
-		const double AxSin = _axis.x * fSin;
-		const double AySin = _axis.y * fSin;
-		const double AzSin = _axis.z * fSin;
+		const double AxSin = _axis[0] * fSin;
+		const double AySin = _axis[1] * fSin;
+		const double AzSin = _axis[2] * fSin;
 
 		// Create matrix and close up the calculation
-		return Mat3x3(float((_axis.x * _axis.x) * fOneMinusCos + fCos),
-			float((_axis.x * _axis.y) * fOneMinusCos - (AzSin)),
-			float((_axis.x * _axis.z) * fOneMinusCos + (AySin)),
-			float((_axis.y * _axis.x) * fOneMinusCos + (AzSin)),
-			float((_axis.y * _axis.y) * fOneMinusCos + fCos),
-			float((_axis.y * _axis.z) * fOneMinusCos - (AxSin)),
-			float((_axis.z * _axis.x) * fOneMinusCos - (AySin)),
-			float((_axis.z * _axis.y) * fOneMinusCos + (AxSin)),
-			float((_axis.z * _axis.z) * fOneMinusCos + fCos)
+		return Mat3x3(float((_axis[0] * _axis[0]) * fOneMinusCos + fCos),
+			float((_axis[0] * _axis[1]) * fOneMinusCos - (AzSin)),
+			float((_axis[0] * _axis[2]) * fOneMinusCos + (AySin)),
+			float((_axis[1] * _axis[0]) * fOneMinusCos + (AzSin)),
+			float((_axis[1] * _axis[1]) * fOneMinusCos + fCos),
+			float((_axis[1] * _axis[2]) * fOneMinusCos - (AxSin)),
+			float((_axis[2] * _axis[0]) * fOneMinusCos - (AySin)),
+			float((_axis[2] * _axis[1]) * fOneMinusCos + (AxSin)),
+			float((_axis[2] * _axis[2]) * fOneMinusCos + fCos)
 			);
 	}
 
@@ -528,21 +549,21 @@ namespace Math {
 	// Setup an axis matrix - a vector base
 	Mat3x3 Mat3x3::Axis(const Vec3& _xAxis, const Vec3& _yAxis, const Vec3& _zAxis)
 	{
-		return Mat3x3(_xAxis.x, _xAxis.y, _xAxis.z,
-					  _yAxis.x, _yAxis.y, _yAxis.z,
-					  _zAxis.x, _zAxis.y, _zAxis.z);
+		return Mat3x3(_xAxis[0], _xAxis[1], _xAxis[2],
+					  _yAxis[0], _yAxis[1], _yAxis[2],
+					  _zAxis[0], _zAxis[1], _zAxis[2]);
 	}
 
 	// Creates an orthogonal base for a direction vector
 	Mat3x3 Mat3x3::Orthonormal(const Vec3& _normal)
 	{
 		// Calculate a second orthogonal vector with scalar product
-		Vec3 v2 = (_normal.x==1.0f)?Vec3(0.0f, 1.0f, 0.0f): normalize((_normal.y != 0.0f)? Vec3(1.0f, -_normal.x/_normal.y, 0.0f) : Vec3(1.0f, 0.0f, -_normal.x/_normal.z));
+		Vec3 v2 = (_normal[0]==1.0f)?Vec3(0.0f, 1.0f, 0.0f): normalize((_normal[1] != 0.0f)? Vec3(1.0f, -_normal[0]/_normal[1], 0.0f) : Vec3(1.0f, 0.0f, -_normal[0]/_normal[2]));
 		// 3. Vector is simple the cross product
 		Vec3 v3 = cross(_normal, v2);
-		return Mat3x3(v2.x,		 v2.y,		v2.z,
-					  v3.x,		 v3.y,		v3.z,
-					  _normal.x, _normal.y,	_normal.z);
+		return Mat3x3(v2[0],		 v2[1],		v2[2],
+					  v3[0],		 v3[1],		v3[2],
+					  _normal[0], _normal[1],	_normal[2]);
 	}
 
 	// Compute the inverse with determinant method
@@ -573,18 +594,18 @@ namespace Math {
 	// Computes _v * _A.
 	Vec3 operator * (const Vec3& _v, const Mat3x3& _A)
 	{
-		return Vec3(_v.x*_A(0,0)+_v.y*_A(1,0)+_v.z*_A(2,0),
-					_v.x*_A(0,1)+_v.y*_A(1,1)+_v.z*_A(2,1),
-					_v.x*_A(0,2)+_v.y*_A(1,2)+_v.z*_A(2,2));
+		return Vec3(_v[0]*_A(0,0)+_v[1]*_A(1,0)+_v[2]*_A(2,0),
+					_v[0]*_A(0,1)+_v[1]*_A(1,1)+_v[2]*_A(2,1),
+					_v[0]*_A(0,2)+_v[1]*_A(1,2)+_v[2]*_A(2,2));
 	}
 
 	// ********************************************************************* //
 	// Computes _A * _v.
 	Vec3 operator * (const Mat3x3& _A, const Vec3& _v)
 	{
-		return Vec3(_v.x*_A(0,0)+_v.y*_A(0,1)+_v.z*_A(0,2),
-					_v.x*_A(1,0)+_v.y*_A(1,1)+_v.z*_A(1,2),
-					_v.x*_A(2,0)+_v.y*_A(2,1)+_v.z*_A(2,2));
+		return Vec3(_v[0]*_A(0,0)+_v[1]*_A(0,1)+_v[2]*_A(0,2),
+					_v[0]*_A(1,0)+_v[1]*_A(1,1)+_v[2]*_A(1,2),
+					_v[0]*_A(2,0)+_v[1]*_A(2,1)+_v[2]*_A(2,2));
 	}
 
 } // namespace Math

@@ -1,5 +1,5 @@
 #include "sphere.hpp"
-#include "vector3.hpp"
+#include "vector.hpp"
 #include "matrix.hpp"
 #include <cassert>
 
@@ -9,7 +9,7 @@ namespace Math {
 	Sphere::Sphere( const Vec3& _p1, const Vec3& _p2 )
 	{
 		m_center = (_p1 + _p2) * 0.5f;
-		m_radiusSqr = (_p1 - _p2).LengthSq() * 0.25f;
+		m_radiusSqr = lengthSq(_p1 - _p2) * 0.25f;
 		m_radius = sqrt(m_radiusSqr);
 	}
 
@@ -19,18 +19,18 @@ namespace Math {
 		// The center of the circumscribed circle is at (barycentric coords)
 		// v0*sin(2 alpha) + v1*sin(2 beta) + v2*sin(2 gamma) and has the radius
 		// abc/4A.
-		Vec3 c = _p1 - _p2;	float csq = c.LengthSq();
-		Vec3 a = _p2 - _p3;	float asq = a.LengthSq();
-		Vec3 b = _p3 - _p1;	float bsq = b.LengthSq();
+		Vec3 c = _p1 - _p2;	float csq = lengthSq(c);
+		Vec3 a = _p2 - _p3;	float asq = lengthSq(a);
+		Vec3 b = _p3 - _p1;	float bsq = lengthSq(b);
 
-		// one of the sifdes could be the longest side - the minimum sphere is
+		// One of the sides could be the longest side - the minimum sphere is
 		// defined through only two points.
 		// This can also handle the coplanar case.
 		if( csq + bsq <= asq ) *this = Sphere(_p2, _p3);
 		else if( asq + bsq <= csq ) *this = Sphere(_p2, _p1);
 		else if( asq + csq <= bsq ) *this = Sphere(_p3, _p1);
 		else {
-			float area2Sq = 2*cross(a, c).LengthSq();
+			float area2Sq = 2*lengthSq(cross(a, c));
 			m_center = 
 				  _p1 * (-dot(c,b)*asq/area2Sq)
 				+ _p2 * (-dot(c,a)*bsq/area2Sq)
@@ -63,20 +63,18 @@ namespace Math {
 						Vec3 b = _p3 - _p1;
 						Vec3 c = _p4 - _p1;
 
-						// TODO: Mat3x3
-						Mat4x4 m = Mat4x4( _p2.x, _p2.y, _p2.z, 0.0f,
-										   _p3.x, _p3.y, _p3.z, 0.0f,
-										   _p4.x, _p4.y, _p4.z, 0.0f,
-										   0.0f,  0.0f,  0.0f,  1.0f );
+						Mat3x3 m = Mat3x3( _p2[0], _p2[1], _p2[2],
+										   _p3[0], _p3[1], _p3[2],
+										   _p4[0], _p4[1], _p4[2] );
 
 						float denominator = 0.5f / m.Det();
 
-						Vec3 o = (c.LengthSq() * a.Cross(b) +
-								  b.LengthSq() * c.Cross(a) +
-								  a.LengthSq() * b.Cross(c)) * denominator;
+						Vec3 o = (lengthSq(c) * cross(a,b) +
+								  lengthSq(b) * cross(c,a) +
+								  lengthSq(a) * cross(b,c)) * denominator;
 
 						m_center = _p1 + o;
-						m_radiusSqr = o.LengthSq();
+						m_radiusSqr = lengthSq(o);
 						m_radius = sqrt(m_radiusSqr);
 					}
 				}

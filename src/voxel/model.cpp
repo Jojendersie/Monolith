@@ -66,7 +66,7 @@ namespace Voxel {
 		// LOD - calculate a target level. If the current level is less or
 		// equal the target draw.
 		//float detailResolution = 0.44f * log( (chunkPos - _param->camera.GetPosition()).LengthSq() );
-		float detailResolution = 0.025f * sqr(log( (chunkPos - _param->camera.GetPosition()).LengthSq() ));
+		float detailResolution = 0.025f * sqr(log( lengthSq(chunkPos - _param->camera.GetPosition()) ));
 			//pow((chunkPos - _param->camera.GetPosition()).Length(), 0.25f);
 		int targetLOD = max(5, Math::ceil(detailResolution));
 //		std::cout << targetLOD << '\n';

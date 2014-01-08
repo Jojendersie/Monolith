@@ -1,7 +1,6 @@
 #pragma once
 
-#include "../math/vector3.hpp"
-#include "../math/vector4.hpp"
+#include "../math/vector.hpp"
 #include "../predeclarations.hpp"
 #include <cstdint>
 
@@ -18,22 +17,22 @@ namespace Utils {
 	{
 	public:
 		/// \brief Default: Uninitialized for speed
-		Color32F()												{}
+		Color32F()													{}
 
 		/// \brief From other color class for implicit casting
-		Color32F(const Color8U& _color)								{*this = static_cast<Color32F>(_color); }
+		Color32F(const Color8U& _color)								{ *this = static_cast<Color32F>(_color); }
 
 		/// \brief From single bytes
-		Color32F(uint8_t r, uint8_t g, uint8_t b, uint8_t a=255)	{ x = r*(1.0f/255.0f); y = g*(1.0f/255.0f); z = b*(1.0f/255.0f); w = a*(1.0f/255.0f); }
+		Color32F(uint8_t r, uint8_t g, uint8_t b, uint8_t a=255)	{ R() = r*(1.0f/255.0f); G() = g*(1.0f/255.0f); B() = b*(1.0f/255.0f); A() = a*(1.0f/255.0f); }
 
 		/// \brief From bytes in the range [0,255].
-		/// \details This constructor exists to avoid the 'ambigious' error
+		/// \details This constructor exists to avoid the 'ambiguous' error
 		///		for normal integer values. E.g. Color32F(10,133,42) would cause
 		///		an error otherwise
-		Color32F(int r, int g, int b, int a=255)	{ x = r*(1.0f/255.0f); y = g*(1.0f/255.0f); z = b*(1.0f/255.0f); w = a*(1.0f/255.0f); }
+		Color32F(int r, int g, int b, int a=255)					{ R() = r*(1.0f/255.0f); G() = g*(1.0f/255.0f); B() = b*(1.0f/255.0f); A() = a*(1.0f/255.0f); }
 
 		/// \brief From single floats
-		Color32F(float r, float g, float b, float a=1.0f)			{ x = r; y = g; z = b; w = a; }
+		Color32F(float r, float g, float b, float a=1.0f)			{ R() = r; G() = g; B() = b; A() = a; }
 
 		/// \brief From HSV color space
 		Color32F(const HSV& _hsv);
@@ -48,26 +47,26 @@ namespace Utils {
 		Color32F(const YPbPr& _ybr);
 
 		/// \brief Returns if all 4 channels are in the Range [0,1].
-		bool IsNormalized() const								{ return x <= 1.0f && y <= 1.0f && z <= 1.0f && w <= 1.0f && x >= 0.0f && y >= 0.0f && z >= 0.0f && w >= 0.0f; }
+		bool IsNormalized() const								{ return R() <= 1.0f && G() <= 1.0f && B() <= 1.0f && A() <= 1.0f && R() >= 0.0f && G() >= 0.0f && B() >= 0.0f && A() >= 0.0f; }
 
 		/// TODO
 		const Color32F&	Normalize();
 
 		/// \brief Access single color component: Red
-		float R() const										{ return x; }
-		float& R()											{ return x; }
+		float R() const										{ return m_data[0]; }
+		float& R()											{ return m_data[0]; }
 
 		/// \brief Access single color component: Green
-		float G() const										{ return y; }
-		float& G()											{ return y; }
+		float G() const										{ return m_data[1]; }
+		float& G()											{ return m_data[1]; }
 
 		/// \brief Access single color component: Blue
-		float B() const										{ return z; }
-		float& B()											{ return z; }
+		float B() const										{ return m_data[2]; }
+		float& B()											{ return m_data[2]; }
 
 		/// \brief Access single color component: Alpha
-		float A() const										{ return w; }
-		float& A()											{ return w; }
+		float A() const										{ return m_data[3]; }
+		float& A()											{ return m_data[3]; }
 
 		/// \brief Convert color to HSV color space.
 		/// \details Values are given as:
@@ -98,7 +97,7 @@ namespace Utils {
 
 		/// \brief Compute relative luminance (ITU-R BT.709).
 		/// http://en.wikipedia.org/wiki/Luminance_%28relative%29
-		float Luminance() const		{ return 0.2126f * x + 0.7152f * y + 0.0722f * z; }
+		float Luminance() const		{ return 0.2126f * R() + 0.7152f * G() + 0.0722f * B(); }
 	};
 
 

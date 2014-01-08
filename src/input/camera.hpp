@@ -76,6 +76,7 @@ namespace Input {
 		Math::Mat4x4 m_viewProjection;
 		Math::Mat4x4 m_inverseView;
 		Math::Mat4x4 m_inverseViewProjection;
+		Math::Plane m_frustum[6];		///< Left, Right
 
 		std::mutex m_mutex;				///< mutex between all update methods
 		Math::Quaternion m_rotation;

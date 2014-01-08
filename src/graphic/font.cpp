@@ -74,9 +74,9 @@ namespace Graphic
 			CV.texCoord = m_font->m_coordTable[m_text[i]];
 			CV.thickness = 0.5f;
 			CV.color = 0xffffffff;
-			//line break
-			if(m_text[i] == '\n'){currentPos.x = m_screenPos.x; currentPos.y -= m_font->m_sizeTable[m_text[i]].y;}
-			else currentPos.x += m_font->m_sizeTable[m_text[i]].x; 
+			// line break
+			if(m_text[i] == '\n') {currentPos[0] = m_screenPos[0]; currentPos[1] -= m_font->m_sizeTable[m_text[i]][1];}
+			else currentPos[0] += m_font->m_sizeTable[m_text[i]][0]; 
  			m_characters.Add(CV);
 		}
 		m_characters.Commit();

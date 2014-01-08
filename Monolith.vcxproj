@@ -99,10 +99,8 @@
     <ClCompile Include="src\input\input.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\math\matrix.cpp" />
+    <ClCompile Include="src\math\quaternion.cpp" />
     <ClCompile Include="src\math\sphere.cpp" />
-    <ClCompile Include="src\math\vector2.cpp" />
-    <ClCompile Include="src\math\vector3.cpp" />
-    <ClCompile Include="src\math\vector4.cpp" />
     <ClCompile Include="src\opengl.cpp" />
     <ClCompile Include="src\timer.cpp" />
     <ClCompile Include="src\utilities\color.cpp" />
@@ -132,11 +130,9 @@
     <ClInclude Include="src\math\mathbase.hpp" />
     <ClInclude Include="src\math\matrix.hpp" />
     <ClInclude Include="src\math\plane.hpp" />
+    <ClInclude Include="src\math\quaternion.hpp" />
     <ClInclude Include="src\math\sphere.hpp" />
     <ClInclude Include="src\math\vector.hpp" />
-    <ClInclude Include="src\math\vector2.hpp" />
-    <ClInclude Include="src\math\vector3.hpp" />
-    <ClInclude Include="src\math\vector4.hpp" />
     <ClInclude Include="src\opengl.hpp" />
     <ClInclude Include="src\predeclarations.hpp" />
     <ClInclude Include="src\timer.hpp" />

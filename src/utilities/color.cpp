@@ -4,52 +4,52 @@ namespace Utils {
 
 	Color32F::Color32F(const HSV& _hsv)
 	{
-		float hue = _hsv.x * 6.0f;
-		float c = _hsv.y * _hsv.z;
+		float hue = _hsv[0] * 6.0f;
+		float c = _hsv[1] * _hsv[2];
 		float X = c * (1.0f - fabs(fmod(hue, 2.0f) - 1.0f));
-		float m = _hsv.z - c;
+		float m = _hsv[2] - c;
 
-		w = 1.0f;	// Alpha channel
+		A() = 1.0f;	// Alpha channel
 
-		if(hue < 1.0f)			{ x = c + m; y = X + m; z = m; }
-		else if(hue < 2.0f)		{ x = X + m; y = c + m; z = m; }
-		else if(hue < 3.0f)		{ x = m; y = c + m; z = X + m; }
-		else if(hue < 4.0f)		{ x = m; y = X + m; z = c + m; }
-		else if(hue < 5.0f)		{ x = X + m; y = m; z = c + m; }
-		else					{ x = c + m; y = m; z = X + m; }
+		if(hue < 1.0f)			{ R() = c + m; G() = X + m; B() = m; }
+		else if(hue < 2.0f)		{ R() = X + m; G() = c + m; B() = m; }
+		else if(hue < 3.0f)		{ R() = m; G() = c + m; B() = X + m; }
+		else if(hue < 4.0f)		{ R() = m; G() = X + m; B() = c + m; }
+		else if(hue < 5.0f)		{ R() = X + m; G() = m; B() = c + m; }
+		else					{ R() = c + m; G() = m; B() = X + m; }
 	}
 
 	Color32F::Color32F(const HSL& _hsl)
 	{
-		float hue = _hsl.x * 6.0f;
-		float c = (1.0f - fabs(2.0f * _hsl.z - 1.0f)) * _hsl.y;
+		float hue = _hsl[0] * 6.0f;
+		float c = (1.0f - fabs(2.0f * _hsl[2] - 1.0f)) * _hsl[1];
 		float X = c * (1.0f - fabs(fmod(hue, 2.0f) - 1.0f));
-		float m = _hsl.z - 0.5f * c;
+		float m = _hsl[2] - 0.5f * c;
 
-		w = 1.0f;	// Alpha channel
+		A() = 1.0f;	// Alpha channel
 
-		if(hue < 1.0f)			{ x = c + m; y = X + m; z = m; }
-		else if(hue < 2.0f)		{ x = X + m; y = c + m; z = m; }
-		else if(hue < 3.0f)		{ x = m; y = c + m; z = X + m; }
-		else if(hue < 4.0f)		{ x = m; y = X + m; z = c + m; }
-		else if(hue < 5.0f)		{ x = X + m; y = m; z = c + m; }
-		else					{ x = c + m; y = m; z = X + m; }
+		if(hue < 1.0f)			{ R() = c + m; G() = X + m; B() = m; }
+		else if(hue < 2.0f)		{ R() = X + m; G() = c + m; B() = m; }
+		else if(hue < 3.0f)		{ R() = m; G() = c + m; B() = X + m; }
+		else if(hue < 4.0f)		{ R() = m; G() = X + m; B() = c + m; }
+		else if(hue < 5.0f)		{ R() = X + m; G() = m; B() = c + m; }
+		else					{ R() = c + m; G() = m; B() = X + m; }
 	}
 
 	Color32F::Color32F(const sRGB& _srgb)
 	{
-		x = _srgb.x <= 0.04045f ? (_srgb.x / 12.92f) : (pow((_srgb.x + 0.055f) / 1.055f, 2.4f));
-		y = _srgb.y <= 0.04045f ? (_srgb.y / 12.92f) : (pow((_srgb.y + 0.055f) / 1.055f, 2.4f));
-		z = _srgb.z <= 0.04045f ? (_srgb.z / 12.92f) : (pow((_srgb.z + 0.055f) / 1.055f, 2.4f));
-		w = 1.0f;	// Alpha channel
+		R() = _srgb[0] <= 0.04045f ? (_srgb[0] / 12.92f) : (pow((_srgb[0] + 0.055f) / 1.055f, 2.4f));
+		G() = _srgb[1] <= 0.04045f ? (_srgb[1] / 12.92f) : (pow((_srgb[1] + 0.055f) / 1.055f, 2.4f));
+		B() = _srgb[2] <= 0.04045f ? (_srgb[2] / 12.92f) : (pow((_srgb[2] + 0.055f) / 1.055f, 2.4f));
+		A() = 1.0f;	// Alpha channel
 	}
 
 	Color32F::Color32F(const YPbPr& _ybr)
 	{
-		x = _ybr.x +                         1.402f * _ybr.z;
-		y = _ybr.x - 0.344136f * _ybr.y - 0.714136f * _ybr.z;
-		z = _ybr.x +    1.772f * _ybr.y;
-		w = 1.0f;	// Alpha channel
+		R() = _ybr[0] +                          1.402f * _ybr[2];
+		G() = _ybr[0] - 0.344136f * _ybr[1] - 0.714136f * _ybr[2];
+		B() = _ybr[0] +    1.772f * _ybr[1];
+		A() = 1.0f;	// Alpha channel
 	}
 
 
@@ -58,28 +58,28 @@ namespace Utils {
 		HSV hsv;
 
 		// Value
-		hsv.z = Math::max(x, Math::max(y, z));
+		hsv[2] = Math::max(R(), Math::max(G(), B()));
 		// Black?
-		if(fabs(hsv.z) < Math::EPSILON) {hsv.x = hsv.y = 0.0f; return hsv;}
+		if(fabs(hsv[2]) < Math::EPSILON) {hsv[0] = hsv[1] = 0.0f; return hsv;}
 
 		// Compute non-normalized saturation
-		float cmin = Math::min(x, Math::min(y, z));
-		hsv.y = hsv.z - cmin;
-		if(fabs(hsv.y) < Math::EPSILON) {hsv.x = 0.0f; return hsv;}
+		float cmin = Math::min(R(), Math::min(G(), B()));
+		hsv[1] = hsv[2] - cmin;
+		if(fabs(hsv[1]) < Math::EPSILON) {hsv[0] = 0.0f; return hsv;}
 
 		// Normalize saturation
-		hsv.y /= hsv.z;
+		hsv[1] /= hsv[2];
 
 		// Compute hue
-		if (hsv.z == x)
-			hsv.x = 1.0f + (y - z) / (6.0f * (hsv.z - cmin));
-		else if (hsv.z == y)
-			hsv.x = 1.0f/3.0f + (z - x) / (6.0f * (hsv.z - cmin));
+		if (hsv[2] == R())
+			hsv[0] = 1.0f + (G() - B()) / (6.0f * (hsv[2] - cmin));
+		else if (hsv[2] == G())
+			hsv[0] = 1.0f/3.0f + (B() - R()) / (6.0f * (hsv[2] - cmin));
 		else
-			hsv.x = 2.0f/3.0f + (x - y) / (6.0f * (hsv.z - cmin));
+			hsv[0] = 2.0f/3.0f + (R() - G()) / (6.0f * (hsv[2] - cmin));
 
 		// Angle modulo one (period)
-		hsv.x = hsv.x - (int)hsv.x;
+		hsv[0] = hsv[0] - (int)hsv[0];
 
 		return hsv;
 	}
@@ -89,29 +89,29 @@ namespace Utils {
 		HSL hsl;
 
 		// Lightness
-		float cmax = Math::max(x, Math::max(y, z));
-		float cmin = Math::min(x, Math::min(y, z));
-		hsl.z = 0.5f * (cmin + cmax);
+		float cmax = Math::max(R(), Math::max(G(), B()));
+		float cmin = Math::min(R(), Math::min(G(), B()));
+		hsl[2] = 0.5f * (cmin + cmax);
 		// Black?
-		if(fabs(cmax) < Math::EPSILON) {hsl.x = hsl.y = 0.0f; return hsl;}
+		if(fabs(cmax) < Math::EPSILON) {hsl[0] = hsl[1] = 0.0f; return hsl;}
 
 		// Compute non-normalized saturation
-		hsl.y = cmax - cmin;
-		if(fabs(hsl.y) < Math::EPSILON) {hsl.x = 0.0f; return hsl;}
+		hsl[1] = cmax - cmin;
+		if(fabs(hsl[1]) < Math::EPSILON) {hsl[0] = 0.0f; return hsl;}
 
 		// Normalize saturation
-		hsl.y /= 1.0f - fabs(2.0f * hsl.z - 1.0f);
+		hsl[1] /= 1.0f - fabs(2.0f * hsl[2] - 1.0f);
 
 		// Compute hue
-		if (cmax == x)
-			hsl.x = 1.0f + (y - z) / (6.0f * (cmax - cmin));
-		else if (cmax == y)
-			hsl.x = 1.0f/3.0f + (z - x) / (6.0f * (cmax - cmin));
+		if (cmax == R())
+			hsl[0] = 1.0f + (G() - B()) / (6.0f * (cmax - cmin));
+		else if (cmax == G())
+			hsl[0] = 1.0f/3.0f + (B() - R()) / (6.0f * (cmax - cmin));
 		else
-			hsl.x = 2.0f/3.0f + (x - y) / (6.0f * (cmax - cmin));
+			hsl[0] = 2.0f/3.0f + (R() - G()) / (6.0f * (cmax - cmin));
 
 		// Angle modulo one (period)
-		hsl.x = hsl.x - (int)hsl.x;
+		hsl[0] = hsl[0] - (int)hsl[0];
 
 		return hsl;
 	}
@@ -119,18 +119,18 @@ namespace Utils {
 	sRGB Color32F::ToSRGB() const
 	{
 		sRGB srgb;
-		srgb.x = x <= 0.0031308f ? (12.92f * x) : (1.055f * pow(x, 1.0f / 2.4f) - 0.055f);
-		srgb.y = y <= 0.0031308f ? (12.92f * y) : (1.055f * pow(y, 1.0f / 2.4f) - 0.055f);
-		srgb.z = z <= 0.0031308f ? (12.92f * z) : (1.055f * pow(z, 1.0f / 2.4f) - 0.055f);
+		srgb[0] = R() <= 0.0031308f ? (12.92f * R()) : (1.055f * pow(R(), 1.0f / 2.4f) - 0.055f);
+		srgb[1] = G() <= 0.0031308f ? (12.92f * G()) : (1.055f * pow(G(), 1.0f / 2.4f) - 0.055f);
+		srgb[2] = B() <= 0.0031308f ? (12.92f * B()) : (1.055f * pow(B(), 1.0f / 2.4f) - 0.055f);
 		return srgb;
 	}
 
 	Utils::YPbPr Color32F::ToYPbPr() const
 	{
 		YPbPr ybr;
-		ybr.x =      0.299f * x +    0.587f * y +    0.114f * z;
-		ybr.y = - 0.168736f * x - 0.331264f * y +      0.5f * z;
-		ybr.z =        0.5f * x - 0.418688f * y - 0.081312f * z;
+		ybr[0] =      0.299f * R() +    0.587f * G() +    0.114f * B();
+		ybr[1] = - 0.168736f * R() - 0.331264f * G() +      0.5f * B();
+		ybr[2] =        0.5f * R() - 0.418688f * G() - 0.081312f * B();
 		return ybr;
 	}
 
