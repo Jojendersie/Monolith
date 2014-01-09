@@ -26,7 +26,6 @@ namespace Voxel {
 		m_voxels( "u", nullptr, 0, Graphic::VertexBuffer::PrimitiveType::POINT ),
 		m_position( float(_nodePostion[0]<<_depth), float(_nodePostion[1]<<_depth), float(_nodePostion[2]<<_depth) )
 	{
-		//ComputeVertexBuffer(Math::IVec3((const int*)_nodePostion), _nodePostion[3] );
 	}
 
 	Chunk::Chunk( Chunk&& _chunk ) :
@@ -42,62 +41,6 @@ namespace Voxel {
 
 	Chunk::~Chunk()
 	{
-	}
-
-	void Chunk::ComputeVertexBuffer( const Math::IVec3& _nodePostion, int _level )
-	{
-		struct PerVoxelInfo {
-			VoxelType type;
-			bool solid;
-		};
-		m_voxels.Clear();
-
-		// Sample a (2^d+2)^3 volume (neighborhood for visibility). This
-		// initial sampling avoids the expensive resampling for many voxels.
-		// (Inner voxels would be sampled 7 times!)
-		int edgeLength = (1 << m_depth) + 2;
-		PerVoxelInfo* volume = new PerVoxelInfo[edgeLength*edgeLength*edgeLength];
-		int level = Math::max( 0, _level - m_depth );
-		IVec3 pmin = (_nodePostion << (_level - level)) - IVec3(1);
-		IVec3 pmax = pmin + IVec3(edgeLength);
-		IVec3 pos;
-		for( pos[2]=pmin[2]; pos[2]<pmax[2]; ++pos[2] )
-			for( pos[1]=pmin[1]; pos[1]<pmax[1]; ++pos[1] )
-				for( pos[0]=pmin[0]; pos[0]<pmax[0]; ++pos[0] )
-				{
-					PerVoxelInfo& voxelInfo = volume[pos[0]-pmin[0] + edgeLength * (pos[1]-pmin[1] + edgeLength * (pos[2]-pmin[2]))];
-					voxelInfo.solid = m_model->IsEachChild(pos, level, IsSolid, voxelInfo.type);
-				}
-
-		// Iterate over volume and add any surface voxel to vertex buffer
-		for( pos[2]=1; pos[2]<edgeLength-1; ++pos[2] )
-			for( pos[1]=1; pos[1]<edgeLength-1; ++pos[1] )
-				for( pos[0]=1; pos[0]<edgeLength-1; ++pos[0] )
-				{
-					VoxelType current = volume[pos[0] + edgeLength * (pos[1] + edgeLength * pos[2])].type;
-					int left = !volume[pos[0] - 1 + edgeLength * (pos[1] + edgeLength * pos[2])].solid;
-					int right = !volume[pos[0] + 1 + edgeLength * (pos[1] + edgeLength * pos[2])].solid;
-					int bottom = !volume[pos[0] + edgeLength * (pos[1] - 1 + edgeLength * pos[2])].solid;
-					int top = !volume[pos[0] + edgeLength * (pos[1] + 1 + edgeLength * pos[2])].solid;
-					int front = !volume[pos[0] + edgeLength * (pos[1] + edgeLength * (pos[2] - 1))].solid;
-					int back = !volume[pos[0] + edgeLength * (pos[1] + edgeLength * (pos[2] + 1))].solid;
-					// Check if at least one neighbor is NONE and this is not
-					// none -> surface
-					if( IsSolid(current) &&
-						(left || right || bottom || top || front || back) )
-					{
-						VoxelVertex V;
-						V.SetPosition( pos-1 );
-						V.SetTexture( int(current) );
-						V.SetVisibility(left, right, bottom, top, front, back);
-						m_voxels.Add( V );
-					}
-				}
-
-		// Remove temporary sampling
-		delete[] volume;
-
-		m_voxels.Commit();
 	}
 
 
@@ -123,12 +66,77 @@ namespace Voxel {
 
 
 	// ********************************************************************* //
+	struct CSParam {
+		ChunkBuilder::PerVoxelInfo* buffer;	///< Array where the selected sector should be stored.
+		IVec3 pmin;		///< Minimal boundary
+		int level;		///< The level in the octree which should be copied
+		int edgeLength;	///< Size of buffer in any direction (is Maximal boundary - Minimal boundary)
+	};
+	static bool CopySector(const Math::IVec4& _position, VoxelType _type, bool _hasChildren, CSParam* _param)
+	{
+		// Position inside target level
+		if( _position[3] < _param->level )
+		{
+			// Child level sets solidity of parent
+			if( !IsSolid(_type) )
+			{
+				// Parent is not solid too -> set
+				int x = (_position[0] << (_param->level - _position[3])) - _param->pmin[0];
+				int y = (_position[1] << (_param->level - _position[3])) - _param->pmin[1];
+				int z = (_position[2] << (_param->level - _position[3])) - _param->pmin[2];
+				_param->buffer[x + _param->edgeLength * (y + _param->edgeLength * z)].solid = false;
+			}
+			return false;	// No further traversal
+		} else
+		{
+			int lvlDiff = _position[3] - _param->level;
+			int span = (1 << lvlDiff) - 1;
+			int x = (_position[0] << lvlDiff) - _param->pmin[0];
+			int y = (_position[1] << lvlDiff) - _param->pmin[1];
+			int z = (_position[2] << lvlDiff) - _param->pmin[2];
+			// Inside sector [pmin, pmax]?
+			if( (x >= _param->edgeLength) || (x+span < 0) ) return false;
+			if( (y >= _param->edgeLength) || (y+span < 0) ) return false;
+			if( (z >= _param->edgeLength) || (z+span < 0) ) return false;
+
+			// Is this one of the searched voxels?
+			if( lvlDiff == 0 )
+			{
+				ChunkBuilder::PerVoxelInfo& target = _param->buffer[x + _param->edgeLength * (y + _param->edgeLength * z)];
+				target.type = _type;
+				target.solid = IsSolid(_type);
+				return target.solid;
+			}
+
+			// If not has children traversal would stop - set entire area
+			if( !_hasChildren && IsSolid(_type) )
+			{
+				int zmin = max(0,z); int zmax = min( z+span+1, _param->edgeLength );
+				int ymin = max(0,y); int ymax = min( y+span+1, _param->edgeLength );
+				int xmin = max(0,x); int xmax = min( x+span+1, _param->edgeLength );
+				for( z=zmin; z<zmax; ++z )
+					for( y=ymin; y<ymax; ++y )
+						for( x=xmin; x<xmax; ++x )
+						{
+							ChunkBuilder::PerVoxelInfo& target = _param->buffer[x + _param->edgeLength * (y + _param->edgeLength * z)];
+							target.type = _type;
+							target.solid = true;
+						}
+			}
+
+			return true;
+		}
+	}
+
+	// ********************************************************************* //
 	void ChunkBuilder::RecomputeVertexBuffer( Chunk& _chunk )
 	{
 		// Sample a (2^d+2)^3 volume (neighborhood for visibility). This
 		// initial sampling avoids the expensive resampling for many voxels.
 		// (Inner voxels would be sampled 7 times!)
-		int edgeLength = (1 << _chunk.m_depth) + 2;
+		
+		// Old Method with O(n log(m)) runtime
+		/*int edgeLength = (1 << _chunk.m_depth) + 2;
 		int level = Math::max( 0, _chunk.m_root[3] - _chunk.m_depth );
 		IVec3 pmin = (IVec3(_chunk.m_root) << (_chunk.m_root[3] - level)) - 1;//IVec3(1);
 		IVec3 pmax = pmin + IVec3(edgeLength);
@@ -140,20 +148,32 @@ namespace Voxel {
 					PerVoxelInfo& voxelInfo = m_volumeBuffer[pos[0]-pmin[0] + edgeLength * (pos[1]-pmin[1] + edgeLength * (pos[2]-pmin[2]))];
 					voxelInfo.solid = _chunk.m_model->IsEachChild(pos, level, IsSolid, voxelInfo.type);
 				}
+		CSParam Sector;
+		Sector.edgeLength = edgeLength;//*/
+
+		// New copy method with O(n) runtime
+		CSParam Sector;
+		Sector.buffer = m_volumeBuffer;
+		Sector.edgeLength = (1 << _chunk.m_depth) + 2;
+		Sector.level = Math::max( 0, _chunk.m_root[3] - _chunk.m_depth );
+		Sector.pmin = (IVec3(_chunk.m_root) << (_chunk.m_root[3] - Sector.level)) - 1;
+		memset(m_volumeBuffer, 0, sizeof(m_volumeBuffer));
+		_chunk.m_model->Traverse(CopySector, &Sector);
 
 		// Iterate over volume and add any surface voxel to vertex buffer
 		int numVoxels = 0;
-		for( pos[2]=1; pos[2]<edgeLength-1; ++pos[2] )
-			for( pos[1]=1; pos[1]<edgeLength-1; ++pos[1] )
-				for( pos[0]=1; pos[0]<edgeLength-1; ++pos[0] )
+		IVec3 pos;
+		for( pos[2]=1; pos[2]<Sector.edgeLength-1; ++pos[2] )
+			for( pos[1]=1; pos[1]<Sector.edgeLength-1; ++pos[1] )
+				for( pos[0]=1; pos[0]<Sector.edgeLength-1; ++pos[0] )
 				{
-					VoxelType current = m_volumeBuffer[pos[0] + edgeLength * (pos[1] + edgeLength * pos[2])].type;
-					int left = !m_volumeBuffer[pos[0] - 1 + edgeLength * (pos[1] + edgeLength * pos[2])].solid;
-					int right = !m_volumeBuffer[pos[0] + 1 + edgeLength * (pos[1] + edgeLength * pos[2])].solid;
-					int bottom = !m_volumeBuffer[pos[0] + edgeLength * (pos[1] - 1 + edgeLength * pos[2])].solid;
-					int top = !m_volumeBuffer[pos[0] + edgeLength * (pos[1] + 1 + edgeLength * pos[2])].solid;
-					int front = !m_volumeBuffer[pos[0] + edgeLength * (pos[1] + edgeLength * (pos[2] - 1))].solid;
-					int back = !m_volumeBuffer[pos[0] + edgeLength * (pos[1] + edgeLength * (pos[2] + 1))].solid;
+					VoxelType current = m_volumeBuffer[pos[0] + Sector.edgeLength * (pos[1] + Sector.edgeLength * pos[2])].type;
+					int left =   m_volumeBuffer[pos[0] - 1 + Sector.edgeLength * (pos[1] + Sector.edgeLength * pos[2])].solid ? 0 : 1;
+					int right =  m_volumeBuffer[pos[0] + 1 + Sector.edgeLength * (pos[1] + Sector.edgeLength * pos[2])].solid ? 0 : 1;
+					int bottom = m_volumeBuffer[pos[0] + Sector.edgeLength * (pos[1] - 1 + Sector.edgeLength * pos[2])].solid ? 0 : 1;
+					int top =    m_volumeBuffer[pos[0] + Sector.edgeLength * (pos[1] + 1 + Sector.edgeLength * pos[2])].solid ? 0 : 1;
+					int front =  m_volumeBuffer[pos[0] + Sector.edgeLength * (pos[1] + Sector.edgeLength * (pos[2] - 1))].solid ? 0 : 1;
+					int back =   m_volumeBuffer[pos[0] + Sector.edgeLength * (pos[1] + Sector.edgeLength * (pos[2] + 1))].solid ? 0 : 1;
 					// Check if at least one neighbor is NONE and this is not
 					// none -> surface
 					if( IsSolid(current) &&

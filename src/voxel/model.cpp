@@ -52,7 +52,7 @@ namespace Voxel {
 		{}
 	};
 
-	bool Model::DecideToDraw(const Math::IVec4& _position, VoxelType _type, DrawParam* _param)
+	bool Model::DecideToDraw(const Math::IVec4& _position, VoxelType _type, bool _hasChildren, DrawParam* _param)
 	{
 		if( !IsSolid( _type ) ) return false;
 

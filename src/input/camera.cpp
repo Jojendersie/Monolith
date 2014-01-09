@@ -29,7 +29,13 @@ namespace Input {
 		m_inverseViewProjection = m_viewProjection.Inverse();
 
 		// Compute frustum planes from viewProjection
+		// http://www.cs.otago.ac.nz/postgrads/alexis/planeExtraction.pdf
 		m_frustum[0] = m_viewProjection.Column(3) + m_viewProjection.Column(0);
+		m_frustum[1] = m_viewProjection.Column(3) - m_viewProjection.Column(0);
+		m_frustum[2] = m_viewProjection.Column(3) + m_viewProjection.Column(1);
+		m_frustum[3] = m_viewProjection.Column(3) - m_viewProjection.Column(1);
+		m_frustum[4] = m_viewProjection.Column(3) + m_viewProjection.Column(2);
+		m_frustum[5] = m_viewProjection.Column(3) - m_viewProjection.Column(2);
 	}
 
 

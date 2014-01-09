@@ -30,7 +30,7 @@ namespace Voxel {
 
 		VoxelVertex() : flags(0)	{}
 
-		void SetVisibility( int _iL, int _iR, int _iBo, int _iT, int _iF, int _iBa )	{ flags = (flags & 0xffffffa0) | _iL | _iR<<1 | _iBo<<2 | _iT<<3 | _iF<<4 | _iBa<<5; }
+		void SetVisibility( int _iL, int _iR, int _iBo, int _iT, int _iF, int _iBa )	{ flags = (flags & 0xffffffc0) | _iL | _iR<<1 | _iBo<<2 | _iT<<3 | _iF<<4 | _iBa<<5; }
 // DEPRECATED		void SetSize( int _level )							{ assert(0<=_level && _level<=5); flags = (flags & 0xfffffe3f) | (_level<<6); }
 		void SetPosition( const Math::IVec3& _position )	{ flags = (flags & 0xff0001ff) | (_position[0] << 9) | (_position[1] << 14) | (_position[2] << 19); }
 		void SetTexture( int _iTextureIndex )				{ flags = (flags & 0x00ffffff) | (_iTextureIndex << 24); }
@@ -110,13 +110,14 @@ namespace Voxel {
 	{
 	public:
 		void RecomputeVertexBuffer( Chunk& _chunk );
-	private:
+
 		/// \brief Information from the target volume out of the octree
 		struct PerVoxelInfo {
 			VoxelType type;	///< type of the target voxel -> texture.
 			bool solid;		///< solidity is required to compute neighbor visibility
 		};
 
+	private:
 		PerVoxelInfo m_volumeBuffer[34*34*34];
 		VoxelVertex m_vertexBuffer[32*32*32];
 	};

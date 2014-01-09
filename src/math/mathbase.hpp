@@ -18,7 +18,7 @@ namespace Math {
 	inline int floor( const float a )				{ int r=(int)a; return r - (int)((a<0)&&(a-r!=0.0f)); }
 	/// \brief Round up to integer
 	inline int ceil( const float a )				{ int r=int(a)+1; return r - (int)((a<0)&&(a-r!=0.0f)); }
-	inline float lerp( float a, float b, float f )	{ return a+(b-a)*f; }
+	template<typename T, typename S> T lerp( const T& a, const T& b, const S& f )	{ return a+(b-a)*f; }
 	inline float bilerp( float s00, float s10, float s01, float s11, float x, float y )
 	{
 		// Method 1: combination of linear interpolations

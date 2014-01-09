@@ -68,13 +68,13 @@ namespace Voxel {
 		/// \param [in] _callback This function is called for each voxel. It
 		///		has to return true if the children should be traversed too.
 		///		If a voxel does not have children the return value is ignored.
-		///		TODO: IVec4
-		///		The function takes the octree position, the voxels and gets
-		///		the parameters passed.
+		///
+		///		The function takes the octree position, the voxel data,
+		///		if the voxel has children, and the parameters passed.
 		///	\param [in] _param Pointer to an arbitrary structure to pass
 		///		additional information to the callback.
 		template<typename Param>
-		void Traverse( bool(*_callback)(const Math::IVec4&,T,Param*), Param* _param );
+		void Traverse( bool(*_callback)(const Math::IVec4&,T,bool,Param*), Param* _param ) const;
 
 #ifdef _DEBUG
 		size_t MemoryConsumption() const;
@@ -117,7 +117,7 @@ namespace Voxel {
 			/// \param [in] _position Voxel position in 3D grid.
 			/// \param [in] _size Grid size, 0 is the highest resolution.
 			template<class Param>
-			void Traverse( const Math::IVec4& _position, bool(*_callback)(const Math::IVec4&,T,Param*), Param* _param, T _defaultData );
+			void Traverse( const Math::IVec4& _position, bool(*_callback)(const Math::IVec4&,T,bool,Param*), Param* _param, T _defaultData ) const;
 
 			/// \brief Check if all children have the same type.
 			bool IsUniform() const;
@@ -302,7 +302,7 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	template<typename T, typename Listener> template<typename Param>
-	void SparseVoxelOctree<T,Listener>::Traverse( bool(*_callback)(const Math::IVec4&,T,Param*), Param* _param )
+	void SparseVoxelOctree<T,Listener>::Traverse( bool(*_callback)(const Math::IVec4&,T,bool,Param*), Param* _param ) const
 	{
 		assert(m_rootSize != -1);
 
@@ -416,9 +416,9 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	template<typename T, typename Listener> template<class Param>
-	void SparseVoxelOctree<T,Listener>::SVON::Traverse( const Math::IVec4& _position, bool(*_callback)(const Math::IVec4&,T,Param*), Param* _param, T _defaultData )
+	void SparseVoxelOctree<T,Listener>::SVON::Traverse( const Math::IVec4& _position, bool(*_callback)(const Math::IVec4&,T,bool,Param*), Param* _param, T _defaultData ) const
 	{
-		if( _callback(_position,voxel,_param) && children )
+		if( _callback(_position,voxel,children!=nullptr,_param) && children )
 		{
 			Math::IVec4 position(_position[0]<<1, _position[1]<<1, _position[2]<<1, _position[3]);
 			for( int i=0; i<8; ++i )

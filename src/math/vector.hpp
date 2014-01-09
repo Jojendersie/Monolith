@@ -205,6 +205,19 @@ namespace Math {
 		return result;
 	}
 
+	/// \brief spherical interpolation between two floating point
+	template<int n, class Data>
+	Vector<n, Data> slerp(const Vector<n, Data>& _v1, const Vector<n, Data>& _v2, Data _f)
+	{
+		float omega = acos( clamp(dot(v1,v2), -1.0f, 1.0f) );
+		float f1 = sin( omega * (1.0f-t) );
+		float f2 = sin( omega * t );
+		Vector<n, Data> result;
+		for( int i=0; i<n; ++i )
+			result[0] = _v1[i]*f1 + _v2[i]*f2;
+		return normalize(result);
+	}
+
 
 
 

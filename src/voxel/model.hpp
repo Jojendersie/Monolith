@@ -49,6 +49,9 @@ namespace Voxel {
 		bool IsEachChild( const Math::IVec3& _position, int _level, bool(*_predicate)(VoxelType), VoxelType& _out ) const	{ return m_voxelTree.IsEachChild(_position, _level, _predicate, _out); }
 		/// \see SparseVoxelOctree::IsAnyChild
 		bool IsAnyChild( const Math::IVec3& _position, int _level, bool(*_predicate)(VoxelType), VoxelType& _out ) const	{ return m_voxelTree.IsAnyChild(_position, _level, _predicate, _out); }
+		/// \see SparseVoxelOctree::Traverse
+		template<typename Param>
+		void Traverse( bool(*_callback)(const Math::IVec4&,VoxelType,bool,Param*), Param* _param ) const	{ m_voxelTree.Traverse(_callback, _param); }
 
 		/// \brief Get the center of gravity (mass center)
 		Math::Vec3 GetCenter() const		{ return m_center + m_position; }
@@ -88,7 +91,7 @@ namespace Voxel {
 		///		is visible (culling).
 		/// \details If the voxel is drawn the traversal is stopped and a chunk
 		///		is created/rendered.
-		static bool DecideToDraw(const Math::IVec4& _position, VoxelType _type, DrawParam* _param);
+		static bool DecideToDraw(const Math::IVec4& _position, VoxelType _type, bool _hasChildren, DrawParam* _param);
 		
 		friend class Chunk;
 	};
