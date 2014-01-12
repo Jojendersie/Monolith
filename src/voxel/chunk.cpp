@@ -74,22 +74,23 @@ namespace Voxel {
 	};
 	static bool CopySector(const Math::IVec4& _position, VoxelType _type, bool _hasChildren, CSParam* _param)
 	{
-		// Position inside target level
 		if( _position[3] < _param->level )
 		{
+			assert(_position[3]+1 == _param->level);
 			// Child level sets solidity of parent
 			if( !IsSolid(_type) )
 			{
 				// Parent is not solid too -> set
-				int x = (_position[0] << (_param->level - _position[3])) - _param->pmin[0];
-				int y = (_position[1] << (_param->level - _position[3])) - _param->pmin[1];
-				int z = (_position[2] << (_param->level - _position[3])) - _param->pmin[2];
+				int x = (_position[0] >> 1) - _param->pmin[0];
+				int y = (_position[1] >> 1) - _param->pmin[1];
+				int z = (_position[2] >> 1) - _param->pmin[2];
 				_param->buffer[x + _param->edgeLength * (y + _param->edgeLength * z)].solid = false;
 			}
 			return false;	// No further traversal
 		} else
 		{
 			int lvlDiff = _position[3] - _param->level;
+			// Position inside target level?
 			int span = (1 << lvlDiff) - 1;
 			int x = (_position[0] << lvlDiff) - _param->pmin[0];
 			int y = (_position[1] << lvlDiff) - _param->pmin[1];
@@ -108,7 +109,7 @@ namespace Voxel {
 				return target.solid;
 			}
 
-			// If not has children traversal would stop - set entire area
+			// If there are no children traversal would stop - set entire area
 			if( !_hasChildren && IsSolid(_type) )
 			{
 				int zmin = max(0,z); int zmax = min( z+span+1, _param->edgeLength );

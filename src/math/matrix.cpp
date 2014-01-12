@@ -149,14 +149,14 @@ namespace Math {
 	// OpenGL perspective projection matrix
 	Mat4x4 Mat4x4::Projection(float _FOV, float _aspect, float _near, float _far)
 	{
-		const float far = _far * 0.5f;
+		//const float far = _far * 0.5f;
 		const float s = 1.0f / tan(_FOV * 0.5f);
-		const float frustumLengthInv = 1.0f / (_near - far);
+		const float frustumLengthInv = 1.0f / (_far - _near);
 
-		return Mat4x4(s / _aspect,	0.0f,  0.0f,							0.0f,
-					  0.0f,			s,	   0.0f,							0.0f,
-					  0.0f,			0.0f, -(_near + far)*frustumLengthInv,	-(2.0f*_near*far)*frustumLengthInv,
-					  0.0f,			0.0f, -1.0f,							0.0f);
+		return Mat4x4(s / _aspect,	0.0f,  0.0f,							   0.0f,
+					  0.0f,			s,	   0.0f,							   0.0f,
+					  0.0f,			0.0f, (_near + _far)*frustumLengthInv,	   1.0f,
+					  0.0f,			0.0f, -(2.0f*_near*_far)*frustumLengthInv, 0.0f);
 	}
 
 	// OpenGL orthogonal projection matrix

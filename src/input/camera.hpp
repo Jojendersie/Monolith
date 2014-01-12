@@ -69,6 +69,10 @@ namespace Input {
 		const Math::Mat4x4& GetViewProjection() const		{ return m_viewProjection; }		///< Return view * projection matrix
 		const Math::Mat4x4& GetInverseView() const			{ return m_inverseView; }			///< Return inverse view matrix
 		const Math::Mat4x4& GetInverseViewProjection() const{ return m_inverseViewProjection; }	///< Return inverse (view * projection) matrix
+
+		/// \brief Checks a sphere against the frustum and returns true if any
+		///		point of the sphere is inside.
+		bool IsVisible( const Math::Sphere& _S ) const;
 	private:
 		// Computed matrices used in rendering
 		Math::Mat4x4 m_view;
@@ -76,7 +80,7 @@ namespace Input {
 		Math::Mat4x4 m_viewProjection;
 		Math::Mat4x4 m_inverseView;
 		Math::Mat4x4 m_inverseViewProjection;
-		Math::Plane m_frustum[6];		///< Left, Right, Bottom, Top, Near, Far
+		Math::Plane m_frustum[6];		///< Left, Right, Bottom, Top, Near, Far all showing inwards
 
 		std::mutex m_mutex;				///< mutex between all update methods
 		Math::Quaternion m_rotation;

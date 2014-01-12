@@ -48,10 +48,10 @@ public:
 	inline float& operator[](int i)							{ return *((float*)this + i); }
 
 	// Methods for plain calculations
-	inline Vec3 CalcReflect(const Vec3& _ray)				{ return (_ray - dot(_ray,n)*2.0f*n); }
+	inline Vec3 CalcReflect(const Vec3& _ray) const			{ return (_ray - dot(_ray,n)*2.0f*n); }
 	inline Plane Normalize()								{ float invLength = 1.0f / length(n); a *= invLength; b *= invLength; c *= invLength; d *= invLength; }
-	inline float DotNormal(const Vec3& _v)					{ return a * _v[0] + b * _v[1] + c * _v[2]; }
-	inline float DotCoords(const Vec3& _v)					{ return a * _v[0] + b * _v[1] + c * _v[2] + d; }
+	inline float DotNormal(const Vec3& _v) const			{ return a * _v[0] + b * _v[1] + c * _v[2]; }
+	inline float DotCoords(const Vec3& _v) const			{ return a * _v[0] + b * _v[1] + c * _v[2] + d; }
 };
 
 // Comparison operators

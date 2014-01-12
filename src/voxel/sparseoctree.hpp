@@ -423,10 +423,10 @@ namespace Voxel {
 			Math::IVec4 position(_position[0]<<1, _position[1]<<1, _position[2]<<1, _position[3]);
 			for( int i=0; i<8; ++i )
 			{
-				if( children[i].voxel != _defaultData )
+				//if( children[i].voxel != _defaultData )
 					children[i].Traverse(position + CHILD_OFFSETS[i], _callback, _param, _defaultData);
-				else
-					assert( !children[i].children );
+				//else
+				//	assert( !children[i].children );
 			}
 		}
 	}
@@ -450,7 +450,7 @@ namespace Voxel {
 		T types[8];
 		// Enumerate and sort all types of the child voxels
 		int num = 0;
-		for(int i=0; i<8; ++i) if( IsSolid(children[i].voxel) )
+		for(int i=0; i<8; ++i)// if( IsSolid(children[i].voxel) )
 			types[num++] = children[i].voxel;
 		assert( num > 0 );
 		Algo::SmallSort(types, num);

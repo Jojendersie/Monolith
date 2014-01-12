@@ -30,7 +30,7 @@ GSMain::GSMain(Monolith* _parent) : IGameState(_parent)
 
 	m_textures = new Graphic::Texture("texture/rock1.png");
 
-	m_camera = new Input::Camera( Vec3( 0.0f, 80.0f, 250.0f ),
+	m_camera = new Input::Camera( Vec3( 0.0f, 0.0f, 0.0f ),
 		Quaternion( 0.0f, 0.0f, 0.0f ),
 		0.3f,
 		1.3f );	// TODO: compute aspect

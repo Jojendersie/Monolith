@@ -22,7 +22,7 @@ namespace Input {
 		m_mutex.lock();
 //		if( m_hardAttached ) NormalizeReference();
 		m_view = Math::Mat4x4::Translation( -m_position ) * Math::Mat4x4::Rotation( m_rotation );
-		m_projection = Math::Mat4x4::Projection( m_fov, m_aspect, 1.0f, 1000.0f );
+		m_projection = Math::Mat4x4::Projection( m_fov, m_aspect, 5.0f, 50000.0f );
 		m_mutex.unlock();
 		m_viewProjection = m_view * m_projection;
 		m_inverseView = m_view.Inverse();
@@ -115,6 +115,22 @@ namespace Input {
 		// rotations)
 		Math::Mat4x4 mCurrentView = Mat4x4::Rotation( m_rotation );
 		m_position = m_attachedTo->GetCenter() - mCurrentView * m_referencePos;
+	}
+
+	// ********************************************************************* //
+	bool Camera::IsVisible( const Math::Sphere& _S ) const
+	{
+		// TODO: potential optimization: Dot-Product-Culling
+
+		// Check against all 6 planes. If the sphere is outside any half space
+		// it is outside of the whole volume.
+		for( int i=0; i<6; ++i )
+		{
+			if( m_frustum[i].DotCoords( _S.m_center ) <= -_S.m_radius )
+				return false;
+		}
+
+		return true;
 	}
 
 } // namespace Input
