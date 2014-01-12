@@ -27,8 +27,7 @@ layout(std140) uniform Camera
 	mat4 c_mView;
 	mat4 c_mProjection;
 	mat4 c_mViewProjection;
-	vec3 c_vInverseProjection;
-	float c_fFar;
+	vec4 c_vInverseProjection;
 };
 
 void main(void)
@@ -41,9 +40,10 @@ void main(void)
 	vec4 vPos = vec4( x, y, z, 1 ) * c_mWorldViewProjection;
 
 	// Discard voxel outside the viewing volume
-	if( vPos.z+c_mProjection[2][2] < 0 || vPos.z-c_mProjection[2][2] < c_fFar ||
-		(vPos.x+c_mProjection[0][0]) < -vPos.w || (vPos.x-c_mProjection[0][0]) > vPos.w ||
-		(vPos.y+c_mProjection[1][1]) < -vPos.w || (vPos.y-c_mProjection[1][1]) > vPos.w)
+	float w = vPos.w + max(max(length(c_vCorner000), length(c_vCorner100)), max(length(c_vCorner010), length(c_vCorner001)));
+	if( vPos.z < -w || vPos.z > w ||
+		vPos.x < -w || vPos.x > w ||
+		vPos.y < -w || vPos.y > w )
 		return;
 
 	// To determine the culling the projective position is inverse transformed
@@ -53,7 +53,7 @@ void main(void)
 	// The 8 corner direction vectors can be added such that the result shows
 	// in normal direction in project space. This direction must be rescaled
 	// too to be in view space. Then culling is decided by a dot product.
-	vec3 vZDir = vPos.xyz * c_vInverseProjection + vec3(0,0,c_vInverseProjection.z);
+	vec3 vZDir = vPos.xyz * c_vInverseProjection + vec3(0,0,c_vInverseProjection.w);
 	
 	if( dot((c_vCorner000.xyz+c_vCorner110.xyz)*c_vInverseProjection, vZDir) < 0 ) {
 		if( (vs_out_VoxelCode[0] & uint(0x10)) != uint(0) )

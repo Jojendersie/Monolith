@@ -64,8 +64,8 @@ void GSMain::Render( double _time, double _deltaTime )
 	m_parent->m_graficContent->cameraUBO["View"] = m_camera->GetView();
 	m_parent->m_graficContent->cameraUBO["Projection"] = m_camera->GetProjection();
 	m_parent->m_graficContent->cameraUBO["ViewProjection"] = m_camera->GetViewProjection();
-	m_parent->m_graficContent->cameraUBO["ProjectionInverse"] = Vec3(1.0f/m_camera->GetProjection()(0,0), 1.0f/m_camera->GetProjection()(1,1), 1.0f/m_camera->GetProjection()(2,2));
-	m_parent->m_graficContent->cameraUBO["Far"] = 400.0f;
+	m_parent->m_graficContent->cameraUBO["ProjectionInverse"] = Vec4(1.0f/m_camera->GetProjection()(0,0), 1.0f/m_camera->GetProjection()(1,1), 1.0f/m_camera->GetProjection()(2,2), -m_camera->GetProjection()(3,2) / m_camera->GetProjection()(2,2));
+//	m_parent->m_graficContent->cameraUBO["Far"] = 400.0f;
 
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 

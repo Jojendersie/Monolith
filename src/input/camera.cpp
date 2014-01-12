@@ -93,7 +93,7 @@ namespace Input {
 		m_referencePos[0] = 0.0f;
 		m_referencePos[1] = 0.0f;
 		// Compute required distance to the model
-		m_referencePos[2] = _model.GetRadius() / m_fov;
+		m_referencePos[2] = 2.0f * _model.GetRadius() / m_fov;
 
 		m_mutex.lock();
 		NormalizeReference();
