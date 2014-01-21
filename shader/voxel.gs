@@ -53,9 +53,9 @@ void main(void)
 	// The 8 corner direction vectors can be added such that the result shows
 	// in normal direction in project space. This direction must be rescaled
 	// too to be in view space. Then culling is decided by a dot product.
-	vec3 vZDir = vPos.xyz * c_vInverseProjection + vec3(0,0,c_vInverseProjection.w);
+	vec3 vZDir = vPos.xyz * c_vInverseProjection.xyz + vec3(0,0,c_vInverseProjection.w);
 	
-	if( dot((c_vCorner000.xyz+c_vCorner110.xyz)*c_vInverseProjection, vZDir) < 0 ) {
+	if( dot((c_vCorner000.xyz+c_vCorner110.xyz)*c_vInverseProjection.xyz, vZDir) < 0 ) {
 		if( (vs_out_VoxelCode[0] & uint(0x10)) != uint(0) )
 		{
 			gs_normal = vec3(0,0,-1);
@@ -93,7 +93,7 @@ void main(void)
 		}
 	}//*/
 
-	if( dot((c_vCorner010.xyz+c_vCorner111.xyz)*c_vInverseProjection, vZDir) < 0 ) {
+	if( dot((c_vCorner010.xyz+c_vCorner111.xyz)*c_vInverseProjection.xyz, vZDir) < 0 ) {
 		if( (vs_out_VoxelCode[0] & uint(0x08)) != uint(0) )
 		{
 			gs_normal = vec3(0,1,0);
@@ -131,7 +131,7 @@ void main(void)
 		}
 	}//*/
 
-	if( dot((c_vCorner000.xyz+c_vCorner011.xyz)*c_vInverseProjection, vZDir) < 0 ) {
+	if( dot((c_vCorner000.xyz+c_vCorner011.xyz)*c_vInverseProjection.xyz, vZDir) < 0 ) {
 		if( (vs_out_VoxelCode[0] & uint(0x01)) != uint(0) )
 		{
 			gs_normal = vec3(-1,0,0);
