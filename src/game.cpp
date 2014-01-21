@@ -24,7 +24,7 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 
 	// Load configuration
 	try {
-		Jo::Files::HDDFile file( "config.json", true );
+		Jo::Files::HDDFile file( "config.json" );
 		Config.Read( file, Jo::Files::Format::JSON );
 	} catch( std::string _message ) {
 		std::cerr << "Failed to load config file with message:\n";
@@ -51,7 +51,7 @@ Monolith::~Monolith()
 	Input::Manager::Close();
 
 	try {
-		Jo::Files::HDDFile file( "config.json", false );
+		Jo::Files::HDDFile file( "config.json" );
 		Config.Write( file, Jo::Files::Format::JSON );
 	} catch(...) {
 		std::cerr << "Could not write a config file!";

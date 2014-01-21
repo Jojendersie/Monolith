@@ -53,7 +53,7 @@ Texture::Texture( const std::string& _fileName )
 	glBindTexture( GL_TEXTURE_2D, m_textureID );
 	LogGlError("Could not bind a texture");
 
-	Jo::Files::HDDFile file(_fileName, true);
+	Jo::Files::HDDFile file(_fileName);
 	Jo::Files::ImageWrapper image(file, Jo::Files::Format::PNG );
 
 	m_width = image.Width();
@@ -98,7 +98,7 @@ Texture::Texture( const std::vector<std::string>& _fileNames )
 	LogGlError("Could not bind a texture");
 
 	// Use first file as reference file.
-	Jo::Files::HDDFile firstFile(_fileNames[0], true);
+	Jo::Files::HDDFile firstFile(_fileNames[0]);
 	Jo::Files::ImageWrapper firstImage(firstFile, Jo::Files::Format::PNG );
 
 	m_width = firstImage.Width();
@@ -130,7 +130,7 @@ Texture::Texture( const std::vector<std::string>& _fileNames )
 	for( size_t i=1; i<_fileNames.size(); ++i )
 	{
 		try {
-			Jo::Files::HDDFile file(_fileNames[i], true);
+			Jo::Files::HDDFile file(_fileNames[i]);
 			Jo::Files::ImageWrapper image(file, Jo::Files::Format::PNG );
 			assert(image.Width() == firstImage.Width() && image.Height() == firstImage.Height());
 			// Upload pixel data.

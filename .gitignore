@@ -7,10 +7,22 @@ html/
 /screens
 /historicalbinaries
 /SoundTest
-/dependencies
+/dependencies/glfw-3.0.3/examples
+/dependencies/glfw-3.0.3/src
+/dependencies/glfw-3.0.3/docs
+/dependencies/glfw-3.0.3/deps
+/dependencies/glfw-3.0.3/CMAKE*
+/dependencies/glfw-3.0.3/build
+/dependencies/glfw-3.0.3/tests
+/dependencies/glew-1.10.0/bin
+/dependencies/glew-1.10.0/doc
+/dependencies/glew-1.10.0/lib/Release MX
+/dependencies/glew-1.10.0/lib/Release/x64
 
 *.sdf
 *.opensdf
 *.suo
 *.zip
 *.user
+*.vspx
+*.psess

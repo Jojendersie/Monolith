@@ -12,7 +12,7 @@ namespace Graphic
 		m_effect.BindTexture( "u_characterTex", 7, _globalPipelineData->linearSampler );
 		m_effect.BindUniformBuffer( _globalPipelineData->cameraUBO );
 
-		Jo::Files::HDDFile file("texture/"+_fontName+".sraw", true);
+		Jo::Files::HDDFile file("texture/"+_fontName+".sraw");
 		Jo::Files::MetaFileWrapper Wrap( file, Jo::Files::Format::SRAW );
 		auto& PosX = Wrap.RootNode[std::string("positionX")];
 		auto& PosY = Wrap.RootNode[std::string("positionY")];
