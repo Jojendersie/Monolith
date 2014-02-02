@@ -98,6 +98,7 @@
     <ClCompile Include="src\input\camera.cpp" />
     <ClCompile Include="src\input\input.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\math\intersection.cpp" />
     <ClCompile Include="src\math\matrix.cpp" />
     <ClCompile Include="src\math\quaternion.cpp" />
     <ClCompile Include="src\math\sphere.cpp" />
@@ -126,11 +127,13 @@
     <ClInclude Include="src\graphic\vertexbuffer.hpp" />
     <ClInclude Include="src\input\camera.hpp" />
     <ClInclude Include="src\input\input.hpp" />
+    <ClInclude Include="src\math\intersection.hpp" />
     <ClInclude Include="src\math\math.hpp" />
     <ClInclude Include="src\math\mathbase.hpp" />
     <ClInclude Include="src\math\matrix.hpp" />
     <ClInclude Include="src\math\plane.hpp" />
     <ClInclude Include="src\math\quaternion.hpp" />
+    <ClInclude Include="src\math\ray.hpp" />
     <ClInclude Include="src\math\sphere.hpp" />
     <ClInclude Include="src\math\vector.hpp" />
     <ClInclude Include="src\opengl.hpp" />

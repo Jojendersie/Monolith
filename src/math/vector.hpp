@@ -120,9 +120,9 @@ namespace Math {
 	Vector<n, Data> operator- (const Data _d, const Vector<n, Data>& _v) 				{ return Vector<n, Data>(_v) -= _d; }
 	template<int n, class Data>
 	Vector<n, Data> operator* (const Data _d, const Vector<n, Data>& _v) 				{ return Vector<n, Data>(_v) *= _d; }
-	// Division not commutative: What should this operator do?
-	//template<int n, class Data>
-	//Vector<n, Data> operator/ (const Data _d, const Vector<n, Data>& _v) 				{ return Vector<n, Data>(_v) /= _d; }
+	/// \brief Element wise scalar / vector.i
+	template<int n, class Data>
+	Vector<n, Data> operator/ (const Data _d, const Vector<n, Data>& _v) 				{ Vector<n, Data> result; for( int i=0; i<n; ++i ) result[i] = _d / _v[i]; return result; }
 
 	// comparison for float
 	template<int n>
@@ -132,9 +132,9 @@ namespace Math {
 
 	/// \brief Comparison for double. Uses the same EPSILON as float comparison
 	template<int n>
-	bool operator== (const Vector<n, double>& _v1, const Vector<n, double>& _v2)			{ for (int i = 0; i < n; i++) if (abs(_v1[i] - _v2[i])>EPSILON) return false; return true; }
+	bool operator== (const Vector<n, double>& _v1, const Vector<n, double>& _v2)		{ for (int i = 0; i < n; i++) if (abs(_v1[i] - _v2[i])>EPSILON) return false; return true; }
 	template<int n>
-	bool operator!= (const Vector<n, double>& _v1, const Vector<n, double>& _v2)			{ for (int i = 0; i < n; i++) if (abs(_v1[i] - _v2[i])>EPSILON) return true; return false; }
+	bool operator!= (const Vector<n, double>& _v1, const Vector<n, double>& _v2)		{ for (int i = 0; i < n; i++) if (abs(_v1[i] - _v2[i])>EPSILON) return true; return false; }
 
 	/// \brief Comparison for all other types with hard element equality.
 	template<int n, class Data>

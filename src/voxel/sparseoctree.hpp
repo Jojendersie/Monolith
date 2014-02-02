@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../math/vector.hpp"
+#include "../math/ray.hpp"
+#include "../math/intersection.hpp"
 #include "../algorithm/smallsort.hpp"
 #include <hybridarray.hpp>
 #include <poolallocator.hpp>
@@ -76,6 +78,30 @@ namespace Voxel {
 		template<typename Param>
 		void Traverse( bool(*_callback)(const Math::IVec4&,T,bool,Param*), Param* _param ) const;
 
+		/// \brief Full collision information in local coordinates
+		struct HitResult
+		{
+			Math::IVec3 position;
+			T voxel;
+			
+			/// \brief The side on which the returned voxel was hit.
+			///	\details Left, Bottom and Front mean that the ray came from a smaller
+			///		coordinate in x, y or z respective.
+			Math::Intersect::Side side;
+		};
+
+		/// \brief Determine which voxel is hit first on which side from
+		///		given ray.
+		///	\param [in] _ray A ray in tree space.
+		///	\param [in] _targetLevel Target level (>=0) where the voxel should
+		///		be found. Common is to use 0 - the deepest level but if
+		///		constructing with larger voxels it could also be useful to
+		///		find the first nonempty voxel on a higher level.
+		///	\param [out] _hit The first voxel on the target level which is non
+		///		empty. This is only defined if there is a collision.
+		///	\return true if there is a collision.
+		bool RayCast( const Math::Ray& _ray, int _targetLevel, HitResult& _hit );
+
 #ifdef _DEBUG
 		size_t MemoryConsumption() const;
 #endif
@@ -130,6 +156,10 @@ namespace Voxel {
 			///		target position is within the current voxels children
 			static int ComputeChildIndex(const Math::IVec4& _targetPosition, int _childSize);
 
+			/// \copydoc SparseVoxelOctree::RayCast
+			bool RayCast( const Math::Ray& _ray, Math::IVec3& _position, int _level,
+				int _targetLevel, HitResult& _hit );
+
 			/// \brief Temporarily method to benchmark the tree
 #ifdef _DEBUG
 			size_t MemoryConsumption() const;
@@ -154,6 +184,18 @@ namespace Voxel {
 		/// \brief Internal getter which returns a node reference.
 		const SVON* _Get( const Math::IVec3& _position, int _level ) const;
 
+		/// \brief Used to sort children after a floating point number
+		struct TmpCollisionEntry
+		{
+			float value;
+			int index;
+
+			/// \brief Less then with respect to the value
+			bool operator < ( const TmpCollisionEntry& _other ) const
+			{
+				return value < _other.value;
+			}
+		};
 	};
 
 
@@ -238,10 +280,8 @@ namespace Voxel {
 		int scale = m_rootSize-_level;
 		if( scale < 0 ) return nullptr;
 		Math::IVec3 position = _position >> scale;
-		//if( ((position-m_rootPosition) & Math::IVec3(0xfffffffe)) != Math::IVec3(0) ) return nullptr;
-		if( ((position[0]-m_rootPosition[0]) & 0xfffffffe) != 0 
-		 || ((position[1]-m_rootPosition[1]) & 0xfffffffe) != 0
-		 || ((position[2]-m_rootPosition[2]) & 0xfffffffe) != 0) return nullptr;
+		if((position-m_rootPosition) != Math::IVec3(0))
+			return nullptr;
 
 		// Search in the octree (while not on target level or tree ends)
 		const SVON* current = &m_root;
@@ -251,8 +291,6 @@ namespace Voxel {
 			int y = (_position[1] >> scale) & 1;
 			int z = (_position[2] >> scale) & 1;
 			current = &current->children[ x + y * 2 + z * 4 ];
-			//position = _position >> scale;
-			//current = &current->children[ (position[0] & 1) + (position[1] & 1) * 2 + (position[2] & 1) * 4 ];
 		}
 
 		return current;
@@ -310,6 +348,17 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
+	template<typename T, typename Listener>
+	bool SparseVoxelOctree<T,Listener>::RayCast( const Math::Ray& _ray, int _targetLevel, HitResult& _hit )
+	{
+		assert(m_rootSize != -1);
+
+		// Use recursive algorithm.
+		// TODO: what if m_rootSize < _targetLevel?
+		return m_root.RayCast( _ray, m_rootPosition, m_rootSize, _targetLevel, _hit );
+	}
+
+	// ********************************************************************* //
 #ifdef _DEBUG
 	template<typename T, typename Listener>
 	size_t SparseVoxelOctree<T,Listener>::MemoryConsumption() const
@@ -320,6 +369,12 @@ namespace Voxel {
 		return sum;
 	}
 #endif
+
+
+
+
+
+
 
 
 
@@ -481,6 +536,56 @@ namespace Voxel {
 		int z = (_targetPosition[2] >> scale) & 1;
 		// Now compute the index from the position
 		return x + y * 2 + z * 4;
+	}
+
+
+	// ********************************************************************* //
+	template<typename T, typename Listener>
+	bool SparseVoxelOctree<T,Listener>::SVON::RayCast( const Math::Ray& _ray, Math::IVec3& _position, int _level,
+		int _targetLevel, HitResult& _hit )
+	{
+		// Test the current cube
+		if( children && !(_targetLevel==_level))
+		{
+			// Recursion required. We can user fast test without side detection.
+			float t;
+			if( Math::Intersect::RayAACube( _ray, _position, (1<<_level), t ) )
+			{
+				// Ray passes the current node. Make a sphere test for each
+				// child.
+				TmpCollisionEntry list[8];
+				int num = 0;		// How many children have a collision?
+				_position <<= 1;	// First child index
+				float r = (1 << (_level - 1)) * 0.866025404f;	// * 0.5 * sqrt(3)
+				for( int i=0; i<8; ++i )
+				{
+					if( Math::Intersect::RaySphere( _ray,
+						Math::Sphere( _position + CHILD_OFFSETS[i], r ),
+						list[num] ) )
+					list[num++].index = i;
+				}
+				 
+				// Sort the possible colliding children after range.
+				Algo::SmallSort( list, num );
+
+				// Test them sequentially and stop immediately if something was hit.
+				for( int i=0; i<num; ++i )
+					if( children[list[i].index]->RayCast( _ray, _position + CHILD_OFFSETS[list[i].index], _level-1, _hit ) )
+						return true;
+
+				// No child collides
+				return false;
+			}
+		} else {
+			// This is a leaf - if we hit we wanna know the side.
+			if( Math::Intersect::RayAACube( _ray, _position, (1<<_level), _hit.side ) )
+			{
+				_hit.position = _position;
+				_hit.voxel = voxel;
+				return true;
+			} else
+				return false;
+		}
 	}
 
 

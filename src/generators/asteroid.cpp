@@ -10,6 +10,7 @@ namespace Generators {
 	{
 		Random Noise(_seed);
 		Random Rnd(_seed*1435461);
+		int h = (int)(0.5*log(_sizeX*_sizeX + _sizeY*_sizeY + _sizeZ*_sizeZ));
 		FOREACH_VOXEL(_sizeX, _sizeY, _sizeZ)
 		{
 			// Build ellipsoid base form
@@ -17,7 +18,7 @@ namespace Generators {
 			// (x-sx/2)/sx
 			float d = lengthSq(position - 0.5f) - 0.25f;
 			// Add noise
-			for( int i=0; i<3; ++i )
+			for( int i=0; i<h; ++i )
 				d += 0.15f * Noise.At( position * (4.0f * (1<<i)) ) / (1<<i);
 			if( d < 0 )
 			{

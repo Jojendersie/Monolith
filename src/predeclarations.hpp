@@ -40,6 +40,7 @@ namespace Math {
 	class Quaternion;
 	class Plane;
 	struct Sphere;
+	struct Ray;
 	template<int n, class Data>	class Vector;
 	typedef Vector<2,int> IVec2;
 	typedef Vector<3,int> IVec3;

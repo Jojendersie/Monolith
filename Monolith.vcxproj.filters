@@ -119,6 +119,9 @@
     <ClCompile Include="src\math\quaternion.cpp">
       <Filter>Source Files\math</Filter>
     </ClCompile>
+    <ClCompile Include="src\math\intersection.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game.hpp">
@@ -218,6 +221,12 @@
       <Filter>Source Files\math</Filter>
     </ClInclude>
     <ClInclude Include="src\math\quaternion.hpp">
+      <Filter>Source Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\ray.hpp">
+      <Filter>Source Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\intersection.hpp">
       <Filter>Source Files\math</Filter>
     </ClInclude>
   </ItemGroup>
