@@ -229,6 +229,9 @@
     <ClInclude Include="src\math\intersection.hpp">
       <Filter>Source Files\math</Filter>
     </ClInclude>
+    <ClInclude Include="src\voxel\material.hpp">
+      <Filter>Source Files\voxel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\voxel.ps">
