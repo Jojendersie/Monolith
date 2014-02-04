@@ -1,0 +1,14 @@
+#version 330
+
+in vec2 gs_texCoord;
+uniform sampler2D u_screenTex;
+
+out vec4 fragColor;
+
+void main()
+{
+	// Texture sample (bitmap font)
+	fragColor = texture( u_screenTex, vec2(gs_texCoord.x, 1-gs_texCoord.y) );
+	// TODO: test perfomance
+	//if( fragColor.a < 0.01 ) discard;
+}

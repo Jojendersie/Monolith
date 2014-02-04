@@ -140,6 +140,10 @@ namespace Utils {
 		/// \brief Access single color component: Alpha
 		uint8_t A() const										{ return m_color; }
 
+		
+		/// \brief Access all components in vertex shader direction
+		uint32_t RGBA() const {return ((A()<<24) | (B()<<16) | (G()<<8) | R());}		
+
 		/// \brief Returns true, if both colors are identical in all components.
 		bool operator==( const Color8U& _c) const				{ return m_color == _c.m_color; }
 
