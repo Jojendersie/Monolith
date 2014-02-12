@@ -106,6 +106,7 @@
     <ClCompile Include="src\timer.cpp" />
     <ClCompile Include="src\utilities\color.cpp" />
     <ClCompile Include="src\voxel\chunk.cpp" />
+    <ClCompile Include="src\voxel\material.cpp" />
     <ClCompile Include="src\voxel\model.cpp" />
   </ItemGroup>
   <ItemGroup>
