@@ -36,7 +36,14 @@ namespace Files {
 		///		estimate the target size this will have higher performances.
 		MemFile( uint64_t _capacity = 4096 );
 
+		/// \brief Move construction
+		MemFile( MemFile&& _file );
+
 		~MemFile();
+
+		/// \brief Forget old memory and take new file.
+		/// \warning Are you sure you will overwrite the current data?
+		const MemFile& operator = ( MemFile&& _file );
 
 		virtual void Read( uint64_t _numBytes, void* _to ) const override;
 		virtual uint8_t Next() const override;
@@ -48,6 +55,11 @@ namespace Files {
 
 		void* GetBuffer()				{ return m_buffer; }
 		const void* GetBuffer() const	{ return m_buffer; }
+
+	private:
+		// Copying files not allowed.
+		void operator = (const MemFile&);
+		MemFile(const MemFile&);
 	};
 };
 };

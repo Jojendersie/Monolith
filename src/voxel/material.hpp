@@ -52,6 +52,9 @@ namespace Voxel {
 		/// \brief Binary check for equality
 		bool operator == (const Material& _mat) const		{ return *(uint32_t*)this == *(uint32_t*)&_mat; }
 		bool operator != (const Material& _mat) const		{ return *(uint32_t*)this != *(uint32_t*)&_mat; }
+
+		/// \brief Mark this material as outdated (it is set to undefined)
+		void Touch()	{ *this = UNDEFINED; }
 	};
 
 

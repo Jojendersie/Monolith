@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 
 namespace Jo {
 namespace Files {
@@ -58,6 +59,29 @@ namespace Files {
 		bool CanRead() const			{ return m_readAccess; }
 
 		bool IsEof() const	{ return m_size == m_cursor; }
+
+		/// \brief Write a single uint8_t to the file.
+		void WriteU8( uint8_t _what )		{ Write(&_what, 1); }
+		/// \brief Write a single uint16_t to the file.
+		void WriteU16( uint16_t _what )		{ Write(&_what, 2); }
+		/// \brief Write a single uint32_t to the file.
+		void WriteU32( uint32_t _what )		{ Write(&_what, 4); }
+		/// \brief Write a single uint64_t to the file.
+		void WriteU64( uint64_t _what )		{ Write(&_what, 8); }
+		/// \brief Write a single int8_t to the file.
+		void WriteI8( int8_t _what )		{ Write(&_what, 1); }
+		/// \brief Write a single int16_t to the file.
+		void WriteI16( int16_t _what )		{ Write(&_what, 2); }
+		/// \brief Write a single int32_t to the file.
+		void WriteI32( int32_t _what )		{ Write(&_what, 4); }
+		/// \brief Write a single int64_t to the file.
+		void WriteI64( int64_t _what )		{ Write(&_what, 8); }
+		/// \brief Write a single float to the file.
+		void Write( float _what )			{ Write(&_what, 4); }
+		/// \brief Write a single double to the file.
+		void Write( double _what )			{ Write(&_what, 8); }
+		/// \brief Write a single word to the file.
+		void Write( const std::string& _what )		{ Write(_what.c_str(), _what.length()); }
 	};
 };
 };

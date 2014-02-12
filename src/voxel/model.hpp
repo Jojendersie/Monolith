@@ -46,9 +46,9 @@ namespace Voxel {
 		VoxelType Get( const Math::IVec3& _position, int _level ) const;
 
 		/// \see SparseVoxelOctree::IsEachChild
-		bool IsEachChild( const Math::IVec3& _position, int _level, bool(*_predicate)(VoxelType), VoxelType& _out ) const	{ return m_voxelTree.IsEachChild(_position, _level, _predicate, _out); }
+//		bool IsEachChild( const Math::IVec3& _position, int _level, bool(*_predicate)(VoxelType), VoxelType& _out ) const	{ return m_voxelTree.IsEachChild(_position, _level, _predicate, _out); }
 		/// \see SparseVoxelOctree::IsAnyChild
-		bool IsAnyChild( const Math::IVec3& _position, int _level, bool(*_predicate)(VoxelType), VoxelType& _out ) const	{ return m_voxelTree.IsAnyChild(_position, _level, _predicate, _out); }
+//		bool IsAnyChild( const Math::IVec3& _position, int _level, bool(*_predicate)(VoxelType), VoxelType& _out ) const	{ return m_voxelTree.IsAnyChild(_position, _level, _predicate, _out); }
 		/// \see SparseVoxelOctree::Traverse
 		template<typename Param>
 		void Traverse( bool(*_callback)(const Math::IVec4&,VoxelType,bool,Param*), Param* _param ) const	{ m_voxelTree.Traverse(_callback, _param); }

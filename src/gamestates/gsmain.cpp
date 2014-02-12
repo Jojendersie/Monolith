@@ -19,7 +19,7 @@ namespace RenderStat {
 // ************************************************************************* //
 GSMain::GSMain(Monolith* _parent) : IGameState(_parent)
 {
-	m_astTest = new Generators::Asteroid( 256, 256, 256, 2 );
+	m_astTest = new Generators::Asteroid( 80, 50, 30, 2 );
 
 	m_fontTest = new Graphic::Font("arial", _parent->m_graficContent);
 	m_textTest = new Graphic::TextRender(m_fontTest);

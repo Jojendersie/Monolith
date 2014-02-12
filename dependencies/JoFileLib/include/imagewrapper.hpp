@@ -58,7 +58,7 @@ namespace Files {
 		int BitDepth() const 				{ return m_bitDepth; }
 
 		/// \brief Direct access to the image memory.
-		/// \details This should be used for loading up images to the GPU.
+		/// \details This should be used for uploading images to the GPU.
 		///
 		///		The pixels are stored row wise.
 		const void* GetBuffer() const		{ return m_buffer; }
@@ -91,6 +91,11 @@ namespace Files {
 
 		void ReadPNG( const IFile& _file );
 		void WritePNG( IFile& _file ) const;
+
+		/// \brief Read in a portable float map
+		void ReadPFM( const IFile& _file );
+		/// \brief Write a portable float map
+		void WritePFM( IFile& _file ) const;
 	};
-};
-};
+}
+}

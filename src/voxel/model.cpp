@@ -20,7 +20,7 @@ namespace Voxel {
 		m_mass(0.0f),
 		m_center(0.0f),
 		m_boundingSphereRadius(0.0f),
-		m_voxelTree(VoxelType::UNDEFINED, this)
+		m_voxelTree(this)
 	{
 		auto x = IVec3(3) * 0.5f;
 	}
@@ -54,7 +54,7 @@ namespace Voxel {
 
 	bool Model::DecideToDraw(const Math::IVec4& _position, VoxelType _type, bool _hasChildren, DrawParam* _param)
 	{
-		if( !IsSolid( _type ) ) return false;
+//		if( !IsSolid( _type ) ) return false;
 
 		// Compute a world space position
 		float chunkLength = float(1 << _position[3]);
@@ -119,10 +119,9 @@ namespace Voxel {
 	// ********************************************************************* //
 	VoxelType Model::Get( const Math::IVec3& _position, int _level ) const
 	{
-		VoxelType type = m_voxelTree.Get(_position, _level);
-
-		// TODO Search in blue print.
-		if( type == VoxelType::UNDEFINED ) type = VoxelType::NONE;
+		VoxelType type;
+		if( m_voxelTree.Get(_position, _level, type) ) return type;
+		else return VoxelType::NONE;
 
 		return type;		
 	}
