@@ -30,89 +30,91 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	struct DrawParam
+	struct DecideToDraw: public SparseVoxelOctree<VoxelType,Model>::SVOProcessor
 	{
-		const Input::Camera& camera;	// Required for culling and LOD
-		Model* model;					// Create or find chunks here.
+		const Input::Camera& camera;					// Required for culling and LOD
+		SparseVoxelOctree<VoxelType, Model>* model;		// Operate on this data.
+		std::unordered_map<Math::IVec4, Chunk>* chunks;	// Create or find chunks here.
 		Graphic::UniformBuffer& objectConstants;
 		const Math::Mat4x4& modelTransform;
 		const Math::Mat4x4& modelViewProjection;
 		ChunkBuilder* builder;
 
-		DrawParam(const Input::Camera& _camera, Model* _model,
+		DecideToDraw(const Input::Camera& _camera,
+				SparseVoxelOctree<VoxelType, Model>* _model,
+				std::unordered_map<Math::IVec4, Chunk>* _chunks,
 				Graphic::UniformBuffer& _objectConstants,
 				const Math::Mat4x4& _modelViewProjection,
 				const Math::Mat4x4& _modelTransform,
 				ChunkBuilder* _builder) :
-			camera(_camera), model(_model),
+			camera(_camera), model(_model), chunks(_chunks),
 			objectConstants(_objectConstants),
 			modelTransform(_modelTransform),
 			modelViewProjection(_modelViewProjection),
 			builder(_builder)
 		{}
-	};
 
-	bool Model::DecideToDraw(const Math::IVec4& _position, VoxelType _type, bool _hasChildren, DrawParam* _param)
-	{
-//		if( !IsSolid( _type ) ) return false;
-
-		// Compute a world space position
-		float chunkLength = float(1 << _position[3]);
-		Sphere boundingSphere(Vec3(_position[0] * chunkLength, _position[1] * chunkLength, _position[2] * chunkLength), 0.87f * chunkLength);
-		boundingSphere.m_center += chunkLength * 0.5f;
-		boundingSphere.m_center = boundingSphere.m_center * _param->modelTransform;
-
-		// View frustum culling
-		if( !_param->camera.IsVisible( boundingSphere ) )
-			return false;
-
-		// LOD - calculate a target level. If the current level is less or
-		// equal the target draw.
-		float detailResolution = 0.35f * log( lengthSq(boundingSphere.m_center - _param->camera.GetPosition()) );
-		//float detailResolution = 0.025f * sqr(log( lengthSq(boundingSphere.m_center - _param->camera.GetPosition()) ));
-			//pow((chunkPos - _param->camera.GetPosition()).Length(), 0.25f);
-		int targetLOD = max(5, Math::ceil(detailResolution));
-//		std::cout << targetLOD << '\n';
-		if( _position[3] <= targetLOD )
+		bool PreTraversal(const Math::IVec4& _position, SparseVoxelOctree<VoxelType,Model>::SVON* _node)
 		{
-			// For very far objects a chunk might be too detailed. In this case
-			// a coarser level is used (usually 5 -> 32^3 chunks)
-			int levels = max(0, 5 - (targetLOD - _position[3]));
-			// Encode in position -> part of the key / hash
-			IVec4 position(_position);
-			position[3] |= levels << 16;
-			auto chunk = _param->model->m_chunks.find(position);
-			if( chunk == _param->model->m_chunks.end() )
+	//		if( !IsSolid( _type ) ) return false;
+
+			// Compute a world space position
+			float chunkLength = float(1 << _position[3]);
+			Sphere boundingSphere(Vec3(_position[0] * chunkLength, _position[1] * chunkLength, _position[2] * chunkLength), 0.87f * chunkLength);
+			boundingSphere.m_center += chunkLength * 0.5f;
+			boundingSphere.m_center = boundingSphere.m_center * modelTransform;
+
+			// View frustum culling
+			if( !camera.IsVisible( boundingSphere ) )
+				return false;
+
+			// LOD - calculate a target level. If the current level is less or
+			// equal the target draw.
+			float detailResolution = 0.35f * log( lengthSq(boundingSphere.m_center - camera.GetPosition()) );
+			//float detailResolution = 0.025f * sqr(log( lengthSq(boundingSphere.m_center - _param->camera.GetPosition()) ));
+				//pow((chunkPos - _param->camera.GetPosition()).Length(), 0.25f);
+			int targetLOD = max(5, Math::ceil(detailResolution));
+	//		std::cout << targetLOD << '\n';
+			if( _position[3] <= targetLOD )
 			{
-				// Chunk does not exist -> create
-				chunk = _param->model->m_chunks.insert(
-					std::make_pair(position, std::move(Chunk(_param->model, _position, levels)))
-					).first;
-				_param->builder->RecomputeVertexBuffer(chunk->second);
+				// For very far objects a chunk might be too detailed. In this case
+				// a coarser level is used (usually 5 -> 32^3 chunks)
+				int levels = max(0, 5 - (targetLOD - _position[3]));
+				// Encode in position -> part of the key / hash
+				IVec4 position(_position);
+				position[3] |= levels << 16;
+				auto chunk = chunks->find(position);
+				if( chunk == chunks->end() )
+				{
+					// Chunk does not exist -> create
+					chunk = chunks->insert(
+						std::make_pair(position, std::move(Chunk(model, _position, levels)))
+						).first;
+					builder->RecomputeVertexBuffer(chunk->second);
+				}
+				// There are empty inner chunks
+				if( chunk->second.NumVoxels() > 0 )
+				{
+					RenderStat::g_numVoxels += chunk->second.NumVoxels();
+					RenderStat::g_numChunks++;
+					chunk->second.Draw( objectConstants, modelViewProjection );
+				}
+				return false;
 			}
-			// There are empty inner chunks
-			if( chunk->second.NumVoxels() > 0 )
-			{
-				RenderStat::g_numVoxels += chunk->second.NumVoxels();
-				RenderStat::g_numChunks++;
-				chunk->second.Draw( _param->objectConstants, _param->modelViewProjection );
-			}
-			return false;
+			return true;
 		}
-		return true;
-	}
+	};
 
 	void Model::Draw( Graphic::UniformBuffer& _objectConstants, const Input::Camera& _camera )
 	{
-
 		// Create a new model space transformation
 		Math::Mat4x4 modelTransform = Mat4x4::Translation(-m_center) * Mat4x4::Rotation(m_rotation) * Mat4x4::Translation( m_position + m_center );
 		Math::Mat4x4 modelViewProjection = modelTransform * _camera.GetViewProjection();
 
 		// Iterate through the octree and render chunks depending on the lod.
 		ChunkBuilder* builder = new ChunkBuilder(); // TEMP -> in job verschieben
-		DrawParam param(_camera, this, _objectConstants, modelViewProjection, modelTransform, builder);
-		m_voxelTree.Traverse( DecideToDraw, &param );
+		DecideToDraw param(_camera, &this->m_voxelTree, &this->m_chunks, _objectConstants, modelViewProjection, modelTransform, builder);
+		m_voxelTree.Traverse( param );
 		delete builder;
 	}
 

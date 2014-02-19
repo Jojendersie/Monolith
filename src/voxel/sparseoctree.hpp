@@ -49,42 +49,14 @@ namespace Voxel {
 		///		the data is not touched.
 		bool Get( const Math::IVec3& _position, int _level, T& _out ) const;
 
-		/// \brief Test if a property is fulfilled for all children and get the
-		///		voxel data.
-		/// \details Applies a predicate too all children of a specified voxel.
-		///		Only if all children fulfill the predicate the return value is
-		///		true.
-		///		If the node does not have children the return value is
-		///		_predicate(_voxelOut). This means all children are assumed to
-		///		be the same as the parent (uniform node).
-		///		
-		///		Additionally the type of the voxel is returned.
-		/// \param [in] _position Position inside the given level. If the
-		///		position is outside the return value is false and the voxel
-		///		type is the default value.
-		/// \param [in] _level Depth in the grid hierarchy.
-		/// \param [in] _predicate The unary predicate function.
-		/// \param [out] _voxelOut Return of the voxels type itself -
-		///		which is a gratis get.
-//		bool IsEachChild( const Math::IVec3& _position, int _level, bool(*_predicate)(T), T& _voxelOut ) const;
-
-		/// \brief Test if a property is fulfilled for any child and get the
-		///		voxel data.
-		///	\details similar to SparseVoxelOctree::IsEachChild.
-//		bool IsAnyChild( const Math::IVec3& _position, int _level, bool(*_predicate)(T), T& _voxelOut ) const;
-
-		/// \brief Traverse through the whole tree in preorder and call the
-		///		callback.
-		/// \param [in] _callback This function is called for each voxel. It
-		///		has to return true if the children should be traversed too.
-		///		If a voxel does not have children the return value is ignored.
-		///
-		///		The function takes the octree position, the voxel data,
-		///		if the voxel has children, and the parameters passed.
-		///	\param [in] _param Pointer to an arbitrary structure to pass
-		///		additional information to the callback.
-		template<typename Param>
-		void Traverse( bool(*_callback)(const Math::IVec4&,T,bool,Param*), Param* _param ) const;
+		/// \brief Traverse through the whole tree.
+		/// \param [in] _processor An arbitrary implementation of the
+		///		SVOProcessor concept. The processor object can hold any amount
+		///		of local data as additional parameters. For each node the two
+		///		functions are called. Using an empty inline implementation will
+		///		remove the calls through optimization.
+		template<class Processor>
+		void Traverse( Processor& _processor );
 
 		/// \brief Full collision information in local coordinates
 		struct HitResult
@@ -110,19 +82,29 @@ namespace Voxel {
 		///	\return true if there is a collision.
 		bool RayCast( const Math::Ray& _ray, int _targetLevel, HitResult& _hit );
 
-#ifdef _DEBUG
-		size_t MemoryConsumption() const;
-#endif
 
-
-	protected:
-		Listener* m_listener;
 
 		/// \brief A Sparse-Voxel-Octree-Node
 #		pragma pack(push,1)
 		struct SVON {
-			SVON* m_children;
+
+			/// \brief Recursive traverse.
+			/// \see SparseVoxelOctree::Traverse
+			/// \param [in] _position Voxel position in 3D grid + level in the
+			///		tree where 0 is the highest resolution.
+			template<class Processor>
+			void Traverse( const Math::IVec4& _position, Processor& _processor );
+
+			/// \copydoc SparseVoxelOctree::RayCast
+			bool RayCast( const Math::Ray& _ray, Math::IVec3& _position, int _level,
+				int _targetLevel, HitResult& _hit ) const;
+
+			T& Data()						{ return m_data; }
+			T& Data() const					{ return m_data; }
+			const SVON* Children() const	{ return m_children; }
+		private:
 			T m_data;
+			SVON* m_children;
 
 			SVON() : m_children(nullptr), m_data(T::UNDEFINED)	{}
 
@@ -133,42 +115,73 @@ namespace Voxel {
 			///		_position[3] is the logarithmic size of the voxel to be set. 0 is
 			///		the layer with the highest resolution.
 			///	\param [in] _type The new type.
-			/// \param [in] _model The model for all update steps if voxels are
+			/// \param [in] _parent The model for all update steps if voxels are
 			///		overwritten.
 			static void Set(SVON* _this, int _currentSize, const Math::IVec4& _position,
-				T _type, SparseVoxelOctree* _model);
+				T _type, SparseVoxelOctree* _parent);
 
 			/// \brief Set all children to _defaultData to do an correct update and than
 			///		delete the memory block.
-			/// \param [in] _model The model for all update steps if voxels are
+			/// \param [in] _parent The model for all update steps if voxels are
 			///		overwritten.
 			///	\param [in] _removePhysicaly Call the model update for each deleted voxel or not? 
 			void RemoveSubTree(const Math::IVec4& _position, SparseVoxelOctree* _parent, bool _removePhysically);
-
-			/// \brief Recursive pre-order traverse.
-			/// \see SparseVoxelOctree::Traverse
-			/// \param [in] _position Voxel position in 3D grid.
-			/// \param [in] _size Grid size, 0 is the highest resolution.
-			template<class Param>
-			void Traverse( const Math::IVec4& _position, bool(*_callback)(const Math::IVec4&,T,bool,Param*), Param* _param ) const;
-
-			/// \brief Check if all children have the same type.
-			//bool IsUniform() const;
 
 			/// \brief Computes the child array index [0,7] assuming that the
 			///		target position is within the current voxels children
 			static int ComputeChildIndex(const Math::IVec4& _targetPosition, int _childSize);
 
-			/// \copydoc SparseVoxelOctree::RayCast
-			bool RayCast( const Math::Ray& _ray, Math::IVec3& _position, int _level,
-				int _targetLevel, HitResult& _hit );
-
-			/// \brief Temporarily method to benchmark the tree
-#ifdef _DEBUG
-			size_t MemoryConsumption() const;
-#endif
+			friend class SparseVoxelOctree;
 		};
 #		pragma pack(pop)
+
+
+
+		/// \brief Concept of a kernel for tree traversals.
+		/// \details The methods are non-virtual. Since the tree works with
+		///		templates it is not required and would only slow down things.
+		struct SVOProcessor
+		{
+			/// \brief Called before tree recursion.
+			/// \param [in] _position Octree position and level.
+			/// \param [inout] _node Read and write access to the current
+			///		node's data. Inclusive read access to its children.
+			/// \return false if traversal should stop here and do not go deeper.
+			bool PreTraversal(const Math::IVec4& _position, SVON* _node)	{}
+
+			/// \brief Called after returning from recursion.
+			/// \details If there are no children or recursion is canceled due
+			///		to PreTraversal's return value PostTraversal is also called.
+			void PostTraversal(const Math::IVec4& _position, SVON* _node)	{}
+		protected:
+			/// \brief This is a concept - do not use instances of this type
+			SVOProcessor()						{}
+			SVOProcessor(const SVOProcessor&)	{}
+			SVOProcessor(SVOProcessor&&)		{}
+		};
+
+		/// \brief Concept of a kernel for tree surface traversals.
+		/// \details \see SVOProcessor
+		struct SVOSurfProcessor
+		{
+			/// \copydoc SVOProcessor::PreTraversal
+			///	\param [in] _surface This node is a surface voxel.
+			///	\param [in] _csurface One flag for each child if it is a
+			///		surface voxel.
+			bool PreTraversal(const Math::IVec4& _position, SVON* _node, bool _surface, uint8_t _csurface)	{}
+
+			/// \copydoc SVOProcessor::PostTraversal
+			void PostTraversal(const Math::IVec4& _position, SVON* _node, bool _surface, uint8_t _csurface)	{}
+		protected:
+			/// \brief This is a concept - do not use instances of this type
+			SVOSurfProcessor()							{}
+			SVOSurfProcessor(const SVOSurfProcessor&)	{}
+			SVOSurfProcessor(SVOSurfProcessor&&)		{}
+		};
+
+
+	protected:
+		Listener* m_listener;
 
 		/// \brief An own allocator for all nodes of this model's octree.
 		/// \details Instead of single voxels this is always an array of 8.
@@ -200,6 +213,7 @@ namespace Voxel {
 			}
 		};
 	};
+	
 
 
 
@@ -311,46 +325,12 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	/*template<typename T, typename Listener>
-	bool SparseVoxelOctree<T,Listener>::IsEachChild( const Math::IVec3& _position, int _level, bool(*_predicate)(T), T& _voxelOut ) const
-	{
-		const SVON* node = _Get(_position, _level);
-
-		if( !node ) { _voxelOut = m_defaultData; return false; }
-		_voxelOut = node->voxel;
-		if( !node->children ) return _predicate(node->voxel);
-
-		// Test all children - stop if any does not have the searched property
-		for( int i=0; i<8; ++i )
-			if( !_predicate(node->children[i].voxel) ) return false;
-
-		return true;
-	}
-
-	// ********************************************************************* //
-	template<typename T, typename Listener>
-	bool SparseVoxelOctree<T,Listener>::IsAnyChild( const Math::IVec3& _position, int _level, bool(*_predicate)(T), T& _voxelOut ) const
-	{
-		const SVON* node = _Get(_position, _level);
-
-		if( !node ) { _voxelOut = m_defaultData; return false; }
-		_voxelOut = node->voxel;
-		if( !node->children ) return _predicate(node->voxel);
-
-		// Test all children - stop if any does have the searched property
-		for( int i=0; i<8; ++i )
-			if( _predicate(node->children[i].voxel) ) return true;
-
-		return false;
-	}*/
-
-	// ********************************************************************* //
-	template<typename T, typename Listener> template<typename Param>
-	void SparseVoxelOctree<T,Listener>::Traverse( bool(*_callback)(const Math::IVec4&,T,bool,Param*), Param* _param ) const
+	template<typename T, typename Listener> template<typename Processor>
+	void SparseVoxelOctree<T,Listener>::Traverse( Processor& _processor )
 	{
 		assert(m_rootSize != -1);
 
-		m_root.Traverse(IVec4(m_rootPosition, m_rootSize), _callback, _param);
+		m_root.Traverse(IVec4(m_rootPosition, m_rootSize), _processor);
 	}
 
 	// ********************************************************************* //
@@ -365,16 +345,7 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-#ifdef _DEBUG
-	template<typename T, typename Listener>
-	size_t SparseVoxelOctree<T,Listener>::MemoryConsumption() const
-	{
-		size_t sum = 0;
-		for( int i=0; i<8; ++i )
-			sum += m_roots[i].MemoryConsumption();
-		return sum;
-	}
-#endif
+
 
 
 
@@ -390,17 +361,13 @@ namespace Voxel {
 		const Math::IVec4& _position,
 		T _data, SparseVoxelOctree* _model)
 	{
-		// A stack with 'this' pointers for recursion. The recursion is unrolled
-		// automatically because this allows 'longjump' optimizations. Not
-		// everything must be updated after recursion and unrolling the stack
-		// stops as early as possible.
-//		Jo::HybridArray<SVON*, 16> callStack;
 		SVON* currentElement = _this;
 
 		// Go downwards
 		while( _currentSize > _position[3] )
 		{
 ////////////////////////		m_data.Touch();
+			currentElement->m_data = T::UNDEFINED;
 			int childIndex = ComputeChildIndex(_position, _currentSize-1);
 			if( !currentElement->m_children )
 			{ // Create new children
@@ -410,7 +377,6 @@ namespace Voxel {
 				for(int i=0; i<8; ++i) currentElement->m_children[i].m_data = currentElement->m_data;
 			}
 			--_currentSize;
-//			callStack.PushBack(currentElement);
 			currentElement = &currentElement->m_children[childIndex];
 		}
 		assert( _currentSize == _position[3] );
@@ -420,40 +386,6 @@ namespace Voxel {
 		// Physical update of this voxel
 		_model->m_listener->Update(_position, currentElement->m_data, _data);
 		currentElement->m_data = _data;
-
-		// Unroll stack as long as the voxel type in hierarchy changes.
-/*		bool typeChanged = true;
-		while( typeChanged && callStack.Size()>0 )
-		{
-			currentElement = callStack.PopBack();
-			// Was the same before and number of children with that type only
-			// increased.
-			typeChanged = currentElement->voxel != _type;
-
-			// It could be that the children were deleted or are of the same
-			// type now.
-			if( currentElement->IsUniform() )
-			{
-				// To do the model update the current position must be computed.
-				int scale = _currentSize-_position[3];
-				int x = _position[0] >> scale;
-				int y = _position[1] >> scale;
-				int z = _position[2] >> scale;
-				// A uniform node does not need its children.
-				currentElement->RemoveSubTree(IVec4(x, y, z, _currentSize), _model, false);
-				//_model->m_listener->Update(position, _currentSize, type, _type);
-				assert( currentElement->voxel == _type );
-			} else if(typeChanged) {
-				// Update the current type based one the changed child types.
-				// If the majority was already of the new type nothing can happen
-				// (So typeChanged is necessary that something might happen).
-				T oldType = currentElement->voxel;
-				currentElement->voxel = currentElement->MajorVoxelType();
-				// Still a change?
-				typeChanged = currentElement->voxel != oldType;
-			}
-		}
-		*/
 	}
 
 
@@ -477,33 +409,23 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	template<typename T, typename Listener> template<class Param>
-	void SparseVoxelOctree<T,Listener>::SVON::Traverse( const Math::IVec4& _position, bool(*_callback)(const Math::IVec4&,T,bool,Param*), Param* _param ) const
+	template<typename T, typename Listener> template<class Processor>
+	void SparseVoxelOctree<T,Listener>::SVON::Traverse( const Math::IVec4& _position, Processor& _processor )
 	{
-		if( _callback(_position,m_data,m_children!=nullptr,_param) && m_children )
+		if( _processor.PreTraversal(_position, this) && m_children )
 		{
 			Math::IVec4 position(_position[0]<<1, _position[1]<<1, _position[2]<<1, _position[3]);
 			for( int i=0; i<8; ++i )
 			{
 				//if( children[i].voxel != _defaultData )
-					m_children[i].Traverse(position + CHILD_OFFSETS[i], _callback, _param);
+					m_children[i].Traverse(position + CHILD_OFFSETS[i], _processor);
 				//else
 				//	assert( !children[i].children );
 			}
 		}
+
+		_processor.PostTraversal(_position, this);
 	}
-
-	// ********************************************************************* //
-	/*template<typename T, typename Listener>
-	bool SparseVoxelOctree<T,Listener>::SVON::IsUniform() const
-	{
-		if( !children ) return true;	// Uniform the same as the parent.
-		if( children[0].children ) return false;	// If a child has children the uniformness is undefined
-		for( int i=1; i<8; ++i )
-			if( children[i].voxel != children[0].voxel || children[i].children ) return false;
-		return true;
-	}*/
-
 
 	// ********************************************************************* //
 	template<typename T, typename Listener>
@@ -522,7 +444,7 @@ namespace Voxel {
 	// ********************************************************************* //
 	template<typename T, typename Listener>
 	bool SparseVoxelOctree<T,Listener>::SVON::RayCast( const Math::Ray& _ray, Math::IVec3& _position, int _level,
-		int _targetLevel, HitResult& _hit )
+		int _targetLevel, HitResult& _hit ) const
 	{
 		// Test the current cube
 		if( m_children && !(_targetLevel==_level))
@@ -568,27 +490,4 @@ namespace Voxel {
 		}
 	}
 
-
-	// ********************************************************************* //
-#ifdef _DEBUG
-	template<typename T, typename Listener>
-	size_t SparseVoxelOctree<T,Listener>::SVON::MemoryConsumption() const
-	{
-		size_t size = 0;	// Count this-size at parent
-		if( children ) {
-			size = 8*sizeof(SVON);	// The child array
-			for( int i=0; i<8; ++i )
-				size += children[i].MemoryConsumption();
-		}
-		return size;//*/
-		// Theoretic model
-		/*size_t size = sizeof(SVON)+1;
-		if( children ) {
-			for( int i=0; i<8; ++i )
-				if( IsSolid(children[i].voxel) )
-					size += children[i].MemoryConsumtion();
-		}
-		return size;//*/
-	}
-#endif
 } // namespace Voxel

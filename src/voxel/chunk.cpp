@@ -18,8 +18,8 @@ namespace Voxel {
 #	define INDEX2(X,Y,Z, L)	(LEVEL_OFFSETS[L] + (X) + (1<<(L))*((Y) + (1<<(L))*(Z)))
 
 
-	Chunk::Chunk(const Model* _model, const Math::IVec4& _nodePostion, int _depth) :
-		m_model( _model ),
+	Chunk::Chunk(SparseVoxelOctree<VoxelType, Model>* _modelData, const Math::IVec4& _nodePostion, int _depth) :
+		m_modelData( _modelData ),
 		m_scale( float(1<<(_nodePostion[3]-_depth)) ),
 		m_depth( _depth ),
 		m_root( _nodePostion ),
@@ -29,7 +29,7 @@ namespace Voxel {
 	}
 
 	Chunk::Chunk( Chunk&& _chunk ) :
-		m_model( _chunk.m_model ),
+		m_modelData( _chunk.m_modelData ),
 		m_scale( _chunk.m_scale ),
 		m_depth( _chunk.m_depth ),
 		m_root( _chunk.m_root ),
@@ -66,68 +66,70 @@ namespace Voxel {
 
 
 	// ********************************************************************* //
-	struct CSParam {
+	struct CopySector: public SparseVoxelOctree<VoxelType,Model>::SVOProcessor
+	{
 		ChunkBuilder::PerVoxelInfo* buffer;	///< Array where the selected sector should be stored.
 		IVec3 pmin;		///< Minimal boundary
 		int level;		///< The level in the octree which should be copied
 		int edgeLength;	///< Size of buffer in any direction (is Maximal boundary - Minimal boundary)
-	};
-	static bool CopySector(const Math::IVec4& _position, VoxelType _type, bool _hasChildren, CSParam* _param)
-	{
-		if( _position[3] < _param->level )
+
+		bool PreTraversal(const Math::IVec4& _position, SparseVoxelOctree<VoxelType,Model>::SVON* _node)
 		{
-			assert(_position[3]+1 == _param->level);
-			// Child level sets solidity of parent
-			if( !IsSolid(_type) )
+			if( _position[3] < level )
 			{
-				// Parent is not solid too -> set
-				int x = (_position[0] >> 1) - _param->pmin[0];
-				int y = (_position[1] >> 1) - _param->pmin[1];
-				int z = (_position[2] >> 1) - _param->pmin[2];
-				_param->buffer[x + _param->edgeLength * (y + _param->edgeLength * z)].solid = false;
-			}
-			return false;	// No further traversal
-		} else
-		{
-			int lvlDiff = _position[3] - _param->level;
-			// Position inside target level?
-			int span = (1 << lvlDiff) - 1;
-			int x = (_position[0] << lvlDiff) - _param->pmin[0];
-			int y = (_position[1] << lvlDiff) - _param->pmin[1];
-			int z = (_position[2] << lvlDiff) - _param->pmin[2];
-			// Inside sector [pmin, pmax]?
-			if( (x >= _param->edgeLength) || (x+span < 0) ) return false;
-			if( (y >= _param->edgeLength) || (y+span < 0) ) return false;
-			if( (z >= _param->edgeLength) || (z+span < 0) ) return false;
-
-			// Is this one of the searched voxels?
-			if( lvlDiff == 0 )
+				assert(_position[3]+1 == level);
+				// Child level sets solidity of parent
+				if( !IsSolid(_node->Data()) )
+				{
+					// Parent is not solid too -> set
+					int x = (_position[0] >> 1) - pmin[0];
+					int y = (_position[1] >> 1) - pmin[1];
+					int z = (_position[2] >> 1) - pmin[2];
+					buffer[x + edgeLength * (y + edgeLength * z)].solid = false;
+				}
+				return false;	// No further traversal
+			} else
 			{
-				ChunkBuilder::PerVoxelInfo& target = _param->buffer[x + _param->edgeLength * (y + _param->edgeLength * z)];
-				target.type = _type;
-				target.solid = IsSolid(_type);
-				return target.solid;
-			}
+				int lvlDiff = _position[3] - level;
+				// Position inside target level?
+				int span = (1 << lvlDiff) - 1;
+				int x = (_position[0] << lvlDiff) - pmin[0];
+				int y = (_position[1] << lvlDiff) - pmin[1];
+				int z = (_position[2] << lvlDiff) - pmin[2];
+				// Inside sector [pmin, pmax]?
+				if( (x >= edgeLength) || (x+span < 0) ) return false;
+				if( (y >= edgeLength) || (y+span < 0) ) return false;
+				if( (z >= edgeLength) || (z+span < 0) ) return false;
 
-			// If there are no children traversal would stop - set entire area
-			if( !_hasChildren && IsSolid(_type) )
-			{
-				int zmin = max(0,z); int zmax = min( z+span+1, _param->edgeLength );
-				int ymin = max(0,y); int ymax = min( y+span+1, _param->edgeLength );
-				int xmin = max(0,x); int xmax = min( x+span+1, _param->edgeLength );
-				for( z=zmin; z<zmax; ++z )
-					for( y=ymin; y<ymax; ++y )
-						for( x=xmin; x<xmax; ++x )
-						{
-							ChunkBuilder::PerVoxelInfo& target = _param->buffer[x + _param->edgeLength * (y + _param->edgeLength * z)];
-							target.type = _type;
-							target.solid = true;
-						}
-			}
+				// Is this one of the searched voxels?
+				if( lvlDiff == 0 )
+				{
+					ChunkBuilder::PerVoxelInfo& target = buffer[x + edgeLength * (y + edgeLength * z)];
+					target.type = _node->Data();
+					target.solid = IsSolid(_node->Data());
+					return target.solid;
+				}
 
-			return true;
+				// If there are no children traversal would stop - set entire area
+				if( !_node->Children() && IsSolid(_node->Data()) )
+				{
+					int zmin = max(0,z); int zmax = min( z+span+1, edgeLength );
+					int ymin = max(0,y); int ymax = min( y+span+1, edgeLength );
+					int xmin = max(0,x); int xmax = min( x+span+1, edgeLength );
+					for( z=zmin; z<zmax; ++z )
+						for( y=ymin; y<ymax; ++y )
+							for( x=xmin; x<xmax; ++x )
+							{
+								ChunkBuilder::PerVoxelInfo& target = buffer[x + edgeLength * (y + edgeLength * z)];
+								target.type = _node->Data();
+								target.solid = true;
+							}
+				}
+
+				return true;
+			}
 		}
-	}
+	};
 
 	// ********************************************************************* //
 	void ChunkBuilder::RecomputeVertexBuffer( Chunk& _chunk )
@@ -153,13 +155,13 @@ namespace Voxel {
 		Sector.edgeLength = edgeLength;//*/
 
 		// New copy method with O(n) runtime
-		CSParam Sector;
+		CopySector Sector;
 		Sector.buffer = m_volumeBuffer;
 		Sector.edgeLength = (1 << _chunk.m_depth) + 2;
 		Sector.level = Math::max( 0, _chunk.m_root[3] - _chunk.m_depth );
 		Sector.pmin = (IVec3(_chunk.m_root) << (_chunk.m_root[3] - Sector.level)) - 1;
 		memset(m_volumeBuffer, 0, sizeof(m_volumeBuffer));
-		_chunk.m_model->Traverse(CopySector, &Sector);
+		_chunk.m_modelData->Traverse(Sector);
 
 		// Iterate over volume and add any surface voxel to vertex buffer
 		int numVoxels = 0;
