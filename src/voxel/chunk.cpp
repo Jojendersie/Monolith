@@ -66,6 +66,30 @@ namespace Voxel {
 
 
 	// ********************************************************************* //
+	/// \brief Current dirty region update - just reuse a child voxel.
+	struct UpdateDirty: public SparseVoxelOctree<VoxelType,Model>::SVOProcessor
+	{
+		/// \brief If the current voxel is not dirty its whole subtree is
+		///		clean too. Then stop.
+		bool PreTraversal(const Math::IVec4& _position, SparseVoxelOctree<VoxelType,Model>::SVON* _node)
+		{
+			return _node->Data() == VoxelType::UNDEFINED;
+		}
+
+		/// \brief Do an update: take one of the children randomly
+		void PostTraversal(const Math::IVec4& _position, SparseVoxelOctree<VoxelType,Model>::SVON* _node)
+		{
+			if(_node->Data() != VoxelType::UNDEFINED) return;
+			// Remains undefined
+			if( !_node->Children() ) return;
+
+			// Take the first defined children
+			for( int i = 0; i < 8; ++i )
+				if( _node->Children()[i].Data() != VoxelType::UNDEFINED )
+					_node->Data() = _node->Children()[i].Data();
+		}
+	};
+
 	struct CopySector: public SparseVoxelOctree<VoxelType,Model>::SVOProcessor
 	{
 		ChunkBuilder::PerVoxelInfo* buffer;	///< Array where the selected sector should be stored.
@@ -104,6 +128,9 @@ namespace Voxel {
 				// Is this one of the searched voxels?
 				if( lvlDiff == 0 )
 				{
+					// If it is dirty update the subtree
+					if( _node->Data() == VoxelType::UNDEFINED )
+						_node->Traverse( _position, UpdateDirty() );
 					ChunkBuilder::PerVoxelInfo& target = buffer[x + edgeLength * (y + edgeLength * z)];
 					target.type = _node->Data();
 					target.solid = IsSolid(_node->Data());
@@ -111,7 +138,8 @@ namespace Voxel {
 				}
 
 				// If there are no children traversal would stop - set entire area
-				if( !_node->Children() && IsSolid(_node->Data()) )
+				//TODO: deprecated Uniform Block optimization is removed
+				/*if( !_node->Children() && IsSolid(_node->Data()) )
 				{
 					int zmin = max(0,z); int zmax = min( z+span+1, edgeLength );
 					int ymin = max(0,y); int ymax = min( y+span+1, edgeLength );
@@ -124,7 +152,7 @@ namespace Voxel {
 								target.type = _node->Data();
 								target.solid = true;
 							}
-				}
+				}*/
 
 				return true;
 			}

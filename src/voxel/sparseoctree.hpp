@@ -100,7 +100,7 @@ namespace Voxel {
 				int _targetLevel, HitResult& _hit ) const;
 
 			T& Data()						{ return m_data; }
-			T& Data() const					{ return m_data; }
+			const T& Data() const			{ return m_data; }
 			const SVON* Children() const	{ return m_children; }
 		private:
 			T m_data;

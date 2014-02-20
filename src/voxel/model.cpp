@@ -91,7 +91,8 @@ namespace Voxel {
 						std::make_pair(position, std::move(Chunk(model, _position, levels)))
 						).first;
 					builder->RecomputeVertexBuffer(chunk->second);
-				}
+				} else if( _node->Data() == VoxelType::UNDEFINED )
+					builder->RecomputeVertexBuffer(chunk->second);
 				// There are empty inner chunks
 				if( chunk->second.NumVoxels() > 0 )
 				{
@@ -140,8 +141,7 @@ namespace Voxel {
 		if( IsSolid(_oldType) )
 		{
 			float oldMass = VOXEL_INFO[int(_oldType)].mass * size;
-			// TODO remove Math::Vec3 if replaced by template
-			m_center = (m_center * m_mass - Math::Vec3(_position * oldMass)) / m_mass;
+			m_center = (m_center * m_mass - Math::IVec3(_position) * oldMass) / (m_mass - oldMass);
 			m_mass -= oldMass;
 			m_numVoxels -= size;
 		}
@@ -150,7 +150,7 @@ namespace Voxel {
 		if( IsSolid(_newType) )
 		{
 			float newMass = VOXEL_INFO[int(_newType)].mass * size;
-			m_center = (m_center * m_mass + Math::Vec3(_position * newMass)) / (m_mass + newMass);
+			m_center = (m_center * m_mass + Math::IVec3(_position) * newMass) / (m_mass + newMass);
 			m_mass += newMass;
 			m_numVoxels += size;
 		}

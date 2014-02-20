@@ -10,6 +10,8 @@ using namespace Math;
 #include "../generators/asteroid.hpp"
 #include "../graphic/font.hpp"
 #include "../graphic/texture.hpp"
+#include "../generators/random.hpp"
+#include "../voxel/voxel.hpp"
 
 namespace RenderStat {
 	int g_numVoxels;
@@ -48,6 +50,9 @@ GSMain::~GSMain()
 // ************************************************************************* //
 void GSMain::Update( double _time, double _deltaTime )
 {
+	static Generators::Random Rnd(1435461);
+	for( int i = 0; i < 100; ++i )
+		m_astTest->Set( IVec3(Rnd.Uniform(0,79), Rnd.Uniform(0,49), Rnd.Uniform(0,29)), 0, Voxel::VoxelType::UNDEFINED );
 }
 
 // ************************************************************************* //
