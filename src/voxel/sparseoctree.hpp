@@ -359,8 +359,13 @@ namespace Voxel {
 	template<typename T, typename Listener>
 	void SparseVoxelOctree<T,Listener>::SVON::Set(SVON* _this, int _currentSize,
 		const Math::IVec4& _position,
-		T _data, SparseVoxelOctree* _model)
+		T _data, SparseVoxelOctree* _parent)
 	{
+		// A stack with 'this' pointers for recursion. The recursion is unrolled
+		// automatically because this allows 'longjump' optimizations. Not
+		// everything must be updated after recursion and unrolling the stack
+		// stops as early as possible.
+		Jo::HybridArray<SVON*, 16> callStack;
 		SVON* currentElement = _this;
 
 		// Go downwards
@@ -371,21 +376,46 @@ namespace Voxel {
 			int childIndex = ComputeChildIndex(_position, _currentSize-1);
 			if( !currentElement->m_children )
 			{ // Create new children
-				currentElement->m_children = _model->NewSVON();
+				currentElement->m_children = _parent->NewSVON();
 				// Set all children to the same type as this node.
 				// It was uniform before!
 				for(int i=0; i<8; ++i) currentElement->m_children[i].m_data = currentElement->m_data;
 			}
 			--_currentSize;
+			callStack.PushBack(currentElement);
 			currentElement = &currentElement->m_children[childIndex];
 		}
 		assert( _currentSize == _position[3] );
 
 		// This is the target voxel. Delete everything below.
-		if( currentElement->m_children ) currentElement->RemoveSubTree(_position, _model, true);
+		if( currentElement->m_children ) currentElement->RemoveSubTree(_position, _parent, true);
 		// Physical update of this voxel
-		_model->m_listener->Update(_position, currentElement->m_data, _data);
+		_parent->m_listener->Update(_position, currentElement->m_data, _data);
 		currentElement->m_data = _data;
+
+		// Unroll stack as long as the voxel type in hierarchy changes.
+		bool deletedVoxel = _data == T::UNDEFINED;
+		while( deletedVoxel && callStack.Size()>0 )
+		{
+			currentElement = callStack.Last();
+			callStack.PopBack();
+			// If all 8 children are undefined and have no children delete that nodes.
+			for( int i = 0; i < 8; ++i )
+			{
+				if( currentElement->m_children[i].m_data != T::UNDEFINED 
+					|| currentElement->m_children[i].m_children )
+				{
+					deletedVoxel = false;
+					break;	// Stop testing the other children
+				}
+			}
+
+			if( deletedVoxel )
+			{
+				_parent->m_SVONAllocator.Free(currentElement->m_children);
+				currentElement->m_children = nullptr;
+			}
+		}
 	}
 
 
