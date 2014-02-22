@@ -7,8 +7,11 @@ class GSMain: public IGameState
 {
 public:
 	/// \brief Create main state specific content.
-	GSMain(Monolith* _parent);
+	GSMain(Monolith* _game);
 	~GSMain();
+
+	void OnBegin()					{}
+	virtual void OnEnd() override	{}
 
 	virtual void Update( double _time, double _deltaTime ) override;
 	virtual void Render( double _time, double _deltaTime ) override;

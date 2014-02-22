@@ -42,7 +42,7 @@ namespace Input {
 		static void ScrollFun(GLFWwindow *, double, double);
 	};
 
-	// Ingame hard codes key. They are mapped by a configuration file. (TODO)
+	// Ingame hard coded keys. They are mapped by a configuration file.
 	// It is even possible that the keys are mapped to more than one key.
 	enum struct Keys {
 		MOVE_CAMERA,

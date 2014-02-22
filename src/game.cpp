@@ -16,7 +16,7 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 	m_singleThreaded( true ),
 	m_running( true ),
 	m_time( 0.0 ),
-	m_currentGameState( 0 ),
+	m_stateStack( nullptr ),
 	m_graficContent( nullptr )
 {
 	// Init timer
@@ -44,7 +44,7 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 	// Create game states
 	m_gameStates[0] = new GSMain(this);
 
-	Input::Manager::SetGameState( m_gameStates[0] );
+	PushState( (GSMain*)m_gameStates[0] );
 }
 
 Monolith::~Monolith()
@@ -65,16 +65,16 @@ void Monolith::Run()
 {
 	if( m_singleThreaded )
 	{
-		m_gameStates[m_currentGameState]->Update( m_time, 0.0 );
+		m_stateStack->Update( m_time, 0.0 );
 		TimeQuerySlot frameTimer;
 		TimeQuery( frameTimer );
 		double deltaTime = 0.0;
-		while( m_running && !glfwWindowShouldClose(Graphic::Device::GetWindow()) )
-		{
+		while( m_running && !glfwWindowShouldClose(Graphic::Device::GetWindow()) && ClearStack() )
+		{			
 			// Call stuff
 			Input::Manager::Update();
-			m_gameStates[m_currentGameState]->Render( m_time, deltaTime );
-			m_gameStates[m_currentGameState]->Update( m_time, deltaTime );
+			m_stateStack->Render( m_time, deltaTime );
+			m_stateStack->Update( m_time, deltaTime );
 
 			glfwSwapBuffers(Graphic::Device::GetWindow());
 			glfwPollEvents();
@@ -91,6 +91,33 @@ void Monolith::Run()
 			//std::this_thread::sleep_for( m_microSecPerFrame - std::chrono::microseconds(unsigned(deltaFrameTime * 1000000.0))  );
 		}
 	}
+}
+
+
+void Monolith::_PushState( IGameStateP _state )
+{
+	// Set in input manager
+	Input::Manager::SetGameState( _state );
+
+	// Update stack
+	_state->m_previous = m_stateStack;
+	m_stateStack = _state;
+}
+
+
+bool Monolith::ClearStack()
+{
+	if( m_stateStack->IsFinished() )
+	{
+		// Pop
+		m_stateStack->OnEnd();
+		m_stateStack = m_stateStack->m_previous;
+		// If there is none anymore stop
+		if( !m_stateStack ) return false;
+		// Otherwise resume and continue
+		m_stateStack->OnResume();
+	}
+	return true;
 }
 
 
