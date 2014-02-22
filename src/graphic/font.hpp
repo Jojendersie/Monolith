@@ -2,7 +2,6 @@
 
 #include <string>
 #include <cassert>
-// TODO: own 32bit color class
 #include <cstdint>
 #include "vertexbuffer.hpp"
 #include "effect.hpp"
@@ -10,6 +9,7 @@
 #include "device.hpp"
 #include "content.hpp"
 #include <jofilelib.hpp>
+#include "../utilities/color.hpp"
 
 
 namespace Graphic {
@@ -49,15 +49,33 @@ namespace Graphic {
 		void Draw();
 
 		/// \brief Sets the text and updates the VertexBuffer.
-		void SetText(std::string _text);
+		/// \details chars are one byte, ansi code 
+		/// control chars and formating : 
+		/// 13 : line break
+		/// "<s sss" size "sized text" "</s"
+		/// "<c rrr ggg bbb aaa " "colored text" "</c"
+		/// "<i " "italic text" "</i" not yet implemented
+		/// "<t  ttt" "thickness text" "</b"
+		/*performance view of alternative syntax: 4x{ 2x cmp 3x {add; mul}} + all xx iterations need cmp, inc, jmp
+										 current: direct acsess possible*/
+		void SetText(const std::string& _text);
 
 		// \brief Sets the Position on the screen.
 		void SetPos(Math::Vec2 _screenPos);
+
+		bool m_active;
+
 	private:
 		void RenewBuffer();
+		/// \brief resolves control chars and aplies them
+		/// \param [in] _start index of '<' in m_text
+		int CntrlChr(int _i);
 		Font* m_font;	///< Reference to the used font.
 		std::string m_text;
 		Math::Vec2 m_screenPos;
 		VertexBuffer m_characters;
+		Utils::Color8U m_color, m_colorD;
+		float m_size, m_sizeD;
+		float m_thickness, m_thicknessD;
 	};
 };

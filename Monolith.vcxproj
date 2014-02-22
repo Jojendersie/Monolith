@@ -90,6 +90,8 @@
     <ClCompile Include="src\graphic\font.cpp" />
     <ClCompile Include="src\graphic\framebuffer.cpp" />
     <ClCompile Include="src\graphic\content.cpp" />
+    <ClCompile Include="src\graphic\hud.cpp" />
+    <ClCompile Include="src\graphic\hudelements.cpp" />
     <ClCompile Include="src\graphic\rasterizerstate.cpp" />
     <ClCompile Include="src\graphic\samplerstate.cpp" />
     <ClCompile Include="src\graphic\texture.cpp" />
@@ -121,6 +123,8 @@
     <ClInclude Include="src\graphic\font.hpp" />
     <ClInclude Include="src\graphic\framebuffer.hpp" />
     <ClInclude Include="src\graphic\content.hpp" />
+    <ClInclude Include="src\graphic\hud.hpp" />
+    <ClInclude Include="src\graphic\hudelements.hpp" />
     <ClInclude Include="src\graphic\rasterizerstate.hpp" />
     <ClInclude Include="src\graphic\samplerstate.hpp" />
     <ClInclude Include="src\graphic\texture.hpp" />
@@ -148,6 +152,9 @@
     <None Include="shader\font.gs" />
     <None Include="shader\font.ps" />
     <None Include="shader\font.vs" />
+    <None Include="shader\screentex.gs" />
+    <None Include="shader\screentex.ps" />
+    <None Include="shader\screentex.vs" />
     <None Include="shader\voxel.gs" />
     <None Include="shader\voxel.ps" />
     <None Include="shader\voxel.vs" />

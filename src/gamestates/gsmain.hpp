@@ -20,8 +20,7 @@ public:
 	virtual void Scroll( double _dx, double _dy ) override;
 private:
 	Generators::Asteroid* m_astTest;
-	Graphic::Font* m_fontTest;
-	Graphic::TextRender* m_textTest;
+	Graphic::Hud* m_hud;
 	Graphic::Texture* m_textures;
 	Input::Camera* m_camera;
 };

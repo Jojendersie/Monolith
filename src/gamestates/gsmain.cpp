@@ -4,12 +4,12 @@
 #include "../math/math.hpp"
 #include "../input/camera.hpp"
 #include "../input/input.hpp"
+#include "../graphic/hud.hpp"
 using namespace Math;
 #include <cassert>
 
 // TODO: remove after test
 #include "../generators/asteroid.hpp"
-#include "../graphic/font.hpp"
 #include "../graphic/texture.hpp"
 
 namespace RenderStat {
@@ -20,14 +20,11 @@ namespace RenderStat {
 // ************************************************************************* //
 GSMain::GSMain(Monolith* _game) : IGameState(_game)
 {
-	m_astTest = new Generators::Asteroid( 256, 256, 256, 2 );
+	m_astTest = new Generators::Asteroid( 64, 48, 32, 2 );
 	//m_astTest->ComputeVertexBuffer();
 	//m_astTest->SetPosition( Vec3( 0.0f, 0.0f, 0.0f ) );
 
-	m_fontTest = new Graphic::Font("arial", _game->m_graficContent);
-	m_textTest = new Graphic::TextRender(m_fontTest);
-	//m_textTest->SetPos(Math::Vec2(-1.f,-1.f));
-	m_textTest->SetPos(Math::Vec2(0.7f,0.9f));
+	m_hud = new Graphic::Hud(_game->m_graficContent, _game);
 
 	m_textures = new Graphic::Texture("texture/rock1.png");
 
@@ -43,8 +40,7 @@ GSMain::~GSMain()
 {
 	delete m_camera;
 	delete m_astTest;
-	delete m_textTest;
-	delete m_fontTest;
+	delete m_hud;
 	delete m_textures;
 }
 
@@ -75,8 +71,8 @@ void GSMain::Render( double _time, double _deltaTime )
 
 	m_astTest->Draw( m_game->m_graficContent->objectUBO, *m_camera );
 	
-	m_textTest->SetText(std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(RenderStat::g_numVoxels) + "\n#Chunks: " + std::to_string(RenderStat::g_numChunks));
-	m_textTest->Draw();
+	m_hud->m_dbgLabel->SetText("<s 034>" + std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(RenderStat::g_numVoxels) + "\n#Chunks: " + std::to_string(RenderStat::g_numChunks)+"</s>");
+	m_hud->Draw(  _time, _deltaTime );
 }
 
 // ************************************************************************* //
@@ -95,6 +91,7 @@ void GSMain::MouseMove( double _dx, double _dy )
 		m_camera->Rotate( float(_dy * rotSpeed), float(_dx * rotSpeed) );
 	else if( Input::Manager::IsKeyPressed(Input::Keys::MOVE_CAMERA) )
 		m_camera->Move( float(_dx * moveSpeed), float(_dy * moveSpeed) );
+	m_hud->MouseMove(_dx, _dy);
 }
 
 // ************************************************************************* //

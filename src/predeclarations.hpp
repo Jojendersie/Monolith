@@ -20,8 +20,7 @@ namespace Generators {
 
 namespace Graphic {
 	class Effect;
-	class Font;
-	class TextRender;
+	class Hud;
 	class SamplerState;
 	class Texture;
 	class UniformBuffer;
