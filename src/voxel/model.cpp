@@ -122,11 +122,10 @@ namespace Voxel {
 	// ********************************************************************* //
 	VoxelType Model::Get( const Math::IVec3& _position, int _level ) const
 	{
-		VoxelType type;
-		if( m_voxelTree.Get(_position, _level, type) ) return type;
-		else return VoxelType::NONE;
-
-		return type;		
+		auto node = m_voxelTree.Get(_position, _level);
+		if( node ) return node->Data();
+		
+		return VoxelType::NONE;
 	}
 
 

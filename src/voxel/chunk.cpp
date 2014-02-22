@@ -128,9 +128,6 @@ namespace Voxel {
 				// Is this one of the searched voxels?
 				if( lvlDiff == 0 )
 				{
-					// If it is dirty update the subtree
-					if( _node->Data() == VoxelType::UNDEFINED )
-						_node->Traverse( _position, UpdateDirty() );
 					ChunkBuilder::PerVoxelInfo& target = buffer[x + edgeLength * (y + edgeLength * z)];
 					target.type = _node->Data();
 					target.solid = IsSolid(_node->Data());
@@ -162,6 +159,11 @@ namespace Voxel {
 	// ********************************************************************* //
 	void ChunkBuilder::RecomputeVertexBuffer( Chunk& _chunk )
 	{
+		// If it is dirty update the subtree
+		auto node = _chunk.m_modelData->Get( IVec3(_chunk.m_root), _chunk.m_root[3] );
+		if( node->Data() == VoxelType::UNDEFINED )
+			node->Traverse( _chunk.m_root, UpdateDirty() );
+
 		// Sample a (2^d+2)^3 volume (neighborhood for visibility). This
 		// initial sampling avoids the expensive resampling for many voxels.
 		// (Inner voxels would be sampled 7 times!)

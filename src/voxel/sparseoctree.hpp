@@ -23,6 +23,8 @@ namespace Voxel {
 	class SparseVoxelOctree
 	{
 	public:
+		struct SVON;
+
 		/// \brief Create an empty octree.
 		/// \param [in] _defaultData Initial value used when something must be
 		///		set back.
@@ -38,16 +40,14 @@ namespace Voxel {
 		///		delete a voxel.
 		void Set( const Math::IVec3& _position, int _level, T _type );
 
-		/// \brief Returns the type of a voxel on a certain grid level and
-		///		position.
+		/// \brief Getter which returns a node reference.
 		///	\param [in] _position Target position inside the _level.
 		///	\param [in] _level Depth in the grid hierarchy. 0 is the maximum
 		///		resolution of the voxel grid. The level is the logarithmic edge
 		///		length of voxels (2^0, 2^1, ...).
-		///	\param [out] _out The data if the query was successful.
-		///	\return If the position is outside the return value is false and
-		///		the data is not touched.
-		bool Get( const Math::IVec3& _position, int _level, T& _out ) const;
+		/// \return nullptr if the node is not in the tree otherwise the node.
+		const SVON* Get( const Math::IVec3& _position, int _level ) const;
+		SVON* Get( const Math::IVec3& _position, int _level );
 
 		/// \brief Traverse through the whole tree.
 		/// \param [in] _processor An arbitrary implementation of the
@@ -197,8 +197,6 @@ namespace Voxel {
 		int m_rootSize;				///< Level of the node which contains the 8 roots where 0 is the highest possible resolution.
 		SVON m_root;				///< The single top level root node
 
-		/// \brief Internal getter which returns a node reference.
-		const SVON* _Get( const Math::IVec3& _position, int _level ) const;
 
 		/// \brief Used to sort children after a floating point number
 		struct TmpCollisionEntry
@@ -286,7 +284,7 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	template<typename T, typename Listener>
-	typename const SparseVoxelOctree<T,Listener>::SVON* SparseVoxelOctree<T,Listener>::_Get( const Math::IVec3& _position, int _level ) const
+	typename const SparseVoxelOctree<T,Listener>::SVON* SparseVoxelOctree<T,Listener>::Get( const Math::IVec3& _position, int _level ) const
 	{
 		// Get on an empty model? Would be better if this never happens ->
 		// better performance because no 'if' on m_rootSize required.
@@ -309,19 +307,16 @@ namespace Voxel {
 			current = &current->m_children[ x + y * 2 + z * 4 ];
 		}
 
+		if( current->Data() == T::UNDEFINED && !current->Children() ) return nullptr;
 		return current;
 	}
 
 	// ********************************************************************* //
 	template<typename T, typename Listener>
-	bool SparseVoxelOctree<T,Listener>::Get( const Math::IVec3& _position, int _level, T& _out ) const
+	typename SparseVoxelOctree<T,Listener>::SVON* SparseVoxelOctree<T,Listener>::Get( const Math::IVec3& _position, int _level )
 	{
-		const SVON* node = _Get(_position, _level);
-		if( node ) {
-			_out = node->m_data;
-			return true;
-		}
-		return false;
+		// Use the constant getter and allow write access to the element afterwards
+		return const_cast<SparseVoxelOctree<T,Listener>::SVON*>(const_cast<const SparseVoxelOctree<T,Listener>*>(this)->Get(_position, _level));
 	}
 
 	// ********************************************************************* //
@@ -447,10 +442,9 @@ namespace Voxel {
 			Math::IVec4 position(_position[0]<<1, _position[1]<<1, _position[2]<<1, _position[3]);
 			for( int i=0; i<8; ++i )
 			{
-				//if( children[i].voxel != _defaultData )
+				// Is the voxel outside the tree/really empty?
+				if( m_children[i].m_data != T::UNDEFINED || m_children[i].m_children )
 					m_children[i].Traverse(position + CHILD_OFFSETS[i], _processor);
-				//else
-				//	assert( !children[i].children );
 			}
 		}
 
