@@ -11,6 +11,7 @@ struct GLFWwindow;
 // General classes without scopes
 class GSMain;
 class IGameState;
+typedef IGameState* IGameStateP;
 class Monolith;
 
 namespace Generators {

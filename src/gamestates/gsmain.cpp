@@ -1,4 +1,5 @@
 #include "../game.hpp"
+#include "gsmain.hpp"
 #include "../graphic/device.hpp"
 #include "../math/math.hpp"
 #include "../input/camera.hpp"

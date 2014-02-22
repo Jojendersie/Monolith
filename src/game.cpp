@@ -2,6 +2,7 @@
 #include <cassert>
 #include <iostream>
 #include "game.hpp"
+#include "gamestates/gsmain.hpp"
 #include "opengl.hpp"
 #include "timer.hpp"
 #include "graphic/device.hpp"

@@ -220,6 +220,12 @@
     <ClInclude Include="src\math\quaternion.hpp">
       <Filter>Source Files\math</Filter>
     </ClInclude>
+    <ClInclude Include="src\gamestates\gamestatebase.hpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gamestates\gsmain.hpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\voxel.ps">

@@ -1,6 +1,6 @@
 #include "input.hpp"
 #include "../opengl.hpp"
-#include "../game.hpp"
+#include "../gamestates/gamestatebase.hpp"
 
 using namespace std;
 
