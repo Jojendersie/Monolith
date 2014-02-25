@@ -33,6 +33,9 @@ namespace Input {
 
 		/// \brief Test if a mapped key or button is currently pressed.
 		static bool IsVirtualKeyPressed( VirtualKey _key );
+
+		/// \brief The cursors position in pixels inside the window.
+		static Math::Vec2 GetCursorPos();
 	private:
 		IGameState* m_gameState;
 		GLFWwindow* m_window;		///< The one reference window

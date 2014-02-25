@@ -40,7 +40,6 @@ namespace Graphic {
 		globalUBO["Aspect"] = Graphic::Device::GetAspectRatio();
 		globalUBO["Width"] = (float)size[0];
 		globalUBO["Height"] = (float)size[1];
-			// glfwGetCursorPos
 
 		// Bind constant buffers to effects
 		voxelRenderEffect.BindUniformBuffer( objectUBO );

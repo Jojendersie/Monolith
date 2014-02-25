@@ -46,9 +46,6 @@ namespace Graphic {
 		ScreenTexture* m_screenTextures[64];
 
 		ScreenTexture* m_preTex;
-
-		Math::Vec2 m_cursorLoc;	///< Last known position of the cursor
-
 		ScreenTexture* m_cursor;
 
 		//todo easy use of textures, textrenderer, buttons

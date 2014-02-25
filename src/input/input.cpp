@@ -1,6 +1,7 @@
 #include "input.hpp"
 #include "../gamestates/gamestatebase.hpp"
 #include "../timer.hpp"
+#include "../math/vector.hpp"
 
 using namespace std;
 
@@ -13,7 +14,7 @@ namespace Input {
 	void Manager::Initialize( GLFWwindow* _window, Jo::Files::MetaFileWrapper::Node& _keyConfig )
 	{
 		// GLFW setup
-		glfwSetInputMode( _window, GLFW_CURSOR, GLFW_CURSOR_DISABLED );//GLFW_CURSOR_NORMAL );	// TODO use internal/no cursor
+		//glfwSetInputMode( _window, GLFW_CURSOR, GLFW_CURSOR_DISABLED );//GLFW_CURSOR_NORMAL );	// TODO use internal/no cursor
 		glfwSetInputMode( _window, GLFW_STICKY_KEYS, GL_FALSE );
 		glfwSetInputMode( _window, GLFW_STICKY_MOUSE_BUTTONS, GL_FALSE );
 
@@ -162,6 +163,12 @@ namespace Input {
 				} else keyInfo.lastRelease = now;
 			} else assert(false);
 		}
+	}
+
+	// ********************************************************************* //
+	Math::Vec2 Manager::GetCursorPos()
+	{
+		return Math::Vec2( (float)InputManagerInstance.m_cursorX, (float)InputManagerInstance.m_cursorY );
 	}
 
 

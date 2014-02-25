@@ -1,4 +1,5 @@
 #include "hud.hpp"
+#include "..\input\input.hpp"
 
 namespace Graphic
 {
@@ -10,7 +11,6 @@ namespace Graphic
 		m_container("texture/combined.png"),
 		m_screenTexCount(0),
 		m_TextRenderCount(0),
-		m_cursorLoc(0.f,0.f),
 		m_preTex(NULL)
 //		m_mapFile("texture/combined.sraw", true),
 //		m_containerMap( m_mapFile, Jo::Files::Format::SRAW )
@@ -71,13 +71,10 @@ namespace Graphic
 
 	void Hud::MouseMove( double _dx, double _dy )
 	{
-		_dx *=  2.0; _dy *= 2.0;//acceleration to fit the windows mouse speed
-		//explicit conversion to avoid compiler warning
-		m_cursorLoc[0] = (float)Math::clamp(m_cursorLoc[0] + _dx / 1024, -1.0, 1.0);
-		m_cursorLoc[1] = (float)Math::clamp(m_cursorLoc[1] - _dy / 768, -1.0, 1.0);
-//		m_cursorX += _dx / 1024;
-//		m_cursorY -= _dy / 768;
-		m_cursor->m_vertex.position = m_cursorLoc;
+		// Get cursor converted to screen coordinates
+		Math::Vec2 cursorPos = 0.5f * Input::Manager::GetCursorPos() / Device::GetFramebufferSize() - 1.0f;
+		cursorPos[1] = -cursorPos[1];
+		m_cursor->m_vertex.position = cursorPos;
 		//todo: include mousespeed in config  
 
 		//collision with hud objects todo: rewrite with better form/structure
@@ -87,8 +84,8 @@ namespace Graphic
 			loc2[0] = m_screenTextures[i]->m_vertex.position[0] + m_screenTextures[i]->m_vertex.screenSize[0];
 			loc2[1] = m_screenTextures[i]->m_vertex.position[1] - m_screenTextures[i]->m_vertex.screenSize[1];
 			if((m_screenTextures[i]->GetState())
-			&&(m_screenTextures[i]->m_vertex.position[0] < m_cursorLoc[0]) && (m_screenTextures[i]->m_vertex.position[1] > m_cursorLoc[1])
-			&& (loc2[0] > m_cursorLoc[0]) && (loc2[1] < m_cursorLoc[1]))
+			&&(m_screenTextures[i]->m_vertex.position[0] < cursorPos[0]) && (m_screenTextures[i]->m_vertex.position[1] > cursorPos[1])
+			&& (loc2[0] > cursorPos[0]) && (loc2[1] < cursorPos[1]))
 			{
 				//enter new tex; leave old
 				if(m_preTex != m_screenTextures[i]) 
