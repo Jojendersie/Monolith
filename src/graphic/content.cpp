@@ -60,12 +60,15 @@ namespace Graphic {
 		} catch( std::string _message ) {
 			std::cerr << "Failed to load voxel textures!\n";
 		}
+
+		defaultFont = new Font("arial", this);
 	}
 
 
 	Content::~Content()
 	{
 		delete voxelTextures;
+		delete defaultFont;
 	}
 
 

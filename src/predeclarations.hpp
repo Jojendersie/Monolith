@@ -25,6 +25,7 @@ namespace Graphic {
 	class SamplerState;
 	class Texture;
 	class UniformBuffer;
+	class Font;
 	struct Content;
 } // namespace Graphic
 

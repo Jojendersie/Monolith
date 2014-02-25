@@ -30,7 +30,6 @@ namespace Graphic {
 	private:
 		void RenewBuffer();
 
-		Font* m_defaultFont;
 		Monolith* m_game;
 		Content* m_globalPipelineData;
 		VertexBuffer m_characters;

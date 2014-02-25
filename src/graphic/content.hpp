@@ -4,6 +4,7 @@
 #include "effect.hpp"
 #include "samplerstate.hpp"
 #include "../predeclarations.hpp"
+#include "font.hpp"
 
 namespace Graphic {
 
@@ -19,6 +20,8 @@ namespace Graphic {
 		Graphic::UniformBuffer globalUBO;
 		Graphic::SamplerState pointSampler;
 		Graphic::SamplerState linearSampler;
+
+		Graphic::Font* defaultFont;		///< Font used for all menus...
 
 		Graphic::Texture* voxelTextures;
 	};

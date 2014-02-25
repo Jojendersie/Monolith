@@ -6,7 +6,6 @@ namespace Graphic
 	Hud::Hud(Content* _globalPipelineData, Monolith* _game ):
 		m_globalPipelineData(_globalPipelineData),
 		m_game(_game),
-//		m_defaultFont(&Font("arial", _game->m_graficContent)),
 		m_characters( "2222", VertexBuffer::PrimitiveType::POINT ),
 		m_container("texture/combined.png"),
 		m_screenTexCount(0),
@@ -16,8 +15,7 @@ namespace Graphic
 //		m_containerMap( m_mapFile, Jo::Files::Format::SRAW )
 //		m_labelMS(&TextRender(m_defaultFont))
 	{
-		m_defaultFont = new Font("arial", _game->m_graficContent);
-		m_dbgLabel = new TextRender(m_defaultFont);
+		m_dbgLabel = new TextRender(m_globalPipelineData->defaultFont);
 		m_dbgLabel->SetPos(Math::Vec2(0.7f,0.8f));
 		AddTextRender(m_dbgLabel);
 
@@ -31,7 +29,7 @@ namespace Graphic
 
 		AddTexture(m_cursor);
 
-		m_btnMenu = new Button(m_containerMap, m_defaultFont, "button", Math::Vec2(-1.f,0.92f), Math::Vec2(0.14f,0.07f));
+		m_btnMenu = new Button(m_containerMap, m_globalPipelineData->defaultFont, "button", Math::Vec2(-1.f,0.92f), Math::Vec2(0.14f,0.07f));
 		m_btnMenu->m_caption.SetText("<c 000 024 242 255> <s 032>Menue</s> </c>");
 		AddButton(m_btnMenu);
 	}
@@ -39,7 +37,6 @@ namespace Graphic
 	Hud::~Hud()
 	{
 		delete m_dbgLabel;
-		delete m_defaultFont;
 
 		delete m_containerMap;
 		delete m_cursor;
