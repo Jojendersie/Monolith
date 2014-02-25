@@ -3,6 +3,7 @@
 #include "../predeclarations.hpp"
 #include "../../dependencies/glfw-3.0.3/include/GLFW/glfw3.h"
 #include <jofilelib.hpp>
+#include <unordered_map>
 
 namespace Input {
 
@@ -46,6 +47,14 @@ namespace Input {
 		static void ScrollFun(GLFWwindow *, double, double);
 		static void KeyFun(GLFWwindow* _window, int _key, int _scanCode, int _action, int _modifiers);
 		static void MouseButtonFun(GLFWwindow*, int _key, int _action, int _modifiers);
+
+		/// \brief Holds information about the past for each key.
+		struct KeyInfo
+		{
+			float lastDown;		///< Time marker used to find click events
+			float lastRelease;	///< Time marker used to find double click events
+		};
+		std::unordered_map<int, KeyInfo> m_keyInfos;	///< Brief holds the information struct for each key which was pressed at least once.
 	};
 
 	// Ingame hard coded keys. They are mapped by a configuration file.

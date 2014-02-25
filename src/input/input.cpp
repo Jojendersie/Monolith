@@ -1,5 +1,6 @@
 #include "input.hpp"
 #include "../gamestates/gamestatebase.hpp"
+#include "../timer.hpp"
 
 using namespace std;
 
@@ -106,21 +107,61 @@ namespace Input {
 		if( InputManagerInstance.m_gameState )
 		{
 			if( _action == GLFW_PRESS )
+			{
+				InputManagerInstance.m_keyInfos[_key].lastDown = (float)TimeSinceProgramStart();
 				InputManagerInstance.m_gameState->KeyDown( _key, _modifiers );
-			else if( _action == GLFW_RELEASE )
+			} else if( _action == GLFW_RELEASE )
+			{
 				InputManagerInstance.m_gameState->KeyRelease( _key );
-			else ;// Repeat
+				// Check for a click
+				float now = (float)TimeSinceProgramStart();
+				auto& keyInfo = InputManagerInstance.m_keyInfos[_key];
+				if( now - keyInfo.lastDown < 0.1f )
+				{
+					// Simple or double click?
+					if( now - keyInfo.lastRelease < 0.25f ) {
+						InputManagerInstance.m_gameState->KeyDoubleClick( _key );
+						keyInfo.lastRelease = -1.0f;	// Break tripple clicks
+					} else {
+						InputManagerInstance.m_gameState->KeyClick( _key );
+						keyInfo.lastRelease = now;
+					}
+				} else keyInfo.lastRelease = now;
+			} else
+				// Repeat
+				InputManagerInstance.m_gameState->KeyDown( _key, _modifiers );
 		}
 	}
 
 	// ********************************************************************* //
 	void Manager::MouseButtonFun(GLFWwindow*, int _key, int _action, int _modifiers)
 	{
-		if( _action == GLFW_PRESS )
-			InputManagerInstance.m_gameState->KeyDown( _key, _modifiers );
-		else if( _action == GLFW_RELEASE )
-			InputManagerInstance.m_gameState->KeyRelease( _key );
-		else assert(false);
+		// React only if somebody is listening
+		if( InputManagerInstance.m_gameState )
+		{
+			if( _action == GLFW_PRESS )
+			{
+				InputManagerInstance.m_keyInfos[_key].lastDown = (float)TimeSinceProgramStart();
+				InputManagerInstance.m_gameState->KeyDown( _key, _modifiers );
+			} else if( _action == GLFW_RELEASE )
+			{
+				InputManagerInstance.m_gameState->KeyRelease( _key );
+				// Check for a click
+				float now = (float)TimeSinceProgramStart();
+				auto& keyInfo = InputManagerInstance.m_keyInfos[_key];
+				if( now - keyInfo.lastDown < 0.1f )
+				{
+					// Simple or double click?
+					if( now - keyInfo.lastRelease < 0.25f ) {
+						InputManagerInstance.m_gameState->KeyDoubleClick( _key );
+						keyInfo.lastRelease = -1.0f;	// Break tripple clicks
+					} else {
+						InputManagerInstance.m_gameState->KeyClick( _key );
+						keyInfo.lastRelease = now;
+					}
+				} else keyInfo.lastRelease = now;
+			} else assert(false);
+		}
 	}
 
 

@@ -19,6 +19,8 @@ public:
 	virtual void MouseMove( double _dx, double _dy ) override;
 	virtual void Scroll( double _dx, double _dy ) override;
 	virtual void KeyDown( int _key, int _modifiers ) override;
+	virtual void KeyClick( int _key ) override;
+	virtual void KeyDoubleClick( int _key ) override;
 private:
 	Generators::Asteroid* m_astTest;
 	Graphic::Hud* m_hud;

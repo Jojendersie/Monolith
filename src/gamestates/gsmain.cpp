@@ -105,6 +105,20 @@ void GSMain::Scroll( double _dx, double _dy )
 // ************************************************************************* //
 void GSMain::KeyDown( int _key, int _modifiers )
 {
+	std::cout << Input::KeyToChar(_key, _modifiers);
+
 	if( _key == GLFW_KEY_ESCAPE )
 		m_finished = true;
+}
+
+// ************************************************************************* //
+void GSMain::KeyClick( int _key )
+{
+	std::cout << "c\n";
+}
+
+// ************************************************************************* //
+void GSMain::KeyDoubleClick( int _key )
+{
+	std::cout << "x\n";
 }
