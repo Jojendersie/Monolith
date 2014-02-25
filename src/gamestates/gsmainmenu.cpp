@@ -1,5 +1,5 @@
 #include "../game.hpp"
-#include "gsmain.hpp"
+#include "gsmainmenu.hpp"
 #include "../graphic/device.hpp"
 #include "../math/math.hpp"
 #include "../input/camera.hpp"
@@ -19,7 +19,7 @@ namespace RenderStat {
 }
 
 // ************************************************************************* //
-GSMain::GSMain(Monolith* _game) : IGameState(_game)
+GSMainMenu::GSMainMenu(Monolith* _game) : IGameState(_game)
 {
 	m_astTest = new Generators::Asteroid( 64, 48, 32, 2 );
 	//m_astTest->ComputeVertexBuffer();
@@ -37,7 +37,7 @@ GSMain::GSMain(Monolith* _game) : IGameState(_game)
 }
 
 // ************************************************************************* //
-GSMain::~GSMain()
+GSMainMenu::~GSMainMenu()
 {
 	delete m_camera;
 	delete m_astTest;
@@ -46,12 +46,12 @@ GSMain::~GSMain()
 }
 
 // ************************************************************************* //
-void GSMain::Update( double _time, double _deltaTime )
+void GSMainMenu::Update( double _time, double _deltaTime )
 {
 }
 
 // ************************************************************************* //
-void GSMain::Render( double _time, double _deltaTime )
+void GSMainMenu::Render( double _time, double _deltaTime )
 {
 	RenderStat::g_numVoxels = 0;
 	RenderStat::g_numChunks = 0;
@@ -77,13 +77,13 @@ void GSMain::Render( double _time, double _deltaTime )
 }
 
 // ************************************************************************* //
-void GSMain::UpdateInput()
+void GSMainMenu::UpdateInput()
 {
 	m_camera->UpdateMatrices();
 }
 
 // ************************************************************************* //
-void GSMain::MouseMove( double _dx, double _dy )
+void GSMainMenu::MouseMove( double _dx, double _dy )
 {
 	// Read config file for speed
 	double rotSpeed = m_game->Config[std::string("Input")][std::string("CameraRotationSpeed")];
@@ -96,14 +96,14 @@ void GSMain::MouseMove( double _dx, double _dy )
 }
 
 // ************************************************************************* //
-void GSMain::Scroll( double _dx, double _dy )
+void GSMainMenu::Scroll( double _dx, double _dy )
 {
 	double scrollSpeed = m_game->Config[std::string("Input")][std::string("CameraScrollSpeed")];
 	m_camera->Scroll( float(_dy * scrollSpeed) );
 }
 
 // ************************************************************************* //
-void GSMain::KeyDown( int _key, int _modifiers )
+void GSMainMenu::KeyDown( int _key, int _modifiers )
 {
 	std::cout << Input::KeyToChar(_key, _modifiers);
 
@@ -112,13 +112,13 @@ void GSMain::KeyDown( int _key, int _modifiers )
 }
 
 // ************************************************************************* //
-void GSMain::KeyClick( int _key )
+void GSMainMenu::KeyClick( int _key )
 {
 	std::cout << "c\n";
 }
 
 // ************************************************************************* //
-void GSMain::KeyDoubleClick( int _key )
+void GSMainMenu::KeyDoubleClick( int _key )
 {
 	std::cout << "x\n";
 }

@@ -80,7 +80,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp" />
-    <ClCompile Include="src\gamestates\gsmain.cpp" />
+    <ClCompile Include="src\gamestates\gsmainmenu.cpp" />
     <ClCompile Include="src\generators\asteroid.cpp" />
     <ClCompile Include="src\generators\random.cpp" />
     <ClCompile Include="src\graphic\blendstate.cpp" />
@@ -113,7 +113,7 @@
     <ClInclude Include="src\algorithm\smallsort.hpp" />
     <ClInclude Include="src\game.hpp" />
     <ClInclude Include="src\gamestates\gamestatebase.hpp" />
-    <ClInclude Include="src\gamestates\gsmain.hpp" />
+    <ClInclude Include="src\gamestates\gsmainmenu.hpp" />
     <ClInclude Include="src\generators\asteroid.hpp" />
     <ClInclude Include="src\generators\random.hpp" />
     <ClInclude Include="src\graphic\blendstate.hpp" />

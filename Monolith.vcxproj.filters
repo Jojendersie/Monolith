@@ -74,9 +74,6 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\gamestates\gsmain.cpp">
-      <Filter>Source Files\gamestates</Filter>
-    </ClCompile>
     <ClCompile Include="src\graphic\uniformbuffer.cpp">
       <Filter>Source Files\graphic</Filter>
     </ClCompile>
@@ -124,6 +121,9 @@
     </ClCompile>
     <ClCompile Include="src\graphic\hudelements.cpp">
       <Filter>Source Files\graphic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gamestates\gsmainmenu.cpp">
+      <Filter>Source Files\gamestates</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -235,7 +235,7 @@
     <ClInclude Include="src\gamestates\gamestatebase.hpp">
       <Filter>Source Files\gamestates</Filter>
     </ClInclude>
-    <ClInclude Include="src\gamestates\gsmain.hpp">
+    <ClInclude Include="src\gamestates\gsmainmenu.hpp">
       <Filter>Source Files\gamestates</Filter>
     </ClInclude>
   </ItemGroup>

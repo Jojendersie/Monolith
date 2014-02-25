@@ -2,7 +2,7 @@
 #include <cassert>
 #include <iostream>
 #include "game.hpp"
-#include "gamestates/gsmain.hpp"
+#include "gamestates/gsmainmenu.hpp"
 #include "opengl.hpp"
 #include "timer.hpp"
 #include "graphic/device.hpp"
@@ -42,9 +42,9 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 	m_graficContent = new Graphic::Content();
 
 	// Create game states
-	m_gameStates[0] = new GSMain(this);
+	m_gameStates[0] = new GSMainMenu(this);
 
-	PushState( (GSMain*)m_gameStates[0] );
+	PushState( (GSMainMenu*)m_gameStates[0] );
 }
 
 Monolith::~Monolith()
