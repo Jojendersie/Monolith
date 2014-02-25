@@ -14,7 +14,7 @@ namespace Input {
 	void Manager::Initialize( GLFWwindow* _window, Jo::Files::MetaFileWrapper::Node& _keyConfig )
 	{
 		// GLFW setup
-		//glfwSetInputMode( _window, GLFW_CURSOR, GLFW_CURSOR_DISABLED );//GLFW_CURSOR_NORMAL );	// TODO use internal/no cursor
+		glfwSetInputMode( _window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN );
 		glfwSetInputMode( _window, GLFW_STICKY_KEYS, GL_FALSE );
 		glfwSetInputMode( _window, GLFW_STICKY_MOUSE_BUTTONS, GL_FALSE );
 
