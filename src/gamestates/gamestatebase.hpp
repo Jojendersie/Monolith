@@ -36,8 +36,6 @@ public:
 	/// \param [in] _deltaTime Time since last Render call.
 	virtual void Render( double _time, double _deltaTime ) = 0;
 
-	// TODO: more Input
-
 	/// \brief The input update is called synchronized with the renderer.
 	/// \details This method must recompute camera matrices and other things
 	///		which relay on input but are used in rendering too.
@@ -53,7 +51,36 @@ public:
 	virtual void Scroll( double _dx, double _dy ) {}
 
 	/// \brief Called if any keyboard or mouse button is pushed down.
-	// virtual void KeyDown( int ) = 0;
+	/// \details The key values are the same as from glew (e.g. GLFW_KEY_UP)
+	///		and can be GLEW_KEY_ or GLEW_MOUSE_ respectively. A keyboard repeat
+	///		will call down again (even if already pushed).
+	///		
+	///		To convert keyboard input to characters use the function
+	///		Input::KeyToChar.
+	///	\param [in] _modifiers GLFW_MOD_SHIFT, GLFW_MOD_CONTROL, GLFW_MOD_ALT
+	///		or GLFW_MOD_SUPER in any combination.
+	virtual void KeyDown( int _key, int _modifiers ) {}
+
+	/// \brief Called if any keyboard or mouse button is released.
+	/// \copydetails KeyDown()
+	virtual void KeyRelease( int _key ) {}
+
+	/// \brief Called if any keyboard or mouse button is pushed and released
+	///		in a short interval.
+	/// \copydetails KeyDown()
+	///		
+	///		If holding a button for a time longer than 0.05s no click is
+	///		induced. For buttons in a gui KeyRelease() may be a better choice.
+	///		The click event is deferred for 0.1s to check for a double click.
+	virtual void KeyClick( int _key ) {}
+
+	/// \brief Called if any keyboard or mouse button is pushed and released
+	///		twice in a short interval.
+	/// \copydetails KeyDown()
+	///		
+	///		The double click is induced if the click condition (<0.05s between
+	///		push and release) is met twice in an interval of 0.15s.
+	virtual void KeyDoubleClick( int _key ) {}
 
 	/// \brief Return the parent game state on stack or nullptr.
 	IGameState* ParentGameState() const		{ return m_previous; }

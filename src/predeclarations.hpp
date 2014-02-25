@@ -31,7 +31,7 @@ namespace Input {
 	class Camera;
 	class Manager;
 
-	enum struct Keys;
+	enum struct VirtualKey;
 } // namespace Input
 
 namespace Math {

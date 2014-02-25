@@ -11,6 +11,7 @@ using namespace Math;
 // TODO: remove after test
 #include "../generators/asteroid.hpp"
 #include "../graphic/texture.hpp"
+#include <iostream>
 
 namespace RenderStat {
 	int g_numVoxels;
@@ -87,9 +88,9 @@ void GSMain::MouseMove( double _dx, double _dy )
 	// Read config file for speed
 	double rotSpeed = m_game->Config[std::string("Input")][std::string("CameraRotationSpeed")];
 	double moveSpeed = m_game->Config[std::string("Input")][std::string("CameraMovementSpeed")];
-	if( Input::Manager::IsKeyPressed(Input::Keys::ROTATE_CAMERA) )
+	if( Input::Manager::IsVirtualKeyPressed(Input::VirtualKey::ROTATE_CAMERA) )
 		m_camera->Rotate( float(_dy * rotSpeed), float(_dx * rotSpeed) );
-	else if( Input::Manager::IsKeyPressed(Input::Keys::MOVE_CAMERA) )
+	else if( Input::Manager::IsVirtualKeyPressed(Input::VirtualKey::MOVE_CAMERA) )
 		m_camera->Move( float(_dx * moveSpeed), float(_dy * moveSpeed) );
 	m_hud->MouseMove(_dx, _dy);
 }
@@ -99,4 +100,11 @@ void GSMain::Scroll( double _dx, double _dy )
 {
 	double scrollSpeed = m_game->Config[std::string("Input")][std::string("CameraScrollSpeed")];
 	m_camera->Scroll( float(_dy * scrollSpeed) );
+}
+
+// ************************************************************************* //
+void GSMain::KeyDown( int _key, int _modifiers )
+{
+	if( _key == GLFW_KEY_ESCAPE )
+		m_finished = true;
 }
