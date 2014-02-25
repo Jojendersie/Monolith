@@ -9,7 +9,8 @@
 struct GLFWwindow;
 
 // General classes without scopes
-class GSMain;
+class GSMainMenu;
+class GSPlay;
 class IGameState;
 typedef IGameState* IGameStateP;
 class Monolith;

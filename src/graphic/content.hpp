@@ -13,6 +13,7 @@ namespace Graphic {
 		~Content();
 
 		Graphic::Effect voxelRenderEffect;
+		Graphic::Effect texture2DEffect;
 		Graphic::UniformBuffer objectUBO;
 		Graphic::UniformBuffer cameraUBO;
 		Graphic::SamplerState pointSampler;

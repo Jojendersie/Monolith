@@ -3,6 +3,7 @@
 #include <iostream>
 #include "game.hpp"
 #include "gamestates/gsmainmenu.hpp"
+#include "gamestates/gsplay.hpp"
 #include "opengl.hpp"
 #include "timer.hpp"
 #include "graphic/device.hpp"
@@ -12,6 +13,7 @@
 
 static double g_fInvFrequency;
 
+// ************************************************************************* //
 Monolith::Monolith( float _fTargetFrameRate ) :
 	m_singleThreaded( true ),
 	m_running( true ),
@@ -43,10 +45,12 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 
 	// Create game states
 	m_gameStates[0] = new GSMainMenu(this);
+	m_gameStates[1] = new GSPlay(this);
 
-	PushState( (GSMainMenu*)m_gameStates[0] );
+	PushState( GetMainMenuState() );
 }
 
+// ************************************************************************* //
 Monolith::~Monolith()
 {
 	Input::Manager::Close();
@@ -59,8 +63,10 @@ Monolith::~Monolith()
 	}
 	delete m_graficContent;
 	delete m_gameStates[0];
+	delete m_gameStates[1];
 }
 
+// ************************************************************************* //
 void Monolith::Run()
 {
 	if( m_singleThreaded )
@@ -93,7 +99,7 @@ void Monolith::Run()
 	}
 }
 
-
+// ************************************************************************* //
 void Monolith::_PushState( IGameStateP _state )
 {
 	// Set in input manager
@@ -101,10 +107,11 @@ void Monolith::_PushState( IGameStateP _state )
 
 	// Update stack
 	_state->m_previous = m_stateStack;
+	_state->m_finished = false;
 	m_stateStack = _state;
 }
 
-
+// ************************************************************************* //
 bool Monolith::ClearStack()
 {
 	if( m_stateStack->IsFinished() )
@@ -116,11 +123,12 @@ bool Monolith::ClearStack()
 		if( !m_stateStack ) return false;
 		// Otherwise resume and continue
 		m_stateStack->OnResume();
+		Input::Manager::SetGameState( m_stateStack );
 	}
 	return true;
 }
 
-
+// ************************************************************************* //
 void Monolith::BuildDefaultConfig()
 {
 	auto& cinput = Config[std::string("Input")];
@@ -130,4 +138,14 @@ void Monolith::BuildDefaultConfig()
 	cinput[std::string("CameraRotationSpeed")] = 0.005;
 	cinput[std::string("CameraMovementSpeed")] = 0.0025;
 	cinput[std::string("CameraScrollSpeed")] = 5.0;
+}
+
+// ************************************************************************* //
+GSMainMenu* Monolith::GetMainMenuState()
+{
+	return static_cast<GSMainMenu*>(m_gameStates[0]);
+}
+GSPlay* Monolith::GetPlayState()
+{
+	return static_cast<GSPlay*>(m_gameStates[1]);
 }

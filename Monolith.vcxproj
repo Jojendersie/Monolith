@@ -81,6 +81,7 @@
   <ItemGroup>
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\gamestates\gsmainmenu.cpp" />
+    <ClCompile Include="src\gamestates\gsplay.cpp" />
     <ClCompile Include="src\generators\asteroid.cpp" />
     <ClCompile Include="src\generators\random.cpp" />
     <ClCompile Include="src\graphic\blendstate.cpp" />
@@ -114,6 +115,7 @@
     <ClInclude Include="src\game.hpp" />
     <ClInclude Include="src\gamestates\gamestatebase.hpp" />
     <ClInclude Include="src\gamestates\gsmainmenu.hpp" />
+    <ClInclude Include="src\gamestates\gsplay.hpp" />
     <ClInclude Include="src\generators\asteroid.hpp" />
     <ClInclude Include="src\generators\random.hpp" />
     <ClInclude Include="src\graphic\blendstate.hpp" />

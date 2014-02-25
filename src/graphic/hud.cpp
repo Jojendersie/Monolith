@@ -5,10 +5,6 @@ namespace Graphic
 	Hud::Hud(Content* _globalPipelineData, Monolith* _game ):
 		m_globalPipelineData(_globalPipelineData),
 		m_game(_game),
-		m_screenTexEffect( "shader/screentex.vs", "shader/screentex.gs", "shader/screentex.ps",
-		Graphic::RasterizerState::CULL_MODE::BACK, Graphic::RasterizerState::FILL_MODE::SOLID,
-				Graphic::BlendState::BLEND_OPERATION::ADD, Graphic::BlendState::BLEND::SRC_ALPHA, Graphic::BlendState::BLEND::INV_SRC_ALPHA,
-				Graphic::DepthStencilState::COMPARISON_FUNC::ALWAYS, false),
 //		m_defaultFont(&Font("arial", _game->m_graficContent)),
 		m_characters( "2222", VertexBuffer::PrimitiveType::POINT ),
 		m_container("texture/combined.png"),
@@ -25,8 +21,7 @@ namespace Graphic
 		m_dbgLabel->SetPos(Math::Vec2(0.7f,0.8f));
 		AddTextRender(m_dbgLabel);
 
-		m_screenTexEffect.BindTexture( "u_screenTex", 7, _globalPipelineData->linearSampler );
-		m_screenTexEffect.BindUniformBuffer( _globalPipelineData->cameraUBO );
+		m_globalPipelineData->texture2DEffect.BindTexture( "u_screenTex", 7, _globalPipelineData->linearSampler );
 
 		//test screen tex
 		Jo::Files::HDDFile file("texture/combined.sraw");
@@ -56,7 +51,7 @@ namespace Graphic
 
 		RenewBuffer();
 
-		Device::SetEffect(m_screenTexEffect );
+		Device::SetEffect( m_globalPipelineData->texture2DEffect );
 		Device::SetTexture( m_container, 7 );
 		Device::DrawVertices( m_characters, 0, m_characters.GetNumVertices() );
 

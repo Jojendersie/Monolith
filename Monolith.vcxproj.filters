@@ -125,6 +125,9 @@
     <ClCompile Include="src\gamestates\gsmainmenu.cpp">
       <Filter>Source Files\gamestates</Filter>
     </ClCompile>
+    <ClCompile Include="src\gamestates\gsplay.cpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game.hpp">
@@ -236,6 +239,9 @@
       <Filter>Source Files\gamestates</Filter>
     </ClInclude>
     <ClInclude Include="src\gamestates\gsmainmenu.hpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gamestates\gsplay.hpp">
       <Filter>Source Files\gamestates</Filter>
     </ClInclude>
   </ItemGroup>

@@ -50,13 +50,14 @@ public:
 	template<class TS, typename T1, typename T2, typename T3, typename T4, typename T5>
 	void PushState( TS* _state, T1 _p1, T2 _p2, T3 _p3, T4 _p4, T5 _p5 )	{ _PushState(_state); _state->OnBegin(_p1, _p2, _p3, p4, _p5); }
 
-	IGameStateP GetState();
+	GSMainMenu* GetMainMenuState();
+	GSPlay* GetPlayState();
 
 	Graphic::Content* m_graficContent;
 
 	Jo::Files::MetaFileWrapper Config;
 private:
-	IGameStateP m_gameStates[1];	///< MainMenu, NewGame, Main, ...
+	IGameStateP m_gameStates[2];	///< MainMenu, NewGame, Main, ...
 	IGameStateP m_stateStack;		///< The head of a stack of game states
 	bool m_singleThreaded;
 	bool m_running;

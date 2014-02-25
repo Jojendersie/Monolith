@@ -40,7 +40,6 @@ namespace Graphic {
 
 		//screen texture stuff
 
-		Effect m_screenTexEffect;
 		Texture m_container;
 		Jo::Files::MetaFileWrapper* m_containerMap;
 		int m_screenTexCount; 

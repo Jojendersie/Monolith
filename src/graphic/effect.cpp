@@ -100,7 +100,7 @@ namespace Graphic {
 #ifdef _DEBUG
 		for( size_t i=0; i<m_boundUniformBuffers.size(); ++i )
 			if( m_boundUniformBuffers[i] == &_uniformBuffer )
-				std::cout << "[Effect::BindUniformBuffer] The constant buffer is already bound te the shader. Performance will be decreased.\n";
+				std::cout << "[Effect::BindUniformBuffer] The constant buffer is already bound to the shader.\n";
 #endif
 
 		m_boundUniformBuffers.push_back( &_uniformBuffer );
