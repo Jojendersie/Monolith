@@ -12,7 +12,7 @@ namespace Graphic
 				Graphic::DepthStencilState::COMPARISON_FUNC::ALWAYS, false)
 	{
 		m_effect.BindTexture( "u_characterTex", 7, _globalPipelineData->linearSampler );
-		m_effect.BindUniformBuffer( _globalPipelineData->cameraUBO );
+		m_effect.BindUniformBuffer( _globalPipelineData->globalUBO );
 
 		Jo::Files::HDDFile file("texture/"+_fontName+".sraw");
 		Jo::Files::MetaFileWrapper Wrap( file, Jo::Files::Format::SRAW );
@@ -116,7 +116,7 @@ namespace Graphic
 			CV.scale = m_size;//1.f 
 			CV.size = m_font->m_sizeTable[m_text[i]];
 			CV.texCoord = m_font->m_coordTable[m_text[i]];
-			CV.position = Math::Vec2(currentPos[0],currentPos[1] + (m_size-1.f) * CV.size[1] * 0.666f); //0.666 - 0.03 
+			CV.position = Math::Vec2(currentPos[0],currentPos[1] + (m_size-1.f) * CV.size[1]); //0.666 - 0.03 
 			CV.thickness = m_thickness;
 			CV.color = m_color.RGBA(); 
 			//line break

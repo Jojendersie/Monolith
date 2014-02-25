@@ -16,6 +16,7 @@ namespace Graphic {
 		Graphic::Effect texture2DEffect;
 		Graphic::UniformBuffer objectUBO;
 		Graphic::UniformBuffer cameraUBO;
+		Graphic::UniformBuffer globalUBO;
 		Graphic::SamplerState pointSampler;
 		Graphic::SamplerState linearSampler;
 
