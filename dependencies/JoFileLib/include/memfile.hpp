@@ -36,18 +36,42 @@ namespace Files {
 		///		estimate the target size this will have higher performances.
 		MemFile( uint64_t _capacity = 4096 );
 
+		/// \brief Move construction
+		MemFile( MemFile&& _file );
+
 		~MemFile();
+
+		/// \brief Forget old memory and take new file.
+		/// \warning Are you sure you will overwrite the current data?
+		const MemFile& operator = ( MemFile&& _file );
 
 		virtual void Read( uint64_t _numBytes, void* _to ) const override;
 		virtual uint8_t Next() const override;
 		virtual void Write( const void* _from, uint64_t _numBytes ) override;
 
+		/// \brief Make sure that a direct write to the returned address does
+		///		not cause a buffer overflow.
+		///	\details This method can be used for direct writes to the MemFile.
+		///		Which is usefull if another method expects a buffer to write
+		///		into. E.g.:
+		///			void* buffer = memfile.Reserve(100);
+		///			fread( file, 100, 1, buffer );
+		///			
+		///		The cursor and the size will be moved by the given size as if
+		///		a write operation took place.
+		void* Reserve( uint64_t _numBytes );
+
 		/// \details Seek can even jump to locations > size for random write
 		///		access. Reading at such a location will fail.
 		virtual void Seek( uint64_t _numBytes, SeekMode _mode = SeekMode::SET ) const override;
 
-		void* GetBuffer()				{ return m_buffer; }
+		//void* GetBuffer()				{ return m_buffer; }
 		const void* GetBuffer() const	{ return m_buffer; }
+
+	private:
+		// Copying files not allowed.
+		void operator = (const MemFile&);
+		MemFile(const MemFile&);
 	};
 };
 };

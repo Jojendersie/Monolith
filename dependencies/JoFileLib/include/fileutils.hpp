@@ -57,6 +57,13 @@ namespace Utils {
 	/// \brief Tests if a file or directory exists.
 	bool Exists( const std::string& _name );
 
+	/// \brief Compare paths/files if they are equal.
+	/// \details You can compare different formated inputs as relative or
+	///		absolute paths.
+	///		
+	///		If the file does not exists the return value is false.
+	bool IsEqual( std::string _name0, std::string _name1 );
+
 
 	// Not implemented:
 	/// \brief Takes an arbitrary file name makes sure that is has a full path.

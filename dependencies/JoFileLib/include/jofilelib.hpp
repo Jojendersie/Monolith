@@ -19,7 +19,8 @@ namespace Files {
 		AUTO_DETECT,
 		JSON,
 		SRAW,
-		PNG
+		PNG,
+		PFM			///< Portable float map
 	};
 };
 };
@@ -30,3 +31,4 @@ namespace Files {
 #include "filewrapper.hpp"
 #include "imagewrapper.hpp"
 #include "fileutils.hpp"
+#include "streamreader.hpp"

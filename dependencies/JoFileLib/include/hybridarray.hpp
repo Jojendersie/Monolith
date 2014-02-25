@@ -65,7 +65,7 @@ namespace Jo {
 		T& PushBack(T&& _element);
 
 		/// \brief Delete the last element
-		T PopBack();
+		void PopBack();
 
 		/// \brief Insert an element copy at the given index of the array.
 		/// \details This might cause a resize with costs O(n).
@@ -270,13 +270,13 @@ namespace Jo {
 	}
 
 	template<typename T, unsigned n>
-	T HybridArray<T,n>::PopBack()
+	void HybridArray<T,n>::PopBack()
 	{
 		// TODO: logging system
 		assert(m_size > 0);
 
 		// Delete old
-		return std::move(m_data[--m_size]);
+		m_data[--m_size].~T();
 	}
 
 	// ********************************************************************* //

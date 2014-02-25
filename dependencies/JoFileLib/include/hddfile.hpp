@@ -21,10 +21,10 @@ namespace Files {
 	public:
 		/// \brief Determine how a file should be opened.
 		/// \details The mode flags can be used in any combination.
-		enum ModeFlags {
-			CREATE_FILE = 1,	///< Create the file if not existent. This includes the path.
-			APPEND = 2,			///< Set cursor to the end of file (standard is at the beginning)
-		};
+		typedef int ModeFlags;
+		static const int CREATE_FILE = 1;	///< Create the file if not existent. This includes the path.
+		static const int APPEND = 2;		///< Set cursor to the end of file (standard is at the beginning)
+		static const int OVERWRITE = 4;		///< Clear the file on opening
 
 		/// \brief Open a file on hard disk.
 		/// \details If the file/directory does not exist it will be created or
@@ -35,9 +35,15 @@ namespace Files {
 		///		open a file may also fail if permission is denied.
 		/// \param [in] _bufferSize Write operations are done buffered where
 		///		the default buffer size is 4KB.
-		HDDFile( const std::string& _name, ModeFlags _flags = ModeFlags(0), int _bufferSize = 4096 );
+		HDDFile( const std::string& _name, ModeFlags _flags = 0, int _bufferSize = 4096 );
+
+		/// \brief Move construction
+		HDDFile(HDDFile&& _file);
 
 		~HDDFile();
+
+		/// \brief Close the old file and take the new reference.
+		const HDDFile& operator = (HDDFile&& _file);
 
 		virtual void Read( uint64_t _numBytes, void* _to ) const override;
 		virtual uint8_t Next() const override;
@@ -48,6 +54,11 @@ namespace Files {
 
 		/// \brief Write the buffer to disk if there are written bytes pending.
 		void Flush();
+
+	private:
+		// Copying files not allowed.
+		void operator = (const HDDFile&);
+		HDDFile(const HDDFile&);
 	};
 };
 };

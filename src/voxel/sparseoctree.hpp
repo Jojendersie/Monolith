@@ -363,7 +363,7 @@ namespace Voxel {
 		bool typeChanged = true;
 		while( typeChanged && callStack.Size()>0 )
 		{
-			currentElement = callStack.PopBack();
+			currentElement = callStack.Last(); callStack.PopBack();
 			// Was the same before and number of children with that type only
 			// increased.
 			typeChanged = currentElement->voxel != _type;
