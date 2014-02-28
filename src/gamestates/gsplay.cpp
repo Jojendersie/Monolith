@@ -11,6 +11,8 @@ using namespace Math;
 // TODO: remove after test
 #include "../generators/asteroid.hpp"
 #include "../graphic/texture.hpp"
+#include "../generators/random.hpp"
+#include "../voxel/voxel.hpp"
 
 namespace RenderStat {
 	int g_numVoxels;
@@ -47,6 +49,9 @@ void GSPlay::OnBegin()
 // ************************************************************************* //
 void GSPlay::Update( double _time, double _deltaTime )
 {
+/*	static Generators::Random Rnd(1435461);
+	for( int i = 0; i < 100; ++i )
+		m_astTest->Set( IVec3(Rnd.Uniform(0,79), Rnd.Uniform(0,49), Rnd.Uniform(0,29)), 0, Voxel::VoxelType::UNDEFINED );*/
 }
 
 // ************************************************************************* //
@@ -111,4 +116,12 @@ void GSPlay::KeyDown( int _key, int _modifiers )
 // ************************************************************************* //
 void GSPlay::KeyClick( int _key )
 {
+	if( _key == GLFW_MOUSE_BUTTON_1 )
+	{
+		// Do a ray cast and delete the clicked voxel
+		Ray ray = m_camera->GetRay( Input::Manager::GetCursorPosScreenSpace() );
+		Voxel::Model::ModelData::HitResult hit;
+		if( m_astTest->RayCast(ray, 0, hit) )
+			m_astTest->Set( hit.position, 0, Voxel::VoxelType::UNDEFINED );
+	}
 }

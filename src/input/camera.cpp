@@ -133,4 +133,12 @@ namespace Input {
 		return true;
 	}
 
+	// ********************************************************************* //
+	Ray Camera::GetRay(const Vec2& _screenSpaceCoordinate) const
+	{
+		Vec4 nearPoint = Vec4(_screenSpaceCoordinate, -1.0f, 1.0f) * m_inverseViewProjection;
+		Vec3 start = Vec3(nearPoint) / nearPoint[3];
+		return Ray( start, normalize(start - m_position) );
+	}
+
 } // namespace Input

@@ -80,7 +80,7 @@ namespace Voxel {
 		///	\param [out] _hit The first voxel on the target level which is non
 		///		empty. This is only defined if there is a collision.
 		///	\return true if there is a collision.
-		bool RayCast( const Math::Ray& _ray, int _targetLevel, HitResult& _hit );
+		bool RayCast( const Math::Ray& _ray, int _targetLevel, HitResult& _hit ) const;
 
 
 
@@ -330,13 +330,13 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	template<typename T, typename Listener>
-	bool SparseVoxelOctree<T,Listener>::RayCast( const Math::Ray& _ray, int _targetLevel, HitResult& _hit )
+	bool SparseVoxelOctree<T,Listener>::RayCast( const Math::Ray& _ray, int _targetLevel, HitResult& _hit ) const
 	{
 		assert(m_rootSize != -1);
 
 		// Use recursive algorithm.
 		// TODO: what if m_rootSize < _targetLevel?
-		return m_root.RayCast( _ray, m_rootPosition, m_rootSize, _targetLevel, _hit );
+		return m_root.RayCast( _ray, Math::IVec3(m_rootPosition), m_rootSize, _targetLevel, _hit );
 	}
 
 	// ********************************************************************* //
@@ -486,8 +486,8 @@ namespace Voxel {
 				for( int i=0; i<8; ++i )
 				{
 					if( Math::Intersect::RaySphere( _ray,
-						Math::Sphere( _position + CHILD_OFFSETS[i], r ),
-						list[num] ) )
+						Math::Sphere( (_position + Math::IVec3(CHILD_OFFSETS[i]))*1.0f, r ),
+						list[num].value ) )
 					list[num++].index = i;
 				}
 				 
@@ -496,7 +496,7 @@ namespace Voxel {
 
 				// Test them sequentially and stop immediately if something was hit.
 				for( int i=0; i<num; ++i )
-					if( m_children[list[i].index]->RayCast( _ray, _position + CHILD_OFFSETS[list[i].index], _level-1, _hit ) )
+					if( m_children[list[i].index].RayCast( _ray, _position + Math::IVec3(CHILD_OFFSETS[list[i].index]), _level-1, _targetLevel, _hit ) )
 						return true;
 
 				// No child collides
@@ -507,7 +507,7 @@ namespace Voxel {
 			if( Math::Intersect::RayAACube( _ray, _position, (1<<_level), _hit.side ) )
 			{
 				_hit.position = _position;
-				_hit.voxel = voxel;
+				_hit.voxel = m_data;
 				return true;
 			} else
 				return false;

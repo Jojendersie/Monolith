@@ -17,6 +17,8 @@ namespace Voxel {
 	class Model
 	{
 	public:
+		typedef SparseVoxelOctree<VoxelType, Model> ModelData;
+
 		/// \brief Constructs an empty model without any chunk
 		Model();
 		~Model();
@@ -69,6 +71,7 @@ namespace Voxel {
 		///	\param [in] _oldType The type of the voxel which was before.
 		void Update( const Math::IVec4& _position, VoxelType _oldType, VoxelType _newType );
 
+		bool RayCast( const Math::Ray& _ray, int _targetLevel, ModelData::HitResult& _hit ) const { return m_voxelTree.RayCast(_ray, _targetLevel, _hit); }
 	protected:
 		std::unordered_map<Math::IVec4, Chunk> m_chunks;
 		int m_numVoxels;				///< Count the number of voxels for statistical issues
@@ -85,7 +88,7 @@ namespace Voxel {
 		float m_boundingSphereRadius;	///< Bounding sphere radius (to the center of gravity) for culling etc.
 
 		//ComputeBounding
-		SparseVoxelOctree<VoxelType, Model> m_voxelTree;
+		ModelData m_voxelTree;
 		
 		/// \brief  Decide for one voxel if it has the correct detail level and
 		///		is visible (culling).

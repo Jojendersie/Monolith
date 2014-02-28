@@ -17,7 +17,7 @@ namespace Algo {
 		_data[_x] = std::move(t);*/
 
 		// Tested: this one is three times faster.
-		if(_data[_x] > _data[_y])
+		if(_data[_y] < _data[_x])
 			std::swap(_data[_x], _data[_y]);
 	}
 

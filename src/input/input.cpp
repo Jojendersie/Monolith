@@ -2,6 +2,7 @@
 #include "../gamestates/gamestatebase.hpp"
 #include "../timer.hpp"
 #include "../math/vector.hpp"
+#include "../graphic/device.hpp"
 
 using namespace std;
 
@@ -169,6 +170,14 @@ namespace Input {
 	Math::Vec2 Manager::GetCursorPos()
 	{
 		return Math::Vec2( (float)InputManagerInstance.m_cursorX, (float)InputManagerInstance.m_cursorY );
+	}
+
+	Math::Vec2 Manager::GetCursorPosScreenSpace()
+	{
+		// Get cursor converted to screen coordinates
+		Math::Vec2 cursorPos = 0.5f * Input::Manager::GetCursorPos() / Graphic::Device::GetFramebufferSize() - 1.0f;
+		cursorPos[1] = -cursorPos[1];
+		return cursorPos;
 	}
 
 

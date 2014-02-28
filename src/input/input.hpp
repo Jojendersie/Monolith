@@ -36,6 +36,9 @@ namespace Input {
 
 		/// \brief The cursors position in pixels inside the window.
 		static Math::Vec2 GetCursorPos();
+
+		/// \brief The cursors position in screen space coordinates [-1,1]² inside the window.
+		static Math::Vec2 GetCursorPosScreenSpace();
 	private:
 		IGameState* m_gameState;
 		GLFWwindow* m_window;		///< The one reference window

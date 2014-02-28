@@ -73,6 +73,9 @@ namespace Input {
 		/// \brief Checks a sphere against the frustum and returns true if any
 		///		point of the sphere is inside.
 		bool IsVisible( const Math::Sphere& _S ) const;
+
+		/// \brief Determines the ray starting at camera's near plane in world space.
+		Math::Ray GetRay(const Math::Vec2& _screenSpaceCoordinate) const;
 	private:
 		// Computed matrices used in rendering
 		Math::Mat4x4 m_view;

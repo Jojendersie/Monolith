@@ -31,8 +31,14 @@ namespace Math {
 		Vector(Data _d1, Data _d2, Data _d3)			{ static_assert(n==3, "3 Component constructor can only be used for vectors of dimension 3."); m_data[0] = _d1; m_data[1] = _d2; m_data[2] = _d3; }
 		/// \brief Specialized constructor for a 4D vector from components.
 		Vector(Data _d1, Data _d2, Data _d3, Data _d4)	{ static_assert(n==4, "4 Component constructor can only be used for vectors of dimension 4."); m_data[0] = _d1; m_data[1] = _d2; m_data[2] = _d3; m_data[3] = _d4; }
+		/// \brief Specialized constructor for a 3D vector from a 2D vector + data.
+		Vector(const Vector<2, Data>& _v, Data _d)		{ static_assert(n==3, "Vec2 + Component constructor can only be used for vectors of dimension 4."); m_data[0] = _v[0]; m_data[1] = _v[1]; m_data[2] = _d; }
 		/// \brief Specialized constructor for a 4D vector from a 3D vector + data.
 		Vector(const Vector<3, Data>& _v, Data _d)		{ static_assert(n==4, "Vec3 + Component constructor can only be used for vectors of dimension 4."); for (int i = 0; i < 3; i++) m_data[i] = _v[i]; m_data[3] = _d; }
+		/// \brief Specialized constructor for a 4D vector from a 2D vector + 2x data.
+		Vector(const Vector<2, Data>& _v, Data _d1, Data _d2)				{ static_assert(n==4, "Vec2 + 2x Component constructor can only be used for vectors of dimension 4."); m_data[0] = _v[0]; m_data[1] = _v[1]; m_data[2] = _d1; m_data[3] = _d2; }
+		/// \brief Specialized constructor for a 4D vector from two 2D vectors.
+		Vector(const Vector<2, Data>& _v1, const Vector<2, Data>& _v2)		{ static_assert(n==4, "2x Vec2 constructor can only be used for vectors of dimension 4."); m_data[0] = _v1[0]; m_data[1] = _v1[1]; m_data[2] = _v2[0]; m_data[3] = _v2[1]; }
 
 		/// \brief Write access to an element
 		Data& operator [](int _pos)			{ return m_data[_pos]; }
