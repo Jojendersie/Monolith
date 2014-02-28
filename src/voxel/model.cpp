@@ -159,4 +159,13 @@ namespace Voxel {
 		m_boundingSphereRadius = Math::max(m_boundingSphereRadius, Math::length(Math::Vector<3,float>(m_center) - Math::Vector<3,int>(_position)) );
 	}
 
+	// ********************************************************************* //
+	bool Model::RayCast( const Math::Ray& _ray, int _targetLevel, ModelData::HitResult& _hit ) const
+	{
+		// Convert ray to model space
+		Math::Mat4x4 inverseModelTransform = Mat4x4::Translation( -m_position - m_center ) * Mat4x4::Rotation(-m_rotation) * Mat4x4::Translation(m_center);
+		Math::Ray ray = _ray * inverseModelTransform;
+		return m_voxelTree.RayCast(ray, _targetLevel, _hit);
+	}
+
 };

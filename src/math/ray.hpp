@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vector.hpp"
+#include "matrix.hpp"
 
 namespace Math {
 
@@ -20,5 +21,11 @@ namespace Math {
 		{}
 
 	};
+
+	/// \brief Transforms a ray (position + direction).
+	inline Ray operator * (const Ray& _ray, const Mat4x4& _A)
+	{
+		return Ray( _ray.m_start * _A, _A.TransformDirection( _ray.m_direction ) );
+	}
 
 } // namespace Math

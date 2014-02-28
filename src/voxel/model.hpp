@@ -71,7 +71,7 @@ namespace Voxel {
 		///	\param [in] _oldType The type of the voxel which was before.
 		void Update( const Math::IVec4& _position, VoxelType _oldType, VoxelType _newType );
 
-		bool RayCast( const Math::Ray& _ray, int _targetLevel, ModelData::HitResult& _hit ) const { return m_voxelTree.RayCast(_ray, _targetLevel, _hit); }
+		bool RayCast( const Math::Ray& _ray, int _targetLevel, ModelData::HitResult& _hit ) const;
 	protected:
 		std::unordered_map<Math::IVec4, Chunk> m_chunks;
 		int m_numVoxels;				///< Count the number of voxels for statistical issues

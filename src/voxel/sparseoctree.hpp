@@ -334,9 +334,13 @@ namespace Voxel {
 	{
 		assert(m_rootSize != -1);
 
-		// Use recursive algorithm.
-		// TODO: what if m_rootSize < _targetLevel?
-		return m_root.RayCast( _ray, Math::IVec3(m_rootPosition), m_rootSize, _targetLevel, _hit );
+		// if root to small scale it up and test against a single box
+		if( m_rootSize < _targetLevel )
+		{
+			// TODO
+		} else 
+			// Use recursive algorithm.
+			return m_root.RayCast( _ray, Math::IVec3(m_rootPosition), m_rootSize, _targetLevel, _hit );
 	}
 
 	// ********************************************************************* //
@@ -512,6 +516,8 @@ namespace Voxel {
 			} else
 				return false;
 		}
+
+		return false;
 	}
 
 } // namespace Voxel
