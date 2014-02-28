@@ -1,5 +1,7 @@
 #include "font.hpp"
 
+//#define </cm(r,g,b,a) "</c + (char)r + (char)g + (char)b + (char)a"
+
 namespace Graphic
 {
 	Font::Font(std::string _fontName, Content* _globalPipelineData) :
@@ -10,7 +12,7 @@ namespace Graphic
 				Graphic::DepthStencilState::COMPARISON_FUNC::ALWAYS, false)
 	{
 		m_effect.BindTexture( "u_characterTex", 7, _globalPipelineData->linearSampler );
-		m_effect.BindUniformBuffer( _globalPipelineData->cameraUBO );
+		m_effect.BindUniformBuffer( _globalPipelineData->globalUBO );
 
 		Jo::Files::HDDFile file("texture/"+_fontName+".sraw");
 		Jo::Files::MetaFileWrapper Wrap( file, Jo::Files::Format::SRAW );
@@ -32,13 +34,20 @@ namespace Graphic
 	TextRender::TextRender(Font* _font) :
 		m_font(_font),
 		m_characters( "222c11", VertexBuffer::PrimitiveType::POINT ),//222c11
-		m_screenPos( 0.0f )
+		m_screenPos( 0.0f ),
+		m_sizeD(1.f),
+		m_colorD((uint8_t)255,(uint8_t)255,(uint8_t)255,(uint8_t)255),
+		m_thicknessD(0.5f),
+		m_active(true)
 	{
+		m_size = m_sizeD;
+		m_color = m_colorD;
+		m_thickness = m_thicknessD;
 		SetText("bla");
 	}
 
 
-	void TextRender::SetText(std::string _text)
+	void TextRender::SetText(const std::string& _text)
 	{ 
 		m_text = _text;
 		RenewBuffer();
@@ -61,6 +70,42 @@ namespace Graphic
 		Graphic::Device::DrawVertices( m_characters, 0, m_characters.GetNumVertices() );
 	}
 
+	int TextRender::CntrlChr(int _i)
+	{
+		int jmpCount = 0;
+		switch (m_text[_i+1])
+		{
+		case 's': m_size = (uint8_t)(m_text[_i+3]*100+m_text[_i+4]*10+m_text[_i+5]-208) * 6.25f / 255.f;
+			jmpCount = 5;
+			break;
+		case 't': m_thickness =(uint8_t) (m_text[_i+3]*100+m_text[_i+4]*10+m_text[_i+5]-208) * 6.25f / 255.f;
+			jmpCount = 5;
+			break;
+		case 'c': //m_color = Utils::Color32F((uint8_t)m_text[_i+2],(uint8_t)m_text[_i+3],(uint8_t)m_text[_i+4],(uint8_t)m_text[_i+5]));
+			m_color = Utils::Color8U(
+				(uint8_t)(m_text[_i+3]*100+m_text[_i+4]*10+m_text[_i+5]-208), //offset: '0'(0x30) -> 0x00 5328 % 256
+				(uint8_t)(m_text[_i+7]*100+m_text[_i+8]*10+m_text[_i+9]-208),
+				(uint8_t)(m_text[_i+11]*100+m_text[_i+12]*10+m_text[_i+13]-208),
+				(uint8_t)(m_text[_i+15]*100+m_text[_i+16]*10+m_text[_i+17]-208));
+			jmpCount = 17;
+			break;
+		case '/': switch (m_text[_i+2]) //statement closed, return to default values
+			{
+			case 's' : m_size = m_sizeD; 
+				break;
+			case 'c' : m_color = m_colorD; 
+				break;
+			case 't' : m_thickness = m_thicknessD; 
+				break;
+			};
+			jmpCount = 2;
+			break;
+		}
+		//count chars til the formating end: '>'
+		while(m_text[_i+(jmpCount++)] != '>');
+		return jmpCount;
+	}
+
 	void TextRender::RenewBuffer()
 	{
 		m_characters.Clear();
@@ -68,15 +113,16 @@ namespace Graphic
 		for(size_t i = 0; i<m_text.length(); i++)
 		{
 			CharacterVertex CV;
-			CV.position = currentPos;
-			CV.scale = 1.f; 
+			CV.scale = m_size;//1.f 
 			CV.size = m_font->m_sizeTable[m_text[i]];
 			CV.texCoord = m_font->m_coordTable[m_text[i]];
-			CV.thickness = 0.5f;
-			CV.color = 0xffffffff;
-			// line break
-			if(m_text[i] == '\n') {currentPos[0] = m_screenPos[0]; currentPos[1] -= m_font->m_sizeTable[m_text[i]][1];}
-			else currentPos[0] += m_font->m_sizeTable[m_text[i]][0]; 
+			CV.position = Math::Vec2(currentPos[0],currentPos[1] + (m_size-1.f) * CV.size[1]); //0.666 - 0.03 
+			CV.thickness = m_thickness;
+			CV.color = m_color.RGBA(); 
+			//line break
+			if(m_text[i] == '\n'){currentPos[0] = m_screenPos[0]; currentPos[1] -= m_font->m_sizeTable[m_text[i]][1]*m_size;}
+			else if(m_text[i] == '<'){ i += CntrlChr(i)-1; continue;} 
+			else currentPos[0] += m_font->m_sizeTable[m_text[i]][0]*m_size;  
  			m_characters.Add(CV);
 		}
 		m_characters.Commit();

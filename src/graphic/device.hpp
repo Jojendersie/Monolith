@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../predeclarations.hpp"
 #include "effect.hpp"
 struct GLFWwindow;
 
@@ -8,12 +9,12 @@ namespace Graphic {
 	class VertexBuffer;
 	class Texture;
 
-	/// \brief A singleton wrapper to controll the render pipeline.
+	/// \brief A singleton wrapper to control the render pipeline.
 	/// \details The device must be created on program start with the
 	///		Initialize method. On shutdown Exit must be called to release the
 	///		resources.
 	///
-	///		The device will create exactly one window on initialisation.
+	///		The device will create exactly one window on initialization.
 	class Device {
 	public:
 		/// \brief Create a device and a window.
@@ -23,6 +24,10 @@ namespace Graphic {
 		static void Exit();
 
 		static GLFWwindow* GetWindow();
+		static Math::IVec2 GetFramebufferSize();
+
+		/// \brief FramebufferWidth / FramebufferHeight
+		static float GetAspectRatio();
 
 		static void SetRasterizerState( const RasterizerState& _state );
 		static void SetSamplerState( unsigned _location, const SamplerState& _state );
@@ -30,7 +35,7 @@ namespace Graphic {
 		static void SetDepthStencilState( const DepthStencilState& _state );
 
 		/// \brief Set a shader program and all related states of the pipeline.
-		/// \param [in] _effect Compiled shader with assoziated state objects.
+		/// \param [in] _effect Compiled shader with associated state objects.
 		static void SetEffect( const Effect& _effect );
 
 		/// \brief Bind a texture to a specific texture stage.
@@ -40,7 +45,7 @@ namespace Graphic {
 		///		which uniform variable in the shader is set by Effect::BindTexture.
 		static void SetTexture( const Texture& _texture, unsigned _location );
 
-		/// \brief Clear backbuffer and z-buffer
+		/// \brief Clear back buffer and z-buffer
 		static void Clear( float _r, float _g, float _b );
 
 		/// \brief Clears the z-buffer only

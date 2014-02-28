@@ -1,7 +1,9 @@
 #pragma once
 
 #include "../predeclarations.hpp"
+#include "../../dependencies/glfw-3.0.3/include/GLFW/glfw3.h"
 #include <jofilelib.hpp>
+#include <unordered_map>
 
 namespace Input {
 
@@ -26,8 +28,14 @@ namespace Input {
 		/// \brief Do a synchronized update of things like the camera.
 		static void Update();
 
-		/// \brief Test if a key or button is currently pressed.
-		static bool IsKeyPressed( Keys _key );
+		/// \brief Test if a  GLFW key or button is currently pressed.
+		static bool IsKeyPressed( int _key );
+
+		/// \brief Test if a mapped key or button is currently pressed.
+		static bool IsVirtualKeyPressed( VirtualKey _key );
+
+		/// \brief The cursors position in pixels inside the window.
+		static Math::Vec2 GetCursorPos();
 	private:
 		IGameState* m_gameState;
 		GLFWwindow* m_window;		///< The one reference window
@@ -40,14 +48,31 @@ namespace Input {
 		static void CursorPosFun(GLFWwindow *, double, double);
 		static void CursorEnterFun(GLFWwindow *, int);
 		static void ScrollFun(GLFWwindow *, double, double);
+		static void KeyFun(GLFWwindow* _window, int _key, int _scanCode, int _action, int _modifiers);
+		static void MouseButtonFun(GLFWwindow*, int _key, int _action, int _modifiers);
+
+		/// \brief Holds information about the past for each key.
+		struct KeyInfo
+		{
+			float lastDown;		///< Time marker used to find click events
+			float lastRelease;	///< Time marker used to find double click events
+		};
+		std::unordered_map<int, KeyInfo> m_keyInfos;	///< Brief holds the information struct for each key which was pressed at least once.
 	};
 
-	// Ingame hard codes key. They are mapped by a configuration file. (TODO)
+	// Ingame hard coded keys. They are mapped by a configuration file.
 	// It is even possible that the keys are mapped to more than one key.
-	enum struct Keys {
+	enum struct VirtualKey {
 		MOVE_CAMERA,
 		ROTATE_CAMERA,
 		ZOOM
 	};
 
+	/// \brief Takes the glfw input and converts it to a printable character
+	///		if possible.
+	///	\details Currently this is a german keyboard implementation. As soon as
+	///		glfw supports converting keys this will be used instead.
+	/// \return The ASCII character for the pressed key+modifiers or 0 if it
+	///		was a function key.
+	char KeyToChar( int _key, int _modifiers );
 } // namespace Input

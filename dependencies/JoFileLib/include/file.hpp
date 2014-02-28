@@ -80,7 +80,7 @@ namespace Files {
 		void Write( float _what )			{ Write(&_what, 4); }
 		/// \brief Write a single double to the file.
 		void Write( double _what )			{ Write(&_what, 8); }
-		/// \brief Write a single word to the file.
+		/// \brief Write a single word to the file. This does not write the string's length to the file.
 		void Write( const std::string& _what )		{ Write(_what.c_str(), _what.length()); }
 	};
 };

@@ -16,6 +16,19 @@ namespace Graphic {
 	}
 
 	GLFWwindow* Device::GetWindow()		{ return g_Device.m_window; }
+	Math::IVec2 Device::GetFramebufferSize()
+	{
+		Math::IVec2 size;
+		glfwGetFramebufferSize( g_Device.m_window, &size[0], &size[1] );
+		return size;
+	}
+
+	float Device::GetAspectRatio()
+	{
+		int width, height;
+		glfwGetFramebufferSize( g_Device.m_window, &width, &height );
+		return width / float(height);
+	}
 
 	void Device::Initialize( int _width, int _height, bool _fullScreen )
 	{

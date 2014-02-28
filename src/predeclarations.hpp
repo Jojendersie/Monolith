@@ -9,8 +9,10 @@
 struct GLFWwindow;
 
 // General classes without scopes
-class GSMain;
+class GSMainMenu;
+class GSPlay;
 class IGameState;
+typedef IGameState* IGameStateP;
 class Monolith;
 
 namespace Generators {
@@ -19,11 +21,11 @@ namespace Generators {
 
 namespace Graphic {
 	class Effect;
-	class Font;
-	class TextRender;
+	class Hud;
 	class SamplerState;
 	class Texture;
 	class UniformBuffer;
+	class Font;
 	struct Content;
 } // namespace Graphic
 
@@ -31,7 +33,7 @@ namespace Input {
 	class Camera;
 	class Manager;
 
-	enum struct Keys;
+	enum struct VirtualKey;
 } // namespace Input
 
 namespace Math {

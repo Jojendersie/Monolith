@@ -49,11 +49,23 @@ namespace Files {
 		virtual uint8_t Next() const override;
 		virtual void Write( const void* _from, uint64_t _numBytes ) override;
 
+		/// \brief Make sure that a direct write to the returned address does
+		///		not cause a buffer overflow.
+		///	\details This method can be used for direct writes to the MemFile.
+		///		Which is usefull if another method expects a buffer to write
+		///		into. E.g.:
+		///			void* buffer = memfile.Reserve(100);
+		///			fread( file, 100, 1, buffer );
+		///			
+		///		The cursor and the size will be moved by the given size as if
+		///		a write operation took place.
+		void* Reserve( uint64_t _numBytes );
+
 		/// \details Seek can even jump to locations > size for random write
 		///		access. Reading at such a location will fail.
 		virtual void Seek( uint64_t _numBytes, SeekMode _mode = SeekMode::SET ) const override;
 
-		void* GetBuffer()				{ return m_buffer; }
+		//void* GetBuffer()				{ return m_buffer; }
 		const void* GetBuffer() const	{ return m_buffer; }
 
 	private:

@@ -16,20 +16,17 @@ out vec4 gs_color;
 layout(points) in;
 layout(triangle_strip, max_vertices = OUT_VERTS) out;
 
-layout(std140) uniform Camera
+layout(std140) uniform Global
 {
-	mat4 c_mView;
-	mat4 c_mProjection;
-	mat4 c_mViewProjection;
-	vec3 c_vInverseProjection;
-	float c_fFar;
+	float c_fAspect;	// Width / Height
+	float c_fFBWidth;	// Framebuffer width
+	float c_fFBHeight;	// Framebuffer height
 };
 
 void main(void)
 {
-	float aspect = c_mProjection[0][0] / c_mProjection[1][1];
 	float w = vs_out_Size[0].x * vs_out_Scale[0];
-	float h = vs_out_Size[0].y * vs_out_Scale[0] * aspect;
+	float h = vs_out_Size[0].y * vs_out_Scale[0] / c_fAspect;
 
 	// Pass through
 	gs_thickness = vs_out_Thickness[0];

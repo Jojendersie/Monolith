@@ -2,6 +2,8 @@
 #include <cassert>
 #include <iostream>
 #include "game.hpp"
+#include "gamestates/gsmainmenu.hpp"
+#include "gamestates/gsplay.hpp"
 #include "opengl.hpp"
 #include "timer.hpp"
 #include "graphic/device.hpp"
@@ -11,11 +13,12 @@
 
 static double g_fInvFrequency;
 
+// ************************************************************************* //
 Monolith::Monolith( float _fTargetFrameRate ) :
 	m_singleThreaded( true ),
 	m_running( true ),
 	m_time( 0.0 ),
-	m_currentGameState( 0 ),
+	m_stateStack( nullptr ),
 	m_graficContent( nullptr )
 {
 	// Init timer
@@ -41,11 +44,13 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 	m_graficContent = new Graphic::Content();
 
 	// Create game states
-	m_gameStates[0] = new GSMain(this);
+	m_gameStates[0] = new GSMainMenu(this);
+	m_gameStates[1] = new GSPlay(this);
 
-	Input::Manager::SetGameState( m_gameStates[0] );
+	PushState( GetMainMenuState() );
 }
 
+// ************************************************************************* //
 Monolith::~Monolith()
 {
 	Input::Manager::Close();
@@ -58,22 +63,24 @@ Monolith::~Monolith()
 	}
 	delete m_graficContent;
 	delete m_gameStates[0];
+	delete m_gameStates[1];
 }
 
+// ************************************************************************* //
 void Monolith::Run()
 {
 	if( m_singleThreaded )
 	{
-		m_gameStates[m_currentGameState]->Update( m_time, 0.0 );
+		m_stateStack->Update( m_time, 0.0 );
 		TimeQuerySlot frameTimer;
 		TimeQuery( frameTimer );
 		double deltaTime = 0.0;
-		while( m_running && !glfwWindowShouldClose(Graphic::Device::GetWindow()) )
-		{
+		while( m_running && !glfwWindowShouldClose(Graphic::Device::GetWindow()) && ClearStack() )
+		{			
 			// Call stuff
 			Input::Manager::Update();
-			m_gameStates[m_currentGameState]->Render( m_time, deltaTime );
-			m_gameStates[m_currentGameState]->Update( m_time, deltaTime );
+			m_stateStack->Render( m_time, deltaTime );
+			m_stateStack->Update( m_time, deltaTime );
 
 			glfwSwapBuffers(Graphic::Device::GetWindow());
 			glfwPollEvents();
@@ -92,7 +99,36 @@ void Monolith::Run()
 	}
 }
 
+// ************************************************************************* //
+void Monolith::_PushState( IGameStateP _state )
+{
+	// Set in input manager
+	Input::Manager::SetGameState( _state );
 
+	// Update stack
+	_state->m_previous = m_stateStack;
+	_state->m_finished = false;
+	m_stateStack = _state;
+}
+
+// ************************************************************************* //
+bool Monolith::ClearStack()
+{
+	if( m_stateStack->IsFinished() )
+	{
+		// Pop
+		m_stateStack->OnEnd();
+		m_stateStack = m_stateStack->m_previous;
+		// If there is none anymore stop
+		if( !m_stateStack ) return false;
+		// Otherwise resume and continue
+		m_stateStack->OnResume();
+		Input::Manager::SetGameState( m_stateStack );
+	}
+	return true;
+}
+
+// ************************************************************************* //
 void Monolith::BuildDefaultConfig()
 {
 	auto& cinput = Config[std::string("Input")];
@@ -102,4 +138,14 @@ void Monolith::BuildDefaultConfig()
 	cinput[std::string("CameraRotationSpeed")] = 0.005;
 	cinput[std::string("CameraMovementSpeed")] = 0.0025;
 	cinput[std::string("CameraScrollSpeed")] = 5.0;
+}
+
+// ************************************************************************* //
+GSMainMenu* Monolith::GetMainMenuState()
+{
+	return static_cast<GSMainMenu*>(m_gameStates[0]);
+}
+GSPlay* Monolith::GetPlayState()
+{
+	return static_cast<GSPlay*>(m_gameStates[1]);
 }
