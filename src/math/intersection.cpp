@@ -117,7 +117,7 @@ namespace Intersect {
 		_t = dot(p, _ray.m_direction);
 
 		// Compute the third length and compare it to the radius
-		return (hypotenuseSq - _t*_t) <= _sphere.m_radius;
+		return (hypotenuseSq - _t*_t) <= _sphere.m_radiusSqr;
 	}
 
 }

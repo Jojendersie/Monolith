@@ -337,7 +337,14 @@ namespace Voxel {
 		// if root to small scale it up and test against a single box
 		if( m_rootSize < _targetLevel )
 		{
-			// TODO
+			IVec3 position = m_rootPosition << (_targetLevel - m_rootSize);
+			if( Math::Intersect::RayAACube( _ray, position, (1<<_targetLevel), _hit.side ) )
+			{
+				_hit.position = position;
+				_hit.voxel = T::UNDEFINED;
+				return true;
+			} else
+				return false;
 		} else 
 			// Use recursive algorithm.
 			return m_root.RayCast( _ray, Math::IVec3(m_rootPosition), m_rootSize, _targetLevel, _hit );
@@ -479,20 +486,28 @@ namespace Voxel {
 		{
 			// Recursion required. We can user fast test without side detection.
 			float t;
-			if( Math::Intersect::RayAACube( _ray, _position, (1<<_level), t ) )
+			int edgeLength = 1<<_level;
+			if( Math::Intersect::RayAACube( _ray, _position * edgeLength, edgeLength, t ) )
 			{
 				// Ray passes the current node. Make a sphere test for each
 				// child.
 				TmpCollisionEntry list[8];
 				int num = 0;		// How many children have a collision?
 				_position <<= 1;	// First child index
-				float r = (1 << (_level - 1)) * 0.866025404f;	// * 0.5 * sqrt(3)
+				edgeLength /= 2;
+				float r = edgeLength * 0.866025404f;	// * 0.5 * sqrt(3)
+				Math::Vec3 centerOffset(edgeLength * 0.5f, edgeLength * 0.5f, edgeLength * 0.5f);
 				for( int i=0; i<8; ++i )
 				{
-					if( Math::Intersect::RaySphere( _ray,
-						Math::Sphere( (_position + Math::IVec3(CHILD_OFFSETS[i]))*1.0f, r ),
-						list[num].value ) )
-					list[num++].index = i;
+					// Is the child non-empty?
+					if( m_children[i].m_children || m_children[i].m_data != T::UNDEFINED )
+					{
+						// Create spheres centered at the box centers
+						if( Math::Intersect::RaySphere( _ray,
+							Math::Sphere( (_position + Math::IVec3(CHILD_OFFSETS[i]))*edgeLength + centerOffset, r ),
+							list[num].value ) )
+							list[num++].index = i;
+					}
 				}
 				 
 				// Sort the possible colliding children after range.
@@ -508,7 +523,8 @@ namespace Voxel {
 			}
 		} else {
 			// This is a leaf - if we hit we wanna know the side.
-			if( Math::Intersect::RayAACube( _ray, _position, (1<<_level), _hit.side ) )
+			int edgeLength = 1<<_level;
+			if( Math::Intersect::RayAACube( _ray, _position * edgeLength, edgeLength, _hit.side ) )
 			{
 				_hit.position = _position;
 				_hit.voxel = m_data;
