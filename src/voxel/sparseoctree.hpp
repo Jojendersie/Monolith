@@ -53,10 +53,24 @@ namespace Voxel {
 		/// \param [in] _processor An arbitrary implementation of the
 		///		SVOProcessor concept. The processor object can hold any amount
 		///		of local data as additional parameters. For each node the two
-		///		functions are called. Using an empty inline implementation will
-		///		remove the calls through optimization.
+		///		functions are called.
+		///
+		///		Using an empty inline implementation will remove the calls
+		///		through optimization.
 		template<class Processor>
 		void Traverse( Processor& _processor );
+
+		/// \brief Traverse through the whole tree and compute additional
+		///		neighborhood access.
+		/// \param [in] _processor An arbitrary implementation of the
+		///		SVONeighborProcessor concept. The processor object can hold any
+		///		amount of local data as additional parameters. For each node
+		///		the two functions are called.
+		///
+		///		Using an empty inline implementation will remove the calls
+		///		through optimization.
+		template<class Processor>
+		void TraverseEx( Processor& _processor );
 
 		/// \brief Full collision information in local coordinates
 		struct HitResult
@@ -92,8 +106,21 @@ namespace Voxel {
 			/// \see SparseVoxelOctree::Traverse
 			/// \param [in] _position Voxel position in 3D grid + level in the
 			///		tree where 0 is the highest resolution.
+			/// \param [in] _processor An arbitrary implementation of the
+			///		SVOProcessor concept.
 			template<class Processor>
 			void Traverse( const Math::IVec4& _position, Processor& _processor );
+
+			/// \brief Recursive traverse with neighborhood information.
+			/// \see SparseVoxelOctree::TraverseEx
+			/// \param [in] _position Voxel position in 3D grid + level in the
+			///		tree where 0 is the highest resolution.
+			/// \param [in] _processor An arbitrary implementation of the
+			///		SVONeighborProcessor concept.
+			template<class Processor>
+			void TraverseEx( const Math::IVec4& _position, Processor& _processor,
+				const SVON* _left, const SVON* _right, const SVON* _bottom,
+				const SVON* _top, const SVON* _front, const SVON* _back );
 
 			/// \copydoc SparseVoxelOctree::RayCast
 			bool RayCast( const Math::Ray& _ray, Math::IVec3& _position, int _level,
@@ -102,6 +129,11 @@ namespace Voxel {
 			T& Data()						{ return m_data; }
 			const T& Data() const			{ return m_data; }
 			const SVON* Children() const	{ return m_children; }
+			/// \brief Robust getter for child index access.
+			/// \details This method can be called on nullptrs and checks the
+			///		index in debug mode. Further it returns nullptr if the node
+			///		has no children or the specific child is undefined.
+			const SVON* GetChild( int _index ) const	{ assert(_index >= 0 && _index < 8); if(!this) return nullptr; if( m_children && (m_children[_index].m_children || m_children[_index].m_data != T::UNDEFINED)) return m_children[_index]; return nullptr; }
 		private:
 			T m_data;
 			SVON* m_children;
@@ -160,23 +192,26 @@ namespace Voxel {
 			SVOProcessor(SVOProcessor&&)		{}
 		};
 
-		/// \brief Concept of a kernel for tree surface traversals.
+		/// \brief Concept of a kernel for tree traversals with neighborhood.
 		/// \details \see SVOProcessor
-		struct SVOSurfProcessor
+		struct SVONeighborProcessor
 		{
 			/// \copydoc SVOProcessor::PreTraversal
-			///	\param [in] _surface This node is a surface voxel.
-			///	\param [in] _csurface One flag for each child if it is a
-			///		surface voxel.
-			bool PreTraversal(const Math::IVec4& _position, SVON* _node, bool _surface, uint8_t _csurface)	{}
+			/// \param [in] _left Read access to the neighbor in negative x
+			///		direction or nullptr (no neighbor).
+			bool PreTraversal(const Math::IVec4& _position, SVON* _node,
+				const SVON* _left, const SVON* _right, const SVON* _bottom,
+				const SVON* _top, const SVON* _front, const SVON* _back)	{}
 
 			/// \copydoc SVOProcessor::PostTraversal
-			void PostTraversal(const Math::IVec4& _position, SVON* _node, bool _surface, uint8_t _csurface)	{}
+			void PostTraversal(const Math::IVec4& _position, SVON* _node,
+				const SVON* _left, const SVON* _right, const SVON* _bottom,
+				const SVON* _top, const SVON* _front, const SVON* _back)	{}
 		protected:
 			/// \brief This is a concept - do not use instances of this type
-			SVOSurfProcessor()							{}
-			SVOSurfProcessor(const SVOSurfProcessor&)	{}
-			SVOSurfProcessor(SVOSurfProcessor&&)		{}
+			SVONeighborProcessor()								{}
+			SVONeighborProcessor(const SVONeighborProcessor&)	{}
+			SVONeighborProcessor(SVONeighborProcessor&&)		{}
 		};
 
 
@@ -329,6 +364,16 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
+	template<typename T, typename Listener> template<typename Processor>
+	void SparseVoxelOctree<T,Listener>::TraverseEx( Processor& _processor )
+	{
+		assert(m_rootSize != -1);
+
+		m_root.TraverseEx(IVec4(m_rootPosition, m_rootSize), _processor,
+			nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
+	}
+
+	// ********************************************************************* //
 	template<typename T, typename Listener>
 	bool SparseVoxelOctree<T,Listener>::RayCast( const Math::Ray& _ray, int _targetLevel, HitResult& _hit ) const
 	{
@@ -460,6 +505,39 @@ namespace Voxel {
 		}
 
 		_processor.PostTraversal(_position, this);
+	}
+
+	// ********************************************************************* //
+	template<typename T, typename Listener> template<class Processor>
+	void SparseVoxelOctree<T,Listener>::SVON::TraverseEx( const Math::IVec4& _position, Processor& _processor,
+		const SVON* _left, const SVON* _right, const SVON* _bottom,
+		const SVON* _top, const SVON* _front, const SVON* _back )
+	{
+		// Preorder traversal - delivers stop criterion
+		if( _processor.PreTraversal(_position, this, _left, _right, _bottom, _top, _front, _back) && m_children )
+		{
+			// Prepare traversal and internal neighborhood
+			const SVON* children[8];
+			for( int i=0; i<8; ++i )
+			{
+				// Is the voxel outside the tree/really empty?
+				if( m_children[i].m_data != T::UNDEFINED || m_children[i].m_children )
+					children[i] = m_children + i;
+				else children[i] = nullptr;
+			}
+			Math::IVec4 p(_position[0]<<1, _position[1]<<1, _position[2]<<1, _position[3]-1);
+			// Manually call traversal for each child due to complex neighborhood construction
+			if( children[0] ) children[0]->TraverseEx( p                                  , _processor, _left->GetChild( 1 ),         children[ 1 ], _bottom->GetChild( 2 ),       children[ 2 ], _front->GetChild( 4 ),        children[ 4 ] );
+			if( children[1] ) children[1]->TraverseEx( IVec4(p[0]+1, p[1]  , p[2]  , p[3]), _processor,        children[ 0 ], _right->GetChild( 0 ), _bottom->GetChild( 3 ),       children[ 3 ], _front->GetChild( 5 ),        children[ 5 ] );
+			if( children[2] ) children[2]->TraverseEx( IVec4(p[0]  , p[1]+1, p[2]  , p[3]), _processor, _left->GetChild( 3 ),         children[ 3 ],          children[ 0 ], _top->GetChild( 0 ), _front->GetChild( 6 ),        children[ 6 ] );
+			if( children[3] ) children[3]->TraverseEx( IVec4(p[0]+1, p[1]+1, p[2]  , p[3]), _processor,        children[ 2 ], _right->GetChild( 2 ),          children[ 1 ], _top->GetChild( 1 ), _front->GetChild( 7 ),        children[ 7 ] );
+			if( children[4] ) children[4]->TraverseEx( IVec4(p[0]  , p[1]  , p[2]+1, p[3]), _processor, _left->GetChild( 5 ),         children[ 5 ], _bottom->GetChild( 6 ),       children[ 6 ],         children[ 0 ], _back->GetChild( 0 ) );
+			if( children[5] ) children[5]->TraverseEx( IVec4(p[0]+1, p[1]  , p[2]+1, p[3]), _processor,        children[ 4 ], _right->GetChild( 4 ), _bottom->GetChild( 7 ),       children[ 7 ],         children[ 1 ], _back->GetChild( 1 ) );
+			if( children[6] ) children[6]->TraverseEx( IVec4(p[0]  , p[1]+1, p[2]+1, p[3]), _processor, _left->GetChild( 7 ),         children[ 7 ],          children[ 4 ], _top->GetChild( 4 ),         children[ 2 ], _back->GetChild( 2 ) );
+			if( children[7] ) children[7]->TraverseEx( IVec4(p[0]+1, p[1]+1, p[2]+1, p[3]), _processor,        children[ 6 ], _right->GetChild( 6 ),          children[ 5 ], _top->GetChild( 5 ),         children[ 3 ], _back->GetChild( 3 ) );
+		}
+
+		_processor.PostTraversal(_position, this, _left, _right, _bottom, _top, _front, _back);
 	}
 
 	// ********************************************************************* //
