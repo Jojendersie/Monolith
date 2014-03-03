@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include "sparseoctree.hpp"
 #include "voxel.hpp"
+#include "material.hpp"
 #include "../math/math.hpp"
 #include "../math/vector.hpp"
 #include "../predeclarations.hpp"
@@ -17,7 +18,7 @@ namespace Voxel {
 	class Model
 	{
 	public:
-		typedef SparseVoxelOctree<VoxelType, Model> ModelData;
+		typedef SparseVoxelOctree<Component, Model> ModelData;
 
 		/// \brief Constructs an empty model without any chunk
 		Model();
@@ -38,7 +39,7 @@ namespace Voxel {
 
 		/// \brief Set a voxel in the model and update mass properties.
 		/// \see SparseVoxelOctree::Set.
-		void Set( const Math::IVec3& _position, int _level, VoxelType _type )	{ m_voxelTree.Set( _position, _level, _type ); }
+		void Set( const Math::IVec3& _position, int _level, VoxelType _type )	{ m_voxelTree.Set( _position, _level, Component(_type) ); }
 
 		/// \brief Returns the type of a voxel on a certain grid level and
 		///		position.
@@ -69,7 +70,7 @@ namespace Voxel {
 		///		component is the size with logarithmic scale of the voxel.
 		///		0 denotes the highest detail 2^0.
 		///	\param [in] _oldType The type of the voxel which was before.
-		void Update( const Math::IVec4& _position, VoxelType _oldType, VoxelType _newType );
+		void Update( const Math::IVec4& _position, const Component& _oldType, const Component& _newType );
 
 		bool RayCast( const Math::Ray& _ray, int _targetLevel, ModelData::HitResult& _hit ) const;
 	protected:

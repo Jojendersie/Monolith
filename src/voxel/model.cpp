@@ -30,10 +30,10 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	struct DecideToDraw: public SparseVoxelOctree<VoxelType,Model>::SVOProcessor
+	struct DecideToDraw: public Model::ModelData::SVOProcessor
 	{
 		const Input::Camera& camera;					// Required for culling and LOD
-		SparseVoxelOctree<VoxelType, Model>* model;		// Operate on this data.
+		Model::ModelData* model;						// Operate on this data.
 		std::unordered_map<Math::IVec4, Chunk>* chunks;	// Create or find chunks here.
 		Graphic::UniformBuffer& objectConstants;
 		const Math::Mat4x4& modelTransform;
@@ -41,7 +41,7 @@ namespace Voxel {
 		ChunkBuilder* builder;
 
 		DecideToDraw(const Input::Camera& _camera,
-				SparseVoxelOctree<VoxelType, Model>* _model,
+				Model::ModelData* _model,
 				std::unordered_map<Math::IVec4, Chunk>* _chunks,
 				Graphic::UniformBuffer& _objectConstants,
 				const Math::Mat4x4& _modelViewProjection,
@@ -54,7 +54,7 @@ namespace Voxel {
 			builder(_builder)
 		{}
 
-		bool PreTraversal(const Math::IVec4& _position, SparseVoxelOctree<VoxelType,Model>::SVON* _node)
+		bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
 		{
 	//		if( !IsSolid( _type ) ) return false;
 
@@ -91,7 +91,7 @@ namespace Voxel {
 						std::make_pair(position, std::move(Chunk(model, _position, levels)))
 						).first;
 					builder->RecomputeVertexBuffer(chunk->second);
-				} else if( _node->Data() == VoxelType::UNDEFINED )
+				} else if( _node->Data().IsDirty() )
 					builder->RecomputeVertexBuffer(chunk->second);
 				// There are empty inner chunks
 				if( chunk->second.NumVoxels() > 0 )
@@ -123,32 +123,32 @@ namespace Voxel {
 	VoxelType Model::Get( const Math::IVec3& _position, int _level ) const
 	{
 		auto node = m_voxelTree.Get(_position, _level);
-		if( node ) return node->Data();
+		if( node ) return node->Data().type;
 		
 		return VoxelType::NONE;
 	}
 
 
 	// ********************************************************************* //
-	void Model::Update( const Math::IVec4& _position, VoxelType _oldType, VoxelType _newType )
+	void Model::Update( const Math::IVec4& _position, const Component& _oldType, const Component& _newType )
 	{
 		// Compute real volume from logarithmic size
 		int size = 1 << _position[3];
 		size = size * size * size;
 
 		// Remove the old voxel
-		if( IsSolid(_oldType) )
+		if( IsSolid(_oldType.type) )
 		{
-			float oldMass = VOXEL_INFO[int(_oldType)].mass * size;
+			float oldMass = VOXEL_INFO[int(_oldType.type)].mass * size;
 			m_center = (m_center * m_mass - Math::IVec3(_position) * oldMass) / (m_mass - oldMass);
 			m_mass -= oldMass;
 			m_numVoxels -= size;
 		}
 
 		// Add new voxel
-		if( IsSolid(_newType) )
+		if( IsSolid(_newType.type) )
 		{
-			float newMass = VOXEL_INFO[int(_newType)].mass * size;
+			float newMass = VOXEL_INFO[int(_newType.type)].mass * size;
 			m_center = (m_center * m_mass + Math::IVec3(_position) * newMass) / (m_mass + newMass);
 			m_mass += newMass;
 			m_numVoxels += size;

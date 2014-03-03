@@ -3,7 +3,8 @@
 
 namespace Voxel {
 
-	static const Material UNDEFINED = 0x0000800f;
+	const Material Material::UNDEFINED = 0xf0010000;
+	const Component Component::UNDEFINED;
 
 	Material::Material( uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _specular, uint8_t _shininess, bool _emissive, uint8_t _variance )
 	{

@@ -422,8 +422,10 @@ namespace Voxel {
 		// Go downwards
 		while( _currentSize > _position[3] )
 		{
-////////////////////////		m_data.Touch();
-			currentElement->m_data = T::UNDEFINED;
+			currentElement->m_data.Touch();
+			// Do not set back to undefined with touch - undefined is used to
+			// mark non existent tree areas.
+			//assert(currentElement->m_data != T::UNDEFINED);// TODO: Use this property for optimizations
 			int childIndex = ComputeChildIndex(_position, _currentSize-1);
 			if( !currentElement->m_children )
 			{ // Create new children
@@ -465,6 +467,7 @@ namespace Voxel {
 			{
 				_parent->m_SVONAllocator.Free(currentElement->m_children);
 				currentElement->m_children = nullptr;
+				currentElement->m_data = _data;
 			}
 		}
 	}

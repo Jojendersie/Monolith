@@ -52,48 +52,36 @@ namespace Voxel {
 		/// \brief Binary check for equality
 		bool operator == (const Material& _mat) const		{ return *(uint32_t*)this == *(uint32_t*)&_mat; }
 		bool operator != (const Material& _mat) const		{ return *(uint32_t*)this != *(uint32_t*)&_mat; }
-
-		/// \brief Mark this material as outdated (it is set to undefined)
-		void Touch()	{ *this = UNDEFINED; }
 	};
 
 
-	/// \brief A struct with the same size as the material containing per voxel
-	///		information in an octree.
-/*	struct Component
+	/// \brief Models are represented by a material and voxel-type tree in one.
+#	pragma pack(push, 1)
+	struct Component
 	{
+		Material material;		///< Graphical representation
 		VoxelType type;			///< The type of the voxel
-		/// \brief Coding of the rotation of the component
-		/// \details There are 24 combinations possible but for better speed
-		///		a direct coordinate mapping is encoded (additional support
-		///		for mirroring).
-		///		ori_x/ori_y/ori_z Index of the coordinate which is mapped
-		///		to x/y/z respectively.
-		///		ori_xr/... - 0 or 1 if the coordinate should be reflected.
-		///		
-		///		Example:
-		///		This is how the final access position is determined:
-		///		´accessX = ori_xr ? max - sampleX[ori_x] : sampleX[ori_x];´
-		uint16_t orientation;
+		uint8_t dirty: 1;		///< Somebody changed a child or this node
+		uint8_t solid: 1;		///< This node and all its children are defined
 
-		/// \brief Convert materials to components for the case of mixed trees.
-		/// \details This operator does no logical conversation!
-		Component( const Material& _material )	{ assert(sizeof(Component) == sizeof(Material)); assert(sizeof(Component) == 4); *(uint32_t*)this = *(uint32_t*)&_material; }
+		/// \brief Standard constructor creates undefined element
+		Component() : material(Material::UNDEFINED), type(VoxelType::UNDEFINED), dirty(0), solid(0)	{}
 
-		Component() : type(VoxelType::UNDEFINED)	{}
+		/// \brief Construct a component with a defined type and undefined material
+		Component(VoxelType _type) : material(Material::UNDEFINED), type(_type), dirty(1), solid(IsSolid(_type)?0:1) {}
+
+		/// \brief Mark this component as outdated (it is set to undefined)
+		void Touch()			{ dirty = 1; }
+		bool IsDirty() const	{ return dirty == 1; }
+
+		/// \brief Undefined material and type.
+		static const Component UNDEFINED;
+
+		/// \brief Checks if material and type are equal
+		bool operator == (const Component& _mat) const		{ return material == _mat.material && type == _mat.type; }
+		/// \brief Checks if material and type are not equal
+		bool operator != (const Component& _mat) const		{ return material != _mat.material || type != _mat.type; }
 	};
-
-	/// \brief Trees uses Components on leaf level and Materials for internal
-	///		nodes.
-	/*struct ComponentMaterialElement
-	{
-		uint32_t data;
-
-		operator Material
-		{
-			Material material;
-			Component component;
-		};
-	}*/
+#	pragma pack(pop)
 
 } // namespace Voxel

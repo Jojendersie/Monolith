@@ -7,6 +7,7 @@
 #include "../graphic/vertexbuffer.hpp"
 #include "voxel.hpp"
 #include "sparseoctree.hpp"
+#include "model.hpp"
 
 namespace Graphic { class UniformBuffer; }
 
@@ -54,7 +55,7 @@ namespace Voxel {
 		///	\param [in] _depth Detail depth respective to the _nodePosition.
 		///		The maximum is 5 which means that _nodePosition is the root
 		///		of a 32^3 chunk.
-		Chunk(SparseVoxelOctree<VoxelType, Model>* _modelData, const Math::IVec4& _nodePostion, int _depth);
+		Chunk(Model::ModelData* _modelData, const Math::IVec4& _nodePostion, int _depth);
 
 		/// \brief Move construction
 		Chunk(Chunk&& _chunk);
@@ -80,7 +81,7 @@ namespace Voxel {
 		int NumVoxels() const			{ return m_voxels.GetNumVertices(); }
 	private:
 		/// \brief Reference to the parent model used to access data.
-		SparseVoxelOctree<VoxelType, Model>* m_modelData;
+		Model::ModelData* m_modelData;
 
 		float m_scale;					///< Rendering parameter derived from Octree node size
 		int m_depth;					///< The depth in the octree respective to this chunk's root. Maximum is 5.

@@ -18,7 +18,7 @@ namespace Voxel {
 #	define INDEX2(X,Y,Z, L)	(LEVEL_OFFSETS[L] + (X) + (1<<(L))*((Y) + (1<<(L))*(Z)))
 
 
-	Chunk::Chunk(SparseVoxelOctree<VoxelType, Model>* _modelData, const Math::IVec4& _nodePostion, int _depth) :
+	Chunk::Chunk(Model::ModelData* _modelData, const Math::IVec4& _nodePostion, int _depth) :
 		m_modelData( _modelData ),
 		m_scale( float(1<<(_nodePostion[3]-_depth)) ),
 		m_depth( _depth ),
@@ -67,50 +67,56 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	/// \brief Current dirty region update - just reuse a child voxel.
-	struct UpdateDirty: public SparseVoxelOctree<VoxelType,Model>::SVOProcessor
+	struct UpdateDirty: public Model::ModelData::SVOProcessor
 	{
 		/// \brief If the current voxel is not dirty its whole subtree is
 		///		clean too. Then stop.
-		bool PreTraversal(const Math::IVec4& _position, SparseVoxelOctree<VoxelType,Model>::SVON* _node)
+		bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
 		{
-			return _node->Data() == VoxelType::UNDEFINED;
+			return _node->Data().IsDirty();
 		}
 
 		/// \brief Do an update: take one of the children randomly
-		void PostTraversal(const Math::IVec4& _position, SparseVoxelOctree<VoxelType,Model>::SVON* _node)
+		void PostTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
 		{
-			if(_node->Data() != VoxelType::UNDEFINED) return;
+			if( !_node->Data().IsDirty() ) return;
 			// Remains undefined
-			if( !_node->Children() ) return;
+			if( !_node->Children() ) { _node->Data().dirty = 0; return; }
 
-			// Take the first defined children
+			// Take the first defined children and check solidity.
+			bool solid = true;
 			for( int i = 0; i < 8; ++i )
-				if( _node->Children()[i].Data() != VoxelType::UNDEFINED )
+			{
+				if( _node->Children()[i].Data().type != VoxelType::UNDEFINED )
 					_node->Data() = _node->Children()[i].Data();
+				solid &= _node->Children()[i].Data().solid;
+			}
+			_node->Data().solid = solid ? 1 : 0;
+			_node->Data().dirty = 0;
 		}
 	};
 
-	struct CopySector: public SparseVoxelOctree<VoxelType,Model>::SVOProcessor
+	struct CopySector: public Model::ModelData::SVOProcessor
 	{
 		ChunkBuilder::PerVoxelInfo* buffer;	///< Array where the selected sector should be stored.
 		IVec3 pmin;		///< Minimal boundary
 		int level;		///< The level in the octree which should be copied
 		int edgeLength;	///< Size of buffer in any direction (is Maximal boundary - Minimal boundary)
 
-		bool PreTraversal(const Math::IVec4& _position, SparseVoxelOctree<VoxelType,Model>::SVON* _node)
+		bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
 		{
 			if( _position[3] < level )
 			{
-				assert(_position[3]+1 == level);
+/*				assert(_position[3]+1 == level);
 				// Child level sets solidity of parent
-				if( !IsSolid(_node->Data()) )
+				if( !IsSolid(_node->Data().type) )
 				{
 					// Parent is not solid too -> set
 					int x = (_position[0] >> 1) - pmin[0];
 					int y = (_position[1] >> 1) - pmin[1];
 					int z = (_position[2] >> 1) - pmin[2];
 					buffer[x + edgeLength * (y + edgeLength * z)].solid = false;
-				}
+				}*/
 				return false;	// No further traversal
 			} else
 			{
@@ -129,8 +135,8 @@ namespace Voxel {
 				if( lvlDiff == 0 )
 				{
 					ChunkBuilder::PerVoxelInfo& target = buffer[x + edgeLength * (y + edgeLength * z)];
-					target.type = _node->Data();
-					target.solid = IsSolid(_node->Data());
+					target.type = _node->Data().type;
+					target.solid = IsSolid(_node->Data().type);
 					return target.solid;
 				}
 
@@ -161,7 +167,7 @@ namespace Voxel {
 	{
 		// If it is dirty update the subtree
 		auto node = _chunk.m_modelData->Get( IVec3(_chunk.m_root), _chunk.m_root[3] );
-		if( node->Data() == VoxelType::UNDEFINED )
+		if( node->Data().IsDirty() )
 			node->Traverse( _chunk.m_root, UpdateDirty() );
 
 		// Sample a (2^d+2)^3 volume (neighborhood for visibility). This
