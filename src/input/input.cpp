@@ -151,15 +151,19 @@ namespace Input {
 				// Check for a click
 				float now = (float)TimeSinceProgramStart();
 				auto& keyInfo = InputManagerInstance.m_keyInfos[_key];
-				if( now - keyInfo.lastDown < 0.1f )
+				if( now - keyInfo.lastDown < 0.15f )
 				{
+					Math::Vec2 mousePosition = GetCursorPos();
 					// Simple or double click?
-					if( now - keyInfo.lastRelease < 0.25f ) {
+					if( now - keyInfo.lastRelease < 0.25f
+						&& Math::lengthSq(InputManagerInstance.m_lastClickedPosition - mousePosition) < 5.0f )
+					{
 						InputManagerInstance.m_gameState->KeyDoubleClick( _key );
 						keyInfo.lastRelease = -1.0f;	// Break tripple clicks
 					} else {
 						InputManagerInstance.m_gameState->KeyClick( _key );
 						keyInfo.lastRelease = now;
+						InputManagerInstance.m_lastClickedPosition = mousePosition;
 					}
 				} else keyInfo.lastRelease = now;
 			} else assert(false);

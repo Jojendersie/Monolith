@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../predeclarations.hpp"
+#include "../math/vector.hpp"
 #include "../../dependencies/glfw-3.0.3/include/GLFW/glfw3.h"
 #include <jofilelib.hpp>
 #include <unordered_map>
@@ -46,6 +47,7 @@ namespace Input {
 
 		double m_cursorX;	///< Last known position of the cursor
 		double m_cursorY;	///< Last known position of the cursor
+		Math::Vec2 m_lastClickedPosition;	///< Used for double click detection for mouse buttons
 		bool m_justEntered;	///< Has the cursor (re)entered the window since last mouse move.
 
 		static void CursorPosFun(GLFWwindow *, double, double);

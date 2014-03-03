@@ -69,7 +69,7 @@ public:
 	///		in a short interval.
 	/// \copydetails KeyDown()
 	///		
-	///		If holding a button for a time longer than 0.1s no click is
+	///		If holding a button for a time longer than 0.15s no click is
 	///		induced. For buttons in a gui KeyRelease() may be a better choice.
 	///		The click event is sent after the release event.
 	virtual void KeyClick( int _key ) {}
@@ -78,8 +78,9 @@ public:
 	///		twice in a short interval.
 	/// \copydetails KeyDown()
 	///		
-	///		The double click is induced if the click condition (<0.1s between
-	///		push and release) is met twice in an interval of 0.25s.
+	///		The double click is induced if the click condition (<0.15s between
+	///		push and release) is met twice in an interval of 0.25s and the
+	///		mouse cursor did not move to far.
 	virtual void KeyDoubleClick( int _key ) {}
 
 	/// \brief Return the parent game state on stack or nullptr.
