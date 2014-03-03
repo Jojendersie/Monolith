@@ -51,7 +51,7 @@ void GSPlay::Update( double _time, double _deltaTime )
 {
 	static Generators::Random Rnd(1435461);
 	for( int i = 0; i < 100; ++i )
-		m_astTest->Set( IVec3(Rnd.Uniform(0,79), Rnd.Uniform(0,49), Rnd.Uniform(0,29)), 0, Voxel::VoxelType::UNDEFINED );
+		m_astTest->Set( IVec3(Rnd.Uniform(0,79), Rnd.Uniform(0,49), Rnd.Uniform(0,29)), 0, Voxel::VoxelType::UNDEFINED );//*/
 }
 
 // ************************************************************************* //

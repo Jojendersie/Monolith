@@ -5,7 +5,7 @@
 namespace Voxel {
 
 	enum struct VoxelType: uint8_t {
-		NONE,
+		NONE,//TODO: DELETE NONE
 		WATER,
 		ROCK_1,
 		ROCK_2,

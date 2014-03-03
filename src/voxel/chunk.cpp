@@ -105,60 +105,77 @@ namespace Voxel {
 
 		bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
 		{
-			if( _position[3] < level )
+			int lvlDiff = _position[3] - level;
+			// Position inside target level?
+			int span = (1 << lvlDiff) - 1;
+			int x = (_position[0] << lvlDiff) - pmin[0];
+			int y = (_position[1] << lvlDiff) - pmin[1];
+			int z = (_position[2] << lvlDiff) - pmin[2];
+			// Inside sector [pmin, pmax]?
+			if( (x >= edgeLength) || (x+span < 0) ) return false;
+			if( (y >= edgeLength) || (y+span < 0) ) return false;
+			if( (z >= edgeLength) || (z+span < 0) ) return false;
+
+			// Is this one of the searched voxels?
+			if( lvlDiff == 0 )
 			{
-/*				assert(_position[3]+1 == level);
-				// Child level sets solidity of parent
-				if( !IsSolid(_node->Data().type) )
-				{
-					// Parent is not solid too -> set
-					int x = (_position[0] >> 1) - pmin[0];
-					int y = (_position[1] >> 1) - pmin[1];
-					int z = (_position[2] >> 1) - pmin[2];
-					buffer[x + edgeLength * (y + edgeLength * z)].solid = false;
-				}*/
-				return false;	// No further traversal
-			} else
-			{
-				int lvlDiff = _position[3] - level;
-				// Position inside target level?
-				int span = (1 << lvlDiff) - 1;
-				int x = (_position[0] << lvlDiff) - pmin[0];
-				int y = (_position[1] << lvlDiff) - pmin[1];
-				int z = (_position[2] << lvlDiff) - pmin[2];
-				// Inside sector [pmin, pmax]?
-				if( (x >= edgeLength) || (x+span < 0) ) return false;
-				if( (y >= edgeLength) || (y+span < 0) ) return false;
-				if( (z >= edgeLength) || (z+span < 0) ) return false;
-
-				// Is this one of the searched voxels?
-				if( lvlDiff == 0 )
-				{
-					ChunkBuilder::PerVoxelInfo& target = buffer[x + edgeLength * (y + edgeLength * z)];
-					target.type = _node->Data().type;
-					target.solid = IsSolid(_node->Data().type);
-					return target.solid;
-				}
-
-				// If there are no children traversal would stop - set entire area
-				//TODO: deprecated Uniform Block optimization is removed
-				/*if( !_node->Children() && IsSolid(_node->Data()) )
-				{
-					int zmin = max(0,z); int zmax = min( z+span+1, edgeLength );
-					int ymin = max(0,y); int ymax = min( y+span+1, edgeLength );
-					int xmin = max(0,x); int xmax = min( x+span+1, edgeLength );
-					for( z=zmin; z<zmax; ++z )
-						for( y=ymin; y<ymax; ++y )
-							for( x=xmin; x<xmax; ++x )
-							{
-								ChunkBuilder::PerVoxelInfo& target = buffer[x + edgeLength * (y + edgeLength * z)];
-								target.type = _node->Data();
-								target.solid = true;
-							}
-				}*/
-
-				return true;
+				ChunkBuilder::PerVoxelInfo& target = buffer[x + edgeLength * (y + edgeLength * z)];
+				target.type = _node->Data().type;
+				target.solid = _node->Data().solid;
+				return false;
 			}
+
+			// If there are no children traversal would stop - set entire area
+			//TODO: deprecated Uniform Block optimization is removed
+			/*if( !_node->Children() && IsSolid(_node->Data()) )
+			{
+				int zmin = max(0,z); int zmax = min( z+span+1, edgeLength );
+				int ymin = max(0,y); int ymax = min( y+span+1, edgeLength );
+				int xmin = max(0,x); int xmax = min( x+span+1, edgeLength );
+				for( z=zmin; z<zmax; ++z )
+					for( y=ymin; y<ymax; ++y )
+						for( x=xmin; x<xmax; ++x )
+						{
+							ChunkBuilder::PerVoxelInfo& target = buffer[x + edgeLength * (y + edgeLength * z)];
+							target.type = _node->Data();
+							target.solid = true;
+						}
+			}*/
+
+			return true;
+		}
+	};
+	
+	struct FillBuffer: public Model::ModelData::SVONeighborProcessor
+	{
+		VoxelVertex* appendBuffer;	///< Pointer to a buffer which is filled as (*appendBuffer++) = ...
+		int level;					///< The level in the octree which should be copied
+		IVec3 pmin;					///< Minimal boundary
+
+		/// \brief Traverse over the surface only and copy all the vertices
+		///		which are in the correct depth.
+		bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node,
+			const Model::ModelData::SVON* _left, const Model::ModelData::SVON* _right, const Model::ModelData::SVON* _bottom,
+			const Model::ModelData::SVON* _top, const Model::ModelData::SVON* _front, const Model::ModelData::SVON* _back)
+		{
+			int isSurface =    ((_left == nullptr)   || !_left->Data().solid)
+							| (((_right == nullptr)  || !_right->Data().solid)  << 1)
+						    | (((_bottom == nullptr) || !_bottom->Data().solid) << 2)
+							| (((_top == nullptr)    || !_top->Data().solid)    << 3)
+							| (((_front == nullptr)  || !_front->Data().solid)  << 4)
+							| (((_back == nullptr)   || !_back->Data().solid)   << 5);
+
+			if( _position[3] == level && isSurface )
+			{
+				// Generate a vertex here
+				appendBuffer->SetPosition( IVec3(_position)-pmin );
+				appendBuffer->SetTexture( int(_node->Data().type) );
+				appendBuffer->SetVisibility( isSurface );
+				++appendBuffer;
+			}
+
+			// Go into recursion if not on target level and current voxel not inside
+			return (_position[3] > level) && isSurface;
 		}
 	};
 
@@ -191,7 +208,7 @@ namespace Voxel {
 		Sector.edgeLength = edgeLength;//*/
 
 		// New copy method with O(n) runtime
-		CopySector Sector;
+		/*CopySector Sector;
 		Sector.buffer = m_volumeBuffer;
 		Sector.edgeLength = (1 << _chunk.m_depth) + 2;
 		Sector.level = Math::max( 0, _chunk.m_root[3] - _chunk.m_depth );
@@ -224,6 +241,19 @@ namespace Voxel {
 						++numVoxels;
 					}
 				}
+		//*/
+
+		// Newest method O(k): run over surface only
+		FillBuffer FillP;
+		FillP.appendBuffer = m_vertexBuffer;
+		FillP.level = Math::max( 0, _chunk.m_root[3] - _chunk.m_depth );
+		FillP.pmin = (IVec3(_chunk.m_root) << (_chunk.m_root[3] - FillP.level));
+		// Using all neighbors == none creates at least the voxels at the chunk boundary.
+		// These extra voxels solve a problem when deleting things in a neighbor chunk.
+		// Without there would be noticeable holes due to not updating this chunk.
+		node->TraverseEx( _chunk.m_root, FillP, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
+		int numVoxels = FillP.appendBuffer - m_vertexBuffer;
+		//*/
 
 		_chunk.m_voxels.Commit(m_vertexBuffer, numVoxels * sizeof(VoxelVertex));
 	}

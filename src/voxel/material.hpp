@@ -68,7 +68,7 @@ namespace Voxel {
 		Component() : material(Material::UNDEFINED), type(VoxelType::UNDEFINED), dirty(0), solid(0)	{}
 
 		/// \brief Construct a component with a defined type and undefined material
-		Component(VoxelType _type) : material(Material::UNDEFINED), type(_type), dirty(1), solid(IsSolid(_type)?0:1) {}
+		Component(VoxelType _type) : material(Material::UNDEFINED), type(_type), dirty(1), solid(IsSolid(_type)?1:0) {}
 
 		/// \brief Mark this component as outdated (it is set to undefined)
 		void Touch()			{ dirty = 1; }

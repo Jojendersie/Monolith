@@ -133,7 +133,8 @@ namespace Voxel {
 			/// \details This method can be called on nullptrs and checks the
 			///		index in debug mode. Further it returns nullptr if the node
 			///		has no children or the specific child is undefined.
-			const SVON* GetChild( int _index ) const	{ assert(_index >= 0 && _index < 8); if(!this) return nullptr; if( m_children && (m_children[_index].m_children || m_children[_index].m_data != T::UNDEFINED)) return m_children[_index]; return nullptr; }
+			SVON* GetChild( int _index )	{ assert(_index >= 0 && _index < 8); if(!this) return nullptr; if( m_children && (m_children[_index].m_children || m_children[_index].m_data != T::UNDEFINED)) return m_children + _index; return nullptr; }
+			const SVON* GetChild( int _index ) const	{ assert(_index >= 0 && _index < 8); if(!this) return nullptr; if( m_children && (m_children[_index].m_children || m_children[_index].m_data != T::UNDEFINED)) return m_children + _index; return nullptr; }
 		private:
 			T m_data;
 			SVON* m_children;
@@ -520,7 +521,7 @@ namespace Voxel {
 		if( _processor.PreTraversal(_position, this, _left, _right, _bottom, _top, _front, _back) && m_children )
 		{
 			// Prepare traversal and internal neighborhood
-			const SVON* children[8];
+			SVON* children[8];
 			for( int i=0; i<8; ++i )
 			{
 				// Is the voxel outside the tree/really empty?

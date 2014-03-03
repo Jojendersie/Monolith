@@ -32,10 +32,11 @@ namespace Voxel {
 
 		VoxelVertex() : flags(0)	{}
 
-		void SetVisibility( int _iL, int _iR, int _iBo, int _iT, int _iF, int _iBa )	{ flags = (flags & 0xffffffc0) | _iL | _iR<<1 | _iBo<<2 | _iT<<3 | _iF<<4 | _iBa<<5; }
+		void SetVisibility( int _l, int _r, int _bo, int _t, int _f, int _ba )	{ flags = (flags & 0xffffffc0) | _l | _r<<1 | _bo<<2 | _t<<3 | _f<<4 | _ba<<5; }
+		void SetVisibility( int _flags )					{ assert(_flags < 64); flags = (flags & 0xffffffc0) | _flags; }
 // DEPRECATED		void SetSize( int _level )							{ assert(0<=_level && _level<=5); flags = (flags & 0xfffffe3f) | (_level<<6); }
 		void SetPosition( const Math::IVec3& _position )	{ flags = (flags & 0xff0001ff) | (_position[0] << 9) | (_position[1] << 14) | (_position[2] << 19); }
-		void SetTexture( int _iTextureIndex )				{ flags = (flags & 0x00ffffff) | (_iTextureIndex << 24); }
+		void SetTexture( int _textureIndex )				{ flags = (flags & 0x00ffffff) | (_textureIndex << 24); }
 //		void SetHasChildren( bool _bHasChildren )			{ flags = (flags & 0x7fffffff) | (_bHasChildren?0x80000000:0); }
 
 		bool IsVisible() const								{ return (flags & 0x3f) != 0; }
