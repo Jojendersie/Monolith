@@ -22,8 +22,6 @@ namespace Graphic {
 		Graphic::SamplerState linearSampler;
 
 		Graphic::Font* defaultFont;		///< Font used for all menus...
-
-		Graphic::Texture* voxelTextures;
 	};
 
 } // namespace Graphic

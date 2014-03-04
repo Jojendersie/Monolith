@@ -72,7 +72,6 @@ void GSPlay::Render( double _time, double _deltaTime )
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 
 	Graphic::Device::SetEffect(	m_game->m_graficContent->voxelRenderEffect );
-	Graphic::Device::SetTexture( *m_game->m_graficContent->voxelTextures, 0 );
 
 	m_astTest->Draw( m_game->m_graficContent->objectUBO, *m_camera );
 	

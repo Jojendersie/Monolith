@@ -50,24 +50,12 @@ namespace Graphic {
 		//texture2DEffect.BindUniformBuffer( globalUBO );
 		assert(glGetError() == GL_NO_ERROR);
 
-		// Load array texture for all voxels
-		std::vector<std::string> textureNames;
-		textureNames.push_back( "texture/none.png" );
-		textureNames.push_back( "texture/rock1.png" );
-		textureNames.push_back( "texture/water.png" );
-		try {
-			voxelTextures = new Graphic::Texture(textureNames);
-		} catch( std::string _message ) {
-			std::cerr << "Failed to load voxel textures!\n";
-		}
-
 		defaultFont = new Font("arial", this);
 	}
 
 
 	Content::~Content()
 	{
-		delete voxelTextures;
 		delete defaultFont;
 	}
 
