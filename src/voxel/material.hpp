@@ -20,8 +20,8 @@ namespace Voxel {
 		uint32_t pr: 5;			///< Discretized Pr color component
 		uint32_t yVar: 4;		///< Amplitude of rotating Y intensity or transparency.
 
-		/// \brief Standard constructor creates total black (all 0)
-		Material()	{ *(uint32_t*)this = 0; }
+		/// \brief Standard constructor creates total black
+		Material()	{ *(uint32_t*)this = 0x07BC0000; }
 
 		/// \brief Allow casting from uint32_t to material
 		Material& operator = (uint32_t _value)	{ *(uint32_t*)this = _value; return *this; }
@@ -63,12 +63,13 @@ namespace Voxel {
 		VoxelType type;			///< The type of the voxel
 		uint8_t dirty: 1;		///< Somebody changed a child or this node
 		uint8_t solid: 1;		///< This node and all its children are defined
+		uint8_t surface: 6;	///< One flag for each direction if there is no solid neighborhood
 
 		/// \brief Standard constructor creates undefined element
-		Component() : material(Material::UNDEFINED), type(VoxelType::UNDEFINED), dirty(0), solid(0)	{}
+		Component() : material(Material::UNDEFINED), type(VoxelType::UNDEFINED), dirty(0), solid(0), surface(0)	{}
 
 		/// \brief Construct a component with a defined type and undefined material
-		Component(VoxelType _type) : material(Material::UNDEFINED), type(_type), dirty(1), solid(IsSolid(_type)?1:0) {}
+		Component(VoxelType _type) : material(VOXEL_INFO[(int)_type].material), type(_type), dirty(1), solid(IsSolid(_type)?1:0), surface(0) {}
 
 		/// \brief Mark this component as outdated (it is set to undefined)
 		void Touch()			{ dirty = 1; }
@@ -77,10 +78,10 @@ namespace Voxel {
 		/// \brief Undefined material and type.
 		static const Component UNDEFINED;
 
-		/// \brief Checks if material and type are equal
-		bool operator == (const Component& _mat) const		{ return material == _mat.material && type == _mat.type; }
-		/// \brief Checks if material and type are not equal
-		bool operator != (const Component& _mat) const		{ return material != _mat.material || type != _mat.type; }
+		/// \brief Checks if type is equal
+		bool operator == (const Component& _mat) const		{ return type == _mat.type; }
+		/// \brief Checks if type is not equal
+		bool operator != (const Component& _mat) const		{ return type != _mat.type; }
 	};
 #	pragma pack(pop)
 

@@ -3,8 +3,9 @@
 #define OUT_VERTS 12
 
 in uint vs_out_VoxelCode[1];
+in uint vs_out_MaterialCode[1];
 out vec3 gs_normal;
-out vec3 gs_texCoord;
+out vec3 gs_color;
 
 layout(points) in;
 layout(triangle_strip, max_vertices = OUT_VERTS) out;
@@ -46,6 +47,15 @@ void main(void)
 		vPos.y < -w || vPos.y > w )
 		return;
 
+	// Decode rgb color from material
+	float color_y  = float((vs_out_MaterialCode[0]) & uint(0xff)) / 255.0;
+	float color_pb = (((vs_out_MaterialCode[0] >> 18) & uint(0x1f)) - 16.0) / 255.0;
+	float color_pr = (((vs_out_MaterialCode[0] >> 23) & uint(0x1f)) - 16.0) / 255.0;
+	gs_color = vec3(color_y + 0.22627 * color_pb + 11.472 * color_pr,
+					color_y - 3.0268 * color_pb - 5.8708 * color_pr,
+					color_y + 14.753 * color_pb + 0.0082212 * color_pr);
+	gs_color = min(vec3(1,1,1), max(vec3(0,0,0), gs_color));
+
 	// To determine the culling the projective position is inverse transformed
 	// back to view space (which is a single mad operation). This direction to
 	// the voxel center is used to approximate the view direction to the faces
@@ -59,16 +69,12 @@ void main(void)
 		if( (vs_out_VoxelCode[0] & uint(0x10)) != uint(0) )
 		{
 			gs_normal = vec3(0,0,-1);
-			gs_texCoord = vec3(0,0,type);
 			gl_Position = c_vCorner000 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(1,0,type);
 			gl_Position = c_vCorner100 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(0,1,type);
 			gl_Position = c_vCorner010 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(1,1,type);
 			gl_Position = c_vCorner110 + vPos;
 			EmitVertex();
 			EndPrimitive();
@@ -77,16 +83,12 @@ void main(void)
 		if( (vs_out_VoxelCode[0] & uint(0x20)) != uint(0) )
 		{
 			gs_normal = vec3(0,0,1);
-			gs_texCoord = vec3(0,0,type);
 			gl_Position = c_vCorner011 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(1,0,type);
 			gl_Position = c_vCorner111 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(0,1,type);
 			gl_Position = c_vCorner001 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(1,1,type);
 			gl_Position = c_vCorner101 + vPos;
 			EmitVertex();
 			EndPrimitive();
@@ -97,16 +99,12 @@ void main(void)
 		if( (vs_out_VoxelCode[0] & uint(0x08)) != uint(0) )
 		{
 			gs_normal = vec3(0,1,0);
-			gs_texCoord = vec3(0,0,type);
 			gl_Position = c_vCorner010 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(1,0,type);
 			gl_Position = c_vCorner110 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(0,1,type);
 			gl_Position = c_vCorner011 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(1,1,type);
 			gl_Position = c_vCorner111 + vPos;
 			EmitVertex();
 			EndPrimitive();
@@ -115,16 +113,12 @@ void main(void)
 		if( (vs_out_VoxelCode[0] & uint(0x04)) != uint(0) )
 		{
 			gs_normal = vec3(0,-1,0);
-			gs_texCoord = vec3(0,0,type);
 			gl_Position = c_vCorner100 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(1,0,type);
 			gl_Position = c_vCorner000 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(0,1,type);
 			gl_Position = c_vCorner101 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(1,1,type);
 			gl_Position = c_vCorner001 + vPos;
 			EmitVertex();
 			EndPrimitive();
@@ -135,16 +129,12 @@ void main(void)
 		if( (vs_out_VoxelCode[0] & uint(0x01)) != uint(0) )
 		{
 			gs_normal = vec3(-1,0,0);
-			gs_texCoord = vec3(0,0,type);
 			gl_Position = c_vCorner000 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(1,0,type);
 			gl_Position = c_vCorner010 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(0,1,type);
 			gl_Position = c_vCorner001 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(1,1,type);
 			gl_Position = c_vCorner011 + vPos;
 			EmitVertex();
 			EndPrimitive();
@@ -153,16 +143,12 @@ void main(void)
 		if( (vs_out_VoxelCode[0] & uint(0x02)) != uint(0) )
 		{
 			gs_normal = vec3(1,0,0);
-			gs_texCoord = vec3(0,0,type);
 			gl_Position = c_vCorner110 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(1,0,type);
 			gl_Position = c_vCorner100 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(0,1,type);
 			gl_Position = c_vCorner111 + vPos;
 			EmitVertex();
-			gs_texCoord = vec3(1,1,type);
 			gl_Position = c_vCorner101 + vPos;
 			EmitVertex();
 			EndPrimitive();

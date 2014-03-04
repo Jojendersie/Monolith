@@ -2,15 +2,15 @@
 
 // layout(binding=0) is supported with version 420
 //#extension GL_ARB_shading_language_420pack: enable
-uniform sampler2DArray u_diffuseTex;
+//uniform sampler2DArray u_diffuseTex;
 
 in vec3 gs_normal;
-in vec3 gs_texCoord;
+in vec3 gs_color;
 out vec4 fragColor;
 
 void main()
 {
 	float light = dot(gs_normal, vec3(0.13557,0.96596,0.2203))*0.5+0.5;
-	vec3 diffuse = texture( u_diffuseTex, gs_texCoord ).xyz * light;
+	vec3 diffuse = gs_color * light;
 	fragColor = vec4(diffuse,1);
 }

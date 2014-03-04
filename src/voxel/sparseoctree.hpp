@@ -233,6 +233,12 @@ namespace Voxel {
 		int m_rootSize;				///< Level of the node which contains the 8 roots where 0 is the highest possible resolution.
 		SVON m_root;				///< The single top level root node
 
+		/// \brief Touch all nodes on a path
+		///	\param [in] _position Target position inside the _level.
+		///	\param [in] _level Depth in the grid hierarchy. 0 is the maximum
+		///		resolution of the voxel grid. The level is the logarithmic edge
+		///		length of voxels (2^0, 2^1, ...).
+		void SetDirty( const Math::IVec3& _position, int _level );
 
 		/// \brief Used to sort children after a floating point number
 		struct TmpCollisionEntry
@@ -316,6 +322,42 @@ namespace Voxel {
 
 		// One of the eight children must contain the target position.
 		SVON::Set(&m_root, m_rootSize, IVec4(_position, _level), _type, this);
+
+		// Make all 6 neighbors dirty - their neighborhood changed
+		SetDirty( IVec3(_position[0]+1, _position[1], _position[2]), _level );
+		SetDirty( IVec3(_position[0]-1, _position[1], _position[2]), _level );
+		SetDirty( IVec3(_position[0], _position[1]+1, _position[2]), _level );
+		SetDirty( IVec3(_position[0], _position[1]-1, _position[2]), _level );
+		SetDirty( IVec3(_position[0], _position[1], _position[2]+1), _level );
+		SetDirty( IVec3(_position[0], _position[1], _position[2]-1), _level );
+	}
+
+	// ********************************************************************* //
+	template<typename T, typename Listener>
+	void SparseVoxelOctree<T,Listener>::SetDirty( const Math::IVec3& _position, int _level )
+	{
+		// Get on an empty model? Would be better if this never happens ->
+		// better performance because no 'if' on m_rootSize required.
+		assert(m_rootSize != -1);
+
+		// Special cases: not inside octree
+		int scale = m_rootSize-_level;
+		if( scale < 0 ) return;
+		Math::IVec3 position = _position >> scale;
+		if((position-m_rootPosition) != Math::IVec3(0))
+			return;
+
+		// Search in the octree (while not on target level or tree ends)
+		SVON* current = &m_root;
+		while( (scale > 0) && current->m_children ) {
+			current->Data().Touch();
+			--scale;
+			int x = (_position[0] >> scale) & 1;
+			int y = (_position[1] >> scale) & 1;
+			int z = (_position[2] >> scale) & 1;
+			current = &current->m_children[ x + y * 2 + z * 4 ];
+		}
+		current->Data().Touch();
 	}
 
 	// ********************************************************************* //

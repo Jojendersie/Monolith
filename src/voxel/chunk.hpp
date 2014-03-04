@@ -29,6 +29,7 @@ namespace Voxel {
 		///			 respective size-dimension (2^s).
 		///		24-31: 256 texture indices / voxel types.
 		uint32_t flags;
+		Material material;
 
 		VoxelVertex() : flags(0)	{}
 

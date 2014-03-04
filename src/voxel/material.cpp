@@ -1,9 +1,11 @@
 #include "material.hpp"
-#include <assert.h>
+#include <cassert>
+#include <cmath>
+#include "..\math\mathbase.hpp"
 
 namespace Voxel {
 
-	const Material Material::UNDEFINED = 0xf0010000;
+	const Material Material::UNDEFINED = 0x07BD0000;
 	const Component Component::UNDEFINED;
 
 	Material::Material( uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _specular, uint8_t _shininess, bool _emissive, uint8_t _variance )
@@ -15,9 +17,9 @@ namespace Voxel {
 		yVar = _variance;				assert(_variance < 16);
 
 		// Encode color to YPbPr:855 discretization.
-		y = uint8_t((_r * 77 + _g * 150 + _b * 29) / 256);
-		pb = uint8_t((- _r * 43 - _g * 85 + _b * 128 + 32640) / 2040);
-		pr = uint8_t((_r * 128 - _g * 107 - _b * 21 + 32640) / 2040);
+		y = uint8_t((_r * 299000 + _g * 587000 + _b * 114000) / 1000000);
+		pb = uint8_t((- _r * 20513 - _g * 40271 + _b * 60784 + 15500000) / 1000000);
+		pr = uint8_t((_r * 60784 - _g * 50899 - _b * 9885 + 15500000) / 1000000);
 	}
 
 
@@ -30,9 +32,9 @@ namespace Voxel {
 		yVar = _a;						assert(_a < 16);
 
 		// Encode color to YPbPr:855 discretization.
-		y = uint8_t((_r * 77 + _g * 150 + _b * 29) / 256);
-		pb = uint8_t((- _r * 43 - _g * 85 + _b * 128 + 32640) / 2040);
-		pr = uint8_t((_r * 128 - _g * 107 - _b * 21 + 32640) / 2040);
+		y = uint8_t((_r * 299000 + _g * 587000 + _b * 114000) / 1000000);
+		pb = uint8_t((- _r * 20513 - _g * 40271 + _b * 60784 + 15500000) / 1000000);
+		pr = uint8_t((_r * 60784 - _g * 50899 - _b * 9885 + 15500000) / 1000000);
 	}
 
 

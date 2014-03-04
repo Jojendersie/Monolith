@@ -23,7 +23,7 @@ namespace Voxel {
 		m_scale( float(1<<(_nodePostion[3]-_depth)) ),
 		m_depth( _depth ),
 		m_root( _nodePostion ),
-		m_voxels( "u", nullptr, 0, Graphic::VertexBuffer::PrimitiveType::POINT ),
+		m_voxels( "uu", nullptr, 0, Graphic::VertexBuffer::PrimitiveType::POINT ),
 		m_position( float(_nodePostion[0]<<_depth), float(_nodePostion[1]<<_depth), float(_nodePostion[2]<<_depth) )
 	{
 	}
@@ -67,32 +67,51 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	/// \brief Current dirty region update - just reuse a child voxel.
-	struct UpdateDirty: public Model::ModelData::SVOProcessor
+	struct UpdateDirty: public Model::ModelData::SVONeighborProcessor
 	{
 		/// \brief If the current voxel is not dirty its whole subtree is
 		///		clean too. Then stop.
-		bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
+		bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node,
+			const Model::ModelData::SVON* _left, const Model::ModelData::SVON* _right, const Model::ModelData::SVON* _bottom,
+			const Model::ModelData::SVON* _top, const Model::ModelData::SVON* _front, const Model::ModelData::SVON* _back)
 		{
 			return _node->Data().IsDirty();
 		}
 
-		/// \brief Do an update: take one of the children randomly
-		void PostTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
+		/// \brief Do an update: mix the materials of all children and choose
+		///		type randomly
+		void PostTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node,
+			const Model::ModelData::SVON* _left, const Model::ModelData::SVON* _right, const Model::ModelData::SVON* _bottom,
+			const Model::ModelData::SVON* _top, const Model::ModelData::SVON* _front, const Model::ModelData::SVON* _back)
 		{
 			if( !_node->Data().IsDirty() ) return;
+
+			_node->Data().surface = ((_left == nullptr)   || !_left->Data().solid)
+				| (((_right == nullptr)  || !_right->Data().solid)  << 1)
+				| (((_bottom == nullptr) || !_bottom->Data().solid) << 2)
+				| (((_top == nullptr)    || !_top->Data().solid)    << 3)
+				| (((_front == nullptr)  || !_front->Data().solid)  << 4)
+				| (((_back == nullptr)   || !_back->Data().solid)   << 5);
+
 			// Remains undefined
 			if( !_node->Children() ) { _node->Data().dirty = 0; return; }
 
-			// Take the first defined children and check solidity.
+			// Take the last defined children and check solidity.
 			bool solid = true;
+			Material materials[8];	int num = 0;
 			for( int i = 0; i < 8; ++i )
 			{
-				if( _node->Children()[i].Data().type != VoxelType::UNDEFINED )
-					_node->Data() = _node->Children()[i].Data();
+				if( _node->Children()[i].Data().type != VoxelType::UNDEFINED ) {
+					_node->Data().type = _node->Children()[i].Data().type;
+					if( _node->Children()[i].Data().surface )
+						materials[num++] = _node->Children()[i].Data().material;
+				}
 				solid &= _node->Children()[i].Data().solid;
 			}
 			_node->Data().solid = solid ? 1 : 0;
 			_node->Data().dirty = 0;
+			if( num > 0 )
+				_node->Data().material = Material(materials, num);
 		}
 	};
 
@@ -146,7 +165,7 @@ namespace Voxel {
 		}
 	};
 	
-	struct FillBuffer: public Model::ModelData::SVONeighborProcessor
+	struct FillBuffer: public Model::ModelData::SVOProcessor
 	{
 		VoxelVertex* appendBuffer;	///< Pointer to a buffer which is filled as (*appendBuffer++) = ...
 		int level;					///< The level in the octree which should be copied
@@ -154,28 +173,20 @@ namespace Voxel {
 
 		/// \brief Traverse over the surface only and copy all the vertices
 		///		which are in the correct depth.
-		bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node,
-			const Model::ModelData::SVON* _left, const Model::ModelData::SVON* _right, const Model::ModelData::SVON* _bottom,
-			const Model::ModelData::SVON* _top, const Model::ModelData::SVON* _front, const Model::ModelData::SVON* _back)
+		bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
 		{
-			int isSurface =    ((_left == nullptr)   || !_left->Data().solid)
-							| (((_right == nullptr)  || !_right->Data().solid)  << 1)
-						    | (((_bottom == nullptr) || !_bottom->Data().solid) << 2)
-							| (((_top == nullptr)    || !_top->Data().solid)    << 3)
-							| (((_front == nullptr)  || !_front->Data().solid)  << 4)
-							| (((_back == nullptr)   || !_back->Data().solid)   << 5);
-
-			if( _position[3] == level && isSurface )
+			if( _position[3] == level && _node->Data().surface )
 			{
 				// Generate a vertex here
 				appendBuffer->SetPosition( IVec3(_position)-pmin );
 				appendBuffer->SetTexture( int(_node->Data().type) );
-				appendBuffer->SetVisibility( isSurface );
+				appendBuffer->SetVisibility( _node->Data().surface );
+				appendBuffer->material = _node->Data().material;
 				++appendBuffer;
 			}
 
 			// Go into recursion if not on target level and current voxel not inside
-			return (_position[3] > level) && isSurface;
+			return (_position[3] > level) && _node->Data().surface;
 		}
 	};
 
@@ -183,9 +194,15 @@ namespace Voxel {
 	void ChunkBuilder::RecomputeVertexBuffer( Chunk& _chunk )
 	{
 		// If it is dirty update the subtree
-		auto node = _chunk.m_modelData->Get( IVec3(_chunk.m_root), _chunk.m_root[3] );
+		Model::ModelData::SVON* node = _chunk.m_modelData->Get( IVec3(_chunk.m_root), _chunk.m_root[3] );
 		if( node->Data().IsDirty() )
-			node->Traverse( _chunk.m_root, UpdateDirty() );
+			node->TraverseEx( _chunk.m_root, UpdateDirty(),
+				_chunk.m_modelData->Get( IVec3(_chunk.m_root[0]-1, _chunk.m_root[1]  , _chunk.m_root[2]  ), _chunk.m_root[3] ),
+				_chunk.m_modelData->Get( IVec3(_chunk.m_root[0]+1, _chunk.m_root[1]  , _chunk.m_root[2]  ), _chunk.m_root[3] ),
+				_chunk.m_modelData->Get( IVec3(_chunk.m_root[0]  , _chunk.m_root[1]-1, _chunk.m_root[2]  ), _chunk.m_root[3] ),
+				_chunk.m_modelData->Get( IVec3(_chunk.m_root[0]  , _chunk.m_root[1]+1, _chunk.m_root[2]  ), _chunk.m_root[3] ),
+				_chunk.m_modelData->Get( IVec3(_chunk.m_root[0]  , _chunk.m_root[1]  , _chunk.m_root[2]-1), _chunk.m_root[3] ),
+				_chunk.m_modelData->Get( IVec3(_chunk.m_root[0]  , _chunk.m_root[1]  , _chunk.m_root[2]+1), _chunk.m_root[3] ) );
 
 		// Sample a (2^d+2)^3 volume (neighborhood for visibility). This
 		// initial sampling avoids the expensive resampling for many voxels.
@@ -251,7 +268,7 @@ namespace Voxel {
 		// Using all neighbors == none creates at least the voxels at the chunk boundary.
 		// These extra voxels solve a problem when deleting things in a neighbor chunk.
 		// Without there would be noticeable holes due to not updating this chunk.
-		node->TraverseEx( _chunk.m_root, FillP, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
+		node->Traverse( _chunk.m_root, FillP );
 		int numVoxels = FillP.appendBuffer - m_vertexBuffer;
 		//*/
 

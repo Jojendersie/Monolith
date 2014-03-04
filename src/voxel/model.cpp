@@ -70,7 +70,7 @@ namespace Voxel {
 
 			// LOD - calculate a target level. If the current level is less or
 			// equal the target draw.
-			float detailResolution = 0.35f * log( lengthSq(boundingSphere.m_center - camera.GetPosition()) );
+			float detailResolution = 0.45f * log( lengthSq(boundingSphere.m_center - camera.GetPosition()) );
 			//float detailResolution = 0.025f * sqr(log( lengthSq(boundingSphere.m_center - _param->camera.GetPosition()) ));
 				//pow((chunkPos - _param->camera.GetPosition()).Length(), 0.25f);
 			int targetLOD = max(5, Math::ceil(detailResolution));
@@ -125,7 +125,7 @@ namespace Voxel {
 		auto node = m_voxelTree.Get(_position, _level);
 		if( node ) return node->Data().type;
 		
-		return VoxelType::NONE;
+		return VoxelType::UNDEFINED;
 	}
 
 
