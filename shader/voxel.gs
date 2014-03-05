@@ -6,6 +6,7 @@ in uint vs_out_VoxelCode[1];
 in uint vs_out_MaterialCode[1];
 out vec3 gs_normal;
 out vec3 gs_color;
+out vec3 gs_viewDirection;
 
 layout(points) in;
 layout(triangle_strip, max_vertices = OUT_VERTS) out;
@@ -13,6 +14,7 @@ layout(triangle_strip, max_vertices = OUT_VERTS) out;
 layout(std140) uniform Object
 {
 	mat4 c_mWorldViewProjection;
+	mat4 c_mWorldView;
 	vec4 c_vCorner000;
 	vec4 c_vCorner001;
 	vec4 c_vCorner010;
@@ -29,6 +31,7 @@ layout(std140) uniform Camera
 	mat4 c_mProjection;
 	mat4 c_mViewProjection;
 	vec4 c_vInverseProjection;
+	vec3 c_vCameraPosition;
 };
 
 void main(void)
@@ -46,6 +49,9 @@ void main(void)
 		vPos.x < -w || vPos.x > w ||
 		vPos.y < -w || vPos.y > w )
 		return;
+
+	gs_viewDirection = normalize(-(vec4(x, y, z, 1) * c_mWorldView).xyz);
+////gs_normal = normalize((vec4(x,y,z,1) * c_mWorldView).xyz - c_vCameraPosition);
 
 	// Decode rgb color from material
 	float color_y  = float((vs_out_MaterialCode[0]) & uint(0xff)) / 255.0;
@@ -68,13 +74,17 @@ void main(void)
 	if( dot((c_vCorner000.xyz+c_vCorner110.xyz)*c_vInverseProjection.xyz, vZDir) < 0 ) {
 		if( (vs_out_VoxelCode[0] & uint(0x10)) != uint(0) )
 		{
-			gs_normal = vec3(0,0,-1);
+			gs_normal = normalize((vec4(0,0,-1,0) * c_mWorldView).xyz);
+		//gs_normal = normalize(c_vCorner000.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner000 + vPos;
 			EmitVertex();
+		//gs_normal = normalize(c_vCorner100.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner100 + vPos;
 			EmitVertex();
+		//gs_normal = normalize(c_vCorner010.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner010 + vPos;
 			EmitVertex();
+		//gs_normal = normalize(c_vCorner110.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner110 + vPos;
 			EmitVertex();
 			EndPrimitive();
@@ -82,13 +92,17 @@ void main(void)
 	} else {
 		if( (vs_out_VoxelCode[0] & uint(0x20)) != uint(0) )
 		{
-			gs_normal = vec3(0,0,1);
+			gs_normal = normalize((vec4(0,0,1,0) * c_mWorldView).xyz);
+		//gs_normal = normalize(c_vCorner011.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner011 + vPos;
 			EmitVertex();
+		//gs_normal = normalize(c_vCorner111.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner111 + vPos;
 			EmitVertex();
+		//gs_normal = normalize(c_vCorner001.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner001 + vPos;
 			EmitVertex();
+		//gs_normal = normalize(c_vCorner101.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner101 + vPos;
 			EmitVertex();
 			EndPrimitive();
@@ -98,13 +112,17 @@ void main(void)
 	if( dot((c_vCorner010.xyz+c_vCorner111.xyz)*c_vInverseProjection.xyz, vZDir) < 0 ) {
 		if( (vs_out_VoxelCode[0] & uint(0x08)) != uint(0) )
 		{
-			gs_normal = vec3(0,1,0);
+			gs_normal = normalize((vec4(0,1,0,0) * c_mWorldView).xyz);
+		//gs_normal = normalize(c_vCorner010.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner010 + vPos;
 			EmitVertex();
+		//gs_normal = normalize(c_vCorner110.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner110 + vPos;
 			EmitVertex();
+		//gs_normal = normalize(c_vCorner011.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner011 + vPos;
 			EmitVertex();
+		//gs_normal = normalize(c_vCorner111.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner111 + vPos;
 			EmitVertex();
 			EndPrimitive();
@@ -112,13 +130,17 @@ void main(void)
 	} else {
 		if( (vs_out_VoxelCode[0] & uint(0x04)) != uint(0) )
 		{
-			gs_normal = vec3(0,-1,0);
+			gs_normal = normalize((vec4(0,-1,0,0) * c_mWorldView).xyz);
+		//gs_normal = normalize(c_vCorner100.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner100 + vPos;
 			EmitVertex();
+		//gs_normal = normalize(c_vCorner000.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner000 + vPos;
 			EmitVertex();
+		//gs_normal = normalize(c_vCorner101.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner101 + vPos;
 			EmitVertex();
+		//gs_normal = normalize(c_vCorner001.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner001 + vPos;
 			EmitVertex();
 			EndPrimitive();
@@ -128,13 +150,17 @@ void main(void)
 	if( dot((c_vCorner000.xyz+c_vCorner011.xyz)*c_vInverseProjection.xyz, vZDir) < 0 ) {
 		if( (vs_out_VoxelCode[0] & uint(0x01)) != uint(0) )
 		{
-			gs_normal = vec3(-1,0,0);
+			gs_normal = normalize((vec4(-1,0,0,0) * c_mWorldView).xyz);
+		//gs_normal = normalize(c_vCorner000.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner000 + vPos;
 			EmitVertex();
+		//gs_normal = normalize(c_vCorner010.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner010 + vPos;
 			EmitVertex();
+		//gs_normal = normalize(c_vCorner001.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner001 + vPos;
 			EmitVertex();
+		//gs_normal = normalize(c_vCorner011.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner011 + vPos;
 			EmitVertex();
 			EndPrimitive();
@@ -142,13 +168,17 @@ void main(void)
 	} else {
 		if( (vs_out_VoxelCode[0] & uint(0x02)) != uint(0) )
 		{
-			gs_normal = vec3(1,0,0);
+			gs_normal = normalize((vec4(1,0,0,0) * c_mWorldView).xyz);
+		//gs_normal = normalize(c_vCorner110.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner110 + vPos;
 			EmitVertex();
+		//gs_normal = normalize(c_vCorner100.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner100 + vPos;
 			EmitVertex();
+		//gs_normal = normalize(c_vCorner111.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner111 + vPos;
 			EmitVertex();
+		//gs_normal = normalize(c_vCorner101.xyz * c_vInverseProjection.xyz);
 			gl_Position = c_vCorner101 + vPos;
 			EmitVertex();
 			EndPrimitive();

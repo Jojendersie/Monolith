@@ -45,20 +45,23 @@ namespace Voxel {
 
 
 	void Chunk::Draw( Graphic::UniformBuffer& _objectConstants,
-			const Math::Mat4x4& _modelViewProjection )
+			const Math::Mat4x4& _modelView, const Math::Mat4x4& _projection )
 	{
 		// Translation to center the chunks
-		_objectConstants["WorldViewProjection"] = Mat4x4::Translation(m_position) * Mat4x4::Scaling(m_scale) * _modelViewProjection;
+		Math::Mat4x4 modelViewProjection = Mat4x4::Translation(m_position) * Mat4x4::Scaling(m_scale) * _modelView;
+		_objectConstants["WorldView"] = modelViewProjection;
+		modelViewProjection *= _projection;
+		_objectConstants["WorldViewProjection"] = modelViewProjection;
 
 		float halfScale = m_scale * 0.5f;
-		_objectConstants["Corner000"] = Vec4( -halfScale, -halfScale, -halfScale, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner001"] = Vec4( -halfScale, -halfScale,  halfScale, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner010"] = Vec4( -halfScale,  halfScale, -halfScale, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner011"] = Vec4( -halfScale,  halfScale,  halfScale, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner100"] = Vec4(  halfScale, -halfScale, -halfScale, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner101"] = Vec4(  halfScale, -halfScale,  halfScale, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner110"] = Vec4(  halfScale,  halfScale, -halfScale, 0.0f ) * _modelViewProjection;
-		_objectConstants["Corner111"] = Vec4(  halfScale,  halfScale,  halfScale, 0.0f ) * _modelViewProjection;
+		_objectConstants["Corner000"] = Vec4( -0.5f, -0.5f, -0.5f, 0.0f ) * modelViewProjection;
+		_objectConstants["Corner001"] = Vec4( -0.5f, -0.5f,  0.5f, 0.0f ) * modelViewProjection;
+		_objectConstants["Corner010"] = Vec4( -0.5f,  0.5f, -0.5f, 0.0f ) * modelViewProjection;
+		_objectConstants["Corner011"] = Vec4( -0.5f,  0.5f,  0.5f, 0.0f ) * modelViewProjection;
+		_objectConstants["Corner100"] = Vec4(  0.5f, -0.5f, -0.5f, 0.0f ) * modelViewProjection;
+		_objectConstants["Corner101"] = Vec4(  0.5f, -0.5f,  0.5f, 0.0f ) * modelViewProjection;
+		_objectConstants["Corner110"] = Vec4(  0.5f,  0.5f, -0.5f, 0.0f ) * modelViewProjection;
+		_objectConstants["Corner111"] = Vec4(  0.5f,  0.5f,  0.5f, 0.0f ) * modelViewProjection;
 
 		Graphic::Device::DrawVertices( m_voxels, 0, m_voxels.GetNumVertices() );
 	}

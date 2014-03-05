@@ -72,7 +72,7 @@ namespace Voxel {
 		/// \param [in] _modelViewProjection The actual view projection matrix.
 		///		This matrix should contain the general model transformation too.
 		void Draw( Graphic::UniformBuffer& _objectConstants,
-			const Math::Mat4x4& _modelViewProjection );
+			const Math::Mat4x4& _modelView, const Math::Mat4x4& _projection );
 
 		/// \brief Set position relative to the model.
 		//void SetPosition( const Math::Vec3& _position )	{ m_position = _position; }

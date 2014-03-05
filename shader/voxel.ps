@@ -2,11 +2,43 @@
 
 in vec3 gs_normal;
 in vec3 gs_color;
+in vec3 gs_viewDirection;
 out vec4 fragColor;
+
+layout(std140) uniform Camera
+{
+	mat4 c_mView;
+	mat4 c_mProjection;
+	mat4 c_mViewProjection;
+	vec4 c_vInverseProjection;
+	vec3 c_vCameraPosition;
+};
 
 void main()
 {
-	float light = dot(gs_normal, vec3(0.13557,0.96596,0.2203))*0.5+0.5;
-	vec3 diffuse = gs_color * light;
-	fragColor = vec4(diffuse,1);
+	// Test with 
+	float shini = 0.3; float e = 100.01;
+	//vec3 specularColor = gs_color * shini;
+	//vec3 specularInv = vec3(1,1,1) - gs_color;
+
+	// TODO: Remove by light constants
+	vec3 L = normalize((vec4(0.13557,0.96596,0.2203,0) * c_mView).xyz);
+
+	vec3 H = normalize(L + gs_viewDirection);
+	float NdotL = min(1, max(0, dot(gs_normal, L)));
+	float NdotV = min(1, max(0, dot(gs_normal, gs_viewDirection)));
+	float HdotL = dot(H, L);
+	float NdotH = min(1, max(0, dot(gs_normal, H)));
+
+	// Modified Ashikhmin-Shirley diffuse part
+	float light = 3.14 * 0.387507688 * (1.0 - pow(1.0 - NdotL * 0.5, 5.0)) * (1.0 - pow(1.0 - NdotV * 0.5, 5.0));
+	vec3 diffuse = gs_color * (1-shini) * light;
+
+	// Modified Ashikhmin-Shirley specular part
+	float shininess = (e+1) * pow(NdotH, e) / (25.132741229 * HdotL * max(NdotL, NdotV) + 1);
+	//float shininess = (e+1) * pow(NdotH, e) / 25.132741229;
+	float specular = shininess * NdotL * (shini + (1-shini) * (pow(1.0 - HdotL, 5.0)));
+
+//	specular = min(1, max(0, specular));
+	fragColor = vec4(diffuse + vec3(specular, specular, specular),1);
 }

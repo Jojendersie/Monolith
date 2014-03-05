@@ -37,20 +37,20 @@ namespace Voxel {
 		std::unordered_map<Math::IVec4, Chunk>* chunks;	// Create or find chunks here.
 		Graphic::UniformBuffer& objectConstants;
 		const Math::Mat4x4& modelTransform;
-		const Math::Mat4x4& modelViewProjection;
+		const Math::Mat4x4& modelView;
 		ChunkBuilder* builder;
 
 		DecideToDraw(const Input::Camera& _camera,
 				Model::ModelData* _model,
 				std::unordered_map<Math::IVec4, Chunk>* _chunks,
 				Graphic::UniformBuffer& _objectConstants,
-				const Math::Mat4x4& _modelViewProjection,
+				const Math::Mat4x4& _modelView,
 				const Math::Mat4x4& _modelTransform,
 				ChunkBuilder* _builder) :
 			camera(_camera), model(_model), chunks(_chunks),
 			objectConstants(_objectConstants),
 			modelTransform(_modelTransform),
-			modelViewProjection(_modelViewProjection),
+			modelView(_modelView),
 			builder(_builder)
 		{}
 
@@ -70,7 +70,7 @@ namespace Voxel {
 
 			// LOD - calculate a target level. If the current level is less or
 			// equal the target draw.
-			float detailResolution = 0.45f * log( lengthSq(boundingSphere.m_center - camera.GetPosition()) );
+			float detailResolution = 0.35f * log( lengthSq(boundingSphere.m_center - camera.GetPosition()) );
 			//float detailResolution = 0.025f * sqr(log( lengthSq(boundingSphere.m_center - _param->camera.GetPosition()) ));
 				//pow((chunkPos - _param->camera.GetPosition()).Length(), 0.25f);
 			int targetLOD = max(5, Math::ceil(detailResolution));
@@ -98,7 +98,7 @@ namespace Voxel {
 				{
 					RenderStat::g_numVoxels += chunk->second.NumVoxels();
 					RenderStat::g_numChunks++;
-					chunk->second.Draw( objectConstants, modelViewProjection );
+					chunk->second.Draw( objectConstants, modelView, camera.GetProjection() );
 				}
 				return false;
 			}
@@ -110,11 +110,11 @@ namespace Voxel {
 	{
 		// Create a new model space transformation
 		Math::Mat4x4 modelTransform = Mat4x4::Translation(-m_center) * Mat4x4::Rotation(m_rotation) * Mat4x4::Translation( m_position + m_center );
-		Math::Mat4x4 modelViewProjection = modelTransform * _camera.GetViewProjection();
+		Math::Mat4x4 modelView = modelTransform * _camera.GetView();
 
 		// Iterate through the octree and render chunks depending on the lod.
 		ChunkBuilder* builder = new ChunkBuilder(); // TEMP -> in job verschieben
-		DecideToDraw param(_camera, &this->m_voxelTree, &this->m_chunks, _objectConstants, modelViewProjection, modelTransform, builder);
+		DecideToDraw param(_camera, &this->m_voxelTree, &this->m_chunks, _objectConstants, modelView, modelTransform, builder);
 		m_voxelTree.Traverse( param );
 		delete builder;
 	}
@@ -134,13 +134,14 @@ namespace Voxel {
 	{
 		// Compute real volume from logarithmic size
 		int size = 1 << _position[3];
+		Vec3 center = Math::IVec3(_position) + size * 0.5f;
 		size = size * size * size;
 
 		// Remove the old voxel
 		if( IsSolid(_oldType.type) )
 		{
 			float oldMass = VOXEL_INFO[int(_oldType.type)].mass * size;
-			m_center = (m_center * m_mass - Math::IVec3(_position) * oldMass) / (m_mass - oldMass);
+			m_center = (m_center * m_mass - center * oldMass) / (m_mass - oldMass);
 			m_mass -= oldMass;
 			m_numVoxels -= size;
 		}
@@ -149,7 +150,7 @@ namespace Voxel {
 		if( IsSolid(_newType.type) )
 		{
 			float newMass = VOXEL_INFO[int(_newType.type)].mass * size;
-			m_center = (m_center * m_mass + Math::IVec3(_position) * newMass) / (m_mass + newMass);
+			m_center = (m_center * m_mass + center * newMass) / (m_mass + newMass);
 			m_mass += newMass;
 			m_numVoxels += size;
 		}

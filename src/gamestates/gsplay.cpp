@@ -42,7 +42,7 @@ GSPlay::~GSPlay()
 void GSPlay::OnBegin()
 {
 	if( !m_astTest )
-		m_astTest = new Generators::Asteroid( 64, 48, 32, 2 );
+		m_astTest = new Generators::Asteroid( 90, 60, 32, 2 );
 	m_camera->ZoomAt( *m_astTest );
 }
 
@@ -67,6 +67,7 @@ void GSPlay::Render( double _time, double _deltaTime )
 	m_game->m_graficContent->cameraUBO["Projection"] = m_camera->GetProjection();
 	m_game->m_graficContent->cameraUBO["ViewProjection"] = m_camera->GetViewProjection();
 	m_game->m_graficContent->cameraUBO["ProjectionInverse"] = Vec4(1.0f/m_camera->GetProjection()(0,0), 1.0f/m_camera->GetProjection()(1,1), 1.0f/m_camera->GetProjection()(2,2), -m_camera->GetProjection()(3,2) / m_camera->GetProjection()(2,2));
+	m_game->m_graficContent->cameraUBO["Position"] = m_camera->GetPosition();
 //	m_parent->m_graficContent->cameraUBO["Far"] = 400.0f;
 
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
