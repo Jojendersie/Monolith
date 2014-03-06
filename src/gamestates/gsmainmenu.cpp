@@ -16,6 +16,10 @@ using namespace Math;
 GSMainMenu::GSMainMenu(Monolith* _game) : IGameState(_game)
 {
 	m_hud = new Graphic::Hud(_game->m_graficContent, _game);
+	//some bsp buttons
+	m_hud->CreateBtn("menuBtn", "continue", Math::Vec2(-0.25f,0.4f), Math::Vec2(0.6f, 0.15f), [&] () { m_game->PushState( m_game->GetPlayState() ); });
+	m_hud->CreateBtn("menuBtn", "options", Math::Vec2(-0.25f,0.22f), Math::Vec2(0.6f, 0.15f));
+	m_hud->CreateBtn("menuBtn", "end", Math::Vec2(-0.25f,0.04f), Math::Vec2(0.6f, 0.15f), [&] () { m_finished = true; });
 }
 
 // ************************************************************************* //
@@ -54,11 +58,20 @@ void GSMainMenu::KeyDown( int _key, int _modifiers )
 {
 	std::cout << Input::KeyToChar(_key, _modifiers);
 
+	//hud overides input
+	if(m_hud->KeyDown(_key, _modifiers)) return;
+
 	if( _key == GLFW_KEY_ESCAPE )
 		m_finished = true;
 
 	if( _key == GLFW_KEY_T )
 		m_game->PushState( m_game->GetPlayState() );
+}
+
+// ************************************************************************* //
+void GSMainMenu::KeyRelease( int _key )
+{
+	if(m_hud->KeyUp(_key, 0)) return;
 }
 
 // ************************************************************************* //

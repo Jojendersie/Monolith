@@ -120,7 +120,7 @@ namespace Graphic
 			CV.thickness = m_thickness;
 			CV.color = m_color.RGBA(); 
 			//line break
-			if(m_text[i] == '\n'){currentPos[0] = m_screenPos[0]; currentPos[1] -= m_font->m_sizeTable[m_text[i]][1]*m_size;}
+			if(m_text[i] == '\n'){currentPos[0] = m_screenPos[0]; currentPos[1] -= m_font->m_sizeTable[m_text[i]][1]*m_size*0.666f;}//offset to lower line space; requieres additional testing
 			else if(m_text[i] == '<'){ i += CntrlChr(i)-1; continue;} 
 			else currentPos[0] += m_font->m_sizeTable[m_text[i]][0]*m_size;  
  			m_characters.Add(CV);

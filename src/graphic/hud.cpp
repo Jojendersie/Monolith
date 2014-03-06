@@ -10,11 +10,15 @@ namespace Graphic
 		m_container("texture/combined.png"),
 		m_screenTexCount(0),
 		m_TextRenderCount(0),
+		m_btnCount(0),
 		m_preTex(NULL)
 //		m_mapFile("texture/combined.sraw", true),
 //		m_containerMap( m_mapFile, Jo::Files::Format::SRAW )
 //		m_labelMS(&TextRender(m_defaultFont))
 	{
+	//	for( int i = 0; i < MAX_SCREENTEX; i++ )
+	//		m_screenTextures[i] = nullptr;
+
 		m_dbgLabel = new TextRender(m_globalPipelineData->defaultFont);
 		m_dbgLabel->SetPos(Math::Vec2(0.7f,0.8f));
 		AddTextRender(m_dbgLabel);
@@ -29,9 +33,9 @@ namespace Graphic
 
 		AddTexture(m_cursor);
 
-		m_btnMenu = new Button(m_containerMap, m_globalPipelineData->defaultFont, "button", Math::Vec2(-1.f,0.92f), Math::Vec2(0.14f,0.07f));
-		m_btnMenu->m_caption.SetText("<c 000 024 242 255> <s 032>Menue</s> </c>");
-		AddButton(m_btnMenu);
+	//	m_btnMenu = new Button(m_containerMap, m_globalPipelineData->defaultFont, "menuBtn", Math::Vec2(-0.9f,0.92f), Math::Vec2(0.16f,0.07f));
+	//	m_btnMenu->m_caption.SetText("<c 000 024 242 255> <s 032>Menue</s> </c>");
+	//	AddButton(m_btnMenu);
 	}
 
 	Hud::~Hud()
@@ -40,7 +44,16 @@ namespace Graphic
 
 		delete m_containerMap;
 		delete m_cursor;
-		delete m_btnMenu;
+//		delete m_btnMenu;
+		for( int i = 0; i < m_btnCount; i++ )
+			delete m_buttons[i];
+	}
+
+	void Hud::CreateBtn(std::string _texName, std::string _desc, Math::Vec2 _position, Math::Vec2 _size, std::function<void()> _OnMouseUp)
+	{
+		Button* btn = new Button(m_containerMap, m_globalPipelineData->defaultFont, _texName, _position, _size, _OnMouseUp);
+		btn->m_caption.SetText(_desc);
+		AddButton(btn);
 	}
 
 	void Hud::Draw(double _time, double _deltaTime)
@@ -72,6 +85,7 @@ namespace Graphic
 		Math::Vec2 cursorPos = 0.5f * Input::Manager::GetCursorPos() / Device::GetFramebufferSize() - 1.0f;
 		cursorPos[1] = -cursorPos[1];
 		m_cursor->m_vertex.position = cursorPos;
+
 		//todo: include mousespeed in config  
 
 		//collision with hud objects todo: rewrite with better form/structure
@@ -102,6 +116,26 @@ namespace Graphic
 		}
 	}
 
+	bool Hud::KeyDown( int _key, int _modifiers )
+	{
+		if(_key == GLFW_MOUSE_BUTTON_LEFT && m_preTex != nullptr)
+		{
+			m_preTex->MouseDown();
+			return true;
+		}
+		return false;
+	}
+
+	bool Hud::KeyUp( int _key, int _modifiers )
+	{
+		if(_key == GLFW_MOUSE_BUTTON_LEFT && m_preTex != nullptr)
+		{
+			m_preTex->MouseUp();
+			return true;
+		}
+		return false;
+	}
+
 	void Hud::AddTextRender(TextRender* _label)
 	{
 		m_TextRenders[m_TextRenderCount] = _label;
@@ -110,12 +144,21 @@ namespace Graphic
 
 	void Hud::AddTexture(ScreenTexture* _tex)
 	{
+		//adjustments for to display the texture right in the window
+		_tex->m_vertex.size[0] -= 1.5f/m_container.Width();//good
+	//	_tex->m_vertex.size[1] -= 1.f/m_container.Height();
+		_tex->m_vertex.texCoord[0] += 0.5f/m_container.Width();//good
+	//	_tex->m_vertex.texCoord[1] += 0.5f/m_container.Height(); 
+		_tex->m_vertex.screenSize[0] /= Device::GetAspectRatio();
 		m_screenTextures[m_screenTexCount] = _tex;
 		m_screenTexCount++;
 	}
 
 	void Hud::AddButton(Button* _btn)
 	{
+		//keep pointer to delete it later
+		m_buttons[m_btnCount] = _btn;
+		m_btnCount++;
 		AddTexture(&(_btn->m_btnDefault));
 		AddTexture(&(_btn->m_btnOver));
 		AddTexture(&(_btn->m_btnDown));
