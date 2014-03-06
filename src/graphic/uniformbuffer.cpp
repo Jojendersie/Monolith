@@ -38,7 +38,7 @@ namespace Graphic {
 		int offset = m_size & 0xf;	// modulo 16
 		if( offset )
 		{
-			if( (m_size/16) == ((m_size+int(_type))/16) )
+			if( (m_size/16) == ((m_size+int(_type)-1)/16) )
 				// Variable does not skip a 16 byte alignment border
 				offset = 0;
 			else offset = 16 - offset;

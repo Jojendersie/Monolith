@@ -56,6 +56,8 @@ public:
 	Graphic::Content* m_graficContent;
 
 	Jo::Files::MetaFileWrapper Config;
+
+	float Time() const { return (float)m_time; }
 private:
 	IGameStateP m_gameStates[2];	///< MainMenu, NewGame, Main, ...
 	IGameStateP m_stateStack;		///< The head of a stack of game states

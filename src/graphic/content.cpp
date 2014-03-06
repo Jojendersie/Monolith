@@ -38,6 +38,7 @@ namespace Graphic {
 		globalUBO.AddAttribute( "Aspect", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 		globalUBO.AddAttribute( "Width", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 		globalUBO.AddAttribute( "Height", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
+		globalUBO.AddAttribute( "Time", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 		Math::IVec2 size = Graphic::Device::GetFramebufferSize();
 		globalUBO["Aspect"] = Graphic::Device::GetAspectRatio();
 		globalUBO["Width"] = (float)size[0];
@@ -46,6 +47,7 @@ namespace Graphic {
 		// Bind constant buffers to effects
 		voxelRenderEffect.BindUniformBuffer( objectUBO );
 		voxelRenderEffect.BindUniformBuffer( cameraUBO );
+		voxelRenderEffect.BindUniformBuffer( globalUBO );
 		voxelRenderEffect.BindTexture("u_diffuseTex", 0, pointSampler);
 		assert(glGetError() == GL_NO_ERROR);
 

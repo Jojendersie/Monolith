@@ -21,6 +21,7 @@ layout(std140) uniform Global
 	float c_fAspect;	// Width / Height
 	float c_fFBWidth;	// Framebuffer width
 	float c_fFBHeight;	// Framebuffer height
+	float c_fTime;		// Total game time in seconds
 };
 
 void main(void)

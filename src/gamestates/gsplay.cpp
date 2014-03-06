@@ -42,7 +42,7 @@ GSPlay::~GSPlay()
 void GSPlay::OnBegin()
 {
 	if( !m_astTest )
-		m_astTest = new Generators::Asteroid( 200, 160, 132, 2 );
+		m_astTest = new Generators::Asteroid( 80, 50, 30, 2 );
 	m_camera->ZoomAt( *m_astTest );
 }
 

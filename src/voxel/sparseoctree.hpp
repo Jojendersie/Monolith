@@ -349,7 +349,7 @@ namespace Voxel {
 
 		// Search in the octree (while not on target level or tree ends)
 		SVON* current = &m_root;
-		while( (scale > 0) && current->m_children ) {
+		while( (scale >= 1) && current->m_children ) {
 			current->Data().Touch();
 			--scale;
 			int x = (_position[0] >> scale) & 1;

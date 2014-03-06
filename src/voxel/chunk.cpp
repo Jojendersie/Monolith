@@ -70,6 +70,47 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	/// \brief Current dirty region update - just reuse a child voxel.
+	/// \details This is the first part of the update which recreates materials
+	///		and solidity flags.
+	struct UpdateMaterial: public Model::ModelData::SVOProcessor
+	{
+		/// \brief If the current voxel is not dirty its whole subtree is
+		///		clean too. Then stop.
+		bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
+		{
+			return _node->Data().IsDirty();
+		}
+
+		/// \brief Do an update: mix the materials of all children and choose
+		///		type randomly
+		void PostTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
+		{
+			if( !_node->Data().IsDirty() ) return;
+
+			// Remains undefined
+			if( !_node->Children() ) return;
+
+			// Take the last defined children and check solidity.
+			bool solid = true;
+			Material materials[8];	int num = 0;
+			for( int i = 0; i < 8; ++i )
+			{
+				if( _node->Children()[i].Data().type != VoxelType::UNDEFINED ) {
+					_node->Data().type = _node->Children()[i].Data().type;
+					if( _node->Children()[i].Data().surface )
+						materials[num++] = _node->Children()[i].Data().material;
+				}
+				solid &= _node->Children()[i].Data().solid;
+			}
+			_node->Data().solid = solid ? 1 : 0;
+			if( num > 0 )
+				_node->Data().material = Material(materials, num);
+		}
+	};
+
+	/// \brief Update neighborhood visibility.
+	/// \details This is the second pass which uses the solidity from first
+	///		pass and resets the dirty flag.
 	struct UpdateDirty: public Model::ModelData::SVONeighborProcessor
 	{
 		/// \brief If the current voxel is not dirty its whole subtree is
@@ -96,25 +137,7 @@ namespace Voxel {
 				| (((_front == nullptr)  || !_front->Data().solid)  << 4)
 				| (((_back == nullptr)   || !_back->Data().solid)   << 5);
 
-			// Remains undefined
-			if( !_node->Children() ) { _node->Data().dirty = 0; return; }
-
-			// Take the last defined children and check solidity.
-			bool solid = true;
-			Material materials[8];	int num = 0;
-			for( int i = 0; i < 8; ++i )
-			{
-				if( _node->Children()[i].Data().type != VoxelType::UNDEFINED ) {
-					_node->Data().type = _node->Children()[i].Data().type;
-					if( _node->Children()[i].Data().surface )
-						materials[num++] = _node->Children()[i].Data().material;
-				}
-				solid &= _node->Children()[i].Data().solid;
-			}
-			_node->Data().solid = solid ? 1 : 0;
 			_node->Data().dirty = 0;
-			if( num > 0 )
-				_node->Data().material = Material(materials, num);
 		}
 	};
 
@@ -199,6 +222,8 @@ namespace Voxel {
 		// If it is dirty update the subtree
 		Model::ModelData::SVON* node = _chunk.m_modelData->Get( IVec3(_chunk.m_root), _chunk.m_root[3] );
 		if( node->Data().IsDirty() )
+		{
+			node->Traverse( _chunk.m_root, UpdateMaterial() );
 			node->TraverseEx( _chunk.m_root, UpdateDirty(),
 				_chunk.m_modelData->Get( IVec3(_chunk.m_root[0]-1, _chunk.m_root[1]  , _chunk.m_root[2]  ), _chunk.m_root[3] ),
 				_chunk.m_modelData->Get( IVec3(_chunk.m_root[0]+1, _chunk.m_root[1]  , _chunk.m_root[2]  ), _chunk.m_root[3] ),
@@ -206,6 +231,7 @@ namespace Voxel {
 				_chunk.m_modelData->Get( IVec3(_chunk.m_root[0]  , _chunk.m_root[1]+1, _chunk.m_root[2]  ), _chunk.m_root[3] ),
 				_chunk.m_modelData->Get( IVec3(_chunk.m_root[0]  , _chunk.m_root[1]  , _chunk.m_root[2]-1), _chunk.m_root[3] ),
 				_chunk.m_modelData->Get( IVec3(_chunk.m_root[0]  , _chunk.m_root[1]  , _chunk.m_root[2]+1), _chunk.m_root[3] ) );
+		}
 
 		// Sample a (2^d+2)^3 volume (neighborhood for visibility). This
 		// initial sampling avoids the expensive resampling for many voxels.

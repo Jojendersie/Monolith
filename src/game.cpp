@@ -92,6 +92,7 @@ void Monolith::Run()
 			// Smooth frame time
 			deltaTime = deltaTime * 0.8 + deltaFrameTime * 0.2;
 			m_time += deltaTime;
+			m_graficContent->globalUBO["Time"] = (float)m_time;
 
 			// Limiting to target fps
 			//std::this_thread::sleep_for( m_microSecPerFrame - std::chrono::microseconds(unsigned(deltaFrameTime * 1000000.0))  );

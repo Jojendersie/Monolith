@@ -12,8 +12,8 @@ namespace Voxel {
 	struct Material
 	{
 		uint32_t y: 8;			///< The y from YPbPr.
-		uint32_t specular: 4;	///< Amplitude of specularity
-		uint32_t shininess: 4;	///< Exponent of specularity
+		uint32_t specular: 4;	///< Exponent of specularity
+		uint32_t shininess: 4;	///< Amplitude of specularity
 		uint32_t transparent: 1;///< If 1 yVar has to be interpreted as alpha channel.
 		uint32_t emissive: 1;	///< This is a light source or not
 		uint32_t pb: 5;			///< Discretized Pb color component
