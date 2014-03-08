@@ -12,7 +12,7 @@ namespace Math {
 		/// \brief Standard constructor creates an uninitialized Vector
 		Vector() {}
 		/// \brief Create a Vector filled with a constant
-		explicit Vector(Data _d)			{for (int i = 0; i < n; i++) m_data[i] = _d; }
+		explicit Vector(Data _d)			{ for (int i = 0; i < n; i++) m_data[i] = _d; }
 		/// \brief Create a Vector from an array
 		explicit Vector(const Data* _d)		{ for (int i = 0; i < n; i++) m_data[i] = _d[i]; }
 		/// \brief Create a Vector from a Vector

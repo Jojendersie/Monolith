@@ -62,6 +62,7 @@ namespace Voxel {
 	class Chunk;
 	class Model;
 	enum struct VoxelType: uint8_t;
-	struct VoxelTypeInfo;
 	struct VoxelVertex;
+	struct Material;
+	struct Component;
 } // namespace Voxel

@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <cassert>
 #include "voxel.hpp"
+#include "../math/math.hpp"
 
 namespace Voxel {
 
@@ -69,7 +70,7 @@ namespace Voxel {
 		Component() : material(Material::UNDEFINED), type(VoxelType::UNDEFINED), dirty(0), solid(0), surface(0)	{}
 
 		/// \brief Construct a component with a defined type and undefined material
-		Component(VoxelType _type) : material(VOXEL_INFO[(int)_type].material), type(_type), dirty(1), solid(IsSolid(_type)?1:0), surface(0) {}
+		Component(VoxelType _type) : material(TypeInfo::Sample(_type, Math::IVec3(0), 0)), type(_type), dirty(1), solid(TypeInfo::IsSolid(_type)?1:0), surface(0) {}
 
 		/// \brief Mark this component as outdated (it is set to undefined)
 		void Touch()			{ dirty = 1; }

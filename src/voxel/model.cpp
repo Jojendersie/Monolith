@@ -138,18 +138,18 @@ namespace Voxel {
 		size = size * size * size;
 
 		// Remove the old voxel
-		if( IsSolid(_oldType.type) )
+		if( TypeInfo::GetMass(_oldType.type) > 0.0f )
 		{
-			float oldMass = VOXEL_INFO[int(_oldType.type)].mass * size;
+			float oldMass = TypeInfo::GetMass(_oldType.type) * size;
 			m_center = (m_center * m_mass - center * oldMass) / (m_mass - oldMass);
 			m_mass -= oldMass;
 			m_numVoxels -= size;
 		}
 
 		// Add new voxel
-		if( IsSolid(_newType.type) )
+		if( TypeInfo::GetMass(_newType.type) )
 		{
-			float newMass = VOXEL_INFO[int(_newType.type)].mass * size;
+			float newMass = TypeInfo::GetMass(_newType.type) * size;
 			m_center = (m_center * m_mass + center * newMass) / (m_mass + newMass);
 			m_mass += newMass;
 			m_numVoxels += size;

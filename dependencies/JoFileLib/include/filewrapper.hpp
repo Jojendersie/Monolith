@@ -152,7 +152,9 @@ namespace Files {
 			///		node is array data or an intermediate node the cast will
 			///		return the last indexed element.
 			///		
-			///		Make sure the node is of the assumed 
+			///		Make sure the node is of the assumed data type manually.
+			///		These methods are designed for fast access. Use Get() to
+			///		get implicit casting.
 			operator float() const				{ return reinterpret_cast<const float*>(m_bufferArray)[m_lastAccessed]; }
 
 			/// \brief Casts the node data into double.
@@ -236,18 +238,21 @@ namespace Files {
 			bool HasChild( const std::string& _name, Node** _child = nullptr );
 
 			/// \brief Safer access methods with user defined default values.
-			/// \details Up-casts in integer and in unsigned types are silently
-			///		accepted. Otherwise the default value is returned.
-			float Get( float _default ) const		{ if(m_type == ElementType::FLOAT) return *this; return _default; }
-			double Get( double _default ) const		{ if(m_type == ElementType::DOUBLE) return *this; return _default; }
-			int8_t Get( int8_t _default ) const		{ if(m_type == ElementType::INT8) return *this; return _default; }
-			uint8_t Get( uint8_t _default ) const	{ if(m_type == ElementType::UINT8) return *this; return _default; }
-			int16_t Get( int16_t _default ) const	{ if(m_type == ElementType::INT16 || m_type == ElementType::INT8) return *this; return _default; }
-			uint16_t Get( uint16_t _default ) const	{ if(m_type == ElementType::UINT16 || m_type == ElementType::UINT8) return *this; return _default; }
-			int32_t Get( int32_t _default ) const	{ if(m_type <= ElementType::INT32 && m_type >= ElementType::INT8) return *this; return _default; }
-			uint32_t Get( uint32_t _default ) const	{ if(m_type <= ElementType::UINT32 && m_type >= ElementType::UINT8) return *this; return _default; }
-			int64_t Get( int64_t _default ) const	{ if(m_type <= ElementType::INT64 && m_type >= ElementType::INT8) return *this; return _default; }
-			uint64_t Get( uint64_t _default ) const	{ if(m_type <= ElementType::UINT64 && m_type >= ElementType::UINT8) return *this; return _default; }
+			/// \details Following casts are silently accepted. Otherwise the
+			///		default value is returned.
+			///		float <-> double
+			///		uint <-> int
+			///		(u)intX -> (u)intY with X < Y
+			float Get( float _default ) const;
+			double Get( double _default ) const;
+			int8_t Get( int8_t _default ) const;
+			uint8_t Get( uint8_t _default ) const;
+			int16_t Get( int16_t _default ) const;
+			uint16_t Get( uint16_t _default ) const;
+			int32_t Get( int32_t _default ) const;
+			uint32_t Get( uint32_t _default ) const;
+			int64_t Get( int64_t _default ) const;
+			uint64_t Get( uint64_t _default ) const;
 			bool Get( bool _default ) const			{ if(m_type == ElementType::BIT) return *this; return _default; }
 
 			/// \brief Short to test if this node contains a string(-array)

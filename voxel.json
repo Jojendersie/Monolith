@@ -1,0 +1,46 @@
+{
+  "PerVoxelInfo": [
+    {
+      "Name": "UNDEFINED",
+      "Solid": false,
+      "Colors": [0],
+      "Texture Resolution": 1,
+      "Texture": [0],
+      "Border Texture": [0]
+    },
+    {
+      "Name": "Water",
+      "Solid": true,
+      "Mass": 1.0,
+      "Threshold Energy": 334000.0,
+      "Reaction Energy": 0.0,
+      "Water": 10,
+      "Minerals": 0,
+      "Metals": 0,
+      "Rare Metals": 0,
+      "Alloys": 0,
+      "Polymers": 0,
+      "Colors": [0, 0x86DCCB29],
+      "Texture Resolution": 2,
+      "Texture": [0, 0, 0 , 1, 1, 0, 0, 0],
+      "Border Texture": [0, 0, 0 , 1, 1, 0, 0, 0]
+    },
+	{
+      "Name": "Stone",
+      "Solid": true,
+      "Mass": 2.3,
+      "Threshold Energy": 460000.0,
+      "Reaction Energy": 80000.0,
+      "Water": 1,
+      "Minerals": 8,
+      "Metals": 1,
+      "Rare Metals": 0,
+      "Alloys": 0,
+      "Polymers": 0,
+      "Colors": [0, 0x07BC0632],
+      "Texture Resolution": 1,
+      "Texture": [1],
+      "Border Texture": [1]
+    }
+  ]
+}

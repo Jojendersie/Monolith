@@ -10,6 +10,7 @@
 #include "graphic/uniformbuffer.hpp"
 #include "graphic/content.hpp"
 #include "input/input.hpp"
+#include "voxel/voxel.hpp"
 
 static double g_fInvFrequency;
 
@@ -40,6 +41,8 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 
 	Input::Manager::Initialize( Graphic::Device::GetWindow(), Config[std::string("Input")] );
 
+	Voxel::TypeInfo::Initialize();
+
 	// Load the graphic stuff
 	m_graficContent = new Graphic::Content();
 
@@ -64,6 +67,8 @@ Monolith::~Monolith()
 	delete m_graficContent;
 	delete m_gameStates[0];
 	delete m_gameStates[1];
+
+	Voxel::TypeInfo::Unload();
 }
 
 // ************************************************************************* //
