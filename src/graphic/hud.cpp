@@ -69,8 +69,7 @@ namespace Graphic
 	void Hud::MouseMove( double _dx, double _dy )
 	{
 		// Get cursor converted to screen coordinates
-		Math::Vec2 cursorPos = 0.5f * Input::Manager::GetCursorPos() / Device::GetFramebufferSize() - 1.0f;
-		cursorPos[1] = -cursorPos[1];
+		Math::Vec2 cursorPos = Input::Manager::GetCursorPosScreenSpace();
 		m_cursor->m_vertex.position = cursorPos;
 		//todo: include mousespeed in config  
 

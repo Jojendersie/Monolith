@@ -54,8 +54,8 @@ namespace Math {
 		Vector<n, Data>& operator = (const Data _d)						{ for (int i = 0; i < n; i++) m_data[i] = _d; return *this; }
 		Vector<n, Data>& operator += (const Data _d)					{ for (int i = 0; i < n; i++) m_data[i] += _d; return *this; }
 		Vector<n, Data>& operator -= (const Data _d)					{ for (int i = 0; i < n; i++) m_data[i] -= _d; return *this; }
-		Vector<n, Data>& operator *= (const Data _d)					{ for (int i = 0; i < n; i++) m_data[i] /= _d; return *this; }
-		Vector<n, Data>& operator /= (const Data _d)					{ for (int i = 0; i < n; i++) m_data[i] *= _d; return *this; }
+		Vector<n, Data>& operator *= (const Data _d)					{ for (int i = 0; i < n; i++) m_data[i] *= _d; return *this; }
+		Vector<n, Data>& operator /= (const Data _d)					{ for (int i = 0; i < n; i++) m_data[i] /= _d; return *this; }
 
 		// Unary minus
 		Vector<n, Data> operator - () const								{ Vector<n, Data> result; for (int i = 0; i < n; i++) result[i] = -m_data[i]; return result; }

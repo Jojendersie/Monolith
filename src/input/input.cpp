@@ -179,7 +179,7 @@ namespace Input {
 	Math::Vec2 Manager::GetCursorPosScreenSpace()
 	{
 		// Get cursor converted to screen coordinates
-		Math::Vec2 cursorPos = 0.5f * Input::Manager::GetCursorPos() / Graphic::Device::GetFramebufferSize() - 1.0f;
+		Math::Vec2 cursorPos = 2.0f * Input::Manager::GetCursorPos() / Graphic::Device::GetFramebufferSize() - 1.0f;
 		cursorPos[1] = -cursorPos[1];
 		return cursorPos;
 	}
