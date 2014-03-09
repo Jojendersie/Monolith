@@ -69,12 +69,13 @@ namespace Voxel {
 				return false;
 
 			// LOD - calculate a target level. If the current level is less or
-			// equal the target draw.
-			float detailResolution = 0.35f * log( lengthSq(boundingSphere.m_center - camera.GetPosition()) );
-			//float detailResolution = 0.025f * sqr(log( lengthSq(boundingSphere.m_center - _param->camera.GetPosition()) ));
-				//pow((chunkPos - _param->camera.GetPosition()).Length(), 0.25f);
-			int targetLOD = max(5, Math::ceil(detailResolution));
-	//		std::cout << targetLOD << '\n';
+			// equal the target draw. Where targetLOD is the level of the
+			// required root node level. The resulting chunk will be up to 5
+			// levels more tessellated
+			//float detailResolution = 0.31f * log( lengthSq(boundingSphere.m_center - camera.GetPosition()) );
+			//float detailResolution = 0.025f * sqr(log( lengthSq(boundingSphere.m_center - camera.GetPosition()) ));
+			float detailResolution = 0.065f * pow(log( lengthSq(boundingSphere.m_center - camera.GetPosition()) ), 1.65f);
+			int targetLOD = max(2, Math::ceil(detailResolution));
 			if( _position[3] <= targetLOD )
 			{
 				// For very far objects a chunk might be too detailed. In this case

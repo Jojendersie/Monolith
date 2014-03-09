@@ -35,11 +35,10 @@ namespace Voxel {
 		/// \param [in] _type The type of the component voxel.
 		/// \param [in] _position A position inside the target levels 3D array.
 		/// \param [in] _level 0 Is the root of the mip map chain (1x1x1).
-		///		Positive numbers go to finer maps. It is not allowed to sample
-		///		in a not existing level. Call GetMaxLevel() to get the highest
-		///		possible level.
+		///		Positive numbers go to finer maps. If the number is larger than
+		///		the highest possible mip map a sample from a coarser map is used.
 		///	TODO: border Sampling
-		static Material Sample( VoxelType _type, const Math::IVec3& _position, int _level );
+		static Material Sample( VoxelType _type, Math::IVec3 _position, int _level );
 
 		/// \brief Returns the number of mip maps for the given type's materials.
 		static int GetMaxLevel( VoxelType _type );

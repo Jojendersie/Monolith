@@ -109,13 +109,23 @@ namespace Voxel {
 
 
 	// ********************************************************************* //
-	Material TypeInfo::Sample( VoxelType _type, const Math::IVec3& _position, int _level )
+	Material TypeInfo::Sample( VoxelType _type, Math::IVec3 _position, int _level )
 	{
-		assert(GetMaxLevel(_type) >= _level);
-
 		// Compute level access values
-		int e = 1 << (GetMaxLevel(_type) - _level);
-		int off = (e*e*e * 8) / 7 - 1;
+		int maxLevel = GetMaxLevel(_type);
+		int e, off;
+		// 0   1   2   3 <- level
+		// 585 73  9   1 <- l ^ 3 * 8 / 7
+		// 584 576 512 0 <- offsets
+		if( _level >= maxLevel ) {
+			e = (1 << maxLevel);
+			off = 0;
+			_position /= 1 << (_level-maxLevel);
+		} else {
+			e = (1 << _level);
+			int m = 1 << maxLevel, n = 1 << _level;
+			off = (m*m*m * 8) / 7 - (n*n*n * 8) / 7;
+		}
 
 		assert(_position[0] >= 0 && _position[0] < e);
 		assert(_position[1] >= 0 && _position[1] < e);
@@ -184,7 +194,9 @@ namespace Voxel {
 						if( _texture[prevoff + parentIndex] != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex] );
 						parentIndex = 2 * x + 1 + 2 * e * (2 * y + 1 + 2 * e * (2 * z + 1));
 						if( _texture[prevoff + parentIndex] != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex] );
-						_texture[off + index] = Material(&buffer.First(), buffer.Size());
+						if( buffer.Size() > 0 )
+							_texture[off + index] = Material(&buffer.First(), buffer.Size());
+						else _texture[off + index] = Material::UNDEFINED;
 					}
 				}
 			} // for target level

@@ -20,7 +20,7 @@ namespace Voxel {
 
 	Chunk::Chunk(Model::ModelData* _modelData, const Math::IVec4& _nodePostion, int _depth) :
 		m_modelData( _modelData ),
-		m_scale( float(1<<(_nodePostion[3]-_depth)) ),
+		m_scale( pow(2.0f, _nodePostion[3]-_depth) ),//float(1<<(_nodePostion[3]-_depth)) ),
 		m_depth( _depth ),
 		m_root( _nodePostion ),
 		m_voxels( "uu", nullptr, 0, Graphic::VertexBuffer::PrimitiveType::POINT ),
@@ -92,19 +92,14 @@ namespace Voxel {
 
 			// Take the last defined children and check solidity.
 			bool solid = true;
-			Material materials[8];	int num = 0;
 			for( int i = 0; i < 8; ++i )
 			{
 				if( _node->Children()[i].Data().type != VoxelType::UNDEFINED ) {
 					_node->Data().type = _node->Children()[i].Data().type;
-					if( _node->Children()[i].Data().surface )
-						materials[num++] = _node->Children()[i].Data().material;
 				}
 				solid &= _node->Children()[i].Data().solid;
 			}
 			_node->Data().solid = solid ? 1 : 0;
-			if( num > 0 )
-				_node->Data().material = Material(materials, num);
 		}
 	};
 
@@ -136,6 +131,21 @@ namespace Voxel {
 				| (((_top == nullptr)    || !_top->Data().solid)    << 3)
 				| (((_front == nullptr)  || !_front->Data().solid)  << 4)
 				| (((_back == nullptr)   || !_back->Data().solid)   << 5);
+
+			// Recompute the material from surface voxels only
+			if( _node->Children() )
+			{
+				Material materials[8];	int num = 0;
+				for( int i = 0; i < 8; ++i )
+				{
+					if( _node->Children()[i].Data().surface ) {
+						assert( _node->Children()[i].Data().type != VoxelType::UNDEFINED );
+						materials[num++] = _node->Children()[i].Data().material;
+					}
+				}
+				if( num > 0 )
+					_node->Data().material = Material(materials, num);
+			}
 
 			_node->Data().dirty = 0;
 		}
@@ -201,11 +211,35 @@ namespace Voxel {
 		///		which are in the correct depth.
 		bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
 		{
+			// Sub-sampling of material
+			if( _position[3] > level && !_node->Children() && _node->Data().surface )
+			{
+				// Compute area where the voxels are created
+				int e = 1 << (_position[3] - level);
+				IVec3 position(0,0,0);
+				IVec3 offset(IVec3(_position) * e - pmin);
+				// Collect all vertices from the material definition
+				for(; position[2] < e; ++position[2] ) {
+					for(position[1] = 0; position[1] < e; ++position[1] ) {
+						for(position[0] = 0; position[0] < e; ++position[0] ) {
+							appendBuffer->material = TypeInfo::Sample( _node->Data().type, position, _position[3] - level );
+							if( appendBuffer->material != Material::UNDEFINED )
+							{
+								appendBuffer->SetPosition( offset+position );
+								appendBuffer->SetVisibility( 0x3f );//_node->Data().surface );
+								++appendBuffer;
+							}
+						}
+					}
+				}
+				return false;
+			}
+
+			// Take a LOD of the material
 			if( _position[3] == level && _node->Data().surface )
 			{
 				// Generate a vertex here
 				appendBuffer->SetPosition( IVec3(_position)-pmin );
-				appendBuffer->SetTexture( int(_node->Data().type) );
 				appendBuffer->SetVisibility( _node->Data().surface );
 				appendBuffer->material = _node->Data().material;
 				++appendBuffer;
@@ -292,7 +326,7 @@ namespace Voxel {
 		// Newest method O(k): run over surface only
 		FillBuffer FillP;
 		FillP.appendBuffer = m_vertexBuffer;
-		FillP.level = Math::max( 0, _chunk.m_root[3] - _chunk.m_depth );
+		FillP.level = _chunk.m_root[3] - _chunk.m_depth;
 		FillP.pmin = (IVec3(_chunk.m_root) << (_chunk.m_root[3] - FillP.level));
 		// Using all neighbors == none creates at least the voxels at the chunk boundary.
 		// These extra voxels solve a problem when deleting things in a neighbor chunk.
