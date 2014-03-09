@@ -262,6 +262,9 @@
     <ClInclude Include="src\gamestates\gsplay.hpp">
       <Filter>Source Files\gamestates</Filter>
     </ClInclude>
+    <ClInclude Include="src\voxel\component.hpp">
+      <Filter>Source Files\voxel</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\voxel.ps">

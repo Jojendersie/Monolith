@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 #include "sparseoctree.hpp"
-#include "voxel.hpp"
+#include "component.hpp"
 #include "material.hpp"
 #include "../math/math.hpp"
 #include "../math/vector.hpp"

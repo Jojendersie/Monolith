@@ -1,4 +1,5 @@
 #include "material.hpp"
+#include "component.hpp"
 #include <cassert>
 #include <cmath>
 #include "..\math\mathbase.hpp"

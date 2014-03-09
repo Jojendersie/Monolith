@@ -76,26 +76,38 @@ namespace Voxel {
 			// Get volumetric size
 			int s = voxelNode[string("Texture Resolution")].Get(0);
 			voxelInfo.textureResolution = s;
+			Jo::Files::MetaFileWrapper::Node* borderTexNode = nullptr;
+			voxelNode.HasChild( string("Border Texture"), &borderTexNode );
 			s = s * s * s;
 			assert(voxelNode[string("Texture")].Size() == s);	// TODO: Logging
-			assert(voxelNode[string("Border Texture")].Size() == s);
 			// Copy textures while interpreting the lookup table
-			voxelInfo.texture = new Material[(s * 8) / 7];
-			voxelInfo.borderTexture = new Material[(s * 8) / 7];
+			voxelInfo.texture = new MatSample[(s * 8) / 7];
+			if( borderTexNode )
+			{
+				assert(borderTexNode->Size() == s);
+				voxelInfo.borderTexture = new MatSample[(s * 8) / 7];
+			}
 			auto& colorNode = voxelNode[string("Colors")];
 			auto& texNode = voxelNode[string("Texture")];
-			auto& borderTexNode = voxelNode[string("Border Texture")];
 			for( int v = 0; v < s; ++v )
 			{
 				// TODO: Logging
 				assert((int)texNode[v] < colorNode.Size() && (int)texNode[v] >= 0);
-				assert((int)borderTexNode[v] < colorNode.Size() && (int)borderTexNode[v] >= 0);
-				voxelInfo.texture[v] = colorNode[(int)texNode[v]];
-				voxelInfo.borderTexture[v] = colorNode[(int)borderTexNode[v]];
+				voxelInfo.texture[v].material = colorNode[(int)texNode[v]];
+				if( borderTexNode )
+				{
+					assert((int)(*borderTexNode)[v] < colorNode.Size() && (int)(*borderTexNode)[v] >= 0);
+					voxelInfo.borderTexture[v].material = colorNode[(int)(*borderTexNode)[v]];
+				}
 			}
 
 			voxelInfo.numMipMaps = GenerateMipMap(voxelInfo.texture, voxelInfo.textureResolution);
-			GenerateMipMap(voxelInfo.borderTexture, voxelInfo.textureResolution);
+			GenerateSurfaceInfo(voxelInfo.texture, voxelInfo.textureResolution, true);
+			if( borderTexNode )
+			{
+				GenerateMipMap(voxelInfo.borderTexture, voxelInfo.textureResolution);
+				GenerateSurfaceInfo(voxelInfo.borderTexture, voxelInfo.textureResolution, false);
+			}
 		}
 	}
 
@@ -109,7 +121,7 @@ namespace Voxel {
 
 
 	// ********************************************************************* //
-	Material TypeInfo::Sample( VoxelType _type, Math::IVec3 _position, int _level )
+	bool TypeInfo::Sample( VoxelType _type, Math::IVec3 _position, int _level, Material& _materialOut, uint8_t& _surfaceOut )
 	{
 		// Compute level access values
 		int maxLevel = GetMaxLevel(_type);
@@ -131,7 +143,10 @@ namespace Voxel {
 		assert(_position[1] >= 0 && _position[1] < e);
 		assert(_position[2] >= 0 && _position[2] < e);
 
-		return g_InfoManager->m_voxels[(int)_type].texture[off + _position[0] + e * (_position[1] + e * _position[2])];
+		MatSample& sample = g_InfoManager->m_voxels[(int)_type].texture[off + _position[0] + e * (_position[1] + e * _position[2])];
+		_materialOut = sample.material;
+		_surfaceOut = sample.surface;
+		return sample.surface != 0;
 	}
 
 	// ********************************************************************* //
@@ -160,50 +175,86 @@ namespace Voxel {
 
 
 	// ********************************************************************* //
-	int TypeInfo::GenerateMipMap( Material* _texture, int _edge )
+	int TypeInfo::GenerateMipMap( MatSample* _texture, int _e )
 	{
 		int numLevels = 0;
-		int e = _edge;		// current level edge length
-		int off = e*e*e;	// Offset of current level
+		int off = _e*_e*_e;	// Offset of current level
 		int prevoff = 0;	// Offset of previous level
-		while( (e /= 2) > 0 )
+		while( (_e /= 2) > 0 )
 		{
 			++numLevels;
 			// Loop over target level
-			for(int z = 0; z < e; ++z ) {
-				for(int y = 0; y < e; ++y ) {
-					for(int x = 0; x < e; ++x )
+			for(int z = 0; z < _e; ++z ) {
+				for(int y = 0; y < _e; ++y ) {
+					for(int x = 0; x < _e; ++x )
 					{
-						int index = x + e * (y + e * z);
+						int index = x + _e * (y + _e * z);
 						// Collect defined nodes from finer levels
 						Jo::HybridArray<Material> buffer;
 						int parentIndex;
-						parentIndex = 2 * x +     2 * e * (2 * y +     4 * e * z);
-						if( _texture[prevoff + parentIndex] != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex] );
-						parentIndex = 2 * x + 1 + 2 * e * (2 * y +     4 * e * z);
-						if( _texture[prevoff + parentIndex] != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex] );
-						parentIndex = 2 * x +     2 * e * (2 * y + 1 + 4 * e * z);
-						if( _texture[prevoff + parentIndex] != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex] );
-						parentIndex = 2 * x + 1 + 2 * e * (2 * y + 1 + 4 * e * z);
-						if( _texture[prevoff + parentIndex] != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex] );
-						parentIndex = 2 * x +     2 * e * (2 * y +     2 * e * (2 * z + 1));
-						if( _texture[prevoff + parentIndex] != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex] );
-						parentIndex = 2 * x + 1 + 2 * e * (2 * y +     2 * e * (2 * z + 1));
-						if( _texture[prevoff + parentIndex] != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex] );
-						parentIndex = 2 * x +     2 * e * (2 * y + 1 + 2 * e * (2 * z + 1));
-						if( _texture[prevoff + parentIndex] != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex] );
-						parentIndex = 2 * x + 1 + 2 * e * (2 * y + 1 + 2 * e * (2 * z + 1));
-						if( _texture[prevoff + parentIndex] != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex] );
+						parentIndex = 2 * x +     2 * _e * (2 * y +     4 * _e * z);
+						if( _texture[prevoff + parentIndex].material != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex].material );
+						parentIndex = 2 * x + 1 + 2 * _e * (2 * y +     4 * _e * z);
+						if( _texture[prevoff + parentIndex].material != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex].material );
+						parentIndex = 2 * x +     2 * _e * (2 * y + 1 + 4 * _e * z);
+						if( _texture[prevoff + parentIndex].material != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex].material );
+						parentIndex = 2 * x + 1 + 2 * _e * (2 * y + 1 + 4 * _e * z);
+						if( _texture[prevoff + parentIndex].material != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex].material );
+						parentIndex = 2 * x +     2 * _e * (2 * y +     2 * _e * (2 * z + 1));
+						if( _texture[prevoff + parentIndex].material != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex].material );
+						parentIndex = 2 * x + 1 + 2 * _e * (2 * y +     2 * _e * (2 * z + 1));
+						if( _texture[prevoff + parentIndex].material != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex].material );
+						parentIndex = 2 * x +     2 * _e * (2 * y + 1 + 2 * _e * (2 * z + 1));
+						if( _texture[prevoff + parentIndex].material != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex].material );
+						parentIndex = 2 * x + 1 + 2 * _e * (2 * y + 1 + 2 * _e * (2 * z + 1));
+						if( _texture[prevoff + parentIndex].material != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex].material );
 						if( buffer.Size() > 0 )
-							_texture[off + index] = Material(&buffer.First(), buffer.Size());
-						else _texture[off + index] = Material::UNDEFINED;
+							_texture[off + index].material = Material(&buffer.First(), buffer.Size());
+						else _texture[off + index].material = Material::UNDEFINED;
 					}
 				}
 			} // for target level
 			prevoff = off;
-			off += e*e*e;
+			off += _e*_e*_e;
 		}
 		return numLevels;
+	}
+
+	void TypeInfo::GenerateSurfaceInfo( MatSample* _texture, int _e, bool _default )
+	{
+		int off = 0;	// Offset of current level
+		while( _e > 0 )
+		{
+			// Loop over target level
+			for(int z = 0; z < _e; ++z ) {
+				for(int y = 0; y < _e; ++y ) {
+					for(int x = 0; x < _e; ++x )
+					{
+						int index = x + _e * (y + _e * z);
+						if( _texture[off + index].material == Material::UNDEFINED )
+							_texture[off + index].surface = 0;
+						else
+						{
+							bool left   = x == 0      ? _default : _texture[off + x - 1 + _e * (y + _e * z)].material == Material::UNDEFINED;
+							bool right  = x == (_e-1) ? _default : _texture[off + x + 1 + _e * (y + _e * z)].material == Material::UNDEFINED;
+							bool bottom = y == 0      ? _default : _texture[off + x + _e * (y - 1 + _e * z)].material == Material::UNDEFINED;
+							bool top    = y == (_e-1) ? _default : _texture[off + x + _e * (y + 1 + _e * z)].material == Material::UNDEFINED;
+							bool front  = z == 0      ? _default : _texture[off + x + _e * (y + _e * (z - 1))].material == Material::UNDEFINED;
+							bool back   = z == (_e-1) ? _default : _texture[off + x + _e * (y + _e * (z + 1))].material == Material::UNDEFINED;
+							_texture[off + index].surface =
+								  (left   ? 0x01 : 0)
+								| (right  ? 0x02 : 0)
+								| (bottom ? 0x04 : 0)
+								| (top    ? 0x08 : 0)
+								| (front  ? 0x10 : 0)
+								| (back   ? 0x20 : 0);
+						}
+					}
+				}
+			} // for target level
+			off += _e*_e*_e;
+			_e /= 2;
+		}
 	}
 
 } // namespace Voxel

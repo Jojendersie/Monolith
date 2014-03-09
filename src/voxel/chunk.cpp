@@ -222,11 +222,11 @@ namespace Voxel {
 				for(; position[2] < e; ++position[2] ) {
 					for(position[1] = 0; position[1] < e; ++position[1] ) {
 						for(position[0] = 0; position[0] < e; ++position[0] ) {
-							appendBuffer->material = TypeInfo::Sample( _node->Data().type, position, _position[3] - level );
-							if( appendBuffer->material != Material::UNDEFINED )
+							uint8_t surface;
+							if( TypeInfo::Sample( _node->Data().type, position, _position[3] - level, appendBuffer->material, surface ) )
 							{
 								appendBuffer->SetPosition( offset+position );
-								appendBuffer->SetVisibility( 0x3f );//_node->Data().surface );
+								appendBuffer->SetVisibility( surface );
 								++appendBuffer;
 							}
 						}

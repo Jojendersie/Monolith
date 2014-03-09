@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <string>
-#include "../predeclarations.hpp"
+#include "material.hpp"
 
 namespace Voxel {
 
@@ -37,8 +37,12 @@ namespace Voxel {
 		/// \param [in] _level 0 Is the root of the mip map chain (1x1x1).
 		///		Positive numbers go to finer maps. If the number is larger than
 		///		the highest possible mip map a sample from a coarser map is used.
+		///	\param [out] _materialOut The material at the target position.
+		///	\param [out] _surfaceOut The surface properties at the target
+		///		position.
+		///	\return The voxel is valid (defined and surface voxel).
 		///	TODO: border Sampling
-		static Material Sample( VoxelType _type, Math::IVec3 _position, int _level );
+		static bool Sample( VoxelType _type, Math::IVec3 _position, int _level, Material& _materialOut, uint8_t& _surfaceOut );
 
 		/// \brief Returns the number of mip maps for the given type's materials.
 		static int GetMaxLevel( VoxelType _type );
@@ -53,6 +57,12 @@ namespace Voxel {
 		/// \brief singleton constructor - calls load.
 		TypeInfo();
 		~TypeInfo();
+
+		struct MatSample
+		{
+			Material material;
+			uint8_t surface;
+		};
 
 		/// \brief General information about a voxel of a specific type.
 		struct ComponentTypeInfo
@@ -71,8 +81,8 @@ namespace Voxel {
 			int textureResolution;		///< Number of pixels in one dimension of the volume "texture"
 			int numMipMaps;				///< Number of generated mip maps
 			bool isSolid;
-			Material* texture;			///< Main texture used for sampling of the material-sub-voxels
-			Material* borderTexture;	///< A texture which is added on each side of this voxel (rotated) which has a neighbor. The coordinate system is on x axis.
+			MatSample* texture;			///< Main texture used for sampling of the material-sub-voxels
+			MatSample* borderTexture;	///< A texture which is added on each side of this voxel (rotated) which has a neighbor. The coordinate system is on x axis.
 
 			std::string name;			///< The name of this voxel type
 
@@ -83,14 +93,19 @@ namespace Voxel {
 		ComponentTypeInfo* m_voxels;	///< Array with one entry for each voxel
 		int m_numVoxels;				///< Number of known voxels
 
-		/// \brief Compute the mipmaps for a border or standard texture.
+		/// \brief Compute the mip maps for a border or standard texture.
 		/// \details The texture memory must have a size of ´_edge^3 + (_edge/2)^3 ...´
 		///		where the first ´_edge^3´ voxels must be defined. The sum of
 		///		required space can be computed by the formula: ´((_edge^3) * 8) / 7´.
-		/// \param [in] _texture An array with space for all mipmap levels
+		/// \param [in] _texture An array with space for all mip map levels
 		/// \param [in] _edge Length of a single edge.
 		/// \return Number of generated levels.
-		static int GenerateMipMap( Material* _texture, int _edge );
+		static int GenerateMipMap( MatSample* _texture, int _edge );
+
+		/// \brief Compute the surface flags for each sample (all mip maps)
+		/// \param [in] _default Defines if voxels at the border are surface or
+		///		not. Using true will create faces at the very outside.
+		static void GenerateSurfaceInfo( MatSample* _texture, int _edge, bool _default );
 	};
 
 	/// \brief General information about a voxel of a specific type.
