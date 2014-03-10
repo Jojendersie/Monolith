@@ -133,18 +133,22 @@ namespace Voxel {
 				| (((_back == nullptr)   || !_back->Data().solid)   << 5);
 
 			// Recompute the material from surface voxels only
-			if( _node->Children() )
+			if( _node->Children() && _node->Data().surface )
 			{
 				Material materials[8];	int num = 0;
 				for( int i = 0; i < 8; ++i )
 				{
 					if( _node->Children()[i].Data().surface ) {
-						assert( _node->Children()[i].Data().type != VoxelType::UNDEFINED );
+					//	assert( _node->Children()[i].Data().material != Material::UNDEFINED );
 						materials[num++] = _node->Children()[i].Data().material;
 					}
 				}
 				if( num > 0 )
 					_node->Data().material = Material(materials, num);
+				else
+					// If all children are non-surface this one is non-surface too.
+					// The estimation from solidity was wrong.
+					_node->Data().surface = 0;
 			}
 
 			_node->Data().dirty = 0;
