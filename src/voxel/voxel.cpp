@@ -267,7 +267,7 @@ namespace Voxel {
 						if( _texture[prevoff + parentIndex].material != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex].material );
 						parentIndex = 2 * x + 1 + 2 * _e * (2 * y + 1 + 2 * _e * (2 * z + 1));
 						if( _texture[prevoff + parentIndex].material != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex].material );
-						if( buffer.Size() > 0 )
+						if( buffer.Size() > 3 )
 							_texture[off + index].material = Material(&buffer.First(), buffer.Size());
 						else _texture[off + index].material = Material::UNDEFINED;
 					}
