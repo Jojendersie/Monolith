@@ -37,12 +37,14 @@ namespace Voxel {
 		/// \param [in] _level 0 Is the root of the mip map chain (1x1x1).
 		///		Positive numbers go to finer maps. If the number is larger than
 		///		the highest possible mip map a sample from a coarser map is used.
+		///	\param [in] _rootSurface Flags for the neighborhood. A 1 causes a
+		///		sampling of the rotated/mirrored border texture in this direction.
 		///	\param [out] _materialOut The material at the target position.
 		///	\param [out] _surfaceOut The surface properties at the target
 		///		position.
 		///	\return The voxel is valid (defined and surface voxel).
 		///	TODO: border Sampling
-		static bool Sample( VoxelType _type, Math::IVec3 _position, int _level, Material& _materialOut, uint8_t& _surfaceOut );
+		static bool Sample( VoxelType _type, Math::IVec3 _position, int _level, uint8_t _rootSurface, Material& _materialOut, uint8_t& _surfaceOut );
 
 		/// \brief Returns the number of mip maps for the given type's materials.
 		static int GetMaxLevel( VoxelType _type );
@@ -62,6 +64,8 @@ namespace Voxel {
 		{
 			Material material;
 			uint8_t surface;
+
+			MatSample() : material(Material::UNDEFINED), surface(0)	{}
 		};
 
 		/// \brief General information about a voxel of a specific type.

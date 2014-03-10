@@ -106,7 +106,7 @@ namespace Voxel {
 			if( borderTexNode )
 			{
 				GenerateMipMap(voxelInfo.borderTexture, voxelInfo.textureResolution);
-				GenerateSurfaceInfo(voxelInfo.borderTexture, voxelInfo.textureResolution, false);
+				GenerateSurfaceInfo(voxelInfo.borderTexture, voxelInfo.textureResolution, true);
 			}
 		}
 	}
@@ -121,7 +121,29 @@ namespace Voxel {
 
 
 	// ********************************************************************* //
-	bool TypeInfo::Sample( VoxelType _type, Math::IVec3 _position, int _level, Material& _materialOut, uint8_t& _surfaceOut )
+	// A set of functions to sample rotated/mirrored in the border field
+	typedef int (*BorderIndexFunc)(const Math::IVec3& _position, int _e);
+	static BorderIndexFunc GetBorderIndex[6] = {
+		[](const Math::IVec3& _position, int _e) { return _position[1] + _e * (_position[2] + _e * _position[0]); },
+		[](const Math::IVec3& _position, int _e) { return _position[1] + _e * (_position[2] + _e * (_e - _position[0] - 1)); },
+		[](const Math::IVec3& _position, int _e) { return _position[0] + _e * (_position[2] + _e * _position[1]); },
+		[](const Math::IVec3& _position, int _e) { return _position[0] + _e * (_position[2] + _e * (_e - _position[1] - 1)); },
+		[](const Math::IVec3& _position, int _e) { return _position[0] + _e * (_position[1] + _e * _position[2]); },
+		[](const Math::IVec3& _position, int _e) { return _position[0] + _e * (_position[1] + _e * (_e - _position[2] - 1)); }
+	};
+	// A function to swap the surface bits in the same order as the access is done
+	typedef uint8_t (*BorderSurfaceFunc)(uint8_t _surface);
+	static BorderSurfaceFunc GetBorderSurface[6] = {
+		[](uint8_t _s) -> uint8_t { return 0x3f & ((_s << 2) | (_s >> 4)); },
+		[](uint8_t _s) -> uint8_t { return 0x3f & ((_s << 2) | ((_s >> 3) & 2) | (_s >> 5) ); },
+		[](uint8_t _s) -> uint8_t { return 0x3f & ((_s & 3) | ((_s << 2) & 0x30) | ((_s >> 2 ) & 0x0c) ); },
+		[](uint8_t _s) -> uint8_t { return 0x3f & ((_s & 3) | ((_s << 2) & 0x30) | ((_s >> 1 ) & 0x08) | ((_s >> 3 ) & 0x08) ); },
+		[](uint8_t _s) -> uint8_t { return _s; },
+		[](uint8_t _s) -> uint8_t { return 0x3f & ((_s & 0xf) | ((_s >> 1) & 0x10) | ((_s << 1) & 0x20)); },
+	};
+
+	// ********************************************************************* //
+	bool TypeInfo::Sample( VoxelType _type, Math::IVec3 _position, int _level, uint8_t _rootSurface, Material& _materialOut, uint8_t& _surfaceOut )
 	{
 		// Compute level access values
 		int maxLevel = GetMaxLevel(_type);
@@ -143,10 +165,47 @@ namespace Voxel {
 		assert(_position[1] >= 0 && _position[1] < e);
 		assert(_position[2] >= 0 && _position[2] < e);
 
-		MatSample& sample = g_InfoManager->m_voxels[(int)_type].texture[off + _position[0] + e * (_position[1] + e * _position[2])];
-		_materialOut = sample.material;
-		_surfaceOut = sample.surface;
-		return sample.surface != 0;
+		MatSample borderSample;
+		ComponentTypeInfo& currentVoxel = g_InfoManager->m_voxels[(int)_type];
+
+		// For each neighbor do the border texture sampling
+		// - take the first defined one.
+		if( currentVoxel.borderTexture && _rootSurface )
+		for( int i = 0; i < 6; ++i )
+		{
+			if( (_rootSurface & (1<<i)) == 0 )
+			{
+				MatSample& sample = currentVoxel.borderTexture[off + GetBorderIndex[i](_position, e)];
+				if( sample.material != Material::UNDEFINED )
+				{
+					if( borderSample.material != Material::UNDEFINED )
+						// Aggregate the non-surface flags from all samples. The
+						// solidity of the final sample depends on all active sampled volumes.
+						borderSample.surface &= GetBorderSurface[i](sample.surface);
+					else {
+						borderSample.material = sample.material;
+						borderSample.surface = GetBorderSurface[i](sample.surface);
+					}
+				}
+			}
+		}
+
+
+		// Take main texture if no border texture was found
+		MatSample& sample = currentVoxel.texture[off + _position[0] + e * (_position[1] + e * _position[2])];
+		if( sample.material != Material::UNDEFINED )
+		{
+			// Again combine surface flags to draw as few as possible
+			if( borderSample.material != Material::UNDEFINED )
+				borderSample.surface &= sample.surface;
+			else
+				borderSample = sample;
+		}
+
+		// Return the found / combined texture information
+		_materialOut = borderSample.material;
+		_surfaceOut = borderSample.surface;
+		return borderSample.surface != 0;
 	}
 
 	// ********************************************************************* //

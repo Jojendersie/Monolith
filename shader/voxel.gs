@@ -46,21 +46,21 @@ vec2 AshikminShirleyMod(vec3 _normal, vec3 _view, vec3 _light, float _shininess,
 	vec3 H = normalize(_light + _view);
 	float NdotL = min(1, max(0, dot(_normal, _light)));
 	float NdotV = min(1, max(0, dot(_normal, _view)));
-	float HdotL = dot(H, _light);
+	float HdotL = min(1, max(0, dot(H, _light)));
 	float NdotH = min(1, max(0, dot(_normal, H)));
 
 	vec2 ds;
 
 	// Modified Ashikhmin-Shirley diffuse part
-	ds.x =  0.387507688 * (1.0 - pow(1.0 - NdotL * 0.5, 5.0)) * (1.0 - pow(1.0 - NdotV * 0.5, 5.0));
+	ds.x = 3.14 *  0.387507688 * (1.0 - pow(1.0 - NdotL * 0.5, 5.0)) * (1.0 - pow(1.0 - NdotV * 0.5, 5.0));
 	// (1-_shininess) *
 
 	// Modified Ashikhmin-Shirley specular part
 	ds.y = (_power+1) * pow(NdotH, _power) / (25.132741229 * HdotL * max(NdotL, NdotV) + 0.001);
 	//co.y = (_power+1) * pow(NdotH, _power) / 25.132741229;
-	ds.y *= NdotL * (_shininess + (1-_shininess) * (pow(1.0 - HdotL, 5.0)));
+	ds.y *= 0.1 * (_shininess + (1-_shininess) * (pow(1.0 - HdotL, 5.0)));
 
-	return 3.14 * ds;
+	return ds;
 }
 
 // Compute the lighting for all existing lights
@@ -115,9 +115,9 @@ void main(void)
 	color = min(vec3(1,1,1), max(vec3(0,0,0), color));
 
 	// Decode other material parameters
-	float shininess = ((vs_out_MaterialCode[0] >> 12) & uint(0xf)) / 15.0;
+	float shininess = float((int(vs_out_MaterialCode[0]) >> 12) & 0xf) / 15.0;
 	// Use code as power of to and compute: (2^spec) * 3
-	float specular = (1 << ((vs_out_MaterialCode[0] >> 8) & uint(0xf))) * 3.0;
+	float specular = (1 << ((int(vs_out_MaterialCode[0]) >> 8) & 0xf)) * 3.0;
 
 	// To determine the culling the projective position is inverse transformed
 	// back to view space (which is a single mad operation). This direction to
