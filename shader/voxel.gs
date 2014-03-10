@@ -64,7 +64,7 @@ vec2 AshikminShirleyMod(vec3 _normal, vec3 _view, vec3 _light, float _shininess,
 }
 
 // Compute the lighting for all existing lights
-vec3 Lightning(/*vec3 _position, */vec3 _normal, vec3 _viewDir, float _shininess, float _power, vec3 _color)
+vec3 Lightning(/*vec3 _position, */vec3 _normal, vec3 _viewDir, float _shininess, float _power, vec3 _color, float _emissive)
 {
 	// Test with 
 	vec3 light = normalize((vec4(0.13557,0.96596,0.2203,0) * c_mView).xyz);
@@ -73,7 +73,7 @@ vec3 Lightning(/*vec3 _position, */vec3 _normal, vec3 _viewDir, float _shininess
 	vec2 ds = AshikminShirleyMod(_normal, _viewDir, light, _shininess, _power);
 	// Combine lighting
 	// TODO: Light color and emissive
-	return ds.x * _color + ds.yyy;
+	return (ds.x + _emissive) * _color + ds.yyy;
 }
 
 // Standard linear congruential generator to hash an integer
@@ -118,6 +118,7 @@ void main(void)
 	float shininess = float((int(vs_out_MaterialCode[0]) >> 12) & 0xf) / 15.0;
 	// Use code as power of to and compute: (2^spec) * 3
 	float specular = (1 << ((int(vs_out_MaterialCode[0]) >> 8) & 0xf)) * 3.0;
+	float emissive = float((int(vs_out_MaterialCode[0]) >> 17) & 1);
 
 	// To determine the culling the projective position is inverse transformed
 	// back to view space (which is a single mad operation). This direction to
@@ -132,7 +133,7 @@ void main(void)
 		if( (vs_out_VoxelCode[0] & uint(0x10)) != uint(0) )
 		{
 			vec3 normal = normalize((vec4(0,0,-1,0) * c_mWorldView).xyz);
-			gs_color = Lightning(normal, vViewDirection, shininess, specular, color);
+			gs_color = Lightning(normal, vViewDirection, shininess, specular, color, emissive);
 			gl_Position = c_vCorner000 + vPos;
 			EmitVertex();
 			gl_Position = c_vCorner100 + vPos;
@@ -147,7 +148,7 @@ void main(void)
 		if( (vs_out_VoxelCode[0] & uint(0x20)) != uint(0) )
 		{
 			vec3 normal = normalize((vec4(0,0,1,0) * c_mWorldView).xyz);
-			gs_color = Lightning(normal, vViewDirection, shininess, specular, color);
+			gs_color = Lightning(normal, vViewDirection, shininess, specular, color, emissive);
 			gl_Position = c_vCorner011 + vPos;
 			EmitVertex();
 			gl_Position = c_vCorner111 + vPos;
@@ -164,7 +165,7 @@ void main(void)
 		if( (vs_out_VoxelCode[0] & uint(0x08)) != uint(0) )
 		{
 			vec3 normal = normalize((vec4(0,1,0,0) * c_mWorldView).xyz);
-			gs_color = Lightning(normal, vViewDirection, shininess, specular, color);
+			gs_color = Lightning(normal, vViewDirection, shininess, specular, color, emissive);
 			gl_Position = c_vCorner010 + vPos;
 			EmitVertex();
 			gl_Position = c_vCorner110 + vPos;
@@ -179,7 +180,7 @@ void main(void)
 		if( (vs_out_VoxelCode[0] & uint(0x04)) != uint(0) )
 		{
 			vec3 normal = normalize((vec4(0,-1,0,0) * c_mWorldView).xyz);
-			gs_color = Lightning(normal, vViewDirection, shininess, specular, color);
+			gs_color = Lightning(normal, vViewDirection, shininess, specular, color, emissive);
 			gl_Position = c_vCorner100 + vPos;
 			EmitVertex();
 			gl_Position = c_vCorner000 + vPos;
@@ -196,7 +197,7 @@ void main(void)
 		if( (vs_out_VoxelCode[0] & uint(0x01)) != uint(0) )
 		{
 			vec3 normal = normalize((vec4(-1,0,0,0) * c_mWorldView).xyz);
-			gs_color = Lightning(normal, vViewDirection, shininess, specular, color);
+			gs_color = Lightning(normal, vViewDirection, shininess, specular, color, emissive);
 			gl_Position = c_vCorner000 + vPos;
 			EmitVertex();
 			gl_Position = c_vCorner010 + vPos;
@@ -211,7 +212,7 @@ void main(void)
 		if( (vs_out_VoxelCode[0] & uint(0x02)) != uint(0) )
 		{
 			vec3 normal = normalize((vec4(1,0,0,0) * c_mWorldView).xyz);
-			gs_color = Lightning(normal, vViewDirection, shininess, specular, color);
+			gs_color = Lightning(normal, vViewDirection, shininess, specular, color, emissive);
 			gl_Position = c_vCorner110 + vPos;
 			EmitVertex();
 			gl_Position = c_vCorner100 + vPos;

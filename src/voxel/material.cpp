@@ -45,8 +45,18 @@ namespace Voxel {
 		// For division use real rounding instead of integer div.
 		unsigned nh = _num / 2;
 		unsigned tmp = 0;
+
+		// Emissivity determines how colors are summed
+		unsigned numEmissive = 0;
+		for( int i=0; i<_num; ++i ) { emissive |= _materials[i].emissive; numEmissive += _materials[i].emissive; }
+		//emissive = (tmp) / _num;
+
+		tmp = 0;
 		for( int i=0; i<_num; ++i ) tmp += _materials[i].y;
 		y = (tmp + nh) / _num;
+		// If only a part of the voxels is emissive reduce luminance -> reduce y
+		if( emissive )
+			y = y * (4 + numEmissive) / (4 + _num);
 
 		tmp = 0;
 		for( int i=0; i<_num; ++i ) tmp += _materials[i].specular;
@@ -58,10 +68,6 @@ namespace Voxel {
 
 		transparent = 1;
 		for( int i=0; i<_num; ++i ) transparent &= _materials[i].transparent;
-
-		tmp = 0;
-		for( int i=0; i<_num; ++i ) emissive += _materials[i].specular;
-		emissive = (tmp + nh) / _num;
 
 		tmp = 0;
 		for( int i=0; i<_num; ++i ) tmp += _materials[i].pb;

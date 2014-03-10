@@ -74,7 +74,7 @@ namespace Voxel {
 			// levels more tessellated
 			//float detailResolution = 0.31f * log( lengthSq(boundingSphere.m_center - camera.GetPosition()) );
 			//float detailResolution = 0.025f * sqr(log( lengthSq(boundingSphere.m_center - camera.GetPosition()) ));
-			float detailResolution = 0.065f * pow(log( lengthSq(boundingSphere.m_center - camera.GetPosition()) ), 1.65f);
+			float detailResolution = 0.045f * pow(log( lengthSq(boundingSphere.m_center - camera.GetPosition()) ), 1.65f);
 			int targetLOD = max(2, Math::ceil(detailResolution));
 			if( _position[3] <= targetLOD )
 			{
