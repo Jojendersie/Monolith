@@ -72,7 +72,7 @@ namespace Voxel {
 	/// \brief Current dirty region update - just reuse a child voxel.
 	/// \details This is the first part of the update which recreates materials
 	///		and solidity flags.
-	struct UpdateMaterial: public Model::ModelData::SVOProcessor
+	struct UpdateSolid: public Model::ModelData::SVOProcessor
 	{
 		/// \brief If the current voxel is not dirty its whole subtree is
 		///		clean too. Then stop.
@@ -103,10 +103,10 @@ namespace Voxel {
 		}
 	};
 
-	/// \brief Update neighborhood visibility.
+	/// \brief Update neighborhood visibility and material.
 	/// \details This is the second pass which uses the solidity from first
 	///		pass and resets the dirty flag.
-	struct UpdateDirty: public Model::ModelData::SVONeighborProcessor
+	struct UpdateMaterial: public Model::ModelData::SVONeighborProcessor
 	{
 		/// \brief If the current voxel is not dirty its whole subtree is
 		///		clean too. Then stop.
@@ -261,8 +261,8 @@ namespace Voxel {
 		Model::ModelData::SVON* node = _chunk.m_modelData->Get( IVec3(_chunk.m_root), _chunk.m_root[3] );
 		if( node->Data().IsDirty() )
 		{
-			node->Traverse( _chunk.m_root, UpdateMaterial() );
-			node->TraverseEx( _chunk.m_root, UpdateDirty(),
+			node->Traverse( _chunk.m_root, UpdateSolid() );
+			node->TraverseEx( _chunk.m_root, UpdateMaterial(),
 				_chunk.m_modelData->Get( IVec3(_chunk.m_root[0]-1, _chunk.m_root[1]  , _chunk.m_root[2]  ), _chunk.m_root[3] ),
 				_chunk.m_modelData->Get( IVec3(_chunk.m_root[0]+1, _chunk.m_root[1]  , _chunk.m_root[2]  ), _chunk.m_root[3] ),
 				_chunk.m_modelData->Get( IVec3(_chunk.m_root[0]  , _chunk.m_root[1]-1, _chunk.m_root[2]  ), _chunk.m_root[3] ),
@@ -339,7 +339,9 @@ namespace Voxel {
 		int numVoxels = FillP.appendBuffer - m_vertexBuffer;
 		//*/
 
-		_chunk.m_voxels.Commit(m_vertexBuffer, numVoxels * sizeof(VoxelVertex));
+		assert( 37449 >= numVoxels );
+		if( numVoxels )
+			_chunk.m_voxels.Commit(m_vertexBuffer, numVoxels * sizeof(VoxelVertex));
 	}
 
 };

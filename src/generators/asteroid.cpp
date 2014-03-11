@@ -22,7 +22,7 @@ namespace Generators {
 				d += 0.15f * Noise.At( position * (4.0f * (1<<i)) ) / (1<<i);
 			if( d < 0 )
 			{
-				Voxel::VoxelType type = Voxel::VoxelType(4);//Rnd.Uniform(1,2));
+				Voxel::VoxelType type = Voxel::VoxelType(1);//Rnd.Uniform(1,2));
 				Set( IVec3(x,y,z), 0, type );
 				assert( type == Get( IVec3(x,y,z), 0 ) );
 			}

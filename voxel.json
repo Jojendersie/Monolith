@@ -3,6 +3,7 @@
     {
       "Name": "UNDEFINED",
       "Solid": false,
+	  "Mass": 0.0,
       "Colors": [0],
       "Texture Resolution": 1,
       "Texture": [0]
