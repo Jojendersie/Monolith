@@ -202,6 +202,14 @@ namespace Voxel {
 				borderSample = sample;
 		}
 
+		// If the current voxel is at the border take rootSurface into account
+		if( _position[0] == 0   && !(_rootSurface & 0x01) ) borderSample.surface &= 0x3e;	// Left
+		if( _position[0] == e-1 && !(_rootSurface & 0x02) ) borderSample.surface &= 0x3d;	// Right
+		if( _position[1] == 0   && !(_rootSurface & 0x04) ) borderSample.surface &= 0x3b;	// Bottom
+		if( _position[1] == e-1 && !(_rootSurface & 0x08) ) borderSample.surface &= 0x37;	// Top
+		if( _position[2] == 0   && !(_rootSurface & 0x10) ) borderSample.surface &= 0x2f;	// Front
+		if( _position[2] == e-1 && !(_rootSurface & 0x20) ) borderSample.surface &= 0x1f;	// Back
+
 		// Return the found / combined texture information
 		_materialOut = borderSample.material;
 		_surfaceOut = borderSample.surface;
