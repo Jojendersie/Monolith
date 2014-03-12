@@ -1,5 +1,6 @@
 #include "font.hpp"
 #include "../game.hpp"
+#include <functional>
 
 namespace Graphic {
 
@@ -16,7 +17,7 @@ namespace Graphic {
 	{
 	public:
 		ScreenTexture( Jo::Files::MetaFileWrapper* _posMap, std::string _name,
-			Math::Vec2 _position, Math::Vec2 _position2 = Math::Vec2(0.f,0.f), void (*_onMouseUp)() = NULL);
+			Math::Vec2 _position, Math::Vec2 _position2 = Math::Vec2(0.f,0.f), std::function<void()> _OnMouseUp = [] () {return;});
 		TextureVertex m_vertex;
 
 		virtual void MouseEnter();
@@ -33,10 +34,10 @@ namespace Graphic {
 		bool m_active; ///< false: tex gets ignored by everything
 		bool m_visible; 
 		//events
-		void (*OnMouseEnter)();
-		void (*OnMouseLeave)();
-		void (*OnMouseDown)();
-		void (*OnMouseUp)();
+		std::function<void()> OnMouseEnter;
+		std::function<void()> OnMouseLeave;
+		std::function<void()> OnMouseDown;
+		std::function<void()> OnMouseUp;
 	};
 
 	/// \brief A 2d screen overlay texture 
@@ -45,7 +46,7 @@ namespace Graphic {
 	public:
 		/// \brief creates a button
 		Button(Jo::Files::MetaFileWrapper* _posMap, Font* _font, std::string _name, Math::Vec2 _position, Math::Vec2 _size, 
-			 void (*_onMouseUp)() = NULL );
+			std::function<void()> _OnMouseUp = [] () {return;} );
 
 		ScreenTexture m_btnDefault;
 		ScreenTexture m_btnOver;

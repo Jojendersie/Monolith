@@ -90,6 +90,8 @@ public:
 	bool IsFinished() const		{ return m_finished; }
 protected:
 	Monolith* m_game;
+
+//	void Finish() { m_finished = true;}
 	bool m_finished;		///< The game state is finished and gets closed next frame
 
 private:

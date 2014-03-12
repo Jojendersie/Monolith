@@ -3,8 +3,8 @@
 namespace Graphic
 {
 	ScreenTexture::ScreenTexture(Jo::Files::MetaFileWrapper* _posMap, std::string _name, Math::Vec2 _position, Math::Vec2 _position2,
-		void (*_onMouseUp)()):
-		OnMouseUp(_onMouseUp),
+		std::function<void()> _OnMouseUp):
+		OnMouseUp(_OnMouseUp),
 		m_active(true),
 		m_visible(true)
 	{
@@ -33,16 +33,16 @@ namespace Graphic
 	}
 
 	Button::Button(Jo::Files::MetaFileWrapper* _posMap, Font* _font, std::string _name, Math::Vec2 _position, Math::Vec2 _size,
-		 void (*_onMouseUp)() ):
-		ScreenTexture(_posMap, _name+"Default", _position, _size, _onMouseUp),
+		 std::function<void()> _OnMouseUp ):
+		ScreenTexture(_posMap, _name+"Default", _position, _size, _OnMouseUp),
 		m_btnDefault(_posMap, _name+"Default", _position, _size),
 		m_btnOver(_posMap, _name+"Over", _position, _size),
 		m_btnDown(_posMap, _name+"Down", _position, _size),
 		m_caption(_font)
 	{
-		SetVisibility(false);
+		SetVisibility(false); 
 		SetState(true);
-		m_caption.SetPos(_position-Math::Vec2(0.f,0.06f));
+		m_caption.SetPos(_position+Math::Vec2(0.02f,-0.75f*_size[1]));
 		m_caption.SetText(_name);
 		m_btnDefault.SetVisibility(true);
 		m_btnOver.SetVisibility(false);

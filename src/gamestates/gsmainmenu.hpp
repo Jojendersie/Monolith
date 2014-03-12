@@ -18,6 +18,7 @@ public:
 	virtual void UpdateInput() override;
 	virtual void MouseMove( double _dx, double _dy ) override;
 	virtual void KeyDown( int _key, int _modifiers ) override;
+	virtual void KeyRelease(int _key) override;
 	virtual void KeyClick( int _key ) override;
 	virtual void KeyDoubleClick( int _key ) override;
 private:
