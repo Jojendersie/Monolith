@@ -9,7 +9,6 @@ namespace Generators {
 	{
 	public:
 		/// \brief Generate the new asteroid model.
-		// TODO: random generator...
 		/// \param [in] _sizeX Maximum number of voxels in x direction.
 		/// \param [in] _sizeY Maximum number of voxels in y direction.
 		/// \param [in] _sizeZ Maximum number of voxels in z direction.

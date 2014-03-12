@@ -27,7 +27,7 @@ GSPlay::GSPlay(Monolith* _game) : IGameState(_game), m_astTest(nullptr)
 	m_camera = new Input::Camera( Vec3( 0.0f, 0.0f, 0.0f ),
 		Quaternion( 0.0f, 0.0f, 0.0f ),
 		0.3f,
-		1.3f );	// TODO: compute aspect
+		Graphic::Device::GetAspectRatio() );
 }
 
 // ************************************************************************* //

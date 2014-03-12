@@ -59,7 +59,6 @@ namespace Graphic {
 	private:
 		GLFWwindow* m_window;		///< Reference to the one window created during Initialize()
 
-		// Current state TODO: zero init
 		int m_rasterizerState;		///< Hash of the current rasterizer state to optimize unnecessary changes.
 		int m_blendState;			///< Hash of the current blend state used for all render targets.
 		int m_depthStencilState;	///< Hash of the current depth stencil state to optimize unnecessary changes.

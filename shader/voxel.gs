@@ -72,7 +72,7 @@ vec3 Lightning(/*vec3 _position, */vec3 _normal, vec3 _viewDir, float _shininess
 	// Compute BRDF for this light
 	vec2 ds = AshikminShirleyMod(_normal, _viewDir, light, _shininess, _power);
 	// Combine lighting
-	// TODO: Light color and emissive
+	// TODO: Light color
 	return (ds.x + _emissive) * _color + ds.yyy;
 }
 

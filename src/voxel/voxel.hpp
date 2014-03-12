@@ -32,6 +32,16 @@ namespace Voxel {
 		static void Unload();
 
 		/// \brief Sample the voxel material of the type at a target level.
+		/// \details This also samples the 'border texture' which provides a
+		///		fusion/transition of neighbored voxels. This texture is mostly
+		///		defined to allow a smooth texture in directions where no
+		///		neighbor is and a solid transition otherwise.
+		///		
+		///		The border texture will be rotated/mirrored to the correct side
+		///		and can therefore be used for alignment too. E.g. A tree which
+		///		stands on its border-side. If there are multiple neighbors the
+		///		union of all border and normal textures is calculated - so be
+		///		carefull with trees.
 		/// \param [in] _type The type of the component voxel.
 		/// \param [in] _position A position inside the target levels 3D array.
 		/// \param [in] _level 0 Is the root of the mip map chain (1x1x1).
@@ -43,7 +53,6 @@ namespace Voxel {
 		///	\param [out] _surfaceOut The surface properties at the target
 		///		position.
 		///	\return The voxel is valid (defined and surface voxel).
-		///	TODO: border Sampling
 		static bool Sample( VoxelType _type, Math::IVec3 _position, int _level, uint8_t _rootSurface, Material& _materialOut, uint8_t& _surfaceOut );
 
 		/// \brief Returns the number of mip maps for the given type's materials.

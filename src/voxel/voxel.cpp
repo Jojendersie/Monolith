@@ -47,12 +47,15 @@ namespace Voxel {
 	{
 		Unload();
 
-		// TODO: handle bad-file cases
+		try {
 		Jo::Files::MetaFileWrapper infoFile( Jo::Files::HDDFile( "voxel.json" ), Jo::Files::Format::JSON );
+		
 		g_InfoManager->m_numVoxels = (int)infoFile.RootNode[string("PerVoxelInfo")].Size();
 
-		// TODO: logging and error message
-		assert(g_InfoManager->m_numVoxels > 0 && g_InfoManager->m_numVoxels < 256);
+		if(g_InfoManager->m_numVoxels < 0 )
+			LOG_CRITICAL("The file 'voxel.json' is damaged.");
+		if(g_InfoManager->m_numVoxels >= 256)
+			LOG_LVL2("The file 'voxel.json' contains more definitions than the game supports.");
 
 		// The file contains an array with voxel information
 		g_InfoManager->m_voxels = new ComponentTypeInfo[g_InfoManager->m_numVoxels];
@@ -79,25 +82,33 @@ namespace Voxel {
 			Jo::Files::MetaFileWrapper::Node* borderTexNode = nullptr;
 			voxelNode.HasChild( string("Border Texture"), &borderTexNode );
 			s = s * s * s;
-			assert(voxelNode[string("Texture")].Size() == s);	// TODO: Logging
+			if( voxelNode[string("Texture")].Size() != s )
+				LOG_ERROR("The size of the Texture from " + voxelInfo.name + " is " + std::to_string(voxelNode[string("Texture")].Size()) + " but should be " + to_string(s));
 			// Copy textures while interpreting the lookup table
 			voxelInfo.texture = new MatSample[(s * 8) / 7];
 			if( borderTexNode )
 			{
-				assert(borderTexNode->Size() == s);
+				if( voxelNode[string("Border Texture")].Size() != s )
+					LOG_ERROR("The size of the Border Texture from " + voxelInfo.name + " is " + std::to_string(voxelNode[string("Border Texture")].Size()) + " but should be " + to_string(s));
 				voxelInfo.borderTexture = new MatSample[(s * 8) / 7];
 			}
 			auto& colorNode = voxelNode[string("Colors")];
 			auto& texNode = voxelNode[string("Texture")];
 			for( int v = 0; v < s; ++v )
 			{
-				// TODO: Logging
-				assert((int)texNode[v] < colorNode.Size() && (int)texNode[v] >= 0);
-				voxelInfo.texture[v].material = colorNode[(int)texNode[v]];
+				// Read the textures pixel for pixel and do material lookups in
+				// the shared color table.
+				int index = (int)texNode[v];
+				if( index >= colorNode.Size() || index < 0 )
+					LOG_ERROR("The Texture of " + voxelInfo.name + " uses an invalid color index (" + std::to_string(index) + ").");
+				voxelInfo.texture[v].material = colorNode[index];
+				// Read border texture only if defined
 				if( borderTexNode )
 				{
-					assert((int)(*borderTexNode)[v] < colorNode.Size() && (int)(*borderTexNode)[v] >= 0);
-					voxelInfo.borderTexture[v].material = colorNode[(int)(*borderTexNode)[v]];
+					index = (int)(*borderTexNode)[v];
+					if( index >= colorNode.Size() || index < 0 )
+						LOG_ERROR("The Border Texture of " + voxelInfo.name + " uses an invalid color index (" + std::to_string(index) + ").");
+					voxelInfo.borderTexture[v].material = colorNode[index];
 				}
 			}
 
@@ -108,6 +119,13 @@ namespace Voxel {
 				GenerateMipMap(voxelInfo.borderTexture, voxelInfo.textureResolution);
 				GenerateSurfaceInfo(voxelInfo.borderTexture, voxelInfo.textureResolution, true);
 			}
+		}
+
+		} catch( std::string _message ) {
+			// In case of a bad file reinstall ;-)
+			LOG_CRITICAL( _message );
+		} catch(...) {
+			LOG_CRITICAL( "Unknown error during loading the voxel definition file." );
 		}
 	}
 
@@ -219,25 +237,31 @@ namespace Voxel {
 	// ********************************************************************* //
 	int TypeInfo::GetMaxLevel( VoxelType _type )
 	{
-		// TODO: Log
-		assert((int)_type < g_InfoManager->m_numVoxels);
-		return g_InfoManager->m_voxels[(int)_type].numMipMaps;
+		if( (int)_type >= g_InfoManager->m_numVoxels ) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0;
+		} else
+			return g_InfoManager->m_voxels[(int)_type].numMipMaps;
 	}
 
 	// ********************************************************************* //
 	bool TypeInfo::IsSolid( VoxelType _type )
 	{
-		// TODO: Log
-		assert((int)_type < g_InfoManager->m_numVoxels);
-		return g_InfoManager->m_voxels[(int)_type].isSolid;
+		if( (int)_type >= g_InfoManager->m_numVoxels ) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return false;
+		} else
+			return g_InfoManager->m_voxels[(int)_type].isSolid;
 	}
 
 	// ********************************************************************* //
 	float TypeInfo::GetMass( VoxelType _type )
 	{
-		// TODO: Log
-		assert((int)_type < g_InfoManager->m_numVoxels);
-		return g_InfoManager->m_voxels[(int)_type].mass;
+		if( (int)_type >= g_InfoManager->m_numVoxels ) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0.0f;
+		} else
+			return g_InfoManager->m_voxels[(int)_type].mass;
 	}
 
 

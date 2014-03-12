@@ -157,8 +157,7 @@ namespace Graphic {
 	template<typename T>
 	void VertexBuffer::Add(const T& _value)
 	{
-		// TODO: logging
-		//if( IsStatic() ) {std::cout << "[VertexBuffer::Add] Cannot add vertices to a static buffer.\n"; return;}
+		if( IsStatic() ) {LOG_ERROR("Cannot add vertices to a static buffer."); return;}
 		if( m_cursor == m_maxNumVertices )
 		{
 			// Grow on CPU side
@@ -177,8 +176,7 @@ namespace Graphic {
 	template<typename T>
 	void VertexBuffer::Set(unsigned _index, const T& _value)
 	{
-		// TODO: logging
-		//if( IsStatic() ) {std::cout << "[VertexBuffer::Set] Cannot set vertices in a static buffer.\n"; return;}
+		if( IsStatic() ) {LOG_ERROR("Cannot set vertices in a static buffer."); return;}
 		assert( 0<=_index && _index < GetNumVertices() );
 		memcpy(m_data + _index * m_vertexSize, _value, m_vertexSize);
 
@@ -190,8 +188,7 @@ namespace Graphic {
 	template<typename T>
 	const T* VertexBuffer::Get(unsigned _index) const
 	{
-		// TODO: logging
-		//if( IsStatic() ) {std::cout << "[VertexBuffer::Get] Cannot get vertices in a static buffer.\n"; return nullptr;}
+		if( IsStatic() ) {LOG_ERROR("Cannot get vertices in a static buffer."); return nullptr;}
 		assert( 0<=_index && _index < GetNumVertices() );
 		return (T*)(m_data + _index * m_vertexSize);
 	}
