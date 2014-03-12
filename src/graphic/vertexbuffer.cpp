@@ -3,7 +3,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <cassert>
-#include <iostream>
 #include <cstdint>
 
 namespace Graphic {
@@ -92,7 +91,7 @@ void VertexBuffer::CreateVAO(const char* _vertexDeclaration)
 				++bindOff;
 				break;
 			case 'c':
-				if(colorBindOff>=3) std::cout << "[VertexBuffer::VertexBuffer] Too many 'c' in vertex declaration. The maximum number of color binding points is 4!\n";
+				if(colorBindOff>=3) LOG_ERROR("Too many 'c' in vertex declaration. The maximum number of color binding points is 4!");
 				location = int(BindingLocation::COLOR0) + colorBindOff;
 				glVertexAttribPointer(location, 4, GL_UNSIGNED_BYTE, GL_TRUE, m_vertexSize, (GLvoid*)(stride));
 				glEnableVertexAttribArray(location);
@@ -100,7 +99,7 @@ void VertexBuffer::CreateVAO(const char* _vertexDeclaration)
 				++colorBindOff;
 				break;
 			case 'u':
-				if(uintBindOff>=3) std::cout << "[VertexBuffer::VertexBuffer] Too many 'u' in vertex declaration. The maximum number of uint binding points is 4!\n";
+				if(uintBindOff>=3) LOG_ERROR("Too many 'u' in vertex declaration. The maximum number of uint binding points is 4!");
 				location = int(BindingLocation::UINT0) + uintBindOff;
 				glVertexAttribIPointer(location, 1, GL_UNSIGNED_INT, m_vertexSize, (GLvoid*)(stride));
 				glEnableVertexAttribArray(location);
@@ -263,7 +262,7 @@ void VertexBuffer::Commit(void* _data, int _size)
 void VertexBuffer::DeleteVertex(unsigned _index)
 {
 	assert( m_cursor > 0 );	// Number of vertices
-	if(m_cursor <= _index) std::cout << "[VertexBuffer::DeleteVertex] Vertex cannot be deleted: Index too large.\n";
+	if(m_cursor <= _index) LOG_LVL2("Vertex cannot be deleted: Index too large.");
 	--m_cursor;
 	if(_index != m_cursor) {
 		memcpy(m_data + m_vertexSize * _index, m_data + m_vertexSize * m_cursor, m_vertexSize );

@@ -1,6 +1,5 @@
 #include <cstdint>
 #include <jofilelib.hpp>
-#include <iostream>
 #include "texture.hpp"
 #include "../opengl.hpp"
 #include "../math/math.hpp"
@@ -137,7 +136,7 @@ Texture::Texture( const std::vector<std::string>& _fileNames )
 			glTexSubImage3D( GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, firstImage.Width(), firstImage.Height(), 1,
 					format, type, image.GetBuffer() );
 		} catch( std::string _message ) {
-			std::cerr << _message << ". Will use first texture of the texture array as fallback.\n";
+			LOG_ERROR(_message + ". Will use first texture of the texture array as fall back.");
 			// Upload alternative pixel data.
 			glTexSubImage3D( GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, firstImage.Width(), firstImage.Height(), 1,
 				format, type, firstImage.GetBuffer() );

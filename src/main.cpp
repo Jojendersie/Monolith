@@ -1,6 +1,7 @@
 #include "game.hpp"
 #include "graphic/device.hpp"
-#include "utilities/color.hpp"
+//#include "predeclarations.hpp"
+#include "utilities/loggerinit.hpp"
 
 // CRT's memory leak detection
 #if defined(DEBUG) || defined(_DEBUG)
@@ -21,6 +22,8 @@ int main()
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 	//_CrtSetBreakAlloc( 458 );
 #endif
+
+	Jo::Logger::g_logger.Initialize( new Jo::Logger::FilePolicy( "run.log" ) );
 	atexit(exitprogram);
 
 	// Create a device with a window

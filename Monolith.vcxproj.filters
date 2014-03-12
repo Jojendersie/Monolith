@@ -137,6 +137,12 @@
     <ClCompile Include="src\voxel\voxel.cpp">
       <Filter>Source Files\voxel</Filter>
     </ClCompile>
+    <ClCompile Include="src\utilities\logger.cpp">
+      <Filter>Source Files\utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utilities\policy.cpp">
+      <Filter>Source Files\utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game.hpp">
@@ -264,6 +270,15 @@
     </ClInclude>
     <ClInclude Include="src\voxel\component.hpp">
       <Filter>Source Files\voxel</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utilities\loggerinit.hpp">
+      <Filter>Source Files\utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utilities\policy.hpp">
+      <Filter>Source Files\utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utilities\logger.hpp">
+      <Filter>Source Files\utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,4 @@
 #include <cassert>
-#include <iostream>
 #include "../opengl.hpp"
 #include "content.hpp"
 #include "texture.hpp"

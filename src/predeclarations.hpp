@@ -5,6 +5,8 @@
 
 #include <cstdint>
 
+#include "utilities/logger.hpp"
+
 // External things
 struct GLFWwindow;
 

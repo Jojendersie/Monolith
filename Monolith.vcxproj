@@ -51,7 +51,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WINDOWS;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LOG_LEVEL=0;WINDOWS;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
     </ClCompile>
@@ -69,7 +69,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WINDOWS;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LOG_NO_LOCALIZATION;LOG_LEVEL=0;WINDOWS;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -108,6 +108,8 @@
     <ClCompile Include="src\opengl.cpp" />
     <ClCompile Include="src\timer.cpp" />
     <ClCompile Include="src\utilities\color.cpp" />
+    <ClCompile Include="src\utilities\logger.cpp" />
+    <ClCompile Include="src\utilities\policy.cpp" />
     <ClCompile Include="src\voxel\chunk.cpp" />
     <ClCompile Include="src\voxel\material.cpp" />
     <ClCompile Include="src\voxel\model.cpp" />
@@ -150,6 +152,9 @@
     <ClInclude Include="src\predeclarations.hpp" />
     <ClInclude Include="src\timer.hpp" />
     <ClInclude Include="src\utilities\color.hpp" />
+    <ClInclude Include="src\utilities\logger.hpp" />
+    <ClInclude Include="src\utilities\loggerinit.hpp" />
+    <ClInclude Include="src\utilities\policy.hpp" />
     <ClInclude Include="src\voxel\chunk.hpp" />
     <ClInclude Include="src\voxel\component.hpp" />
     <ClInclude Include="src\voxel\material.hpp" />

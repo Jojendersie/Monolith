@@ -1,6 +1,5 @@
 #include <thread>
 #include <cassert>
-#include <iostream>
 #include "game.hpp"
 #include "gamestates/gsmainmenu.hpp"
 #include "gamestates/gsplay.hpp"
@@ -31,9 +30,7 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 		Jo::Files::HDDFile file( "config.json" );
 		Config.Read( file, Jo::Files::Format::JSON );
 	} catch( std::string _message ) {
-		std::cerr << "Failed to load config file with message:\n";
-		std::cerr << _message << '\n';
-		std::cerr << "Loading default configuration.\n";
+		LOG_ERROR("Failed to load config file with message:\n" + _message + '\n' + "\nLoading default configuration.");
 		BuildDefaultConfig();
 	}
 
@@ -62,7 +59,7 @@ Monolith::~Monolith()
 		Jo::Files::HDDFile file( "config.json" );
 		Config.Write( file, Jo::Files::Format::JSON );
 	} catch(...) {
-		std::cerr << "Could not write a config file!";
+		LOG_ERROR("Could not write a config file!");
 	}
 	delete m_graficContent;
 	delete m_gameStates[0];

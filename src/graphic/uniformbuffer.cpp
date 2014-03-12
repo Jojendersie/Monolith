@@ -1,6 +1,5 @@
 #include "uniformbuffer.hpp"
 #include "../opengl.hpp"
-#include <iostream>
 #include <cstdint>
 #include <cassert>
 
@@ -46,7 +45,7 @@ namespace Graphic {
 		offset += m_size;
 
 		// Is there still memory?
-		if( int(_type)+offset > 1024 ) { std::cout << "[UniformBuffer::AddAttribute] Size of uniform buffer not large enough."; return; }
+		if( int(_type)+offset > 1024 ) { LOG_ERROR("Size of uniform buffer not large enough."); return; }
 
 		// All right add to map
 		m_attributes.insert( std::pair<std::string,int>( _name, offset ) );
@@ -87,9 +86,7 @@ namespace Graphic {
 			// twice has no effect. (In case both times the same program is used.)
 			glFlush();
 
-			const GLenum errorValue = glGetError();
-			if (errorValue != GL_NO_ERROR)
-				std::cout << "[UniformBuffer::Commit] : An error during binding and uploading data occured.\n";
+			LogGlError("An error during binding and uploading data occured.");
 
 			m_isDirty = false;
 		}

@@ -9,9 +9,6 @@
 using namespace Math;
 #include <cassert>
 
-// TODO: remove after test
-#include <iostream>
-
 // ************************************************************************* //
 GSMainMenu::GSMainMenu(Monolith* _game) : IGameState(_game)
 {
@@ -52,7 +49,7 @@ void GSMainMenu::MouseMove( double _dx, double _dy )
 // ************************************************************************* //
 void GSMainMenu::KeyDown( int _key, int _modifiers )
 {
-	std::cout << Input::KeyToChar(_key, _modifiers);
+//	std::cout << Input::KeyToChar(_key, _modifiers);
 
 	if( _key == GLFW_KEY_ESCAPE )
 		m_finished = true;
@@ -64,11 +61,9 @@ void GSMainMenu::KeyDown( int _key, int _modifiers )
 // ************************************************************************* //
 void GSMainMenu::KeyClick( int _key )
 {
-	std::cout << "c\n";
 }
 
 // ************************************************************************* //
 void GSMainMenu::KeyDoubleClick( int _key )
 {
-	std::cout << "x\n";
 }

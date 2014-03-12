@@ -1,7 +1,6 @@
 #include "effect.hpp"
 #include "../opengl.hpp"
 #include "uniformbuffer.hpp"
-#include <iostream>
 #include <cstdint>
 
 namespace Graphic {
@@ -10,11 +9,11 @@ namespace Graphic {
 	{
 		if( !_fileName || *_fileName==0 ) return 0;
 		unsigned shaderID = glCreateShader(_shaderType);
-		if(!shaderID) {std::cout << "[LoadShader] Could not create a shader!\n"; return 0;}
+		if(!shaderID) {LOG_ERROR("Could not create a shader!"); return 0;}
 
 		// Read in file
 		FILE* file = fopen( _fileName, "rb" );
-		if( !file ) {std::cout << "[LoadShader] Could not find file '" << _fileName << "'\n"; glDeleteShader(shaderID); return 0;}
+		if( !file ) {LOG_ERROR("Could not find file '" + std::string(_fileName) + "'"); glDeleteShader(shaderID); return 0;}
 		fseek( file, 0, SEEK_END );
 		long size = ftell( file );
 		uint8_t* source = (uint8_t*)malloc(size+1);
@@ -34,7 +33,7 @@ namespace Graphic {
 		glGetShaderiv( shaderID, GL_COMPILE_STATUS, &res );
 		if( res == GL_TRUE )
 		{
-			std::cout << "[LoadShader] Successfully loaded shader: '" << _fileName << "'\n";
+			LOG_LVL2("Successfully loaded shader: '" + std::string(_fileName) + "'");
 		} else
 		{
 			GLsizei charsWritten  = 0;
@@ -42,7 +41,7 @@ namespace Graphic {
 			glGetShaderiv( shaderID, GL_INFO_LOG_LENGTH, &res );
 			char* log = (char *)malloc(res);
 			glGetShaderInfoLog( shaderID, res, &charsWritten, log );
-			std::cout << "[LoadShader] Error in compiling the shader '" << _fileName << "': " << log << '\n';
+			LOG_ERROR("Error in compiling the shader '" + std::string(_fileName) + "': " + log);
 			free( log );
 		}
 
@@ -62,7 +61,7 @@ namespace Graphic {
 		m_pixelShader = LoadShader( _PSFile.c_str(), GL_FRAGMENT_SHADER );
 		if( m_vertexShader == 0 || m_geometryShader == 0 || m_pixelShader == 0 )
 		{
-			std::cout << "[Effect::Effect] One or more shaders were not loaded. Effect will be wrong.\n";
+			LOG_ERROR("One or more shaders were not loaded. Effect will be wrong.");
 			return;
 		}
 
@@ -81,7 +80,7 @@ namespace Graphic {
 		if (testResult == GL_FALSE) {
 			char acInfoLog[512];
 			glGetProgramInfoLog(m_programID, 512, 0, acInfoLog);
-			std::cout << "[Effect::Effect] Failed to build shader program:\n" << acInfoLog << '\n';
+			LOG_ERROR(std::string("Failed to build shader program:") + acInfoLog);
 		}
 	}
 
@@ -97,11 +96,9 @@ namespace Graphic {
 
 	void Effect::BindUniformBuffer( UniformBuffer& _uniformBuffer )
 	{
-#ifdef _DEBUG
 		for( size_t i=0; i<m_boundUniformBuffers.size(); ++i )
 			if( m_boundUniformBuffers[i] == &_uniformBuffer )
-				std::cout << "[Effect::BindUniformBuffer] The constant buffer is already bound to the shader.\n";
-#endif
+				LOG_LVL0("The constant buffer is already bound to the shader.");
 
 		m_boundUniformBuffers.push_back( &_uniformBuffer );
 

@@ -1,9 +1,9 @@
 #include "device.hpp"
 #include "../opengl.hpp"
+#include "../predeclarations.hpp"
 #include "vertexbuffer.hpp"
 #include "texture.hpp"
-#include <cstdio>
-#include <iostream>
+//#include <cstdio>
 #include <cassert>
 
 namespace Graphic {
@@ -12,7 +12,7 @@ namespace Graphic {
 
 	static void ErrorCallBack(int _iError, const char* _sDescription)
 	{
-		std::cout << "Error " << _iError << ": " << _sDescription;
+		LOG_ERROR( std::string("glfw [") + std::to_string(_iError) + _sDescription );
 	}
 
 	GLFWwindow* Device::GetWindow()		{ return g_Device.m_window; }
@@ -34,13 +34,15 @@ namespace Graphic {
 	{
 		// Create a new window with GLFW
 		glfwSetErrorCallback(ErrorCallBack);
-		if( !glfwInit() ) std::cout << "[Device::Initialize] Could not initialise GLFW.\n";
+		if( !glfwInit() )
+			LOG_CRITICAL("Could not initialize GLFW.");
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		g_Device.m_window = glfwCreateWindow(_width, _height, "Monolith", nullptr, nullptr);
-		if( !g_Device.m_window ) std::cout << "[Device::Initialize] Window was not created.\n";
+		if( !g_Device.m_window )
+			LOG_CRITICAL("Window was not created.");
 		glfwMakeContextCurrent(g_Device.m_window);
 
 		// Init glew.
@@ -50,7 +52,7 @@ namespace Graphic {
 		GLenum GlewInitResult = glewInit();
 
 		if (GLEW_OK != GlewInitResult)
-			std::cout << glewGetErrorString(GlewInitResult);
+			LOG_ERROR(std::string((char*)glewGetErrorString(GlewInitResult)));
 		else glGetError();	// Sometimes glewInit creates an arrow even if return val correct
 
 		glViewport(0, 0, _width, _height);

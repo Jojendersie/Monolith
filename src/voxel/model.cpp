@@ -3,7 +3,6 @@
 #include <cstdlib>
 #include "../input/camera.hpp"
 #include "../graphic/uniformbuffer.hpp"
-#include <iostream>
 
 using namespace Math;
 
