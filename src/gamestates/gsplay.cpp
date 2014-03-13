@@ -30,7 +30,7 @@ GSPlay::GSPlay(Monolith* _game) : IGameState(_game), m_astTest(nullptr)
 		0.3f,
 		Graphic::Device::GetAspectRatio() );
 
-	m_objectPlane = new Graphic::Marker::Grid( 8, 8, 10.0f, Utils::Color32F( 0.5f, 0.5f, 1.0f, 0.5f ), false, _game->m_graficContent );
+	m_objectPlane = new Graphic::Marker::Grid( 80, 80, 20.0f, Utils::Color32F( 0.5f, 0.5f, 1.0f, 0.5f ), true, _game->m_graficContent );
 }
 
 // ************************************************************************* //
@@ -46,7 +46,10 @@ GSPlay::~GSPlay()
 void GSPlay::OnBegin()
 {
 	if( !m_astTest )
+	{
 		m_astTest = new Generators::Asteroid( 80, 50, 30, 2 );
+		m_astTest->SetCenter( Vec3(0.0f) );
+	}
 	m_camera->ZoomAt( *m_astTest );
 }
 

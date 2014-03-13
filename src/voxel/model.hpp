@@ -48,16 +48,11 @@ namespace Voxel {
 		///		approximating LOD (majority) of the children.
 		VoxelType Get( const Math::IVec3& _position, int _level ) const;
 
-		/// \see SparseVoxelOctree::IsEachChild
-//		bool IsEachChild( const Math::IVec3& _position, int _level, bool(*_predicate)(VoxelType), VoxelType& _out ) const	{ return m_voxelTree.IsEachChild(_position, _level, _predicate, _out); }
-		/// \see SparseVoxelOctree::IsAnyChild
-//		bool IsAnyChild( const Math::IVec3& _position, int _level, bool(*_predicate)(VoxelType), VoxelType& _out ) const	{ return m_voxelTree.IsAnyChild(_position, _level, _predicate, _out); }
-		/// \see SparseVoxelOctree::Traverse
-//		template<typename Param>
-//		void Traverse( bool(*_callback)(const Math::IVec4&,VoxelType,bool,Param*), Param* _param ) const	{ m_voxelTree.Traverse(_callback, _param); }
-
 		/// \brief Get the center of gravity (mass center)
 		Math::Vec3 GetCenter() const		{ return m_center + m_position; }
+		/// \brief Set the position of the model based on its current center of gravity
+		void SetCenter(const Math::Vec3& _position)		{ m_position = _position - m_center; }
+
 		/// \brief Get the bounding radius of the sphere centered at the center
 		///		of gravity.
 		float GetRadius() const { return m_boundingSphereRadius; }
