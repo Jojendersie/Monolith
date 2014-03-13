@@ -32,7 +32,7 @@ void main(void)
 	vec4 l2 = vec4(vs_out_Position[1], 1) * c_mWorldViewProjection;
 	
 	// Compute a vector perpendicular vector to create a beam
-	vec2 direction = normalize(l2.xy - l1.xy);
+	vec2 direction = normalize(l2.xy / l2.w - l1.xy / l1.w);
 	// Cross product with view direction
 	vec4 perpendicular = vec4(-direction.y * 0.1, direction.x * 0.1, 0, 0);
 

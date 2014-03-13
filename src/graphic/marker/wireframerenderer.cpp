@@ -14,9 +14,10 @@ namespace Marker {
 	};
 
 	// ********************************************************************* //
-	WireframeRenderer::WireframeRenderer( const Utils::Color32F& _color, Graphic::Content* _stateObjects ) :
+	WireframeRenderer::WireframeRenderer( const Utils::Color32F& _color, float _fading, Graphic::Content* _stateObjects ) :
 		m_mesh( "pc", VertexBuffer::PrimitiveType::LINE ),
-		m_color( _color )
+		m_color( _color ),
+		m_fading( max(0.01f, _fading) )
 	{
 		m_effect = &_stateObjects->wireEffect;
 		m_objectUBO = &_stateObjects->objectUBO;
@@ -25,22 +26,20 @@ namespace Marker {
 	}
 
 	// ********************************************************************* //
-	void WireframeRenderer::AddSegment( const Vec3& _v1, const Vec3& _v2, const Utils::Color32F& _c1, const Utils::Color32F& _c2 )
+	void WireframeRenderer::AddSegment( const Vec3& _v1, const Vec3& _v2, const Utils::Color32F& _color )
 	{
 		ColorPointVertex vertex;
 		vertex.position = _v1;
-		vertex.color = _c1;
+		vertex.color = _color;
 		m_mesh.Add( vertex );
 		vertex.position = _v2;
-		vertex.color = _c2;
 		m_mesh.Add( vertex );
 	}
 
 	// ********************************************************************* //
-	void WireframeRenderer::AddLine( const Vec3& _start, const Vec3& _end, float _fade )
+	void WireframeRenderer::AddLine( const Vec3& _start, const Vec3& _end, float _transparency )
 	{
-	//	if( _fade == 0.0f )
-			AddSegment(_start, _end, m_color, m_color);
+		AddSegment( _start, _end, Utils::Color32F(m_color.R(), m_color.G(), m_color.B(), _transparency * m_color.A()) );
 	}
 
 	// ********************************************************************* //
@@ -58,6 +57,7 @@ namespace Marker {
 		// Setup pipeline
 		Device::SetEffect( *m_effect );
 		(*m_objectUBO)["WorldViewProjection"] = _worldViewProjection;
+		(*m_objectUBO)["Corner000"] = Vec4( (1.0f-m_fading) / m_fading, 1.0f / m_fading, 0.0f, 0.0f );
 
 		Device::DrawVertices( m_mesh, 0, m_mesh.GetNumVertices() );
 	}
