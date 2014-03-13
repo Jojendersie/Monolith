@@ -8,6 +8,5 @@ out vec3 vs_out_Position;
 void main()
 {
 	vs_out_Position = in_Position;
-	//gl_Position = vec4(in_Position, 1) * c_mWorldViewProjection;
 	vs_out_Color = in_Color;
 }

@@ -6,7 +6,8 @@ in vec4 vs_out_Color[2];
 in vec3 vs_out_Position[2];
 
 out vec4 gs_Color;
-out vec2 gs_TexCoord;
+// x/w, y/w, 1/w for perspective correction
+noperspective out vec3 gs_TexCoord;
 
 layout(lines) in;
 layout(triangle_strip, max_vertices = OUT_VERTS) out;
@@ -51,20 +52,20 @@ void main(void)
 
 	gs_Color = vs_out_Color[0];
 	gl_Position = l1 + perpendicular * sqrt(l1.w);
-	gs_TexCoord = vec2(tex1, -1.0);
+	gs_TexCoord = vec3(tex1 / l1.w, -1.0, 1.0 / l1.w);
 	EmitVertex();
 	
 	gl_Position = l1 - perpendicular * sqrt(l1.w);
-	gs_TexCoord = vec2(tex1, 1.0);
+	gs_TexCoord = vec3(tex1 / l1.w, 1.0, 1.0 / l1.w);
 	EmitVertex();
 	
 	gs_Color = vs_out_Color[1];
 	gl_Position = l2 + perpendicular * sqrt(l2.w);
-	gs_TexCoord = vec2(tex2, -1.0);
+	gs_TexCoord = vec3(tex2 / l2.w, -1.0, 1.0 / l2.w);
 	EmitVertex();
 	
 	gl_Position = l2 - perpendicular * sqrt(l2.w);
-	gs_TexCoord = vec2(tex2, 1.0);
+	gs_TexCoord = vec3(tex2 / l2.w, 1.0, 1.0 / l2.w);
 	EmitVertex();
 	EndPrimitive();
 }
