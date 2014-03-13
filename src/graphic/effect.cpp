@@ -48,6 +48,43 @@ namespace Graphic {
 		return shaderID;
 	}
 
+	// ********************************************************************* //
+	Effect::Effect( const std::string& _VSFile, const std::string& _PSFile,
+			RasterizerState::CULL_MODE _cullMode, RasterizerState::FILL_MODE _fillMode,
+			BlendState::BLEND_OPERATION _blendOp, BlendState::BLEND _srcOp, BlendState::BLEND _dstOp,
+			DepthStencilState::COMPARISON_FUNC _depthFunc, bool _zWrite ) :
+		m_rasterizerState(_cullMode, _fillMode),
+		m_blendState(_blendOp, _srcOp, _dstOp ),
+		m_depthStencilState(_depthFunc, _zWrite)
+	{
+		m_vertexShader = LoadShader( _VSFile.c_str(), GL_VERTEX_SHADER );
+		m_geometryShader = 0;
+		m_pixelShader = LoadShader( _PSFile.c_str(), GL_FRAGMENT_SHADER );
+		if( m_vertexShader == 0 || m_pixelShader == 0 )
+		{
+			LOG_ERROR("One or more shaders were not loaded. Effect will be wrong.");
+			return;
+		}
+
+		// Create new program
+		m_programID = glCreateProgram();
+
+		// Link
+		glAttachShader(m_programID, m_vertexShader);
+		glAttachShader(m_programID, m_pixelShader);
+		glLinkProgram(m_programID);
+
+		// Check of linking the shader program worked
+		GLint testResult;
+		glGetProgramiv(m_programID, GL_LINK_STATUS, &testResult);
+		if (testResult == GL_FALSE) {
+			char acInfoLog[512];
+			glGetProgramInfoLog(m_programID, 512, 0, acInfoLog);
+			LOG_ERROR(std::string("Failed to build shader program:") + acInfoLog);
+		}
+	}
+
+	// ********************************************************************* //
 	Effect::Effect( const std::string& _VSFile, const std::string& _GSFile, const std::string& _PSFile,
 			RasterizerState::CULL_MODE _cullMode, RasterizerState::FILL_MODE _fillMode,
 			BlendState::BLEND_OPERATION _blendOp, BlendState::BLEND _srcOp, BlendState::BLEND _dstOp,
@@ -84,6 +121,7 @@ namespace Graphic {
 		}
 	}
 
+	// ********************************************************************* //
 	Effect::~Effect()
 	{
 		glDeleteProgram(m_programID);
@@ -93,7 +131,7 @@ namespace Graphic {
 		glDeleteShader(m_pixelShader);
 	}
 
-
+	// ********************************************************************* //
 	void Effect::BindUniformBuffer( UniformBuffer& _uniformBuffer )
 	{
 		for( size_t i=0; i<m_boundUniformBuffers.size(); ++i )
@@ -109,6 +147,7 @@ namespace Graphic {
 		}
 	}
 
+	// ********************************************************************* //
 	void Effect::BindTexture( const char* _name, unsigned _location, const SamplerState& _sampler )
 	{
 		// First bind the texture
@@ -131,6 +170,7 @@ namespace Graphic {
 		m_samplerStates.push_back(newBinding);
 	}
 
+	// ********************************************************************* //
 	void Effect::CommitUniformBuffers() const
 	{
 		for( size_t i=0; i<m_boundUniformBuffers.size(); ++i )

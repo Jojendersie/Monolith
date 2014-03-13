@@ -29,6 +29,10 @@ namespace Graphic {
 	class UniformBuffer;
 	class Font;
 	struct Content;
+
+	namespace Marker {
+		class Grid;
+	}
 } // namespace Graphic
 
 namespace Input {

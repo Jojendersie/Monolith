@@ -22,6 +22,7 @@ public:
 	virtual void KeyClick( int _key ) override;
 private:
 	Generators::Asteroid* m_astTest;
+	Graphic::Marker::Grid* m_objectPlane;
 	Graphic::Hud* m_hud;
 	Input::Camera* m_camera;
 };

@@ -5,6 +5,7 @@
 #include "../input/camera.hpp"
 #include "../input/input.hpp"
 #include "../graphic/hud.hpp"
+#include "../graphic/marker/grid.hpp"
 using namespace Math;
 #include <cassert>
 
@@ -28,11 +29,14 @@ GSPlay::GSPlay(Monolith* _game) : IGameState(_game), m_astTest(nullptr)
 		Quaternion( 0.0f, 0.0f, 0.0f ),
 		0.3f,
 		Graphic::Device::GetAspectRatio() );
+
+	m_objectPlane = new Graphic::Marker::Grid( 8, 8, 10.0f, Utils::Color32F( 0.5f, 0.5f, 1.0f, 0.5f ), false, _game->m_graficContent );
 }
 
 // ************************************************************************* //
 GSPlay::~GSPlay()
 {
+	delete m_objectPlane;
 	delete m_camera;
 	delete m_astTest;
 	delete m_hud;
@@ -73,8 +77,9 @@ void GSPlay::Render( double _time, double _deltaTime )
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 
 	Graphic::Device::SetEffect(	m_game->m_graficContent->voxelRenderEffect );
-
 	m_astTest->Draw( m_game->m_graficContent->objectUBO, *m_camera );
+
+	m_objectPlane->Draw( m_camera->GetViewProjection() );
 	
 	m_hud->m_dbgLabel->SetText("<s 034>" + std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(RenderStat::g_numVoxels) + "\n#Chunks: " + std::to_string(RenderStat::g_numChunks)+"</s>");
 	m_hud->Draw(  _time, _deltaTime );

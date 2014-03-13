@@ -93,6 +93,8 @@
     <ClCompile Include="src\graphic\content.cpp" />
     <ClCompile Include="src\graphic\hud.cpp" />
     <ClCompile Include="src\graphic\hudelements.cpp" />
+    <ClCompile Include="src\graphic\marker\grid.cpp" />
+    <ClCompile Include="src\graphic\marker\wireframerenderer.cpp" />
     <ClCompile Include="src\graphic\rasterizerstate.cpp" />
     <ClCompile Include="src\graphic\samplerstate.cpp" />
     <ClCompile Include="src\graphic\texture.cpp" />
@@ -132,6 +134,8 @@
     <ClInclude Include="src\graphic\content.hpp" />
     <ClInclude Include="src\graphic\hud.hpp" />
     <ClInclude Include="src\graphic\hudelements.hpp" />
+    <ClInclude Include="src\graphic\marker\grid.hpp" />
+    <ClInclude Include="src\graphic\marker\wireframerenderer.hpp" />
     <ClInclude Include="src\graphic\rasterizerstate.hpp" />
     <ClInclude Include="src\graphic\samplerstate.hpp" />
     <ClInclude Include="src\graphic\texture.hpp" />

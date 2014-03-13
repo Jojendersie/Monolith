@@ -15,6 +15,7 @@ namespace Graphic {
 
 		Graphic::Effect voxelRenderEffect;
 		Graphic::Effect texture2DEffect;
+		Graphic::Effect standartcolorEffect;
 		Graphic::UniformBuffer objectUBO;
 		Graphic::UniformBuffer cameraUBO;
 		Graphic::UniformBuffer globalUBO;

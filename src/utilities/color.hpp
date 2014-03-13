@@ -111,7 +111,7 @@ namespace Utils {
 	{
 	public:
 		/// \brief From main color class
-		Color8U(const Color32F& _color)							{ m_color = 0; for(int i=0; i<4; ++i) { m_color<<=8; m_color |= uint8_t(Math::saturate(_color[i]) * 255); } }
+		Color8U(const Color32F& _color)							{ m_color = 0; for(int i=0; i<4; ++i) { m_color<<=8; m_color |= uint8_t(Math::saturate(_color[3-i]) * 255); } }
 
 		/// \brief From single RGBA 32 bit integer
 		Color8U(const uint32_t& _color) : m_color(_color)		{}
@@ -120,29 +120,29 @@ namespace Utils {
 		Color8U()												{}
 
 		/// \brief From single bytes
-		Color8U(uint8_t r, uint8_t g, uint8_t b, uint8_t a=255)	{ m_color = (r<<24) | (g<<16) | (b<<8) | a; }
+		Color8U(uint8_t r, uint8_t g, uint8_t b, uint8_t a=255)	{ m_color = r | (g<<8) | (b<<16) | (a<<24); }
 
 		/// \brief From single floats
-		Color8U(float r, float g, float b, float a=1.0f)		{ m_color = (uint8_t(Math::saturate(r)*255.0f)<<24) | (uint8_t(Math::saturate(g)*255.0f)<<16) | (uint8_t(Math::saturate(b)*255.0f)<<8) | uint8_t(Math::saturate(a)*255.0f); }
+		Color8U(float r, float g, float b, float a=1.0f)		{ m_color = uint8_t(Math::saturate(r)*255.0f) | (uint8_t(Math::saturate(g)*255.0f)<<8) | (uint8_t(Math::saturate(b)*255.0f)<<16) | (uint8_t(Math::saturate(a)*255.0f)<<24); }
 
 		/// \brief Conversion to main color class
 		operator Color32F() const								{ return Color32F(R(), G(), B(), A()); }
 
 		/// \brief Access single color component: Red
-		uint8_t R() const										{ return m_color >> 24; }
+		uint8_t R() const										{ return m_color; }
 
 		/// \brief Access single color component: Green
-		uint8_t G() const										{ return m_color >> 16; }
+		uint8_t G() const										{ return m_color >> 8; }
 
 		/// \brief Access single color component: Blue
-		uint8_t B() const										{ return m_color >> 8; }
+		uint8_t B() const										{ return m_color >> 16; }
 
 		/// \brief Access single color component: Alpha
-		uint8_t A() const										{ return m_color; }
+		uint8_t A() const										{ return m_color >> 24; }
 
 		
 		/// \brief Access all components in vertex shader direction
-		uint32_t RGBA() const {return ((A()<<24) | (B()<<16) | (G()<<8) | R());}		
+		uint32_t RGBA() const {return m_color;}		
 
 		/// \brief Returns true, if both colors are identical in all components.
 		bool operator==( const Color8U& _c) const				{ return m_color == _c.m_color; }

@@ -36,6 +36,9 @@
     <Filter Include="Source Files\utilities">
       <UniqueIdentifier>{48cb2e38-bcdc-47bb-ab0c-8e95eb1430c5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\graphic\markers">
+      <UniqueIdentifier>{49acab65-af0b-47dc-a5eb-501c814bf22a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
@@ -142,6 +145,12 @@
     </ClCompile>
     <ClCompile Include="src\utilities\policy.cpp">
       <Filter>Source Files\utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\marker\wireframerenderer.cpp">
+      <Filter>Source Files\graphic\markers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\marker\grid.cpp">
+      <Filter>Source Files\graphic\markers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -279,6 +288,12 @@
     </ClInclude>
     <ClInclude Include="src\utilities\logger.hpp">
       <Filter>Source Files\utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\marker\wireframerenderer.hpp">
+      <Filter>Source Files\graphic\markers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\marker\grid.hpp">
+      <Filter>Source Files\graphic\markers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

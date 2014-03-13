@@ -106,6 +106,7 @@ namespace Voxel {
 		}
 	};
 
+	// ********************************************************************* //
 	void Model::Draw( Graphic::UniformBuffer& _objectConstants, const Input::Camera& _camera )
 	{
 		// Create a new model space transformation
