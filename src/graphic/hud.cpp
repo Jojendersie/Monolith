@@ -9,7 +9,7 @@ namespace Graphic
 		m_characters( "2222", VertexBuffer::PrimitiveType::POINT ),
 		m_container("texture/combined.png"),
 		m_screenTexCount(0),
-		m_TextRenderCount(0),
+		m_textRenderCount(0),
 		m_btnCount(0),
 		m_preTex(NULL)
 //		m_mapFile("texture/combined.sraw", true),
@@ -51,7 +51,7 @@ namespace Graphic
 
 	void Hud::CreateBtn(std::string _texName, std::string _desc, Math::Vec2 _position, Math::Vec2 _size, std::function<void()> _OnMouseUp)
 	{
-		Button* btn = new Button(m_containerMap, m_globalPipelineData->defaultFont, _texName, _position, _size, _OnMouseUp);
+		Button* btn = new Button(m_containerMap, m_globalPipelineData->gameFont, _texName, _position, _size, _OnMouseUp);
 		btn->m_caption.SetText(_desc);
 		AddButton(btn);
 	}
@@ -65,8 +65,8 @@ namespace Graphic
 		Device::SetTexture( m_container, 7 );
 		Device::DrawVertices( m_characters, 0, m_characters.GetNumVertices() );
 
-		for(int i = 0; i < m_TextRenderCount; i++ )
-			if(m_TextRenders[i]->m_active) m_TextRenders[i]->Draw();
+		for(int i = 0; i < m_textRenderCount; i++ )
+			if(m_textRenders[i]->m_active) m_textRenders[i]->Draw();
 	}
 
 	void Hud::RenewBuffer()
@@ -137,8 +137,8 @@ namespace Graphic
 
 	void Hud::AddTextRender(TextRender* _label)
 	{
-		m_TextRenders[m_TextRenderCount] = _label;
-		m_TextRenderCount++;
+		m_textRenders[m_textRenderCount] = _label;
+		m_textRenderCount++;
 	}
 
 	void Hud::AddTexture(ScreenTexture* _tex)

@@ -43,8 +43,8 @@ namespace Graphic {
 		Content* m_globalPipelineData;
 		VertexBuffer m_characters;
 
-		int m_TextRenderCount;
-		TextRender* m_TextRenders[64];
+		int m_textRenderCount;
+		TextRender* m_textRenders[64];
 
 		//screen texture stuff
 

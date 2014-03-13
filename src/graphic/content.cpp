@@ -57,12 +57,14 @@ namespace Graphic {
 		assert(glGetError() == GL_NO_ERROR);
 
 		defaultFont = new Font("arial", this);
+		gameFont = new Font("MonoLith", this);
 	}
 
 
 	Content::~Content()
 	{
 		delete defaultFont;
+		delete gameFont;
 	}
 
 
