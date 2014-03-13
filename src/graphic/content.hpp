@@ -21,7 +21,8 @@ namespace Graphic {
 		Graphic::SamplerState pointSampler;
 		Graphic::SamplerState linearSampler;
 
-		Graphic::Font* defaultFont;		///< Font used for all menus...
+		Graphic::Font* defaultFont;		
+		Graphic::Font* gameFont;	///< Font used for all menus...
 	};
 
 } // namespace Graphic
