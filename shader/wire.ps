@@ -1,9 +1,15 @@
 #version 330
 
-in vec4 vs_out_Color;
+in vec4 gs_Color;
+in vec2 gs_TexCoord;
 out vec4 fragColor;
 
 void main()
 {
-	fragColor = vs_out_Color;
+	// Fading along the line direction only close to the ends
+	float fadeLong = max(0, (abs(gs_TexCoord.x) - 0.96) * 25.0);
+	fadeLong = max(0, 1 - fadeLong * fadeLong);
+	// Maximal smooth fading about beem width
+	float fadeShort = max(0, 1 - gs_TexCoord.y * gs_TexCoord.y);
+	fragColor = gs_Color * fadeShort * fadeLong;
 }
