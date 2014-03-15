@@ -16,6 +16,7 @@
 #include "graphic/content.hpp"
 #include "input/input.hpp"
 #include "voxel/voxel.hpp"
+#include "resources.hpp"
 
 static double g_fInvFrequency;
 
@@ -42,6 +43,7 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 
 	assert(glGetError() == GL_NO_ERROR);
 
+	Resources::LoadLanguageData( Config[std::string("Game")][std::string("Language")] );
 	Input::Manager::Initialize( Graphic::Device::GetWindow(), Config[std::string("Input")] );
 
 	Voxel::TypeInfo::Initialize();
@@ -153,6 +155,9 @@ void Monolith::BuildDefaultConfig()
 	cinput[std::string("CameraRotationSpeed")] = 0.005;
 	cinput[std::string("CameraMovementSpeed")] = 0.0025;
 	cinput[std::string("CameraScrollSpeed")] = 5.0;
+
+	auto& cgame = Config[std::string("Game")];
+	cgame[std::string("Language")] = "english.json";
 }
 
 // ************************************************************************* //

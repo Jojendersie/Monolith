@@ -7,6 +7,7 @@
 #include "../input/camera.hpp"
 #include "../input/input.hpp"
 #include "../graphic/interface/hud.hpp"
+#include "../resources.hpp"
 using namespace Math;
 #include <cassert>
 
@@ -17,10 +18,10 @@ GSMainMenu::GSMainMenu(Monolith* _game) : IGameState(_game)
 
 	m_hud = new Graphic::Hud(_game->m_graficContent, _game);
 	//some bsp buttons
-	m_hud->CreateBtn("menuBtn", "continue", Math::Vec2(-0.25f,0.4f), Math::Vec2(0.6f, 0.15f), [&] () { m_game->PushState( m_game->GetPlayState() ); });
-	m_hud->CreateBtn("menuBtn", "editor", Math::Vec2(-0.25f,0.22f), Math::Vec2(0.6f, 0.15f), [&] () { m_game->PushState( m_game->GetEditorState() ); });
-	m_hud->CreateBtn("menuBtn", "options", Math::Vec2(-0.25f,0.04f), Math::Vec2(0.6f, 0.15f), [&] () { m_finished = true; });
-	m_hud->CreateBtn("menuBtn", "end", Math::Vec2(-0.25f,-0.14f), Math::Vec2(0.6f, 0.15f), [&] () { m_finished = true; });
+	m_hud->CreateBtn("menuBtn", Resources::GetText("continue"), Math::Vec2(-0.25f,0.4f), Math::Vec2(0.6f, 0.15f), [&] () { m_game->PushState( m_game->GetPlayState() ); });
+	m_hud->CreateBtn("menuBtn", Resources::GetText("editor"), Math::Vec2(-0.25f,0.22f), Math::Vec2(0.6f, 0.15f), [&] () { m_game->PushState( m_game->GetEditorState() ); });
+	m_hud->CreateBtn("menuBtn", Resources::GetText("options"), Math::Vec2(-0.25f,0.04f), Math::Vec2(0.6f, 0.15f), [&] () { m_finished = true; });
+	m_hud->CreateBtn("menuBtn", Resources::GetText("end"), Math::Vec2(-0.25f,-0.14f), Math::Vec2(0.6f, 0.15f), [&] () { m_finished = true; });
 
 	LOG_LVL2("Created game state MainMenu");
 }

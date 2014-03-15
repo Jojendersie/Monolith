@@ -176,6 +176,9 @@
     <ClCompile Include="src\gamestates\gsgameplayopt.cpp">
       <Filter>Source Files\gamestates</Filter>
     </ClCompile>
+    <ClCompile Include="src\resources.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game.hpp">
@@ -336,6 +339,9 @@
     </ClInclude>
     <ClInclude Include="src\gamestates\gsgameplayopt.hpp">
       <Filter>Source Files\gamestates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\resources.hpp">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
