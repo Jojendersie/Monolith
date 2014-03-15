@@ -2,13 +2,13 @@
 
 #include "gamestatebase.hpp"
 
-/// \brief Game state to edit voxel models.
-class GSEditor: public IGameState
+/// \brief Option menu state for graphics.
+class GSGraphicOpt: public IGameState
 {
 public:
 	/// \brief Create main state specific content.
-	GSEditor(Monolith* _game);
-	~GSEditor();
+	GSGraphicOpt(Monolith* _game);
+	~GSGraphicOpt();
 
 	void OnBegin()					{}
 	virtual void OnEnd() override	{}

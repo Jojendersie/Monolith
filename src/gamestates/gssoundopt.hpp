@@ -2,13 +2,13 @@
 
 #include "gamestatebase.hpp"
 
-/// \brief Game state to edit voxel models.
-class GSEditor: public IGameState
+/// \brief Option menu state for sounds.
+class GSSoundOpt: public IGameState
 {
 public:
 	/// \brief Create main state specific content.
-	GSEditor(Monolith* _game);
-	~GSEditor();
+	GSSoundOpt(Monolith* _game);
+	~GSSoundOpt();
 
 	void OnBegin()					{}
 	virtual void OnEnd() override	{}

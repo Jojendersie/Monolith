@@ -53,6 +53,11 @@ public:
 	GSMainMenu* GetMainMenuState();
 	GSPlay* GetPlayState();
 	GSEditor* GetEditorState();
+	GSEditorChoice* GetEditorChoiceState();
+	GSGraphicOpt* GetGraphicOptState();
+	GSInputOpt* GetInputOptState();
+	GSGameplayOpt* GetGameplayOptState();
+	GSSoundOpt* GetSoundOptState();
 
 	Graphic::Content* m_graficContent;
 
@@ -60,7 +65,7 @@ public:
 
 	float Time() const { return (float)m_time; }
 private:
-	IGameStateP m_gameStates[3];	///< MainMenu, Play, Editor
+	IGameStateP m_gameStates[8];	///< MainMenu, Play, Editor, EditorChoice, GraphicOpt, InputOpt, GameplayOpt, SoundOpt
 	IGameStateP m_stateStack;		///< The head of a stack of game states
 	bool m_singleThreaded;
 	bool m_running;

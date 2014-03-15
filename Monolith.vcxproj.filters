@@ -161,6 +161,21 @@
     <ClCompile Include="src\gamestates\gseditor.cpp">
       <Filter>Source Files\gamestates</Filter>
     </ClCompile>
+    <ClCompile Include="src\gamestates\gsgraphicopt.cpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gamestates\gsinputopt.cpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gamestates\gssoundopt.cpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gamestates\gseditorchoice.cpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gamestates\gsgameplayopt.cpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game.hpp">
@@ -305,6 +320,21 @@
       <Filter>Source Files\graphic\interface</Filter>
     </ClInclude>
     <ClInclude Include="src\gamestates\gseditor.hpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gamestates\gsgraphicopt.hpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gamestates\gsinputopt.hpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gamestates\gssoundopt.hpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gamestates\gseditorchoice.hpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gamestates\gsgameplayopt.hpp">
       <Filter>Source Files\gamestates</Filter>
     </ClInclude>
   </ItemGroup>

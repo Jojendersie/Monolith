@@ -4,6 +4,11 @@
 #include "gamestates/gsmainmenu.hpp"
 #include "gamestates/gsplay.hpp"
 #include "gamestates/gseditor.hpp"
+#include "gamestates/gseditorchoice.hpp"
+#include "gamestates/gsgraphicopt.hpp"
+#include "gamestates/gsinputopt.hpp"
+#include "gamestates/gsgameplayopt.hpp"
+#include "gamestates/gssoundopt.hpp"
 #include "opengl.hpp"
 #include "timer.hpp"
 #include "graphic/core/device.hpp"
@@ -48,6 +53,11 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 	m_gameStates[0] = new GSMainMenu(this);
 	m_gameStates[1] = new GSPlay(this);
 	m_gameStates[2] = new GSEditor(this);
+	m_gameStates[3] = new GSEditorChoice(this);
+	m_gameStates[4] = new GSGraphicOpt(this);
+	m_gameStates[5] = new GSInputOpt(this);
+	m_gameStates[6] = new GSGameplayOpt(this);
+	m_gameStates[7] = new GSSoundOpt(this);
 
 	PushState( GetMainMenuState() );
 }
@@ -64,7 +74,7 @@ Monolith::~Monolith()
 		LOG_ERROR("Could not write a config file!");
 	}
 	delete m_graficContent;
-	for( int i = 0; i < 3; ++i )
+	for( int i = 0; i < 8; ++i )
 		delete m_gameStates[i];
 
 	Voxel::TypeInfo::Unload();
@@ -146,15 +156,11 @@ void Monolith::BuildDefaultConfig()
 }
 
 // ************************************************************************* //
-GSMainMenu* Monolith::GetMainMenuState()
-{
-	return static_cast<GSMainMenu*>(m_gameStates[0]);
-}
-GSPlay* Monolith::GetPlayState()
-{
-	return static_cast<GSPlay*>(m_gameStates[1]);
-}
-GSEditor* Monolith::GetEditorState()
-{
-	return static_cast<GSEditor*>(m_gameStates[2]);
-}
+GSMainMenu* Monolith::GetMainMenuState()			{ return static_cast<GSMainMenu*>(m_gameStates[0]); }
+GSPlay* Monolith::GetPlayState()					{ return static_cast<GSPlay*>(m_gameStates[1]); }
+GSEditor* Monolith::GetEditorState()				{ return static_cast<GSEditor*>(m_gameStates[2]); }
+GSEditorChoice* Monolith::GetEditorChoiceState()	{ return static_cast<GSEditorChoice*>(m_gameStates[3]); }
+GSGraphicOpt* Monolith::GetGraphicOptState()		{ return static_cast<GSGraphicOpt*>(m_gameStates[4]); }
+GSInputOpt* Monolith::GetInputOptState()			{ return static_cast<GSInputOpt*>(m_gameStates[5]); }
+GSGameplayOpt* Monolith::GetGameplayOptState()		{ return static_cast<GSGameplayOpt*>(m_gameStates[6]); }
+GSSoundOpt* Monolith::GetSoundOptState()			{ return static_cast<GSSoundOpt*>(m_gameStates[7]); }
