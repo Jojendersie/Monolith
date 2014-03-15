@@ -3,6 +3,7 @@
 #include "game.hpp"
 #include "gamestates/gsmainmenu.hpp"
 #include "gamestates/gsplay.hpp"
+#include "gamestates/gseditor.hpp"
 #include "opengl.hpp"
 #include "timer.hpp"
 #include "graphic/core/device.hpp"
@@ -46,6 +47,7 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 	// Create game states
 	m_gameStates[0] = new GSMainMenu(this);
 	m_gameStates[1] = new GSPlay(this);
+	m_gameStates[2] = new GSEditor(this);
 
 	PushState( GetMainMenuState() );
 }
@@ -62,8 +64,8 @@ Monolith::~Monolith()
 		LOG_ERROR("Could not write a config file!");
 	}
 	delete m_graficContent;
-	delete m_gameStates[0];
-	delete m_gameStates[1];
+	for( int i = 0; i < 3; ++i )
+		delete m_gameStates[i];
 
 	Voxel::TypeInfo::Unload();
 }
@@ -151,4 +153,8 @@ GSMainMenu* Monolith::GetMainMenuState()
 GSPlay* Monolith::GetPlayState()
 {
 	return static_cast<GSPlay*>(m_gameStates[1]);
+}
+GSEditor* Monolith::GetEditorState()
+{
+	return static_cast<GSEditor*>(m_gameStates[2]);
 }

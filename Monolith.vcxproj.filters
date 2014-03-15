@@ -158,6 +158,9 @@
     <ClCompile Include="src\graphic\interface\hudelements.cpp">
       <Filter>Source Files\graphic\interface</Filter>
     </ClCompile>
+    <ClCompile Include="src\gamestates\gseditor.cpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game.hpp">
@@ -300,6 +303,9 @@
     </ClInclude>
     <ClInclude Include="src\graphic\interface\hudelements.hpp">
       <Filter>Source Files\graphic\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gamestates\gseditor.hpp">
+      <Filter>Source Files\gamestates</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

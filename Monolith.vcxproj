@@ -80,6 +80,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp" />
+    <ClCompile Include="src\gamestates\gseditor.cpp" />
     <ClCompile Include="src\gamestates\gsmainmenu.cpp" />
     <ClCompile Include="src\gamestates\gsplay.cpp" />
     <ClCompile Include="src\generators\asteroid.cpp" />
@@ -121,6 +122,7 @@
     <ClInclude Include="src\algorithm\smallsort.hpp" />
     <ClInclude Include="src\game.hpp" />
     <ClInclude Include="src\gamestates\gamestatebase.hpp" />
+    <ClInclude Include="src\gamestates\gseditor.hpp" />
     <ClInclude Include="src\gamestates\gsmainmenu.hpp" />
     <ClInclude Include="src\gamestates\gsplay.hpp" />
     <ClInclude Include="src\generators\asteroid.hpp" />
