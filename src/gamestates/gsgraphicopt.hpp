@@ -10,8 +10,8 @@ public:
 	GSGraphicOpt(Monolith* _game);
 	~GSGraphicOpt();
 
-	void OnBegin()					{}
-	virtual void OnEnd() override	{}
+	void OnBegin();
+	virtual void OnEnd() override;
 
 	virtual void Update( double _time, double _deltaTime ) override;
 	virtual void Render( double _time, double _deltaTime ) override;

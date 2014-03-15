@@ -10,13 +10,31 @@ using namespace Math;
 // ************************************************************************* //
 GSEditorChoice::GSEditorChoice(Monolith* _game) : IGameState(_game)
 {
+	LOG_LVL2("Starting to create game state EditorChoice");
+
 	m_hud = new Graphic::Hud(_game->m_graficContent, _game);
+
+	LOG_LVL2("Created game state EditorChoice");
 }
 
 // ************************************************************************* //
 GSEditorChoice::~GSEditorChoice()
 {
 	delete m_hud;
+
+	LOG_LVL2("Deleted game state EditorChoice");
+}
+
+// ************************************************************************* //
+void GSEditorChoice::OnBegin()
+{
+	LOG_LVL2("Entered game state EditorChoice");
+}
+
+// ************************************************************************* //
+void GSEditorChoice::OnEnd()
+{
+	LOG_LVL2("Left game state EditorChoice");
 }
 
 // ************************************************************************* //

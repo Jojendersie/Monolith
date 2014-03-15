@@ -10,13 +10,31 @@ using namespace Math;
 // ************************************************************************* //
 GSGraphicOpt::GSGraphicOpt(Monolith* _game) : IGameState(_game)
 {
+	LOG_LVL2("Starting to create game state GraphicOpt");
+
 	m_hud = new Graphic::Hud(_game->m_graficContent, _game);
+
+	LOG_LVL2("Created game state GraphicOpt");
 }
 
 // ************************************************************************* //
 GSGraphicOpt::~GSGraphicOpt()
 {
 	delete m_hud;
+
+	LOG_LVL2("Deleted game state GraphicOpt");
+}
+
+// ************************************************************************* //
+void GSGraphicOpt::OnBegin()
+{
+	LOG_LVL2("Entered game state GraphicOpt");
+}
+
+// ************************************************************************* //
+void GSGraphicOpt::OnEnd()
+{
+	LOG_LVL2("Left game state GraphicOpt");
 }
 
 // ************************************************************************* //

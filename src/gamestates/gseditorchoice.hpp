@@ -10,8 +10,8 @@ public:
 	GSEditorChoice(Monolith* _game);
 	~GSEditorChoice();
 
-	void OnBegin()					{}
-	virtual void OnEnd() override	{}
+	void OnBegin();
+	virtual void OnEnd() override;
 
 	virtual void Update( double _time, double _deltaTime ) override;
 	virtual void Render( double _time, double _deltaTime ) override;

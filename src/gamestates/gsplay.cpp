@@ -23,6 +23,8 @@ namespace RenderStat {
 // ************************************************************************* //
 GSPlay::GSPlay(Monolith* _game) : IGameState(_game), m_astTest(nullptr)
 {
+	LOG_LVL2("Starting to create game state Play");
+
 	m_hud = new Graphic::Hud(_game->m_graficContent, _game);
 
 	m_camera = new Input::Camera( Vec3( 0.0f, 0.0f, 0.0f ),
@@ -31,6 +33,8 @@ GSPlay::GSPlay(Monolith* _game) : IGameState(_game), m_astTest(nullptr)
 		Graphic::Device::GetAspectRatio() );
 
 	m_objectPlane = new Graphic::Marker::Grid( 80, 80, 20.0f, Utils::Color32F( 0.5f, 0.5f, 1.0f, 0.5f ), true, _game->m_graficContent );
+
+	LOG_LVL2("Created game state Play");
 }
 
 // ************************************************************************* //
@@ -40,6 +44,8 @@ GSPlay::~GSPlay()
 	delete m_camera;
 	delete m_astTest;
 	delete m_hud;
+
+	LOG_LVL2("Deleted game state Play");
 }
 
 // ************************************************************************* //
@@ -51,6 +57,14 @@ void GSPlay::OnBegin()
 		m_astTest->SetCenter( Vec3(0.0f) );
 	}
 	m_camera->ZoomAt( *m_astTest );
+
+	LOG_LVL2("Entered game state Play");
+}
+
+// ************************************************************************* //
+void GSPlay::OnEnd()
+{
+	LOG_LVL2("Left game state Play");
 }
 
 // ************************************************************************* //

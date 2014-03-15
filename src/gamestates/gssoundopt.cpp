@@ -10,13 +10,31 @@ using namespace Math;
 // ************************************************************************* //
 GSSoundOpt::GSSoundOpt(Monolith* _game) : IGameState(_game)
 {
+	LOG_LVL2("Starting to create game state SoundOpt");
+
 	m_hud = new Graphic::Hud(_game->m_graficContent, _game);
+
+	LOG_LVL2("Created game state SoundOpt");
 }
 
 // ************************************************************************* //
 GSSoundOpt::~GSSoundOpt()
 {
 	delete m_hud;
+
+	LOG_LVL2("Deleted game state SoundOpt");
+}
+
+// ************************************************************************* //
+void GSSoundOpt::OnBegin()
+{
+	LOG_LVL2("Entered game state SoundOpt");
+}
+
+// ************************************************************************* //
+void GSSoundOpt::OnEnd()
+{
+	LOG_LVL2("Left game state SoundOpt");
 }
 
 // ************************************************************************* //
