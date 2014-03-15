@@ -1,6 +1,7 @@
 #include "font.hpp"
-#include "../game.hpp"
+#include "../../game.hpp"
 #include <functional>
+#include <memory>
 
 namespace Graphic {
 
@@ -20,17 +21,23 @@ namespace Graphic {
 			Math::Vec2 _position, Math::Vec2 _position2 = Math::Vec2(0.f,0.f), std::function<void()> _OnMouseUp = [] () {return;});
 		TextureVertex m_vertex;
 
+		//Only the tex in front recieves this events
+
+		/// \brief Triggered when the mouse entered the tex this frame
 		virtual void MouseEnter();
+		/// \brief Triggered when the mouse leaved the tex this frame
 		virtual	void MouseLeave();
-		virtual void MouseDown();
-		virtual void MouseUp();
+		/// \brief Called when left mouse buttons goes down inside the tex; @param _pos Pos of Mouse relative to the button
+		virtual void MouseDown(Math::Vec2 _pos = Math::Vec2(0.f,0.f));
+		/// \brief Called when left mouse buttons goes up inside the tex; @param _pos Pos of Mouse relative to the button
+		virtual void MouseUp(Math::Vec2 _pos = Math::Vec2(0.f,0.f));
 
 		void SetState(bool _state) {m_active = _state;};
 		void SetVisibility(bool _visibility){m_visible = _visibility;};
 
 		bool GetState(){return m_active;};
 		bool GetVisibility(){return m_visible;};
-	private:
+	protected:
 		bool m_active; ///< false: tex gets ignored by everything
 		bool m_visible; 
 		//events
@@ -55,11 +62,35 @@ namespace Graphic {
 
 		void MouseEnter();
 		void MouseLeave();
-		void MouseDown();
-		void MouseUp();
+		void MouseDown(Math::Vec2 _pos);
+		void MouseUp(Math::Vec2 _pos);
 
 	private:
 		int m_btnState; // 0 - default; 1 - mouseover; 2 - down
+	};
+	/// \brief A field wich allows text input
+	class Editfield : public ScreenTexture
+	{
+	public:
+		/// \brief Create a useable EditField on the screen
+		/// \details param [in] informations needed for tex and Textrender
+		/// _lines The amount of lines the field has; 0 means automatic
+		Editfield(Jo::Files::MetaFileWrapper* _posMap, Font* _font, Math::Vec2 _position, Math::Vec2 _size, int _lines = 1, float _fontSize = 1);
+
+	private:
+
+		/// \brief Adds an line after the specified one when it does not violate m_linesMax 
+		void AddLine(int _preLine);
+
+		int m_linesMax;
+		Font* m_font;
+		float m_fontSize; ///< all lines have the same size
+		int m_cursor[2]; /// < [0] - char;  [1] - line
+		std::vector< std::unique_ptr< TextRender > > m_lines; 
+
+		void MouseDown(Math::Vec2 _pos);
+		void MouseUp(Math::Vec2 _pos);
+
 	};
 
 };

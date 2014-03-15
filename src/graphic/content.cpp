@@ -1,8 +1,8 @@
 #include <cassert>
 #include "../opengl.hpp"
 #include "content.hpp"
-#include "texture.hpp"
-#include "device.hpp"
+#include "core/texture.hpp"
+#include "core/device.hpp"
 
 namespace Graphic {
 

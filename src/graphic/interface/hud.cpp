@@ -1,5 +1,5 @@
 #include "hud.hpp"
-#include "..\input\input.hpp"
+#include "..\..\input\input.hpp"
 
 namespace Graphic
 {

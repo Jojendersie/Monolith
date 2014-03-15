@@ -1,7 +1,7 @@
 #include "chunk.hpp"
 #include "model.hpp"
-#include "../graphic/device.hpp"
-#include "../graphic/uniformbuffer.hpp"
+#include "../graphic/core/device.hpp"
+#include "../graphic/core/uniformbuffer.hpp"
 #include "../input/camera.hpp"
 #include <cstdlib>
 #include <cstring>

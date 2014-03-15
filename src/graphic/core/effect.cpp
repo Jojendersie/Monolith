@@ -1,5 +1,5 @@
 #include "effect.hpp"
-#include "../opengl.hpp"
+#include "../../opengl.hpp"
 #include "uniformbuffer.hpp"
 #include <cstdint>
 

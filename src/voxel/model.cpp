@@ -2,7 +2,7 @@
 #include "chunk.hpp"
 #include <cstdlib>
 #include "../input/camera.hpp"
-#include "../graphic/uniformbuffer.hpp"
+#include "../graphic/core/uniformbuffer.hpp"
 
 using namespace Math;
 

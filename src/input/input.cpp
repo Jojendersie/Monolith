@@ -2,7 +2,7 @@
 #include "../gamestates/gamestatebase.hpp"
 #include "../timer.hpp"
 #include "../math/vector.hpp"
-#include "../graphic/device.hpp"
+#include "../graphic/core/device.hpp"
 
 using namespace std;
 

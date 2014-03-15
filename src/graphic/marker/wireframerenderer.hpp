@@ -2,7 +2,7 @@
 
 #include "../../predeclarations.hpp"
 #include "../../utilities/color.hpp"
-#include "../vertexbuffer.hpp"
+#include "../core/vertexbuffer.hpp"
 
 namespace Graphic {
 namespace Marker {

@@ -1,5 +1,5 @@
 #include "samplerstate.hpp"
-#include "../opengl.hpp"
+#include "../../opengl.hpp"
 #include <cassert>
 
 namespace Graphic {

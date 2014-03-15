@@ -1,5 +1,5 @@
 #include "rasterizerstate.hpp"
-#include "../opengl.hpp"
+#include "../../opengl.hpp"
 
 namespace Graphic {
 	

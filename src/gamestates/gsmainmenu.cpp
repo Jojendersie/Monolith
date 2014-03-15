@@ -1,11 +1,11 @@
 #include "../game.hpp"
 #include "gsmainmenu.hpp"
 #include "gsplay.hpp"
-#include "../graphic/device.hpp"
+#include "../graphic/core/device.hpp"
 #include "../math/math.hpp"
 #include "../input/camera.hpp"
 #include "../input/input.hpp"
-#include "../graphic/hud.hpp"
+#include "../graphic/interface/hud.hpp"
 using namespace Math;
 #include <cassert>
 

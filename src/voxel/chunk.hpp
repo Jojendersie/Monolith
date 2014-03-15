@@ -4,7 +4,7 @@
 #include <cassert>
 #include "../predeclarations.hpp"
 #include "../math/vector.hpp"
-#include "../graphic/vertexbuffer.hpp"
+#include "../graphic/core/vertexbuffer.hpp"
 #include "voxel.hpp"
 #include "sparseoctree.hpp"
 #include "model.hpp"

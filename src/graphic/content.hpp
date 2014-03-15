@@ -1,10 +1,10 @@
 #pragma once
 
-#include "uniformbuffer.hpp"
-#include "effect.hpp"
-#include "samplerstate.hpp"
+#include "core/uniformbuffer.hpp"
+#include "core/effect.hpp"
+#include "core/samplerstate.hpp"
 #include "../predeclarations.hpp"
-#include "font.hpp"
+#include "interface/font.hpp"
 
 namespace Graphic {
 
@@ -22,7 +22,7 @@ namespace Graphic {
 		Graphic::SamplerState pointSampler;
 		Graphic::SamplerState linearSampler;
 
-		Graphic::Font* defaultFont;		
+		Graphic::Font* defaultFont; ///< Font used if nothing else is specified		
 		Graphic::Font* gameFont;	///< Font used for all menus...
 	};
 

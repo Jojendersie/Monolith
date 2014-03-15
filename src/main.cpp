@@ -1,5 +1,5 @@
 #include "game.hpp"
-#include "graphic/device.hpp"
+#include "graphic/core/device.hpp"
 //#include "predeclarations.hpp"
 #include "utilities/loggerinit.hpp"
 

@@ -1,6 +1,6 @@
 #include "device.hpp"
-#include "../opengl.hpp"
-#include "../predeclarations.hpp"
+#include "../../opengl.hpp"
+#include "../../predeclarations.hpp"
 #include "vertexbuffer.hpp"
 #include "texture.hpp"
 //#include <cstdio>

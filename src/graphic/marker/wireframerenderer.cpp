@@ -1,5 +1,5 @@
 #include "wireframerenderer.hpp"
-#include "../device.hpp"
+#include "../core/device.hpp"
 #include "../content.hpp"
 
 using namespace Math;

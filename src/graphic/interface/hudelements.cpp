@@ -22,12 +22,12 @@ namespace Graphic
 	{
 		if(OnMouseLeave != NULL) OnMouseLeave();
 	}
-	void ScreenTexture::MouseDown()
+	void ScreenTexture::MouseDown(Math::Vec2 _pos)
 	{
 		if(OnMouseDown != NULL) OnMouseDown();
 	}
 
-	void ScreenTexture::MouseUp()
+	void ScreenTexture::MouseUp(Math::Vec2 _pos)
 	{
 		if(OnMouseUp != NULL) OnMouseUp();
 	}
@@ -62,7 +62,7 @@ namespace Graphic
 		m_btnOver.SetVisibility(false);
 		m_btnDown.SetVisibility(false);
 	}
-	void Button::MouseDown()
+	void Button::MouseDown(Math::Vec2 _pos)
 	{
 		ScreenTexture::MouseDown();
 		m_btnDefault.SetVisibility(false);
@@ -70,7 +70,7 @@ namespace Graphic
 		m_btnDown.SetVisibility(true);
 	}
 
-	void Button::MouseUp()
+	void Button::MouseUp(Math::Vec2 _pos)
 	{
 		ScreenTexture::MouseUp();
 		m_btnDefault.SetVisibility(true);
@@ -78,4 +78,41 @@ namespace Graphic
 		m_btnDown.SetVisibility(false);
 	}
 
+
+
+	Editfield::Editfield(Jo::Files::MetaFileWrapper* _posMap, Font* _font, Math::Vec2 _position, Math::Vec2 _size, int _lines, float _fontSize):
+		ScreenTexture(_posMap, "EditField", _position, _size),
+		m_linesMax(_lines),
+		m_font(_font),
+		m_fontSize(_fontSize)
+	{
+		m_lines.push_back(std::unique_ptr<TextRender>(new TextRender(_font)));
+	//	SetVisibility(false); 
+	//	SetState(true);
+		m_lines[0]->SetPos(_position+Math::Vec2(0.02f,-0.75f*_size[1]));
+	//	m_lines[0].SetText("insert text here");
+	}
+
+	void Editfield::AddLine(int _preLine)
+	{
+		int size = m_lines.size();
+		if(size >= m_linesMax) return;
+		//create new line on right pos
+		m_lines.insert(m_lines.begin()+_preLine, std::unique_ptr<TextRender>(new TextRender(m_font)));
+		//erange texture and TextRenders
+		for(int i = 0; i < size; i++)
+			m_lines[i]->SetPos(m_vertex.position+Math::Vec2(0.02f,-0.75f*i));
+	}
+
+	void Editfield::MouseDown(Math::Vec2 _pos)
+	{
+		//calc pursor pos
+		//take dimensions of the first char, as every 
+//		m_cursor[0] = _pos[0] / m_font->m_sizeTable[0][0];
+	//	m_cursor[1] = _pos[1] / m_fontSize;
+	}
+
+	void Editfield::MouseUp(Math::Vec2 _pos)
+	{
+	}
 };

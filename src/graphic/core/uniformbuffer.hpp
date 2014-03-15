@@ -2,7 +2,7 @@
 
 #include <string>
 #include <unordered_map>
-#include "../math/math.hpp"
+#include "../../math/math.hpp"
 
 namespace Graphic {
 

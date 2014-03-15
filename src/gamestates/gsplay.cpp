@@ -1,17 +1,17 @@
 #include "../game.hpp"
 #include "gsplay.hpp"
-#include "../graphic/device.hpp"
+#include "../graphic/core/device.hpp"
 #include "../math/math.hpp"
 #include "../input/camera.hpp"
 #include "../input/input.hpp"
-#include "../graphic/hud.hpp"
+#include "../graphic/interface/hud.hpp"
 #include "../graphic/marker/grid.hpp"
 using namespace Math;
 #include <cassert>
 
 // TODO: remove after test
 #include "../generators/asteroid.hpp"
-#include "../graphic/texture.hpp"
+#include "../graphic/core/texture.hpp"
 #include "../generators/random.hpp"
 #include "../voxel/voxel.hpp"
 

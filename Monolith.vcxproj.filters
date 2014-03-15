@@ -39,19 +39,16 @@
     <Filter Include="Source Files\graphic\markers">
       <UniqueIdentifier>{49acab65-af0b-47dc-a5eb-501c814bf22a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\graphic\core">
+      <UniqueIdentifier>{352588de-8ef8-4fa0-b4eb-8b4e54c29b44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\graphic\interface">
+      <UniqueIdentifier>{b4cc2e4f-2261-4c4d-b53b-2a4909a4abcd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\graphic\texture.cpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClCompile>
-    <ClCompile Include="src\graphic\device.cpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClCompile>
-    <ClCompile Include="src\graphic\framebuffer.cpp">
-      <Filter>Source Files\graphic</Filter>
     </ClCompile>
     <ClCompile Include="src\voxel\model.cpp">
       <Filter>Source Files\voxel</Filter>
@@ -59,29 +56,8 @@
     <ClCompile Include="src\voxel\chunk.cpp">
       <Filter>Source Files\voxel</Filter>
     </ClCompile>
-    <ClCompile Include="src\graphic\effect.cpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClCompile>
-    <ClCompile Include="src\graphic\rasterizerstate.cpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClCompile>
-    <ClCompile Include="src\graphic\samplerstate.cpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClCompile>
-    <ClCompile Include="src\graphic\blendstate.cpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClCompile>
-    <ClCompile Include="src\graphic\depthstencilstate.cpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClCompile>
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\graphic\uniformbuffer.cpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClCompile>
-    <ClCompile Include="src\graphic\vertexbuffer.cpp">
-      <Filter>Source Files\graphic</Filter>
     </ClCompile>
     <ClCompile Include="src\math\matrix.cpp">
       <Filter>Source Files\math</Filter>
@@ -91,9 +67,6 @@
     </ClCompile>
     <ClCompile Include="src\opengl.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\graphic\font.cpp">
-      <Filter>Source Files\graphic</Filter>
     </ClCompile>
     <ClCompile Include="src\generators\random.cpp">
       <Filter>Source Files\generators</Filter>
@@ -125,12 +98,6 @@
     <ClCompile Include="src\voxel\material.cpp">
       <Filter>Source Files\voxel</Filter>
     </ClCompile>
-    <ClCompile Include="src\graphic\hud.cpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClCompile>
-    <ClCompile Include="src\graphic\hudelements.cpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClCompile>
     <ClCompile Include="src\gamestates\gsmainmenu.cpp">
       <Filter>Source Files\gamestates</Filter>
     </ClCompile>
@@ -152,19 +119,49 @@
     <ClCompile Include="src\graphic\marker\grid.cpp">
       <Filter>Source Files\graphic\markers</Filter>
     </ClCompile>
+    <ClCompile Include="src\graphic\core\blendstate.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\depthstencilstate.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\device.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\effect.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\framebuffer.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\rasterizerstate.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\samplerstate.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\texture.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\uniformbuffer.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\vertexbuffer.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\interface\font.cpp">
+      <Filter>Source Files\graphic\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\interface\hud.cpp">
+      <Filter>Source Files\graphic\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\interface\hudelements.cpp">
+      <Filter>Source Files\graphic\interface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game.hpp">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\graphic\framebuffer.hpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClInclude>
-    <ClInclude Include="src\graphic\texture.hpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClInclude>
-    <ClInclude Include="src\graphic\device.hpp">
-      <Filter>Source Files\graphic</Filter>
     </ClInclude>
     <ClInclude Include="src\voxel\model.hpp">
       <Filter>Source Files\voxel</Filter>
@@ -172,29 +169,8 @@
     <ClInclude Include="src\voxel\chunk.hpp">
       <Filter>Source Files\voxel</Filter>
     </ClInclude>
-    <ClInclude Include="src\graphic\effect.hpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClInclude>
-    <ClInclude Include="src\graphic\rasterizerstate.hpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClInclude>
-    <ClInclude Include="src\graphic\samplerstate.hpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClInclude>
-    <ClInclude Include="src\graphic\blendstate.hpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClInclude>
-    <ClInclude Include="src\graphic\depthstencilstate.hpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClInclude>
     <ClInclude Include="src\opengl.hpp">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\graphic\uniformbuffer.hpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClInclude>
-    <ClInclude Include="src\graphic\vertexbuffer.hpp">
-      <Filter>Source Files\graphic</Filter>
     </ClInclude>
     <ClInclude Include="src\math\matrix.hpp">
       <Filter>Source Files\math</Filter>
@@ -213,9 +189,6 @@
     </ClInclude>
     <ClInclude Include="src\generators\asteroid.hpp">
       <Filter>Source Files\generators</Filter>
-    </ClInclude>
-    <ClInclude Include="src\graphic\font.hpp">
-      <Filter>Source Files\graphic</Filter>
     </ClInclude>
     <ClInclude Include="src\generators\random.hpp">
       <Filter>Source Files\generators</Filter>
@@ -262,12 +235,6 @@
     <ClInclude Include="src\voxel\material.hpp">
       <Filter>Source Files\voxel</Filter>
     </ClInclude>
-    <ClInclude Include="src\graphic\hud.hpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClInclude>
-    <ClInclude Include="src\graphic\hudelements.hpp">
-      <Filter>Source Files\graphic</Filter>
-    </ClInclude>
     <ClInclude Include="src\gamestates\gamestatebase.hpp">
       <Filter>Source Files\gamestates</Filter>
     </ClInclude>
@@ -294,6 +261,45 @@
     </ClInclude>
     <ClInclude Include="src\graphic\marker\grid.hpp">
       <Filter>Source Files\graphic\markers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\core\blendstate.hpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\core\depthstencilstate.hpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\core\device.hpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\core\effect.hpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\core\framebuffer.hpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\core\rasterizerstate.hpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\core\samplerstate.hpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\core\texture.hpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\core\uniformbuffer.hpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\core\vertexbuffer.hpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\interface\font.hpp">
+      <Filter>Source Files\graphic\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\interface\hud.hpp">
+      <Filter>Source Files\graphic\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\interface\hudelements.hpp">
+      <Filter>Source Files\graphic\interface</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

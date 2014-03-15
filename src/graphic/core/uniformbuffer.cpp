@@ -1,5 +1,5 @@
 #include "uniformbuffer.hpp"
-#include "../opengl.hpp"
+#include "../../opengl.hpp"
 #include <cstdint>
 #include <cassert>
 

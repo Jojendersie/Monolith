@@ -3,13 +3,13 @@
 #include <string>
 #include <cassert>
 #include <cstdint>
-#include "vertexbuffer.hpp"
-#include "effect.hpp"
-#include "texture.hpp"
-#include "device.hpp"
-#include "content.hpp"
+#include "../core/vertexbuffer.hpp"
+#include "../core/effect.hpp"
+#include "../core/texture.hpp"
+#include "../core/device.hpp"
+#include "../content.hpp"
 #include <jofilelib.hpp>
-#include "../utilities/color.hpp"
+#include "../../utilities/color.hpp"
 
 
 namespace Graphic {
@@ -52,10 +52,10 @@ namespace Graphic {
 		/// \details chars are one byte, ansi code 
 		/// control chars and formating : 
 		/// 13 : line break
-		/// "<s sss" size "sized text" "</s"
-		/// "<c rrr ggg bbb aaa " "colored text" "</c"
-		/// "<i " "italic text" "</i" not yet implemented
-		/// "<t  ttt" "thickness text" "</b"
+		/// "<s sss>" size "sized text" "</s>"
+		/// "<c rrr ggg bbb aaa>" "colored text" "</c>"
+		/// "<i>" "italic text" "</i" not yet implemented
+		/// "<t  ttt>" "thickness text" "</b>"
 		/*performance view of alternative syntax: 4x{ 2x cmp 3x {add; mul}} + all xx iterations need cmp, inc, jmp
 										 current: direct acsess possible*/
 		void SetText(const std::string& _text);

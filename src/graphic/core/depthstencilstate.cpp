@@ -1,4 +1,4 @@
-#include "../opengl.hpp"
+#include "../../opengl.hpp"
 #include "depthstencilstate.hpp"
 
 namespace Graphic {

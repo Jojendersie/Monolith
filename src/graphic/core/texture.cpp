@@ -1,8 +1,8 @@
 #include <cstdint>
 #include <jofilelib.hpp>
 #include "texture.hpp"
-#include "../opengl.hpp"
-#include "../math/math.hpp"
+#include "../../opengl.hpp"
+#include "../../math/math.hpp"
 
 namespace Graphic {
 
