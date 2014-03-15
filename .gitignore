@@ -26,3 +26,8 @@ html/
 *.user
 *.vspx
 *.psess
+*.tlog
+*.idb
+*.pdb
+*.obj
+*.db
