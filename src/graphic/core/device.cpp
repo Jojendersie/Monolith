@@ -1,5 +1,5 @@
 #include "device.hpp"
-#include "../../opengl.hpp"
+#include "opengl.hpp"
 #include "../../predeclarations.hpp"
 #include "vertexbuffer.hpp"
 #include "texture.hpp"

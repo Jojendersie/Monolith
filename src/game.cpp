@@ -9,7 +9,6 @@
 #include "gamestates/gsinputopt.hpp"
 #include "gamestates/gsgameplayopt.hpp"
 #include "gamestates/gssoundopt.hpp"
-#include "opengl.hpp"
 #include "timer.hpp"
 #include "graphic/core/device.hpp"
 #include "graphic/core/uniformbuffer.hpp"

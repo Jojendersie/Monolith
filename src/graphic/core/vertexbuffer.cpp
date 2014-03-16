@@ -1,5 +1,5 @@
 #include "vertexbuffer.hpp"
-#include "../../opengl.hpp"
+#include "opengl.hpp"
 #include <cstdlib>
 #include <cstring>
 #include <cassert>

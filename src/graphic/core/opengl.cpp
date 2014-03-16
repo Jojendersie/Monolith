@@ -4,7 +4,7 @@
 #ifndef LOG_NO_LOCALIZATION
 #	define LOG_NO_LOCALIZATION
 #endif
-#include "utilities/logger.hpp"
+#include "../../utilities/logger.hpp"
 
 void LogGlError( const char* _pMessage )
 {
