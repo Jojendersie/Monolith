@@ -1,4 +1,5 @@
 #include "hudelements.hpp"
+#include <forward_list>
 
 
 namespace Graphic {
@@ -31,12 +32,16 @@ namespace Graphic {
 		bool KeyDown( int _key, int _modifiers );
 		bool KeyUp( int _key, int _modifiers );
 
+		bool Scroll(double _dx, double _dy);
+
 		Hud( Content* _globalPipelineData, Monolith* _game );
 		~Hud();
 
 		TextRender* m_dbgLabel;
 
 	private:
+		ScreenTexture* m_focus;///< object wich currently takes the input
+
 		/// \brief rebuilds the vertex buffer for screen textures
 		void RenewBuffer(); 
 

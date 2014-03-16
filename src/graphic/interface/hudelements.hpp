@@ -32,6 +32,8 @@ namespace Graphic {
 		/// \brief Called when left mouse buttons goes up inside the tex; @param _pos Pos of Mouse relative to the button
 		virtual void MouseUp(Math::Vec2 _pos = Math::Vec2(0.f,0.f));
 
+		//virtual void KeyDown
+
 		void SetState(bool _state) {m_active = _state;};
 		void SetVisibility(bool _visibility){m_visible = _visibility;};
 

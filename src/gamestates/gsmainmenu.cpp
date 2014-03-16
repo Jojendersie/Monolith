@@ -35,7 +35,7 @@ void GSMainMenu::Render( double _time, double _deltaTime )
 {
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 	
-	m_hud->m_dbgLabel->SetText("<s 034>" + std::to_string(_deltaTime * 1000.0) + " ms</s>");
+	m_hud->m_dbgLabel->SetText("<t 026> <s 024>" + std::to_string(_deltaTime * 1000.0) + " ms</s></t>");
 	m_hud->Draw(  _time, _deltaTime );
 }
 

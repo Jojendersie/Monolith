@@ -42,7 +42,7 @@ namespace Graphic
 	{
 		SetVisibility(false); 
 		SetState(true);
-		m_caption.SetPos(_position+Math::Vec2(0.02f,-0.75f*_size[1]));
+		m_caption.SetPos(_position+Math::Vec2(0.02f,-_size[1] * 0.5f - m_caption.GetDim()[1] * 0.5f));//-0.75f*_size[1]
 		m_caption.SetText(_name);
 		m_btnDefault.SetVisibility(true);
 		m_btnOver.SetVisibility(false);

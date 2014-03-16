@@ -63,6 +63,8 @@ namespace Graphic {
 		// \brief Sets the Position on the screen.
 		void SetPos(Math::Vec2 _screenPos);
 
+		Math::Vec2 GetDim() {return Math::Vec2(m_font->m_sizeTable[0][0],m_font->m_sizeTable[0][1]*m_font->m_texture.Height() / m_font->m_texture.Width());};
+
 		bool m_active;
 
 	private:

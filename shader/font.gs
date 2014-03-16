@@ -9,6 +9,8 @@ in vec2 vs_out_Size[1];
 in float vs_out_Thickness[1];
 in float vs_out_Scale[1];
 
+uniform sampler2D u_characterTex;
+
 out vec2 gs_texCoord;
 out float gs_thickness;
 out vec4 gs_color;
@@ -26,8 +28,9 @@ layout(std140) uniform Global
 
 void main(void)
 {
+	ivec2 texSize = textureSize(u_characterTex, 0);
 	float w = vs_out_Size[0].x * vs_out_Scale[0];
-	float h = vs_out_Size[0].y * vs_out_Scale[0] / c_fAspect;
+	float h = vs_out_Size[0].y * vs_out_Scale[0] * texSize.y / texSize.x;
 
 	// Pass through
 	gs_thickness = vs_out_Thickness[0];

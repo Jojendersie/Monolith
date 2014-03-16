@@ -44,7 +44,6 @@ namespace Graphic
 
 		delete m_containerMap;
 		delete m_cursor;
-//		delete m_btnMenu;
 		for( int i = 0; i < m_btnCount; i++ )
 			delete m_buttons[i];
 	}
@@ -63,10 +62,16 @@ namespace Graphic
 
 		Device::SetEffect( m_globalPipelineData->texture2DEffect );
 		Device::SetTexture( m_container, 7 );
-		Device::DrawVertices( m_characters, 0, m_characters.GetNumVertices() );
+		//ignore cursor
+		Device::DrawVertices( m_characters, 0, m_characters.GetNumVertices()-1 );
 
 		for(int i = 0; i < m_textRenderCount; i++ )
 			if(m_textRenders[i]->m_active) m_textRenders[i]->Draw();
+
+		//draw cursor last
+		Device::SetEffect( m_globalPipelineData->texture2DEffect );
+		Device::SetTexture( m_container, 7 );
+		Device::DrawVertices( m_characters, m_characters.GetNumVertices()-1, 1 );
 	}
 
 	void Hud::RenewBuffer()
@@ -132,6 +137,12 @@ namespace Graphic
 			m_preTex->MouseUp();
 			return true;
 		}
+		return false;
+	}
+
+	bool Hud::Scroll(double _dx, double _dy)
+	{
+		if(m_focus != nullptr) ;
 		return false;
 	}
 

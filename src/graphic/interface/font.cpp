@@ -35,7 +35,7 @@ namespace Graphic
 		m_font(_font),
 		m_characters( "222c11", VertexBuffer::PrimitiveType::POINT ),//222c11
 		m_screenPos( 0.0f ),
-		m_sizeD(1.f),
+		m_sizeD(2.f),
 		m_colorD((uint8_t)255,(uint8_t)255,(uint8_t)255,(uint8_t)255),
 		m_thicknessD(0.5f),
 		m_active(true)
@@ -75,7 +75,7 @@ namespace Graphic
 		int jmpCount = 0;
 		switch (m_text[_i+1])
 		{
-		case 's': m_size = (uint8_t)(m_text[_i+3]*100+m_text[_i+4]*10+m_text[_i+5]-208) * 6.25f / 255.f;
+		case 's': m_size = (uint8_t)(m_text[_i+3]*100+m_text[_i+4]*10+m_text[_i+5]-208) * 12.5f / 255.f;
 			jmpCount = 5;
 			break;
 		case 't': m_thickness =(uint8_t) (m_text[_i+3]*100+m_text[_i+4]*10+m_text[_i+5]-208) * 6.25f / 255.f;
@@ -116,7 +116,7 @@ namespace Graphic
 			CV.scale = m_size;//1.f 
 			CV.size = m_font->m_sizeTable[m_text[i]];
 			CV.texCoord = m_font->m_coordTable[m_text[i]];
-			CV.position = Math::Vec2(currentPos[0],currentPos[1] + (m_size-1.f) * CV.size[1]); //0.666 - 0.03 
+			CV.position = Math::Vec2(currentPos[0],currentPos[1]); //(m_size-1.f) * CV.size[1]) 
 			CV.thickness = m_thickness;
 			CV.color = m_color.RGBA(); 
 			//line break
