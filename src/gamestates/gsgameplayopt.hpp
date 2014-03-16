@@ -2,13 +2,13 @@
 
 #include "gamestatebase.hpp"
 
-/// \brief Game state for the initial menu.
-class GSMainMenu: public IGameState
+/// \brief Option menu state for graphics.
+class GSGameplayOpt: public IGameState
 {
 public:
 	/// \brief Create main state specific content.
-	GSMainMenu(Monolith* _game);
-	~GSMainMenu();
+	GSGameplayOpt(Monolith* _game);
+	~GSGameplayOpt();
 
 	void OnBegin();
 	virtual void OnEnd() override;

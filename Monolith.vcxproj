@@ -80,8 +80,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp" />
+    <ClCompile Include="src\gamestates\gseditor.cpp" />
+    <ClCompile Include="src\gamestates\gseditorchoice.cpp" />
+    <ClCompile Include="src\gamestates\gsgameplayopt.cpp" />
+    <ClCompile Include="src\gamestates\gsgraphicopt.cpp" />
+    <ClCompile Include="src\gamestates\gsinputopt.cpp" />
     <ClCompile Include="src\gamestates\gsmainmenu.cpp" />
     <ClCompile Include="src\gamestates\gsplay.cpp" />
+    <ClCompile Include="src\gamestates\gssoundopt.cpp" />
     <ClCompile Include="src\generators\asteroid.cpp" />
     <ClCompile Include="src\generators\random.cpp" />
     <ClCompile Include="src\graphic\content.cpp" />
@@ -90,8 +96,10 @@
     <ClCompile Include="src\graphic\core\device.cpp" />
     <ClCompile Include="src\graphic\core\effect.cpp" />
     <ClCompile Include="src\graphic\core\framebuffer.cpp" />
+    <ClCompile Include="src\graphic\core\opengl.cpp" />
     <ClCompile Include="src\graphic\core\rasterizerstate.cpp" />
     <ClCompile Include="src\graphic\core\samplerstate.cpp" />
+    <ClCompile Include="src\graphic\core\scissor.cpp" />
     <ClCompile Include="src\graphic\core\texture.cpp" />
     <ClCompile Include="src\graphic\core\uniformbuffer.cpp" />
     <ClCompile Include="src\graphic\core\vertexbuffer.cpp" />
@@ -107,7 +115,7 @@
     <ClCompile Include="src\math\matrix.cpp" />
     <ClCompile Include="src\math\quaternion.cpp" />
     <ClCompile Include="src\math\sphere.cpp" />
-    <ClCompile Include="src\opengl.cpp" />
+    <ClCompile Include="src\resources.cpp" />
     <ClCompile Include="src\timer.cpp" />
     <ClCompile Include="src\utilities\color.cpp" />
     <ClCompile Include="src\utilities\logger.cpp" />
@@ -121,8 +129,14 @@
     <ClInclude Include="src\algorithm\smallsort.hpp" />
     <ClInclude Include="src\game.hpp" />
     <ClInclude Include="src\gamestates\gamestatebase.hpp" />
+    <ClInclude Include="src\gamestates\gseditor.hpp" />
+    <ClInclude Include="src\gamestates\gseditorchoice.hpp" />
+    <ClInclude Include="src\gamestates\gsgameplayopt.hpp" />
+    <ClInclude Include="src\gamestates\gsgraphicopt.hpp" />
+    <ClInclude Include="src\gamestates\gsinputopt.hpp" />
     <ClInclude Include="src\gamestates\gsmainmenu.hpp" />
     <ClInclude Include="src\gamestates\gsplay.hpp" />
+    <ClInclude Include="src\gamestates\gssoundopt.hpp" />
     <ClInclude Include="src\generators\asteroid.hpp" />
     <ClInclude Include="src\generators\random.hpp" />
     <ClInclude Include="src\graphic\content.hpp" />
@@ -131,8 +145,10 @@
     <ClInclude Include="src\graphic\core\device.hpp" />
     <ClInclude Include="src\graphic\core\effect.hpp" />
     <ClInclude Include="src\graphic\core\framebuffer.hpp" />
+    <ClInclude Include="src\graphic\core\opengl.hpp" />
     <ClInclude Include="src\graphic\core\rasterizerstate.hpp" />
     <ClInclude Include="src\graphic\core\samplerstate.hpp" />
+    <ClInclude Include="src\graphic\core\scissor.hpp" />
     <ClInclude Include="src\graphic\core\texture.hpp" />
     <ClInclude Include="src\graphic\core\uniformbuffer.hpp" />
     <ClInclude Include="src\graphic\core\vertexbuffer.hpp" />
@@ -152,8 +168,8 @@
     <ClInclude Include="src\math\ray.hpp" />
     <ClInclude Include="src\math\sphere.hpp" />
     <ClInclude Include="src\math\vector.hpp" />
-    <ClInclude Include="src\opengl.hpp" />
     <ClInclude Include="src\predeclarations.hpp" />
+    <ClInclude Include="src\resources.hpp" />
     <ClInclude Include="src\timer.hpp" />
     <ClInclude Include="src\utilities\color.hpp" />
     <ClInclude Include="src\utilities\logger.hpp" />

@@ -1,5 +1,5 @@
 #include "blendstate.hpp"
-#include "../../opengl.hpp"
+#include "opengl.hpp"
 
 namespace Graphic {
 	BlendState::BlendState( BLEND_OPERATION _blendOp, BLEND _srcOp, BLEND _dstOp ) :

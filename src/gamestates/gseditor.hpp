@@ -2,13 +2,13 @@
 
 #include "gamestatebase.hpp"
 
-/// \brief Game state for the initial menu.
-class GSMainMenu: public IGameState
+/// \brief Game state to edit voxel models.
+class GSEditor: public IGameState
 {
 public:
 	/// \brief Create main state specific content.
-	GSMainMenu(Monolith* _game);
-	~GSMainMenu();
+	GSEditor(Monolith* _game);
+	~GSEditor();
 
 	void OnBegin();
 	virtual void OnEnd() override;

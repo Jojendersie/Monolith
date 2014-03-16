@@ -22,7 +22,7 @@ namespace Marker {
 		m_effect = &_stateObjects->wireEffect;
 		m_objectUBO = &_stateObjects->objectUBO;
 
-		LOG_LVL0("Created new wireframe renderer.");
+		LOG_LVL0("Created new wireframe renderer");
 	}
 
 	// ********************************************************************* //

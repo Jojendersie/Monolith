@@ -1,5 +1,4 @@
 #include <cassert>
-#include "../opengl.hpp"
 #include "content.hpp"
 #include "core/texture.hpp"
 #include "core/device.hpp"
@@ -49,12 +48,10 @@ namespace Graphic {
 		voxelRenderEffect.BindUniformBuffer( cameraUBO );
 		voxelRenderEffect.BindUniformBuffer( globalUBO );
 		voxelRenderEffect.BindTexture("u_diffuseTex", 0, pointSampler);
-		assert(glGetError() == GL_NO_ERROR);
 
 		wireEffect.BindUniformBuffer( objectUBO );
 
 		//texture2DEffect.BindUniformBuffer( globalUBO );
-		assert(glGetError() == GL_NO_ERROR);
 
 		defaultFont = new Font("arial", this);
 		gameFont = new Font("MonoLith", this);

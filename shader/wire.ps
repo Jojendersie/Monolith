@@ -1,8 +1,8 @@
 #version 330
 
 in vec4 gs_Color;
-noperspective in vec3 gs_TexCoord;
-out vec4 fragColor;
+in vec2 gs_TexCoord;
+out vec4 ps_FragColor;
 
 layout(std140) uniform Object
 {
@@ -20,14 +20,10 @@ layout(std140) uniform Object
 
 void main()
 {
-	vec2 correctedTexCoord;
-	correctedTexCoord.x = gs_TexCoord.x / gs_TexCoord.z;
-	correctedTexCoord.y = gs_TexCoord.y;
-
 	// Fading along the line direction only close to the ends
-	float fadeLong = max(0, abs(correctedTexCoord.x) * c_vCorner000.y - c_vCorner000.x);
+	float fadeLong = max(0, abs(gs_TexCoord.x) * c_vCorner000.y - c_vCorner000.x);
 	fadeLong = max(0, 1 - fadeLong * fadeLong);
 	// Maximal smooth fading about beem width
-	float fadeShort = max(0, 1 - correctedTexCoord.y * correctedTexCoord.y);
-	fragColor = gs_Color * fadeShort * fadeLong;
+	float fadeShort = max(0, 1 - gs_TexCoord.y * gs_TexCoord.y);
+	ps_FragColor = gs_Color * fadeShort * fadeLong;
 }

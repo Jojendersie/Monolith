@@ -2,13 +2,13 @@
 
 #include "gamestatebase.hpp"
 
-/// \brief Game state for the initial menu.
-class GSMainMenu: public IGameState
+/// \brief Game state to choose a model from a list or to create new models.
+class GSEditorChoice: public IGameState
 {
 public:
 	/// \brief Create main state specific content.
-	GSMainMenu(Monolith* _game);
-	~GSMainMenu();
+	GSEditorChoice(Monolith* _game);
+	~GSEditorChoice();
 
 	void OnBegin();
 	virtual void OnEnd() override;
