@@ -73,7 +73,7 @@ vec3 Lightning(/*vec3 _position, */vec3 _normal, vec3 _viewDir, float _shininess
 	vec2 ds = AshikminShirleyMod(_normal, _viewDir, light, _shininess, _power);
 	// Combine lighting
 	// TODO: Light color
-	return (ds.x + _emissive) * _color + ds.yyy;
+	return min(vec3(1,1,1), max(vec3(0,0,0), (ds.x + _emissive + 0.4) * _color + ds.yyy));
 }
 
 // Standard linear congruential generator to hash an integer
@@ -112,7 +112,7 @@ void main(void)
 	vec3 color = vec3(color_y + 0.22627 * color_pb + 11.472 * color_pr,
 					color_y - 3.0268 * color_pb - 5.8708 * color_pr,
 					color_y + 14.753 * color_pb + 0.0082212 * color_pr);
-	color = min(vec3(1,1,1), max(vec3(0,0,0), color));
+	//color = min(vec3(1,1,1), max(vec3(0,0,0), color));
 
 	// Decode other material parameters
 	float shininess = float((int(vs_out_MaterialCode[0]) >> 12) & 0xf) / 15.0;

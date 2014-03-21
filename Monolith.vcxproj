@@ -192,6 +192,9 @@
     <None Include="shader\voxel.gs" />
     <None Include="shader\voxel.ps" />
     <None Include="shader\voxel.vs" />
+    <None Include="shader\wire.gs" />
+    <None Include="shader\wire.ps" />
+    <None Include="shader\wire.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

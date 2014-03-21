@@ -378,5 +378,14 @@
     <None Include="shader\screentex.vs">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="shader\wire.ps">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shader\wire.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shader\wire.gs">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
