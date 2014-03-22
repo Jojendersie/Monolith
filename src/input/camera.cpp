@@ -90,11 +90,11 @@ namespace Input {
 			// Increasing scroll speed with increasing distance.
 			_dz = m_referencePos[2] * _dz * 0.01f;
 			// Avoid scrolling into the object
-			_dz = Math::max( _dz, m_attachedTo->GetRadius() * 0.75f - m_referencePos[2] );
+			_dz = Math::min( _dz, -m_attachedTo->GetRadius() * 0.75f + m_referencePos[2] );
 		} // Linear movement otherwise
 
-		m_position -= m_rotation.ZAxis() * _dz;
-		m_referencePos[2] += _dz;
+		m_position += m_rotation.ZAxis() * _dz;
+		m_referencePos[2] -= _dz;
 	}
 
 	// ********************************************************************* //
