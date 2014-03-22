@@ -84,12 +84,12 @@ namespace Voxel {
 			float thresholdEnergy;		///< Energy required to destroy this voxel in Joule
 			float reactionEnergy;		///< Energy released during destruction in Joule
 
-			int water;					///< Amount of resource "water" required to build this voxel or dropped by mining.
-			int minerals;				///< Amount of resource "mineral" required to build this voxel or dropped by mining.
+			int hydrogen;				///< Amount of resource "hydrogen" required to build this voxel or dropped by mining.
+			int carbon;					///< Amount of resource "carbon" required to build this voxel or dropped by mining.
 			int metals;					///< Amount of resource "metal" required to build this voxel or dropped by mining.
-			int rareMetals;				///< Amount of resource "rare metals" required to build this voxel or dropped by mining.
-			int alloys;					///< Amount of resource "alloy" required to build this voxel or dropped by mining.
-			int polymers;				///< Amount of resource "polymer" required to build this voxel or dropped by mining.
+			int rareEarthElements;		///< Amount of resource "rare earth element" required to build this voxel or dropped by mining.
+			int semiconductors;			///< Amount of resource "semiconductor" required to build this voxel or dropped by mining.
+			int heisenbergium;			///< Amount of resource "heisenbergium" required to build this voxel or dropped by mining.
 
 			int textureResolution;		///< Number of pixels in one dimension of the volume "texture"
 			int numMipMaps;				///< Number of generated mip maps
@@ -148,11 +148,4 @@ namespace Voxel {
 		{ 4.7f, 940000.0f, 50000.0f, 0, 5, 4, 1, 0, 0, 0x0},	// ROCK_3
 		{ 2.6f, 780000.0f, 45000.0f, 0, 4, 7, 0, 0, 0, 0x0},	// ROCK_4
 	};//*/
-
-	// TODO: move to ideas
-	// Tramsformation: 1 Water + 1 Mineral -> 2 Polymere
-	//				   4 Metal + 1 Rare Metal -> 5 Alloy
-
-
-	//inline bool IsSolid( VoxelType _v )	{ return _v != VoxelType::UNDEFINED; }
 };
