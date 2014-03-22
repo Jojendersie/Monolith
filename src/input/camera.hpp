@@ -28,6 +28,9 @@ namespace Input {
 		/// \details The z-axis is the view direction!
 		//Math::Vec3 ZAxis()	{ return Math::Vec3(m_view.m13, m_view.m23, m_view.m33); }
 
+		/// \brief Set all matrices, and further information in the camera uniform buffer.
+		void Set( Graphic::UniformBuffer& _cameraUBO );
+
 		/// \brief Set a total new position.
 		void SetPosition( const Math::Vec3& _position );
 		/// \brief Read position

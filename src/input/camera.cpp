@@ -1,5 +1,6 @@
 #include "camera.hpp"
 #include "../voxel/model.hpp"
+#include "../graphic/core/uniformbuffer.hpp"
 
 using namespace Math;
 
@@ -14,6 +15,16 @@ namespace Input {
 		m_aspect( _aspect )
 	{
 		UpdateMatrices();
+	}
+
+	// ********************************************************************* //
+	void Camera::Set( Graphic::UniformBuffer& _cameraUBO )
+	{
+		_cameraUBO["View"] = GetView();
+		_cameraUBO["Projection"] = GetProjection();
+		_cameraUBO["ViewProjection"] = GetViewProjection();
+		_cameraUBO["ProjectionInverse"] = Vec4(1.0f/GetProjection()(0,0), 1.0f/GetProjection()(1,1), 1.0f/GetProjection()(2,2), -GetProjection()(3,2) / GetProjection()(2,2));
+		_cameraUBO["Position"] = GetPosition();
 	}
 
 	// ********************************************************************* //

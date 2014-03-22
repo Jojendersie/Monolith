@@ -81,16 +81,7 @@ void GSPlay::Render( double _time, double _deltaTime )
 {
 	RenderStat::g_numVoxels = 0;
 	RenderStat::g_numChunks = 0;
-//	_time = 0.1 * cos(_time*0.5);
-	//Matrix view = MatrixCamera( Vec3(sin(_time)*250,80.0f,cos(_time)*250), Vec3(0.0f,0.0f,0.0f) );
-	//Matrix projection = MatrixProjection( 0.3f, 1.3f, 0.5f, 400.0f );
-	//Matrix viewProjection = view * projection;
-	m_game->m_graficContent->cameraUBO["View"] = m_camera->GetView();
-	m_game->m_graficContent->cameraUBO["Projection"] = m_camera->GetProjection();
-	m_game->m_graficContent->cameraUBO["ViewProjection"] = m_camera->GetViewProjection();
-	m_game->m_graficContent->cameraUBO["ProjectionInverse"] = Vec4(1.0f/m_camera->GetProjection()(0,0), 1.0f/m_camera->GetProjection()(1,1), 1.0f/m_camera->GetProjection()(2,2), -m_camera->GetProjection()(3,2) / m_camera->GetProjection()(2,2));
-	m_game->m_graficContent->cameraUBO["Position"] = m_camera->GetPosition();
-//	m_parent->m_graficContent->cameraUBO["Far"] = 400.0f;
+	m_camera->Set( m_game->m_graficContent->cameraUBO );
 
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 
