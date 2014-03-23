@@ -166,6 +166,23 @@
 						 0, 0, 0, 0, 0, 0, 0, 0]
     },
 	{
+      "Name": "Computer",
+      "Solid": true,
+      "Mass": 6.0,
+      "Threshold Energy": 50000.0,
+      "Reaction Energy": 0.0,
+      "Hydrogen": 0,
+      "Carbon": 2,
+      "Metals": 4,
+      "Rare Earth Elements": 3,
+      "Semiconductors": 5,
+      "Heisenbergium": 0,
+      "Colors": [0x07BC00FF],
+      "Texture Resolution": 1,
+      "Texture": [0],
+      "Border Texture": [0]
+    },
+	{
       "Name": "Stone",
       "Solid": true,
       "Mass": 2.3,

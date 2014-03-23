@@ -8,7 +8,7 @@ namespace Graphic {
 	Content::Content() :
 		voxelRenderEffect( "shader/voxel.vs", "shader/voxel.gs", "shader/voxel.ps", Graphic::RasterizerState::CULL_MODE::BACK, Graphic::RasterizerState::FILL_MODE::SOLID ),
 		texture2DEffect( "shader/screentex.vs", "shader/screentex.gs", "shader/screentex.ps", Graphic::RasterizerState::CULL_MODE::BACK, Graphic::RasterizerState::FILL_MODE::SOLID, Graphic::BlendState::BLEND_OPERATION::ADD, Graphic::BlendState::BLEND::SRC_ALPHA, Graphic::BlendState::BLEND::INV_SRC_ALPHA, Graphic::DepthStencilState::COMPARISON_FUNC::ALWAYS, false),
-		wireEffect( "shader/wire.vs", "shader/wire.gs", "shader/wire.ps", Graphic::RasterizerState::CULL_MODE::BACK, Graphic::RasterizerState::FILL_MODE::SOLID, BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::SRC_ALPHA, BlendState::BLEND::ONE, Graphic::DepthStencilState::COMPARISON_FUNC::LESS, false ),
+		wireEffect( "shader/wire.vs", "shader/wire.ps", Graphic::RasterizerState::CULL_MODE::BACK, Graphic::RasterizerState::FILL_MODE::SOLID, BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::SRC_ALPHA, BlendState::BLEND::ONE, Graphic::DepthStencilState::COMPARISON_FUNC::LESS, false ),
 		objectUBO( "Object" ), cameraUBO( "Camera" ), globalUBO( "Global" ),
 		pointSampler(Graphic::SamplerState::EDGE_TREATMENT::WRAP, Graphic::SamplerState::SAMPLE::POINT,
 					Graphic::SamplerState::SAMPLE::POINT, Graphic::SamplerState::SAMPLE::LINEAR ),

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gamestatebase.hpp"
+#include "math/vector.hpp"
 
 /// \brief Game state to edit voxel models.
 class GSEditor: public IGameState
@@ -17,10 +18,29 @@ public:
 	virtual void Render( double _time, double _deltaTime ) override;
 	virtual void UpdateInput() override;
 	virtual void MouseMove( double _dx, double _dy ) override;
+	virtual void Scroll( double _dx, double _dy ) override;
 	virtual void KeyDown( int _key, int _modifiers ) override;
 	virtual void KeyRelease(int _key) override;
 	virtual void KeyClick( int _key ) override;
 	virtual void KeyDoubleClick( int _key ) override;
 private:
 	Graphic::Hud* m_hud;
+	Input::Camera* m_modelCamera;		///< Standard camera for the model view
+	Graphic::Marker::Box* m_redBox;		///< Marker for regions that can be deleted, or for invalid positions
+	Graphic::Marker::Box* m_greenBox;	///< Marker where the new voxel would be added
+
+	Voxel::Model* m_model;				///< The model which is currently edited
+
+	Voxel::VoxelType m_currentType;		///< The type of the voxel which is painted
+	bool m_rayHits;						///< The hit information is up to date and filled
+	bool m_deletionMode;				///< Deletion mode for the selected voxel
+	Math::IVec3 m_lvl0Position;			///< Information about the current target voxel
+
+	/// \brief Method to create a new model as copy or from scratch.
+	/// TODO: Pool for object templates
+	/// \details The new model is not saved automatically. If leaving the
+	///		editor there is a request to do that.
+	/// \param [in] _copyFrom A model which should be copied to be edited. If
+	///		this is nullptr a new model with one computer core is created.
+	void CreateNewModel( const Voxel::Model* _copyFrom = nullptr );
 };

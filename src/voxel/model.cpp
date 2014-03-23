@@ -110,7 +110,8 @@ namespace Voxel {
 	void Model::Draw( Graphic::UniformBuffer& _objectConstants, const Input::Camera& _camera )
 	{
 		// Create a new model space transformation
-		Math::Mat4x4 modelTransform = Mat4x4::Translation(-m_center) * Mat4x4::Rotation(m_rotation) * Mat4x4::Translation( m_position + m_center );
+		Math::Mat4x4 modelTransform;
+		GetModelMatrix( modelTransform );
 		Math::Mat4x4 modelView = modelTransform * _camera.GetView();
 
 		// Iterate through the octree and render chunks depending on the lod.
@@ -127,6 +128,14 @@ namespace Voxel {
 		if( node ) return node->Data().type;
 		
 		return VoxelType::UNDEFINED;
+	}
+
+
+	// ********************************************************************* //
+	Math::Mat4x4& Model::GetModelMatrix( Math::Mat4x4& _out ) const
+	{
+		_out = Mat4x4::Translation(-m_center) * Mat4x4::Rotation(m_rotation) * Mat4x4::Translation(m_position + m_center);
+		return _out;
 	}
 
 
@@ -165,7 +174,7 @@ namespace Voxel {
 	bool Model::RayCast( const Math::Ray& _ray, int _targetLevel, ModelData::HitResult& _hit ) const
 	{
 		// Convert ray to model space
-		Math::Mat4x4 inverseModelTransform = Mat4x4::Translation( -m_position - m_center ) * Mat4x4::Rotation(-m_rotation) * Mat4x4::Translation(m_center);
+		Math::Mat4x4 inverseModelTransform = Mat4x4::Translation( -m_position - m_center ) * Mat4x4::Rotation(m_rotation).Transposed() * Mat4x4::Translation(m_center);
 		Math::Ray ray = _ray * inverseModelTransform;
 		return m_voxelTree.RayCast(ray, _targetLevel, _hit);
 	}

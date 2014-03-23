@@ -38,6 +38,7 @@ namespace Graphic {
 
 	namespace Marker {
 		class Grid;
+		class Box;
 	}
 } // namespace Graphic
 

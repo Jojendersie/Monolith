@@ -26,20 +26,30 @@ namespace Marker {
 	}
 
 	// ********************************************************************* //
-	void WireframeRenderer::AddSegment( const Vec3& _v1, const Vec3& _v2, const Utils::Color32F& _color )
+	void WireframeRenderer::AddSegment( const Vec3& _v1, const Vec3& _v2, const Utils::Color32F& _color1, const Utils::Color32F& _color2 )
 	{
 		ColorPointVertex vertex;
 		vertex.position = _v1;
-		vertex.color = _color;
+		vertex.color = _color1;
 		m_mesh.Add( vertex );
 		vertex.position = _v2;
+		vertex.color = _color2;
 		m_mesh.Add( vertex );
 	}
 
 	// ********************************************************************* //
 	void WireframeRenderer::AddLine( const Vec3& _start, const Vec3& _end, float _transparency )
 	{
-		AddSegment( _start, _end, Utils::Color32F(m_color.R(), m_color.G(), m_color.B(), _transparency * m_color.A()) );
+		Utils::Color32F color(m_color.R(), m_color.G(), m_color.B(), _transparency * m_color.A());
+		AddSegment( _start, _end, color, color );
+	}
+
+	// ********************************************************************* //
+	void WireframeRenderer::AddLine( const Math::Vec3& _start, const Math::Vec3& _end, float _transparencyA, float _transparencyB )
+	{
+		Utils::Color32F colorA(m_color.R(), m_color.G(), m_color.B(), _transparencyA * m_color.A());
+		Utils::Color32F colorB(m_color.R(), m_color.G(), m_color.B(), _transparencyB * m_color.A());
+		AddSegment( _start, _end, colorA, colorB );
 	}
 
 	// ********************************************************************* //

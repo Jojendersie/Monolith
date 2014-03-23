@@ -40,11 +40,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LibraryPath>dependencies\glfw-3.0.3\bin;dependencies\glew-1.10.0\lib\Release\Win32;dependencies\JoFileLib\lib\Debug;$(LibraryPath)</LibraryPath>
-    <IncludePath>dependencies\JoFileLib\include;$(IncludePath)</IncludePath>
+    <IncludePath>dependencies\JoFileLib\include;D:\C++\Spiele\Monolith\src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LibraryPath>dependencies\glfw-3.0.3\bin;dependencies\glew-1.10.0\lib\Release\Win32;dependencies\JoFileLib\lib\Release;$(LibraryPath)</LibraryPath>
-    <IncludePath>dependencies\JoFileLib\include;$(IncludePath)</IncludePath>
+    <IncludePath>dependencies\JoFileLib\include;D:\C++\Spiele\Monolith\src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -106,6 +106,7 @@
     <ClCompile Include="src\graphic\interface\font.cpp" />
     <ClCompile Include="src\graphic\interface\hud.cpp" />
     <ClCompile Include="src\graphic\interface\hudelements.cpp" />
+    <ClCompile Include="src\graphic\marker\box.cpp" />
     <ClCompile Include="src\graphic\marker\grid.cpp" />
     <ClCompile Include="src\graphic\marker\wireframerenderer.cpp" />
     <ClCompile Include="src\input\camera.cpp" />
@@ -155,6 +156,7 @@
     <ClInclude Include="src\graphic\interface\font.hpp" />
     <ClInclude Include="src\graphic\interface\hud.hpp" />
     <ClInclude Include="src\graphic\interface\hudelements.hpp" />
+    <ClInclude Include="src\graphic\marker\box.hpp" />
     <ClInclude Include="src\graphic\marker\grid.hpp" />
     <ClInclude Include="src\graphic\marker\wireframerenderer.hpp" />
     <ClInclude Include="src\input\camera.hpp" />

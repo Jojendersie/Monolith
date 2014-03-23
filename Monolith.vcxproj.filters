@@ -182,6 +182,9 @@
     <ClCompile Include="src\graphic\core\scissor.cpp">
       <Filter>Source Files\graphic\core</Filter>
     </ClCompile>
+    <ClCompile Include="src\graphic\marker\box.cpp">
+      <Filter>Source Files\graphic\markers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game.hpp">
@@ -348,6 +351,9 @@
     </ClInclude>
     <ClInclude Include="src\graphic\core\scissor.hpp">
       <Filter>Source Files\graphic\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\marker\box.hpp">
+      <Filter>Source Files\graphic\markers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

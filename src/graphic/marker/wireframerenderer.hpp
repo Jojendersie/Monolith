@@ -25,6 +25,11 @@ namespace Marker {
 		///	\param [in] _transparency Use color transparency * _transparency.
 		void AddLine( const Math::Vec3& _start, const Math::Vec3& _end, float _transparency );
 
+		/// \copydoc AddLine
+		/// \param [in] _transparencyA Use color transparency * _transparency at start point.
+		/// \param [in] _transparencyB Use color transparency * _transparency at end point.
+		void AddLine( const Math::Vec3& _start, const Math::Vec3& _end, float _transparencyA, float _transparencyB );
+
 		/// \brief Add a circular line.
 		/// \param [in] _center The center of the circle
 		/// \param [in] _periphery One arbitrary point on the circle.
@@ -45,7 +50,7 @@ namespace Marker {
 		UniformBuffer* m_objectUBO;
 
 		/// \brief Creates a line segment in the vertex buffer.
-		void AddSegment( const Math::Vec3& _v1, const Math::Vec3& _v2, const Utils::Color32F& _color );
+		void AddSegment( const Math::Vec3& _v1, const Math::Vec3& _v2, const Utils::Color32F& _color1, const Utils::Color32F& _color2 );
 	};
 
 } // namespace Marker

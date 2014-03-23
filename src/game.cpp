@@ -66,6 +66,16 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 // ************************************************************************* //
 Monolith::~Monolith()
 {
+	// Finalize all game states (not all must be closed if an exception or
+	// message caused the program to close
+	while( m_stateStack )
+	{
+		// Pop
+		m_stateStack->OnEnd();
+		m_stateStack = m_stateStack->m_previous;
+	}
+
+
 	Input::Manager::Close();
 
 	try {
@@ -154,6 +164,7 @@ void Monolith::BuildDefaultConfig()
 	cinput[std::string("CameraRotationSpeed")] = 0.005;
 	cinput[std::string("CameraMovementSpeed")] = 0.0025;
 	cinput[std::string("CameraScrollSpeed")] = 5.0;
+	cinput[std::string("EditorDeletionMode")][0] = 340;
 
 	auto& cgame = Config[std::string("Game")];
 	cgame[std::string("Language")] = "english.json";

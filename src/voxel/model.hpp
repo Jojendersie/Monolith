@@ -49,13 +49,21 @@ namespace Voxel {
 		VoxelType Get( const Math::IVec3& _position, int _level ) const;
 
 		/// \brief Get the center of gravity (mass center)
-		Math::Vec3 GetCenter() const		{ return m_center + m_position; }
+		Math::Vec3 GetCenter() const						{ return m_center + m_position; }
 		/// \brief Set the position of the model based on its current center of gravity
-		void SetCenter(const Math::Vec3& _position)		{ m_position = _position - m_center; }
+		void SetCenter(const Math::Vec3& _position)			{ m_position = _position - m_center; }
+		/// \brief Rotate without any physical influence (rotatory velocity
+		///		will be unchanged, no test for breaking of)
+		void Rotate( const Math::Quaternion& _rotation )	{ m_rotation *= _rotation; }
 
 		/// \brief Get the bounding radius of the sphere centered at the center
 		///		of gravity.
 		float GetRadius() const { return m_boundingSphereRadius; }
+
+		/// \brief Get the model transformation matrix
+		/// \param [out] _out A space where the matrix can be stored.
+		/// \return The reference to _out
+		Math::Mat4x4& GetModelMatrix( Math::Mat4x4& _out ) const;
 
 		/// \brief Do an update of physical properties.
 		/// \details If a voxel is deleted _newType is NONE. If a new voxel

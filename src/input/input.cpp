@@ -31,10 +31,11 @@ namespace Input {
 		InputManagerInstance.m_window = _window;
 
 		// Read key mapping
-		InputManagerInstance.m_keyMap = new Jo::Files::MetaFileWrapper::Node*[3];
+		InputManagerInstance.m_keyMap = new Jo::Files::MetaFileWrapper::Node*[4];
 		InputManagerInstance.m_keyMap[(int)VirtualKey::MOVE_CAMERA] = &_keyConfig[string("MoveCamera")];
 		InputManagerInstance.m_keyMap[(int)VirtualKey::ROTATE_CAMERA] = &_keyConfig[string("RotateCamera")];
 		InputManagerInstance.m_keyMap[(int)VirtualKey::ZOOM] = &_keyConfig[string("Zoom")];
+		InputManagerInstance.m_keyMap[(int)VirtualKey::EDITOR_DELETIONMODE] = &_keyConfig[string("EditorDeletionMode")];
 	}
 
 	// ********************************************************************* //

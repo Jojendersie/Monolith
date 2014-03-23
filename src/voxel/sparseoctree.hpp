@@ -321,15 +321,15 @@ namespace Voxel {
 		}
 
 		// One of the eight children must contain the target position.
-		SVON::Set(&m_root, m_rootSize, IVec4(_position, _level), _type, this);
+		SVON::Set(&m_root, m_rootSize, Math::IVec4(_position, _level), _type, this);
 
 		// Make all 6 neighbors dirty - their neighborhood changed
-		SetDirty( IVec3(_position[0]+1, _position[1], _position[2]), _level );
-		SetDirty( IVec3(_position[0]-1, _position[1], _position[2]), _level );
-		SetDirty( IVec3(_position[0], _position[1]+1, _position[2]), _level );
-		SetDirty( IVec3(_position[0], _position[1]-1, _position[2]), _level );
-		SetDirty( IVec3(_position[0], _position[1], _position[2]+1), _level );
-		SetDirty( IVec3(_position[0], _position[1], _position[2]-1), _level );
+		SetDirty( Math::IVec3(_position[0]+1, _position[1], _position[2]), _level );
+		SetDirty( Math::IVec3(_position[0]-1, _position[1], _position[2]), _level );
+		SetDirty( Math::IVec3(_position[0], _position[1]+1, _position[2]), _level );
+		SetDirty( Math::IVec3(_position[0], _position[1]-1, _position[2]), _level );
+		SetDirty( Math::IVec3(_position[0], _position[1], _position[2]+1), _level );
+		SetDirty( Math::IVec3(_position[0], _position[1], _position[2]-1), _level );
 	}
 
 	// ********************************************************************* //
