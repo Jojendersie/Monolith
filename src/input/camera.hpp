@@ -97,6 +97,9 @@ namespace Input {
 		const Voxel::Model* m_attachedTo;	///< The camera can track this object and uses it as reference system
 		Math::Vec3 m_referencePos;			///< Object position in view space. This reference frame is kept for a tracked object.
 		bool m_hardAttached;				///< If the object is hard attached the camera position follows the object. If it is soft attached rotations are relative to the object.
-		void NormalizeReference();			///< Reset camera position such that the original object reference position is restored.
+
+		/// \brief Reset camera position such that the original object
+		///		reference position is restored.
+		void NormalizeReference();
 	};
 } // namespace Input

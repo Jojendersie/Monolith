@@ -12,7 +12,10 @@ using namespace Math;
 // ************************************************************************* //
 GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 	m_model( nullptr ),
-	m_rayHits( false )
+	m_rayHits( false ),
+	m_deletionMode( false ),
+	m_lvl0Position( 0 ),
+	m_currentType( Voxel::VoxelType::WATER )
 {
 	LOG_LVL2("Starting to create game state Editor");
 
@@ -143,11 +146,17 @@ void GSEditor::Scroll( double _dx, double _dy )
 // ************************************************************************* //
 void GSEditor::KeyDown( int _key, int _modifiers )
 {
-	// hud overides input
+	// hud overrides input
 	if(m_hud->KeyDown(_key, _modifiers)) return;
 
 	if( _key == GLFW_KEY_ESCAPE )
 		m_finished = true;
+
+	// DEBUG CODE TO TEST EDITING WITHOUT THE HUD
+	if( _key >= GLFW_KEY_0 && _key <= GLFW_KEY_9 )
+	{
+		m_currentType = Voxel::VoxelType(_key - GLFW_KEY_0);
+	}
 }
 
 // ************************************************************************* //
@@ -159,6 +168,17 @@ void GSEditor::KeyRelease( int _key )
 // ************************************************************************* //
 void GSEditor::KeyClick( int _key )
 {
+	if( _key == GLFW_MOUSE_BUTTON_1 )
+	{
+		if( m_deletionMode )
+		{
+			// Delete if it is not the last computer
+			m_model->Set( m_lvl0Position, 0, Voxel::VoxelType::UNDEFINED );
+		} else {
+			// Add a voxel of the chosen type
+			m_model->Set( m_lvl0Position, 0, m_currentType );
+		}
+	}
 }
 
 // ************************************************************************* //

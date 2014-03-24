@@ -174,6 +174,7 @@ namespace Voxel {
 	bool Model::RayCast( const Math::Ray& _ray, int _targetLevel, ModelData::HitResult& _hit ) const
 	{
 		// Convert ray to model space
+		// TODO: Mat4x4::Scaling(m_scale)
 		Math::Mat4x4 inverseModelTransform = Mat4x4::Translation( -m_position - m_center ) * Mat4x4::Rotation(m_rotation).Transposed() * Mat4x4::Translation(m_center);
 		Math::Ray ray = _ray * inverseModelTransform;
 		return m_voxelTree.RayCast(ray, _targetLevel, _hit);

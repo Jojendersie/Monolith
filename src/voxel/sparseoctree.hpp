@@ -620,7 +620,7 @@ namespace Voxel {
 				_position <<= 1;	// First child index
 				edgeLength /= 2;
 				float r = edgeLength * 0.866025404f;	// * 0.5 * sqrt(3)
-				Math::Vec3 centerOffset(edgeLength * 0.5f, edgeLength * 0.5f, edgeLength * 0.5f);
+				float centerOffset = edgeLength * 0.5f;
 				for( int i=0; i<8; ++i )
 				{
 					// Is the child non-empty?
