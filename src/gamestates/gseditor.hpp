@@ -34,6 +34,7 @@ private:
 	Voxel::VoxelType m_currentType;		///< The type of the voxel which is painted
 	bool m_rayHits;						///< The hit information is up to date and filled
 	bool m_deletionMode;				///< Deletion mode for the selected voxel
+	bool m_validPosition;				///< False if the target voxel cannot be edited (coordinates or other conditions)
 	Math::IVec3 m_lvl0Position;			///< Information about the current target voxel
 
 	/// \brief Method to create a new model as copy or from scratch.
@@ -43,4 +44,8 @@ private:
 	/// \param [in] _copyFrom A model which should be copied to be edited. If
 	///		this is nullptr a new model with one computer core is created.
 	void CreateNewModel( const Voxel::Model* _copyFrom = nullptr );
+
+	/// \brief Check if the target position can be edited.
+	/// \details The result is saved in m_validPosition;
+	void ValidatePosition();
 };

@@ -85,7 +85,7 @@ void GSEditor::Render( double _time, double _deltaTime )
 		m_model->GetModelMatrix(modelTransform);
 		// Compute position of edited voxel.
 		Math::Vec3 voxelPos = m_lvl0Position + 0.50001f;
-		if(m_deletionMode)
+		if( m_deletionMode || !m_validPosition )
 			m_redBox->Draw( Math::Mat4x4::Translation( voxelPos ) * Math::Mat4x4::Scaling( 1.0f, 1.0f, 1.0f ) * modelTransform * m_modelCamera->GetViewProjection() );
 		else 
 			m_greenBox->Draw( Math::Mat4x4::Translation( voxelPos ) * Math::Mat4x4::Scaling( 1.0f, 1.0f, 1.0f ) * modelTransform * m_modelCamera->GetViewProjection() );
@@ -121,6 +121,8 @@ void GSEditor::UpdateInput()
 			case Intersect::Side::BACK: m_lvl0Position[2] += 1; break;
 			}
 		}
+
+		ValidatePosition();
 	}
 }
 
@@ -168,11 +170,11 @@ void GSEditor::KeyRelease( int _key )
 // ************************************************************************* //
 void GSEditor::KeyClick( int _key )
 {
-	if( _key == GLFW_MOUSE_BUTTON_1 )
+	if( _key == GLFW_MOUSE_BUTTON_1 && m_validPosition )
 	{
 		if( m_deletionMode )
 		{
-			// Delete if it is not the last computer
+			// Delete
 			m_model->Set( m_lvl0Position, 0, Voxel::VoxelType::UNDEFINED );
 		} else {
 			// Add a voxel of the chosen type
@@ -201,8 +203,22 @@ void GSEditor::CreateNewModel( const Voxel::Model* _copyFrom )
 		m_model = new Voxel::Model();
 
 		// Insert the computer
-		m_model->Set(IVec3(0,0,0), 0, Voxel::VoxelType::ROCK_1 );
+		m_model->Set(IVec3(2048,2048,2048), 0, Voxel::VoxelType::ROCK_1 );
 	}
 
 	m_modelCamera->ZoomAt( *m_model );
+}
+
+// ************************************************************************* //
+void GSEditor::ValidatePosition()
+{
+	m_validPosition = true;
+
+	// Check coordinates in general
+	if( m_lvl0Position[0] < 0 || m_lvl0Position[1] < 0 || m_lvl0Position[2] < 0 )
+		m_validPosition = false;
+	if( m_lvl0Position[0] >= 4096 || m_lvl0Position[1] <= 4096 || m_lvl0Position[2] <= 4096 )
+		m_validPosition = false;
+
+	// TODO: Do not delete the last computer
 }
