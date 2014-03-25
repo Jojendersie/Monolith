@@ -35,7 +35,7 @@ namespace Voxel {
 		///		which must be filled.
 		/// \param [in] _camera The actual camera for transformation, culling
 		///		and LOD computations.
-		void Draw( Graphic::UniformBuffer& _objectConstants, const Input::Camera& _camera );
+		void Draw( const Input::Camera& _camera );
 
 		/// \brief Set a voxel in the model and update mass properties.
 		/// \see SparseVoxelOctree::Set.

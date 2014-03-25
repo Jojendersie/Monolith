@@ -13,7 +13,7 @@ namespace Marker {
 		///		the middle of edges more transparent than the borders
 		///	\param [in] _fading A fading of 0.0 means constant transparency
 		///		whereas 1.0 shows merely the corners.
-		Box( const Math::Vec3& _size, float _fading, const Utils::Color32F& _color, Graphic::Content* _stateObjects );
+		Box( const Math::Vec3& _size, float _fading, const Utils::Color32F& _color );
 
 		/// \brief Draw all the lines with the glowing wireframe effect.
 		void Draw( const Math::Mat4x4& _worldViewProjection );

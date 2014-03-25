@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include "../input/camera.hpp"
 #include "../graphic/core/uniformbuffer.hpp"
+#include "../graphic/content.hpp"
 
 using namespace Math;
 
@@ -34,7 +35,6 @@ namespace Voxel {
 		const Input::Camera& camera;					// Required for culling and LOD
 		Model::ModelData* model;						// Operate on this data.
 		std::unordered_map<Math::IVec4, Chunk>* chunks;	// Create or find chunks here.
-		Graphic::UniformBuffer& objectConstants;
 		const Math::Mat4x4& modelTransform;
 		const Math::Mat4x4& modelView;
 		ChunkBuilder* builder;
@@ -42,12 +42,10 @@ namespace Voxel {
 		DecideToDraw(const Input::Camera& _camera,
 				Model::ModelData* _model,
 				std::unordered_map<Math::IVec4, Chunk>* _chunks,
-				Graphic::UniformBuffer& _objectConstants,
 				const Math::Mat4x4& _modelView,
 				const Math::Mat4x4& _modelTransform,
 				ChunkBuilder* _builder) :
 			camera(_camera), model(_model), chunks(_chunks),
-			objectConstants(_objectConstants),
 			modelTransform(_modelTransform),
 			modelView(_modelView),
 			builder(_builder)
@@ -98,7 +96,7 @@ namespace Voxel {
 				{
 					RenderStat::g_numVoxels += chunk->second.NumVoxels();
 					RenderStat::g_numChunks++;
-					chunk->second.Draw( objectConstants, modelView, camera.GetProjection() );
+					chunk->second.Draw( *Graphic::Resources::GetUBO(Graphic::UniformBuffers::OBJECT_VOXEL), modelView, camera.GetProjection() );
 				}
 				return false;
 			}
@@ -107,7 +105,7 @@ namespace Voxel {
 	};
 
 	// ********************************************************************* //
-	void Model::Draw( Graphic::UniformBuffer& _objectConstants, const Input::Camera& _camera )
+	void Model::Draw( const Input::Camera& _camera )
 	{
 		// Create a new model space transformation
 		Math::Mat4x4 modelTransform;
@@ -116,7 +114,7 @@ namespace Voxel {
 
 		// Iterate through the octree and render chunks depending on the lod.
 		ChunkBuilder* builder = new ChunkBuilder(); // TEMP -> in job verschieben
-		DecideToDraw param(_camera, &this->m_voxelTree, &this->m_chunks, _objectConstants, modelView, modelTransform, builder);
+		DecideToDraw param(_camera, &this->m_voxelTree, &this->m_chunks, modelView, modelTransform, builder);
 		m_voxelTree.Traverse( param );
 		delete builder;
 	}

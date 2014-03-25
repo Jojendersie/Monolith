@@ -6,6 +6,7 @@
 #include "../graphic/marker/box.hpp"
 #include "../voxel/model.hpp"
 #include <cassert>
+#include "../graphic/content.hpp"
 
 using namespace Math;
 
@@ -19,7 +20,7 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 {
 	LOG_LVL2("Starting to create game state Editor");
 
-	m_hud = new Graphic::Hud(_game->m_graficContent, _game);
+	m_hud = new Graphic::Hud(_game);
 
 	// TODO: viewport for this camera in the upper right corner
 	m_modelCamera = new Input::Camera( Vec3( 0.0f, 0.0f, 0.0f ),
@@ -28,8 +29,8 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 		Graphic::Device::GetAspectRatio() );
 
 	// Create boxes for change previews
-	m_redBox = new Graphic::Marker::Box( Vec3( 1.0002f, 1.0002f, 1.0002f ), 0.55f, Utils::Color32F(0.9f, 0.1f, 0.1f, 1.0f), _game->m_graficContent );
-	m_greenBox = new Graphic::Marker::Box( Vec3( 1.0002f, 1.0002f, 1.0002f ), 0.55f, Utils::Color32F(0.1f, 0.9f, 0.1f, 1.0f), _game->m_graficContent );
+	m_redBox = new Graphic::Marker::Box( Vec3( 1.0002f, 1.0002f, 1.0002f ), 0.55f, Utils::Color32F(0.9f, 0.1f, 0.1f, 1.0f) );
+	m_greenBox = new Graphic::Marker::Box( Vec3( 1.0002f, 1.0002f, 1.0002f ), 0.55f, Utils::Color32F(0.1f, 0.9f, 0.1f, 1.0f) );
 
 	LOG_LVL2("Created game state Editor");
 }
@@ -75,9 +76,9 @@ void GSEditor::Render( double _time, double _deltaTime )
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 
 	// Draw the model which is edited
-	m_modelCamera->Set( m_game->m_graficContent->cameraUBO );
-	Graphic::Device::SetEffect(	m_game->m_graficContent->voxelRenderEffect );
-	m_model->Draw( m_game->m_graficContent->voxelObjectUBO, *m_modelCamera );
+	m_modelCamera->Set( *Graphic::Resources::GetUBO(Graphic::UniformBuffers::CAMERA) );
+	Graphic::Device::SetEffect(	*Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
+	m_model->Draw( *m_modelCamera );
 	// Draw the marker in the same view
 	if( m_rayHits )
 	{

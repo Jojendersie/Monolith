@@ -59,8 +59,6 @@ public:
 	GSGameplayOpt* GetGameplayOptState();
 	GSSoundOpt* GetSoundOptState();
 
-	Graphic::Content* m_graficContent;
-
 	Jo::Files::MetaFileWrapper Config;
 
 	float Time() const { return (float)m_time; }

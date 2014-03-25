@@ -7,6 +7,7 @@
 #include "../graphic/interface/hud.hpp"
 #include "../graphic/marker/grid.hpp"
 using namespace Math;
+using namespace Graphic;
 #include <cassert>
 
 // TODO: remove after test
@@ -14,6 +15,7 @@ using namespace Math;
 #include "../graphic/core/texture.hpp"
 #include "../generators/random.hpp"
 #include "../voxel/voxel.hpp"
+#include "../graphic/content.hpp"
 
 namespace RenderStat {
 	int g_numVoxels;
@@ -25,15 +27,15 @@ GSPlay::GSPlay(Monolith* _game) : IGameState(_game), m_astTest(nullptr)
 {
 	LOG_LVL2("Starting to create game state Play");
 
-	m_hud = new Graphic::Hud(_game->m_graficContent, _game);
+	m_hud = new Graphic::Hud(_game);
 
 	m_camera = new Input::Camera( Vec3( 0.0f, 0.0f, 0.0f ),
 		Quaternion( 0.0f, 0.0f, 0.0f ),
 		0.3f,
 		Graphic::Device::GetAspectRatio() );
 
-	//m_objectPlane = new Graphic::Marker::Grid( 80, 80, 20.0f, Utils::Color32F( 0.5f, 0.5f, 1.0f, 0.5f ), true, _game->m_graficContent );
-	m_objectPlane = new Graphic::Marker::Grid( 30, 30, 30, 1.0f, Utils::Color32F( 0.5f, 0.5f, 1.0f, 0.5f ), _game->m_graficContent );
+	//m_objectPlane = new Graphic::Marker::Grid( 80, 80, 20.0f, Utils::Color32F( 0.5f, 0.5f, 1.0f, 0.5f ), true );
+	m_objectPlane = new Graphic::Marker::Grid( 30, 30, 30, 1.0f, Utils::Color32F( 0.5f, 0.5f, 1.0f, 0.5f ) );
 
 	LOG_LVL2("Created game state Play");
 }
@@ -81,12 +83,12 @@ void GSPlay::Render( double _time, double _deltaTime )
 {
 	RenderStat::g_numVoxels = 0;
 	RenderStat::g_numChunks = 0;
-	m_camera->Set( m_game->m_graficContent->cameraUBO );
+	m_camera->Set( *Resources::GetUBO(UniformBuffers::CAMERA) );
 
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 
-	Graphic::Device::SetEffect(	m_game->m_graficContent->voxelRenderEffect );
-	m_astTest->Draw( m_game->m_graficContent->voxelObjectUBO, *m_camera );
+	Graphic::Device::SetEffect(	*Resources::GetEffect(Effects::VOXEL_RENDER) );
+	m_astTest->Draw( *m_camera );
 
 	m_objectPlane->Draw( m_camera->GetViewProjection() );
 	

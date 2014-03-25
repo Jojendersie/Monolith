@@ -7,8 +7,8 @@ namespace Marker {
 
 	// ********************************************************************* //
 	// Create a wireframe box.
-	Box::Box( const Math::Vec3& _size, float _fading, const Utils::Color32F& _color, Graphic::Content* _stateObjects ) :
-		m_renderer( _color, 0.05f, _stateObjects )
+	Box::Box( const Math::Vec3& _size, float _fading, const Utils::Color32F& _color ) :
+		m_renderer( _color, 0.05f )
 	{
 		// Invert: makes computations easier and avoid singularities in the edge length.
 		_fading = max( 0.001f, 1.0f - _fading );

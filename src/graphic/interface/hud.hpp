@@ -34,7 +34,7 @@ namespace Graphic {
 
 		bool Scroll(double _dx, double _dy);
 
-		Hud( Content* _globalPipelineData, Monolith* _game );
+		Hud( Monolith* _game );
 		~Hud();
 
 		TextRender* m_dbgLabel;
@@ -47,7 +47,6 @@ namespace Graphic {
 
 		// pointers to global information
 		Monolith* m_game;
-		Content* m_globalPipelineData;
 
 		VertexBuffer m_characters;/// < vertex buffer that holds the screen textures
 

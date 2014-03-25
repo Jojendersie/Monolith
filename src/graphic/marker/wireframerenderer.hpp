@@ -16,7 +16,7 @@ namespace Marker {
 		///	\param [in] _fading A relative fading length. 0 means hard ends and
 		///		1 a fading till the middle point from both directions.
 		///		This option is ignored for cicles
-		WireframeRenderer( const Utils::Color32F& _color, float _fading, Graphic::Content* _stateObjects );
+		WireframeRenderer( const Utils::Color32F& _color, float _fading );
 
 		/// \brief Add a single line with or without fading.
 		///	\param [in] _start One end of the line. Permuting the points does
@@ -49,9 +49,6 @@ namespace Marker {
 		Utils::Color32F m_color;		// The color of the lines.
 		float m_fading;					// How fast are lines faded out. This number is relative to the line. A 1.0 means to fade from each end to the middle.
 		float m_lineWidth;				// Thickness of the beam
-
-		Effect* m_effect;
-		UniformBuffer* m_objectUBO;
 
 		/// \brief Creates a line segment in the vertex buffer.
 		void AddSegment( const Math::Vec3& _v1, const Math::Vec3& _v2, const Utils::Color32F& _color1, const Utils::Color32F& _color2 );

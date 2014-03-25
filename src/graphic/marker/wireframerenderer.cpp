@@ -14,15 +14,12 @@ namespace Marker {
 	};
 
 	// ********************************************************************* //
-	WireframeRenderer::WireframeRenderer( const Utils::Color32F& _color, float _fading, Graphic::Content* _stateObjects ) :
+	WireframeRenderer::WireframeRenderer( const Utils::Color32F& _color, float _fading ) :
 		m_mesh( "pc", VertexBuffer::PrimitiveType::LINE ),
 		m_color( _color ),
 		m_fading( max(0.01f, _fading) ),
 		m_lineWidth( 1.0f )
 	{
-		m_effect = &_stateObjects->beamEffect;
-		m_objectUBO = &_stateObjects->wireObjectUBO;
-
 		LOG_LVL0("Created new wireframe renderer");
 	}
 
@@ -66,11 +63,11 @@ namespace Marker {
 		if( m_mesh.IsDirty() ) m_mesh.Commit();
 
 		// Setup pipeline
-		Device::SetEffect( *m_effect );
-		(*m_objectUBO)["WorldViewProjection"] = _worldViewProjection;
-		(*m_objectUBO)["LineWidth"] = m_lineWidth;
-		(*m_objectUBO)["BlendSlope"] = 1.0f / m_fading;
-		(*m_objectUBO)["BlendOffset"] = (1.0f-m_fading) / m_fading;
+		Device::SetEffect( *Resources::GetEffect(Effects::BEAM) );
+		(*Resources::GetUBO(UniformBuffers::OBJECT_WIRE))["WorldViewProjection"] = _worldViewProjection;
+		(*Resources::GetUBO(UniformBuffers::OBJECT_WIRE))["LineWidth"] = m_lineWidth;
+		(*Resources::GetUBO(UniformBuffers::OBJECT_WIRE))["BlendSlope"] = 1.0f / m_fading;
+		(*Resources::GetUBO(UniformBuffers::OBJECT_WIRE))["BlendOffset"] = (1.0f-m_fading) / m_fading;
 
 		Device::DrawVertices( m_mesh, 0, m_mesh.GetNumVertices() );
 	}

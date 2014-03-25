@@ -34,7 +34,6 @@ namespace Graphic {
 	class Texture;
 	class UniformBuffer;
 	class Font;
-	struct Content;
 
 	namespace Marker {
 		class Grid;

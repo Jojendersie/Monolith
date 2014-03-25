@@ -12,7 +12,7 @@ GSSoundOpt::GSSoundOpt(Monolith* _game) : IGameState(_game)
 {
 	LOG_LVL2("Starting to create game state SoundOpt");
 
-	m_hud = new Graphic::Hud(_game->m_graficContent, _game);
+	m_hud = new Graphic::Hud(_game);
 
 	LOG_LVL2("Created game state SoundOpt");
 }

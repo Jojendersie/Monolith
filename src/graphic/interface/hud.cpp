@@ -1,10 +1,10 @@
 #include "hud.hpp"
 #include "..\..\input\input.hpp"
+#include "..\content.hpp"
 
 namespace Graphic
 {
-	Hud::Hud(Content* _globalPipelineData, Monolith* _game ):
-		m_globalPipelineData(_globalPipelineData),
+	Hud::Hud(Monolith* _game ):
 		m_game(_game),
 		m_characters( "2222", VertexBuffer::PrimitiveType::POINT ),
 		m_container("texture/combined.png"),
@@ -19,11 +19,9 @@ namespace Graphic
 	//	for( int i = 0; i < MAX_SCREENTEX; i++ )
 	//		m_screenTextures[i] = nullptr;
 
-		m_dbgLabel = new TextRender(m_globalPipelineData->defaultFont);
+		m_dbgLabel = new TextRender(Graphic::Resources::GetFont(Graphic::Fonts::DEFAULT));
 		m_dbgLabel->SetPos(Math::Vec2(0.6f,0.8f));
 		AddTextRender(m_dbgLabel);
-
-		m_globalPipelineData->texture2DEffect.BindTexture( "u_screenTex", 7, _globalPipelineData->linearSampler );
 
 		//test screen tex
 		Jo::Files::HDDFile file("texture/combined.sraw");
@@ -50,7 +48,7 @@ namespace Graphic
 
 	void Hud::CreateBtn(std::string _texName, std::string _desc, Math::Vec2 _position, Math::Vec2 _size, std::function<void()> _OnMouseUp)
 	{
-		Button* btn = new Button(m_containerMap, m_globalPipelineData->gameFont, _texName, _position, _size, _OnMouseUp);
+		Button* btn = new Button(m_containerMap, Resources::GetFont(Fonts::GAME_FONT), _texName, _position, _size, _OnMouseUp);
 		btn->m_caption.SetText(_desc);
 		AddButton(btn);
 	}
@@ -60,7 +58,7 @@ namespace Graphic
 
 		RenewBuffer();
 
-		Device::SetEffect( m_globalPipelineData->texture2DEffect );
+		Device::SetEffect( *Resources::GetEffect(Effects::TEXTURE_2DQUAD) );
 		Device::SetTexture( m_container, 7 );
 		//ignore cursor
 		Device::DrawVertices( m_characters, 0, m_characters.GetNumVertices()-1 );
@@ -69,7 +67,7 @@ namespace Graphic
 			if(m_textRenders[i]->m_active) m_textRenders[i]->Draw();
 
 		//draw cursor last
-		Device::SetEffect( m_globalPipelineData->texture2DEffect );
+		Device::SetEffect( *Resources::GetEffect(Effects::TEXTURE_2DQUAD) );
 		Device::SetTexture( m_container, 7 );
 		Device::DrawVertices( m_characters, m_characters.GetNumVertices()-1, 1 );
 	}

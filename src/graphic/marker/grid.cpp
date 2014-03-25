@@ -5,22 +5,22 @@ namespace Marker {
 
 	// ********************************************************************* //
 	// Create a new 2D grid in the xz-plane.
-	Grid::Grid( int _resolutionX, int _resolutionZ, float _spacing, const Utils::Color32F& _color, bool _elliptic, Graphic::Content* _stateObjects ) :
-		m_renderer( _color, _elliptic ? 1.0f : (4.0f / (_resolutionX + _resolutionZ)), _stateObjects )
+	Grid::Grid( int _resolutionX, int _resolutionZ, float _spacing, const Utils::Color32F& _color, bool _elliptic ) :
+		m_renderer( _color, _elliptic ? 1.0f : (4.0f / (_resolutionX + _resolutionZ)) )
 	{
-		Create2DSlice( _resolutionX, _resolutionZ, 0.0f, _spacing, _elliptic, _stateObjects );
+		Create2DSlice( _resolutionX, _resolutionZ, 0.0f, _spacing, _elliptic );
 	}
 
 	// ********************************************************************* //
 	// Create a new 3D grid.
-	Grid::Grid( int _resolutionX, int _resolutionY, int _resolutionZ, float _spacing, const Utils::Color32F& _color, Graphic::Content* _stateObjects ) :
-		m_renderer( _color, 6.0f / (_resolutionY + _resolutionX + _resolutionZ), _stateObjects )
+	Grid::Grid( int _resolutionX, int _resolutionY, int _resolutionZ, float _spacing, const Utils::Color32F& _color ) :
+		m_renderer( _color, 6.0f / (_resolutionY + _resolutionX + _resolutionZ) )
 	{
 		// Create lots of 2D grids
 		for( int y = 0; y < _resolutionZ; ++y )
 		{
 			float yOff = y - (_resolutionY - 1) * 0.5f;
-			Create2DSlice( _resolutionX, _resolutionZ, yOff * _spacing, _spacing, false, _stateObjects );
+			Create2DSlice( _resolutionX, _resolutionZ, yOff * _spacing, _spacing, false );
 		}
 
 		// Add grid lines along y axis (translated in x and z)
@@ -45,7 +45,7 @@ namespace Marker {
 
 	// ********************************************************************* //
 	// Create a 2D grid at a specified y coordinate.
-	void Grid::Create2DSlice( int _resolutionX, int _resolutionZ, float _coordinateY, float _spacing, bool _elliptic, Graphic::Content* _stateObjects )
+	void Grid::Create2DSlice( int _resolutionX, int _resolutionZ, float _coordinateY, float _spacing, bool _elliptic )
 	{
 		// Add grid lines along z axis (translated in x)
 		for( int x = 0; x < _resolutionX; ++x )
