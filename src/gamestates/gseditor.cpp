@@ -217,7 +217,7 @@ void GSEditor::ValidatePosition()
 	// Check coordinates in general
 	if( m_lvl0Position[0] < 0 || m_lvl0Position[1] < 0 || m_lvl0Position[2] < 0 )
 		m_validPosition = false;
-	if( m_lvl0Position[0] >= 4096 || m_lvl0Position[1] <= 4096 || m_lvl0Position[2] <= 4096 )
+	if( m_lvl0Position[0] >= 4096 || m_lvl0Position[1] >= 4096 || m_lvl0Position[2] >= 4096 )
 		m_validPosition = false;
 
 	// TODO: Do not delete the last computer

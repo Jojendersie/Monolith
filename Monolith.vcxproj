@@ -185,6 +185,9 @@
     <ClInclude Include="src\voxel\voxel.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shader\beam.gs" />
+    <None Include="shader\beam.ps" />
+    <None Include="shader\beam.vs" />
     <None Include="shader\font.gs" />
     <None Include="shader\font.ps" />
     <None Include="shader\font.vs" />
@@ -194,7 +197,6 @@
     <None Include="shader\voxel.gs" />
     <None Include="shader\voxel.ps" />
     <None Include="shader\voxel.vs" />
-    <None Include="shader\wire.gs" />
     <None Include="shader\wire.ps" />
     <None Include="shader\wire.vs" />
   </ItemGroup>

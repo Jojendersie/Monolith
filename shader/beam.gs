@@ -32,7 +32,7 @@ void main(void)
 	vec4 l2 = vec4(vs_out_Position[1], 1) * c_mWorldViewProjection;
 	
 	// Do a manual clipping.
-	float threshold = 5.0; // TODO: use nearplane
+	float threshold = -5.0; // TODO: use nearplane
 	vec4 direction = normalize(l2 - l1);
 	// Compute original distance for texture coordinate reprojection.
 	float len = length(l2.xyz - l1.xyz) * 0.5;
@@ -48,8 +48,7 @@ void main(void)
 	// Compute a vector perpendicular vector to create a beam
 	vec2 dir = normalize(l2.xy / l2.w - l1.xy / l1.w);
 	// Cross product with view direction
-	vec4 perpendicular = vec4(-dir.y * 1.04, dir.x * 1.04, 0, 0);
-	// TODO THickness instead of 1.04
+	vec4 perpendicular = vec4(-dir.y * c_vCorner000.z, dir.x * c_vCorner000.z, 0, 0);
 
 	gs_Color = vs_out_Color[0];
 	gl_Position = l1 + perpendicular;

@@ -40,11 +40,15 @@ namespace Marker {
 		/// \brief Draw all the lines with the glowing wireframe effect.
 		void Draw( const Math::Mat4x4& _worldViewProjection );
 
+		void SetLineWidth( float _width )	{ m_lineWidth = _width; }
+		float GetLineWidth() const			{ return m_lineWidth; }
+
 	private:
 		/// \brief A buffer with line geometry
 		VertexBuffer m_mesh;
 		Utils::Color32F m_color;		// The color of the lines.
 		float m_fading;					// How fast are lines faded out. This number is relative to the line. A 1.0 means to fade from each end to the middle.
+		float m_lineWidth;				// Thickness of the beam
 
 		Effect* m_effect;
 		UniformBuffer* m_objectUBO;

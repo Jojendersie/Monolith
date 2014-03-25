@@ -390,7 +390,13 @@
     <None Include="shader\wire.vs">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="shader\wire.gs">
+    <None Include="shader\beam.ps">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shader\beam.vs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shader\beam.gs">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
