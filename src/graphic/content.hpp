@@ -17,7 +17,8 @@ namespace Graphic {
 		Graphic::Effect texture2DEffect;
 		Graphic::Effect wireEffect;
 		Graphic::Effect beamEffect;
-		Graphic::UniformBuffer objectUBO;
+		Graphic::UniformBuffer voxelObjectUBO;
+		Graphic::UniformBuffer wireObjectUBO;
 		Graphic::UniformBuffer cameraUBO;
 		Graphic::UniformBuffer globalUBO;
 		Graphic::SamplerState pointSampler;

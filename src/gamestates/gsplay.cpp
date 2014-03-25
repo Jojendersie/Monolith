@@ -86,7 +86,7 @@ void GSPlay::Render( double _time, double _deltaTime )
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 
 	Graphic::Device::SetEffect(	m_game->m_graficContent->voxelRenderEffect );
-	m_astTest->Draw( m_game->m_graficContent->objectUBO, *m_camera );
+	m_astTest->Draw( m_game->m_graficContent->voxelObjectUBO, *m_camera );
 
 	m_objectPlane->Draw( m_camera->GetViewProjection() );
 	

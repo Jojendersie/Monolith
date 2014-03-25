@@ -21,7 +21,7 @@ namespace Marker {
 		m_lineWidth( 1.0f )
 	{
 		m_effect = &_stateObjects->beamEffect;
-		m_objectUBO = &_stateObjects->objectUBO;
+		m_objectUBO = &_stateObjects->wireObjectUBO;
 
 		LOG_LVL0("Created new wireframe renderer");
 	}
@@ -68,7 +68,9 @@ namespace Marker {
 		// Setup pipeline
 		Device::SetEffect( *m_effect );
 		(*m_objectUBO)["WorldViewProjection"] = _worldViewProjection;
-		(*m_objectUBO)["Corner000"] = Vec4( (1.0f-m_fading) / m_fading, 1.0f / m_fading, m_lineWidth, 0.0f );
+		(*m_objectUBO)["LineWidth"] = m_lineWidth;
+		(*m_objectUBO)["BlendSlope"] = 1.0f / m_fading;
+		(*m_objectUBO)["BlendOffset"] = (1.0f-m_fading) / m_fading;
 
 		Device::DrawVertices( m_mesh, 0, m_mesh.GetNumVertices() );
 	}

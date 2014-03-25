@@ -59,6 +59,7 @@ void GSEditor::OnEnd()
 {
 	// TODO: User store request
 	delete m_model;
+	m_model = nullptr;
 
 	LOG_LVL2("Left game state Editor");
 }
@@ -76,7 +77,7 @@ void GSEditor::Render( double _time, double _deltaTime )
 	// Draw the model which is edited
 	m_modelCamera->Set( m_game->m_graficContent->cameraUBO );
 	Graphic::Device::SetEffect(	m_game->m_graficContent->voxelRenderEffect );
-	m_model->Draw( m_game->m_graficContent->objectUBO, *m_modelCamera );
+	m_model->Draw( m_game->m_graficContent->voxelObjectUBO, *m_modelCamera );
 	// Draw the marker in the same view
 	if( m_rayHits )
 	{

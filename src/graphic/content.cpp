@@ -10,23 +10,28 @@ namespace Graphic {
 		texture2DEffect( "shader/screentex.vs", "shader/screentex.gs", "shader/screentex.ps", Graphic::RasterizerState::CULL_MODE::BACK, Graphic::RasterizerState::FILL_MODE::SOLID, Graphic::BlendState::BLEND_OPERATION::ADD, Graphic::BlendState::BLEND::SRC_ALPHA, Graphic::BlendState::BLEND::INV_SRC_ALPHA, Graphic::DepthStencilState::COMPARISON_FUNC::ALWAYS, false),
 		wireEffect( "shader/wire.vs", "shader/wire.ps", Graphic::RasterizerState::CULL_MODE::BACK, Graphic::RasterizerState::FILL_MODE::SOLID, BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::SRC_ALPHA, BlendState::BLEND::ONE, Graphic::DepthStencilState::COMPARISON_FUNC::LESS, false ),
 		beamEffect( "shader/beam.vs", "shader/beam.gs", "shader/beam.ps", Graphic::RasterizerState::CULL_MODE::BACK, Graphic::RasterizerState::FILL_MODE::SOLID, BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::SRC_ALPHA, BlendState::BLEND::ONE, Graphic::DepthStencilState::COMPARISON_FUNC::LESS, false ),
-		objectUBO( "Object" ), cameraUBO( "Camera" ), globalUBO( "Global" ),
+		voxelObjectUBO( "Object" ), wireObjectUBO( "Object" ), cameraUBO( "Camera" ), globalUBO( "Global" ),
 		pointSampler(Graphic::SamplerState::EDGE_TREATMENT::WRAP, Graphic::SamplerState::SAMPLE::POINT,
 					Graphic::SamplerState::SAMPLE::POINT, Graphic::SamplerState::SAMPLE::LINEAR ),
 		linearSampler(Graphic::SamplerState::EDGE_TREATMENT::WRAP, Graphic::SamplerState::SAMPLE::LINEAR,
 					Graphic::SamplerState::SAMPLE::LINEAR, Graphic::SamplerState::SAMPLE::LINEAR )
 	{
 		// Init the constant buffers
-		objectUBO.AddAttribute( "WorldViewProjection", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
-		objectUBO.AddAttribute( "WorldView", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
-		objectUBO.AddAttribute( "Corner000", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
-		objectUBO.AddAttribute( "Corner001", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
-		objectUBO.AddAttribute( "Corner010", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
-		objectUBO.AddAttribute( "Corner011", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
-		objectUBO.AddAttribute( "Corner100", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
-		objectUBO.AddAttribute( "Corner101", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
-		objectUBO.AddAttribute( "Corner110", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
-		objectUBO.AddAttribute( "Corner111", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
+		voxelObjectUBO.AddAttribute( "WorldViewProjection", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
+		voxelObjectUBO.AddAttribute( "WorldView", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
+		voxelObjectUBO.AddAttribute( "Corner000", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
+		voxelObjectUBO.AddAttribute( "Corner001", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
+		voxelObjectUBO.AddAttribute( "Corner010", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
+		voxelObjectUBO.AddAttribute( "Corner011", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
+		voxelObjectUBO.AddAttribute( "Corner100", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
+		voxelObjectUBO.AddAttribute( "Corner101", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
+		voxelObjectUBO.AddAttribute( "Corner110", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
+		voxelObjectUBO.AddAttribute( "Corner111", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
+
+		wireObjectUBO.AddAttribute( "WorldViewProjection", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
+		wireObjectUBO.AddAttribute( "LineWidth", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
+		wireObjectUBO.AddAttribute( "BlendSlope", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
+		wireObjectUBO.AddAttribute( "BlendOffset", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 
 		cameraUBO.AddAttribute( "View", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
 		cameraUBO.AddAttribute( "Projection", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
@@ -45,13 +50,13 @@ namespace Graphic {
 		globalUBO["Height"] = (float)size[1];
 
 		// Bind constant buffers to effects
-		voxelRenderEffect.BindUniformBuffer( objectUBO );
+		voxelRenderEffect.BindUniformBuffer( voxelObjectUBO );
 		voxelRenderEffect.BindUniformBuffer( cameraUBO );
 		voxelRenderEffect.BindUniformBuffer( globalUBO );
 		voxelRenderEffect.BindTexture("u_diffuseTex", 0, pointSampler);
 
-		wireEffect.BindUniformBuffer( objectUBO );
-		beamEffect.BindUniformBuffer( objectUBO );
+		wireEffect.BindUniformBuffer( wireObjectUBO );
+		beamEffect.BindUniformBuffer( wireObjectUBO );
 
 		//texture2DEffect.BindUniformBuffer( globalUBO );
 

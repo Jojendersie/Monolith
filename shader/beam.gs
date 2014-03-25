@@ -14,15 +14,9 @@ layout(triangle_strip, max_vertices = OUT_VERTS) out;
 layout(std140) uniform Object
 {
 	mat4 c_mWorldViewProjection;
-	mat4 c_mWorldView;
-	vec4 c_vCorner000;
-	vec4 c_vCorner001;
-	vec4 c_vCorner010;
-	vec4 c_vCorner011;
-	vec4 c_vCorner100;
-	vec4 c_vCorner101;
-	vec4 c_vCorner110;
-	vec4 c_vCorner111;
+	float c_fLineWidth;
+	float c_fBlendSlope;
+	float c_fBlendOffset;
 };
 
 void main(void)
@@ -48,7 +42,7 @@ void main(void)
 	// Compute a vector perpendicular vector to create a beam
 	vec2 dir = normalize(l2.xy / l2.w - l1.xy / l1.w);
 	// Cross product with view direction
-	vec4 perpendicular = vec4(-dir.y * c_vCorner000.z, dir.x * c_vCorner000.z, 0, 0);
+	vec4 perpendicular = vec4(-dir.y * c_fLineWidth, dir.x * c_fLineWidth, 0, 0);
 
 	gs_Color = vs_out_Color[0];
 	gl_Position = l1 + perpendicular;

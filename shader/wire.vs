@@ -8,15 +8,9 @@ out vec3 vs_out_Position;
 layout(std140) uniform Object
 {
 	mat4 c_mWorldViewProjection;
-	mat4 c_mWorldView;
-	vec4 c_vCorner000;
-	vec4 c_vCorner001;
-	vec4 c_vCorner010;
-	vec4 c_vCorner011;
-	vec4 c_vCorner100;
-	vec4 c_vCorner101;
-	vec4 c_vCorner110;
-	vec4 c_vCorner111;
+	float c_fLineWidth;
+	float c_fBlendSlope;
+	float c_fBlendOffset;
 };
 
 void main()
