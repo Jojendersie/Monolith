@@ -23,6 +23,7 @@ namespace Logger {
 		fwrite( _message.c_str(), _message.length(), 1, m_file );
 		// Modification to original logging lib: copy into window
 		std::cout << _message;
+		fflush( m_file );
 	}
 
 } // namespace Logger

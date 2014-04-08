@@ -41,7 +41,6 @@ namespace Math {
 	/// \brief Return the next power of two which is greater than i
 	inline int nextpow2( int i )
 	{
-		int o = i;
 		i |= i >> 1;
 		i |= i >> 2;
 		i |= i >> 4;
@@ -52,7 +51,7 @@ namespace Math {
 		//return (i+1 == o*2) ? o : (i+1);
 	}
 
-	/// \brief Logathim dualism rounded down
+	/// \brief Logarithm dualism rounded down
 	inline int ld( int i )
 	{
 		if( i <= 0 ) return std::numeric_limits<int>::min();

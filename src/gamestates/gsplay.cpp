@@ -34,8 +34,8 @@ GSPlay::GSPlay(Monolith* _game) : IGameState(_game), m_astTest(nullptr)
 		0.3f,
 		Graphic::Device::GetAspectRatio() );
 
-	//m_objectPlane = new Graphic::Marker::Grid( 80, 80, 20.0f, Utils::Color32F( 0.5f, 0.5f, 1.0f, 0.5f ), true );
-	m_objectPlane = new Graphic::Marker::Grid( 30, 30, 30, 1.0f, Utils::Color32F( 0.5f, 0.5f, 1.0f, 0.5f ) );
+	m_objectPlane = new Graphic::Marker::Grid( 80, 80, 20.0f, Utils::Color32F( 0.5f, 0.5f, 1.0f, 0.5f ), true );
+	//m_objectPlane = new Graphic::Marker::Grid( 30, 30, 30, 10.0f, Utils::Color32F( 0.5f, 0.5f, 1.0f, 0.5f ) );
 
 	LOG_LVL2("Created game state Play");
 }
