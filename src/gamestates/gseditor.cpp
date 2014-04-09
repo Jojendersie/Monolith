@@ -78,7 +78,7 @@ void GSEditor::Render( double _time, double _deltaTime )
 	// Draw the model which is edited
 	m_modelCamera->Set( *Graphic::Resources::GetUBO(Graphic::UniformBuffers::CAMERA) );
 	Graphic::Device::SetEffect(	*Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
-	m_model->Draw( *m_modelCamera );
+	m_model->Draw( *m_modelCamera, _time );
 	// Draw the marker in the same view
 	if( m_rayHits )
 	{

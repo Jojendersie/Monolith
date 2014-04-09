@@ -88,7 +88,7 @@ void GSPlay::Render( double _time, double _deltaTime )
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 
 	Graphic::Device::SetEffect(	*Resources::GetEffect(Effects::VOXEL_RENDER) );
-	m_astTest->Draw( *m_camera );
+	m_astTest->Draw( *m_camera, _time );
 
 	m_objectPlane->Draw( m_camera->GetViewProjection() );
 	

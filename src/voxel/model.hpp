@@ -31,11 +31,10 @@ namespace Voxel {
 		///		and then each chunk is rendered.
 		///
 		///		The effect must be set outside.
-		/// \param [out] _objectConstants A reference to the constant buffer
-		///		which must be filled.
 		/// \param [in] _camera The actual camera for transformation, culling
 		///		and LOD computations.
-		void Draw( const Input::Camera& _camera );
+		///	\param [in] _gameTime A time which is used for chunk udates.
+		void Draw( const Input::Camera& _camera, double _gameTime );
 
 		/// \brief Set a voxel in the model and update mass properties.
 		/// \see SparseVoxelOctree::Set.
@@ -76,6 +75,9 @@ namespace Voxel {
 		void Update( const Math::IVec4& _position, const Component& _oldType, const Component& _newType );
 
 		bool RayCast( const Math::Ray& _ray, int _targetLevel, ModelData::HitResult& _hit ) const;
+
+		/// \brief Remove all chunks which were not used or dirty.
+		void ClearChunkCache( double _gameTime );
 	protected:
 		std::unordered_map<Math::IVec4, Chunk> m_chunks;
 		int m_numVoxels;				///< Count the number of voxels for statistical issues
