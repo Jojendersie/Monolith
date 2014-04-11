@@ -31,11 +31,10 @@ namespace Voxel {
 		///		and then each chunk is rendered.
 		///
 		///		The effect must be set outside.
-		/// \param [out] _objectConstants A reference to the constant buffer
-		///		which must be filled.
 		/// \param [in] _camera The actual camera for transformation, culling
 		///		and LOD computations.
-		void Draw( Graphic::UniformBuffer& _objectConstants, const Input::Camera& _camera );
+		///	\param [in] _gameTime A time which is used for chunk udates.
+		void Draw( const Input::Camera& _camera, double _gameTime );
 
 		/// \brief Set a voxel in the model and update mass properties.
 		/// \see SparseVoxelOctree::Set.
@@ -49,13 +48,21 @@ namespace Voxel {
 		VoxelType Get( const Math::IVec3& _position, int _level ) const;
 
 		/// \brief Get the center of gravity (mass center)
-		Math::Vec3 GetCenter() const		{ return m_center + m_position; }
+		Math::Vec3 GetCenter() const						{ return m_center + m_position; }
 		/// \brief Set the position of the model based on its current center of gravity
-		void SetCenter(const Math::Vec3& _position)		{ m_position = _position - m_center; }
+		void SetCenter(const Math::Vec3& _position)			{ m_position = _position - m_center; }
+		/// \brief Rotate without any physical influence (rotatory velocity
+		///		will be unchanged, no test for breaking of)
+		void Rotate( const Math::Quaternion& _rotation )	{ m_rotation *= _rotation; }
 
 		/// \brief Get the bounding radius of the sphere centered at the center
 		///		of gravity.
 		float GetRadius() const { return m_boundingSphereRadius; }
+
+		/// \brief Get the model transformation matrix
+		/// \param [out] _out A space where the matrix can be stored.
+		/// \return The reference to _out
+		Math::Mat4x4& GetModelMatrix( Math::Mat4x4& _out ) const;
 
 		/// \brief Do an update of physical properties.
 		/// \details If a voxel is deleted _newType is NONE. If a new voxel
@@ -68,6 +75,9 @@ namespace Voxel {
 		void Update( const Math::IVec4& _position, const Component& _oldType, const Component& _newType );
 
 		bool RayCast( const Math::Ray& _ray, int _targetLevel, ModelData::HitResult& _hit ) const;
+
+		/// \brief Remove all chunks which were not used or dirty.
+		void ClearChunkCache( double _gameTime );
 	protected:
 		std::unordered_map<Math::IVec4, Chunk> m_chunks;
 		int m_numVoxels;				///< Count the number of voxels for statistical issues

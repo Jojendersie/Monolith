@@ -31,10 +31,11 @@ namespace Input {
 		InputManagerInstance.m_window = _window;
 
 		// Read key mapping
-		InputManagerInstance.m_keyMap = new Jo::Files::MetaFileWrapper::Node*[3];
+		InputManagerInstance.m_keyMap = new Jo::Files::MetaFileWrapper::Node*[4];
 		InputManagerInstance.m_keyMap[(int)VirtualKey::MOVE_CAMERA] = &_keyConfig[string("MoveCamera")];
 		InputManagerInstance.m_keyMap[(int)VirtualKey::ROTATE_CAMERA] = &_keyConfig[string("RotateCamera")];
 		InputManagerInstance.m_keyMap[(int)VirtualKey::ZOOM] = &_keyConfig[string("Zoom")];
+		InputManagerInstance.m_keyMap[(int)VirtualKey::EDITOR_DELETIONMODE] = &_keyConfig[string("EditorDeletionMode")];
 	}
 
 	// ********************************************************************* //
@@ -105,16 +106,19 @@ namespace Input {
 	// ********************************************************************* //
 	void Manager::KeyFun(GLFWwindow* _window, int _key, int _scanCode, int _action, int _modifiers)
 	{
+		// Save game state - some events might push new states
+		IGameState* gameState = InputManagerInstance.m_gameState;
+
 		// React only if somebody is listening
-		if( InputManagerInstance.m_gameState )
+		if( gameState )
 		{
 			if( _action == GLFW_PRESS )
 			{
 				InputManagerInstance.m_keyInfos[_key].lastDown = (float)TimeSinceProgramStart();
-				InputManagerInstance.m_gameState->KeyDown( _key, _modifiers );
+				gameState->KeyDown( _key, _modifiers );
 			} else if( _action == GLFW_RELEASE )
 			{
-				InputManagerInstance.m_gameState->KeyRelease( _key );
+				gameState->KeyRelease( _key );
 				// Check for a click
 				float now = (float)TimeSinceProgramStart();
 				auto& keyInfo = InputManagerInstance.m_keyInfos[_key];
@@ -122,32 +126,35 @@ namespace Input {
 				{
 					// Simple or double click?
 					if( now - keyInfo.lastRelease < 0.25f ) {
-						InputManagerInstance.m_gameState->KeyDoubleClick( _key );
+						gameState->KeyDoubleClick( _key );
 						keyInfo.lastRelease = -1.0f;	// Break tripple clicks
 					} else {
-						InputManagerInstance.m_gameState->KeyClick( _key );
+						gameState->KeyClick( _key );
 						keyInfo.lastRelease = now;
 					}
 				} else keyInfo.lastRelease = now;
 			} else
 				// Repeat
-				InputManagerInstance.m_gameState->KeyDown( _key, _modifiers );
+				gameState->KeyDown( _key, _modifiers );
 		}
 	}
 
 	// ********************************************************************* //
 	void Manager::MouseButtonFun(GLFWwindow*, int _key, int _action, int _modifiers)
 	{
+		// Save game state - some events might push new states
+		IGameState* gameState = InputManagerInstance.m_gameState;
+
 		// React only if somebody is listening
-		if( InputManagerInstance.m_gameState )
+		if( gameState )
 		{
 			if( _action == GLFW_PRESS )
 			{
 				InputManagerInstance.m_keyInfos[_key].lastDown = (float)TimeSinceProgramStart();
-				InputManagerInstance.m_gameState->KeyDown( _key, _modifiers );
+				gameState->KeyDown( _key, _modifiers );
 			} else if( _action == GLFW_RELEASE )
 			{
-				InputManagerInstance.m_gameState->KeyRelease( _key );
+				gameState->KeyRelease( _key );
 				// Check for a click
 				float now = (float)TimeSinceProgramStart();
 				auto& keyInfo = InputManagerInstance.m_keyInfos[_key];
@@ -158,10 +165,10 @@ namespace Input {
 					if( now - keyInfo.lastRelease < 0.25f
 						&& Math::lengthSq(InputManagerInstance.m_lastClickedPosition - mousePosition) < 5.0f )
 					{
-						InputManagerInstance.m_gameState->KeyDoubleClick( _key );
+						gameState->KeyDoubleClick( _key );
 						keyInfo.lastRelease = -1.0f;	// Break tripple clicks
 					} else {
-						InputManagerInstance.m_gameState->KeyClick( _key );
+						gameState->KeyClick( _key );
 						keyInfo.lastRelease = now;
 						InputManagerInstance.m_lastClickedPosition = mousePosition;
 					}

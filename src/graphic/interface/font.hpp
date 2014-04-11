@@ -7,7 +7,6 @@
 #include "../core/effect.hpp"
 #include "../core/texture.hpp"
 #include "../core/device.hpp"
-#include "../content.hpp"
 #include <jofilelib.hpp>
 #include "../../utilities/color.hpp"
 
@@ -35,7 +34,7 @@ namespace Graphic {
 		Effect m_effect;
 		Texture m_texture;
 		/// \brief Load a bitmap font and initialize the render effect.
-		Font(std::string _fontName, Content* _globalPipelineData);
+		Font(std::string _fontName);
 	};
 
 	/// \brief A buffer with a formated string to draw.

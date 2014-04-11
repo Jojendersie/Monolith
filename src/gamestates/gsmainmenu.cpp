@@ -16,7 +16,7 @@ GSMainMenu::GSMainMenu(Monolith* _game) : IGameState(_game)
 {
 	LOG_LVL2("Starting to create game state MainMenu");
 
-	m_hud = new Graphic::Hud(_game->m_graficContent, _game);
+	m_hud = new Graphic::Hud(_game);
 	//some bsp buttons
 	m_hud->CreateBtn("menuBtn", Resources::GetText("continue"), Math::Vec2(-0.25f,0.4f), Math::Vec2(0.6f, 0.15f), [&] () { m_game->PushState( m_game->GetPlayState() ); });
 	m_hud->CreateBtn("menuBtn", Resources::GetText("editor"), Math::Vec2(-0.25f,0.22f), Math::Vec2(0.6f, 0.15f), [&] () { m_game->PushState( m_game->GetEditorState() ); });

@@ -45,7 +45,8 @@ namespace Voxel {
 
 
 	void Chunk::Draw( Graphic::UniformBuffer& _objectConstants,
-			const Math::Mat4x4& _modelView, const Math::Mat4x4& _projection )
+			const Math::Mat4x4& _modelView, const Math::Mat4x4& _projection,
+			double _time )
 	{
 		// Translation to center the chunks
 		Math::Mat4x4 modelViewProjection = Mat4x4::Translation(m_position) * Mat4x4::Scaling(m_scale) * _modelView;
@@ -64,6 +65,9 @@ namespace Voxel {
 		_objectConstants["Corner111"] = Vec4(  0.5f,  0.5f,  0.5f, 0.0f ) * modelViewProjection;
 
 		Graphic::Device::DrawVertices( m_voxels, 0, m_voxels.GetNumVertices() );
+
+		// Set the time stamp for the garbage collection
+		m_lastRendered = _time;
 	}
 
 

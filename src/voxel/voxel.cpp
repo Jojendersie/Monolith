@@ -70,12 +70,12 @@ namespace Voxel {
 			voxelInfo.mass = voxelNode[string("Mass")].Get(1.0f);
 			voxelInfo.thresholdEnergy = voxelNode[string("Threshold Energy")].Get(100000.0f);
 			voxelInfo.reactionEnergy = voxelNode[string("Reaction Energy")].Get(0.0f);
-			voxelInfo.water = voxelNode[string("Water")].Get(0);
-			voxelInfo.minerals = voxelNode[string("Minerals")].Get(0);
+			voxelInfo.hydrogen = voxelNode[string("Hydrogen")].Get(0);
+			voxelInfo.carbon = voxelNode[string("Carbon")].Get(0);
 			voxelInfo.metals = voxelNode[string("Metals")].Get(0);
-			voxelInfo.rareMetals = voxelNode[string("Rare Metals")].Get(0);
-			voxelInfo.alloys = voxelNode[string("Alloys")].Get(0);
-			voxelInfo.polymers = voxelNode[string("Polymers")].Get(0);
+			voxelInfo.rareEarthElements = voxelNode[string("Rare Earth Elements")].Get(0);
+			voxelInfo.semiconductors = voxelNode[string("Semiconductors")].Get(0);
+			voxelInfo.heisenbergium = voxelNode[string("Heisenbergium")].Get(0);
 			// Get volumetric size
 			int s = voxelNode[string("Texture Resolution")].Get(0);
 			voxelInfo.textureResolution = s;

@@ -12,7 +12,7 @@ namespace Graphic {
 
 	static void ErrorCallBack(int _iError, const char* _sDescription)
 	{
-		LOG_ERROR( std::string("glfw [") + std::to_string(_iError) + _sDescription );
+		LOG_ERROR( std::string("glfw [") + std::to_string(_iError) + "] " + _sDescription );
 	}
 
 	GLFWwindow* Device::GetWindow()		{ return g_Device.m_window; }
@@ -40,6 +40,9 @@ namespace Graphic {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#ifdef _DEBUG
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+#endif
 		g_Device.m_window = glfwCreateWindow(_width, _height, "Monolith", nullptr, nullptr);
 		if( !g_Device.m_window )
 			LOG_CRITICAL("Window was not created.");
@@ -53,7 +56,7 @@ namespace Graphic {
 
 		if (GLEW_OK != GlewInitResult)
 			LOG_ERROR(std::string((char*)glewGetErrorString(GlewInitResult)));
-		else glGetError();	// Sometimes glewInit creates an arrow even if return val correct
+		else glGetError();	// Sometimes glewInit creates an error even if return val correct
 
 		glViewport(0, 0, _width, _height);
 

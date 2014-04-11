@@ -28,6 +28,9 @@ namespace Input {
 		/// \details The z-axis is the view direction!
 		//Math::Vec3 ZAxis()	{ return Math::Vec3(m_view.m13, m_view.m23, m_view.m33); }
 
+		/// \brief Set all matrices, and further information in the camera uniform buffer.
+		void Set( Graphic::UniformBuffer& _cameraUBO );
+
 		/// \brief Set a total new position.
 		void SetPosition( const Math::Vec3& _position );
 		/// \brief Read position
@@ -94,6 +97,9 @@ namespace Input {
 		const Voxel::Model* m_attachedTo;	///< The camera can track this object and uses it as reference system
 		Math::Vec3 m_referencePos;			///< Object position in view space. This reference frame is kept for a tracked object.
 		bool m_hardAttached;				///< If the object is hard attached the camera position follows the object. If it is soft attached rotations are relative to the object.
-		void NormalizeReference();			///< Reset camera position such that the original object reference position is restored.
+
+		/// \brief Reset camera position such that the original object
+		///		reference position is restored.
+		void NormalizeReference();
 	};
 } // namespace Input

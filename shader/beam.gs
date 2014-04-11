@@ -14,15 +14,9 @@ layout(triangle_strip, max_vertices = OUT_VERTS) out;
 layout(std140) uniform Object
 {
 	mat4 c_mWorldViewProjection;
-	mat4 c_mWorldView;
-	vec4 c_vCorner000;
-	vec4 c_vCorner001;
-	vec4 c_vCorner010;
-	vec4 c_vCorner011;
-	vec4 c_vCorner100;
-	vec4 c_vCorner101;
-	vec4 c_vCorner110;
-	vec4 c_vCorner111;
+	float c_fLineWidth;
+	float c_fBlendSlope;
+	float c_fBlendOffset;
 };
 
 void main(void)
@@ -32,7 +26,7 @@ void main(void)
 	vec4 l2 = vec4(vs_out_Position[1], 1) * c_mWorldViewProjection;
 	
 	// Do a manual clipping.
-	float threshold = 5.0; // TODO: use nearplane
+	float threshold = -5.0; // TODO: use nearplane
 	vec4 direction = normalize(l2 - l1);
 	// Compute original distance for texture coordinate reprojection.
 	float len = length(l2.xyz - l1.xyz) * 0.5;
@@ -48,7 +42,7 @@ void main(void)
 	// Compute a vector perpendicular vector to create a beam
 	vec2 dir = normalize(l2.xy / l2.w - l1.xy / l1.w);
 	// Cross product with view direction
-	vec4 perpendicular = vec4(-dir.y * 5.04, dir.x * 5.04, 0, 0);
+	vec4 perpendicular = vec4(-dir.y * c_fLineWidth, dir.x * c_fLineWidth, 0, 0);
 
 	gs_Color = vs_out_Color[0];
 	gl_Position = l1 + perpendicular;

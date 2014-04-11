@@ -189,7 +189,7 @@ namespace Math {
 	Vector<n, Data> max(const Vector<n, Data>& _v1, const Vector<n, Data>& _v2)
 	{
 		Vector<n, Data> result;
-		for( int i=0; i<n; ++i ) result = max(_v1[i],  _v2[i]);
+		for( int i=0; i<n; ++i ) result[i] = max(_v1[i],  _v2[i]);
 		return result;
 	}
 
@@ -198,7 +198,7 @@ namespace Math {
 	Vector<n, Data> min(const Vector<n, Data>& _v1, const Vector<n, Data>& _v2)
 	{
 		Vector<n, Data> result;
-		for( int i=0; i<n; ++i ) result = min(_v1[i],  _v2[i]);
+		for( int i=0; i<n; ++i ) result[i] = min(_v1[i],  _v2[i]);
 		return result;
 	}
 
@@ -207,7 +207,7 @@ namespace Math {
 	Vector<n, Data> abs(const Vector<n, Data>& _v)
 	{
 		Vector<n, Data> result;
-		for( int i=0; i<n; ++i ) result = abs(_v);
+		for( int i=0; i<n; ++i ) result[i] = abs(_v);
 		return result;
 	}
 
@@ -220,7 +220,7 @@ namespace Math {
 		float f2 = sin( omega * t );
 		Vector<n, Data> result;
 		for( int i=0; i<n; ++i )
-			result[0] = _v1[i]*f1 + _v2[i]*f2;
+			result[i] = _v1[i]*f1 + _v2[i]*f2;
 		return normalize(result);
 	}
 

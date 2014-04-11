@@ -1,0 +1,23 @@
+#version 330
+
+in vec4 gs_Color;
+in vec2 gs_TexCoord;
+out vec4 ps_FragColor;
+
+layout(std140) uniform Object
+{
+	mat4 c_mWorldViewProjection;
+	float c_fLineWidth;
+	float c_fBlendSlope;
+	float c_fBlendOffset;
+};
+
+void main()
+{
+	// Fading along the line direction only close to the ends
+	float fadeLong = max(0, abs(gs_TexCoord.x) * c_fBlendSlope - c_fBlendOffset);
+	fadeLong = max(0, 1 - fadeLong * fadeLong);
+	// Maximal smooth fading about beem width
+	float fadeShort = max(0, 1 - gs_TexCoord.y * gs_TexCoord.y);
+	ps_FragColor = gs_Color * fadeShort * fadeLong;
+}

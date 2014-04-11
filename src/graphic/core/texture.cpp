@@ -76,9 +76,9 @@ Texture::Texture( const std::string& _fileName )
 	LogGlError("Allocating memory for a texture failed");
 
 	// Always set some texture parameters (required for some drivers)
-	glTexParameteri( GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	glTexParameteri( m_bindingPoint, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 	// Use nearest for more voxel feeling
-	glTexParameteri( GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+	glTexParameteri( m_bindingPoint, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 
 	glGenerateMipmap( m_bindingPoint );
 

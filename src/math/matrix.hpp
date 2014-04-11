@@ -68,7 +68,7 @@ namespace Math {
 		static Derived Identity();
 
 		/// \brief Swap rows and columns
-		Derived Transpose() const;
+		Derived Transposed() const;
 
 		/// \brief Column vector access.
 		Vector<n, float>& Column(int _index)				{ return *(Vector<n, float>*)&m_data[_index*n]; }
@@ -250,7 +250,7 @@ namespace Math {
 	// ********************************************************************* //
 	// Swap rows and columns
 	template<int n, class D>
-	D Matrix<n,D>::Transpose() const
+	D Matrix<n,D>::Transposed() const
 	{
 		D result;
 		for(int c=0; c<n; ++c)

@@ -321,15 +321,15 @@ namespace Voxel {
 		}
 
 		// One of the eight children must contain the target position.
-		SVON::Set(&m_root, m_rootSize, IVec4(_position, _level), _type, this);
+		SVON::Set(&m_root, m_rootSize, Math::IVec4(_position, _level), _type, this);
 
 		// Make all 6 neighbors dirty - their neighborhood changed
-		SetDirty( IVec3(_position[0]+1, _position[1], _position[2]), _level );
-		SetDirty( IVec3(_position[0]-1, _position[1], _position[2]), _level );
-		SetDirty( IVec3(_position[0], _position[1]+1, _position[2]), _level );
-		SetDirty( IVec3(_position[0], _position[1]-1, _position[2]), _level );
-		SetDirty( IVec3(_position[0], _position[1], _position[2]+1), _level );
-		SetDirty( IVec3(_position[0], _position[1], _position[2]-1), _level );
+		SetDirty( Math::IVec3(_position[0]+1, _position[1], _position[2]), _level );
+		SetDirty( Math::IVec3(_position[0]-1, _position[1], _position[2]), _level );
+		SetDirty( Math::IVec3(_position[0], _position[1]+1, _position[2]), _level );
+		SetDirty( Math::IVec3(_position[0], _position[1]-1, _position[2]), _level );
+		SetDirty( Math::IVec3(_position[0], _position[1], _position[2]+1), _level );
+		SetDirty( Math::IVec3(_position[0], _position[1], _position[2]-1), _level );
 	}
 
 	// ********************************************************************* //
@@ -620,7 +620,7 @@ namespace Voxel {
 				_position <<= 1;	// First child index
 				edgeLength /= 2;
 				float r = edgeLength * 0.866025404f;	// * 0.5 * sqrt(3)
-				Math::Vec3 centerOffset(edgeLength * 0.5f, edgeLength * 0.5f, edgeLength * 0.5f);
+				float centerOffset = edgeLength * 0.5f;
 				for( int i=0; i<8; ++i )
 				{
 					// Is the child non-empty?

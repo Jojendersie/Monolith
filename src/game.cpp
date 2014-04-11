@@ -24,8 +24,7 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 	m_singleThreaded( true ),
 	m_running( true ),
 	m_time( 0.0 ),
-	m_stateStack( nullptr ),
-	m_graficContent( nullptr )
+	m_stateStack( nullptr )
 {
 	// Init timer
 	g_fInvFrequency = std::chrono::high_resolution_clock::period::num/double(std::chrono::high_resolution_clock::period::den);
@@ -47,9 +46,6 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 
 	Voxel::TypeInfo::Initialize();
 
-	// Load the graphic stuff
-	m_graficContent = new Graphic::Content();
-
 	// Create game states
 	m_gameStates[0] = new GSMainMenu(this);
 	m_gameStates[1] = new GSPlay(this);
@@ -66,6 +62,16 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 // ************************************************************************* //
 Monolith::~Monolith()
 {
+	// Finalize all game states (not all must be closed if an exception or
+	// message caused the program to close
+	while( m_stateStack )
+	{
+		// Pop
+		m_stateStack->OnEnd();
+		m_stateStack = m_stateStack->m_previous;
+	}
+
+
 	Input::Manager::Close();
 
 	try {
@@ -74,10 +80,10 @@ Monolith::~Monolith()
 	} catch(...) {
 		LOG_ERROR("Could not write a config file!");
 	}
-	delete m_graficContent;
 	for( int i = 0; i < 8; ++i )
 		delete m_gameStates[i];
 
+	Graphic::Resources::Unload();
 	Voxel::TypeInfo::Unload();
 }
 
@@ -107,7 +113,7 @@ void Monolith::Run()
 			// Smooth frame time
 			deltaTime = deltaTime * 0.8 + deltaFrameTime * 0.2;
 			m_time += deltaTime;
-			m_graficContent->globalUBO["Time"] = (float)m_time;
+			(*Graphic::Resources::GetUBO(Graphic::UniformBuffers::GLOBAL))["Time"] = (float)m_time;
 
 			// Limiting to target fps
 			//std::this_thread::sleep_for( m_microSecPerFrame - std::chrono::microseconds(unsigned(deltaFrameTime * 1000000.0))  );
@@ -154,6 +160,7 @@ void Monolith::BuildDefaultConfig()
 	cinput[std::string("CameraRotationSpeed")] = 0.005;
 	cinput[std::string("CameraMovementSpeed")] = 0.0025;
 	cinput[std::string("CameraScrollSpeed")] = 5.0;
+	cinput[std::string("EditorDeletionMode")][0] = 340;
 
 	auto& cgame = Config[std::string("Game")];
 	cgame[std::string("Language")] = "english.json";

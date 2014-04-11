@@ -1,5 +1,6 @@
 #include "camera.hpp"
 #include "../voxel/model.hpp"
+#include "../graphic/core/uniformbuffer.hpp"
 
 using namespace Math;
 
@@ -11,16 +12,27 @@ namespace Input {
 		m_position( _position ),
 		m_rotation( _rotation ),
 		m_fov( _fov ),
-		m_aspect( _aspect )
+		m_aspect( _aspect ),
+		m_hardAttached( false )
 	{
 		UpdateMatrices();
+	}
+
+	// ********************************************************************* //
+	void Camera::Set( Graphic::UniformBuffer& _cameraUBO )
+	{
+		_cameraUBO["View"] = GetView();
+		_cameraUBO["Projection"] = GetProjection();
+		_cameraUBO["ViewProjection"] = GetViewProjection();
+		_cameraUBO["ProjectionInverse"] = Vec4(1.0f/GetProjection()(0,0), 1.0f/GetProjection()(1,1), 1.0f/GetProjection()(2,2), -GetProjection()(3,2) / GetProjection()(2,2));
+		_cameraUBO["Position"] = GetPosition();
 	}
 
 	// ********************************************************************* //
 	void Camera::UpdateMatrices()
 	{
 		m_mutex.lock();
-//		if( m_hardAttached ) NormalizeReference();
+		if( m_hardAttached ) NormalizeReference();
 		m_view = Math::Mat4x4::Translation( -m_position ) * Math::Mat4x4::Rotation( m_rotation );
 		m_projection = Math::Mat4x4::Projection( m_fov, m_aspect, 5.0f, 50000.0f );
 		m_mutex.unlock();
@@ -79,11 +91,11 @@ namespace Input {
 			// Increasing scroll speed with increasing distance.
 			_dz = m_referencePos[2] * _dz * 0.01f;
 			// Avoid scrolling into the object
-			_dz = Math::max( _dz, m_attachedTo->GetRadius() * 0.75f - m_referencePos[2] );
+			_dz = Math::min( _dz, -m_attachedTo->GetRadius() * 0.75f + m_referencePos[2] );
 		} // Linear movement otherwise
 
-		m_position -= m_rotation.ZAxis() * _dz;
-		m_referencePos[2] += _dz;
+		m_position += m_rotation.ZAxis() * _dz;
+		m_referencePos[2] -= _dz;
 	}
 
 	// ********************************************************************* //
@@ -112,10 +124,14 @@ namespace Input {
 	// ********************************************************************* //
 	void Camera::NormalizeReference()
 	{
-		// Transform by rotation inverse (which is multiplying from right for
-		// rotations)
-		Math::Mat4x4 mCurrentView = Mat4x4::Rotation( m_rotation );
-		m_position = m_attachedTo->GetCenter() - mCurrentView * m_referencePos;
+		//if( m_attachedTo )
+		//{
+			// Transform by rotation inverse (which is multiplying from right for
+			// rotations)
+			Math::Mat4x4 mCurrentView = Mat4x4::Rotation( m_rotation );
+			m_position = m_attachedTo->GetCenter() - mCurrentView * m_referencePos;
+		//} else
+		//	LOG_LVL1("Camera is not attached and cannot be set to a reference position.");
 	}
 
 	// ********************************************************************* //

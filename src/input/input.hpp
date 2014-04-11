@@ -70,7 +70,8 @@ namespace Input {
 	enum struct VirtualKey {
 		MOVE_CAMERA,
 		ROTATE_CAMERA,
-		ZOOM
+		ZOOM,
+		EDITOR_DELETIONMODE
 	};
 
 	/// \brief Takes the glfw input and converts it to a printable character

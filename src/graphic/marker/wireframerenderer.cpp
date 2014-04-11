@@ -14,32 +14,40 @@ namespace Marker {
 	};
 
 	// ********************************************************************* //
-	WireframeRenderer::WireframeRenderer( const Utils::Color32F& _color, float _fading, Graphic::Content* _stateObjects ) :
+	WireframeRenderer::WireframeRenderer( const Utils::Color32F& _color, float _fading ) :
 		m_mesh( "pc", VertexBuffer::PrimitiveType::LINE ),
 		m_color( _color ),
-		m_fading( max(0.01f, _fading) )
+		m_fading( max(0.01f, _fading) ),
+		m_lineWidth( 1.0f )
 	{
-		m_effect = &_stateObjects->wireEffect;
-		m_objectUBO = &_stateObjects->objectUBO;
-
 		LOG_LVL0("Created new wireframe renderer");
 	}
 
 	// ********************************************************************* //
-	void WireframeRenderer::AddSegment( const Vec3& _v1, const Vec3& _v2, const Utils::Color32F& _color )
+	void WireframeRenderer::AddSegment( const Vec3& _v1, const Vec3& _v2, const Utils::Color32F& _color1, const Utils::Color32F& _color2 )
 	{
 		ColorPointVertex vertex;
 		vertex.position = _v1;
-		vertex.color = _color;
+		vertex.color = _color1;
 		m_mesh.Add( vertex );
 		vertex.position = _v2;
+		vertex.color = _color2;
 		m_mesh.Add( vertex );
 	}
 
 	// ********************************************************************* //
 	void WireframeRenderer::AddLine( const Vec3& _start, const Vec3& _end, float _transparency )
 	{
-		AddSegment( _start, _end, Utils::Color32F(m_color.R(), m_color.G(), m_color.B(), _transparency * m_color.A()) );
+		Utils::Color32F color(m_color.R(), m_color.G(), m_color.B(), _transparency * m_color.A());
+		AddSegment( _start, _end, color, color );
+	}
+
+	// ********************************************************************* //
+	void WireframeRenderer::AddLine( const Math::Vec3& _start, const Math::Vec3& _end, float _transparencyA, float _transparencyB )
+	{
+		Utils::Color32F colorA(m_color.R(), m_color.G(), m_color.B(), _transparencyA * m_color.A());
+		Utils::Color32F colorB(m_color.R(), m_color.G(), m_color.B(), _transparencyB * m_color.A());
+		AddSegment( _start, _end, colorA, colorB );
 	}
 
 	// ********************************************************************* //
@@ -55,9 +63,11 @@ namespace Marker {
 		if( m_mesh.IsDirty() ) m_mesh.Commit();
 
 		// Setup pipeline
-		Device::SetEffect( *m_effect );
-		(*m_objectUBO)["WorldViewProjection"] = _worldViewProjection;
-		(*m_objectUBO)["Corner000"] = Vec4( (1.0f-m_fading) / m_fading, 1.0f / m_fading, 0.0f, 0.0f );
+		Device::SetEffect( *Resources::GetEffect(Effects::BEAM) );
+		(*Resources::GetUBO(UniformBuffers::OBJECT_WIRE))["WorldViewProjection"] = _worldViewProjection;
+		(*Resources::GetUBO(UniformBuffers::OBJECT_WIRE))["LineWidth"] = m_lineWidth;
+		(*Resources::GetUBO(UniformBuffers::OBJECT_WIRE))["BlendSlope"] = 1.0f / m_fading;
+		(*Resources::GetUBO(UniformBuffers::OBJECT_WIRE))["BlendOffset"] = (1.0f-m_fading) / m_fading;
 
 		Device::DrawVertices( m_mesh, 0, m_mesh.GetNumVertices() );
 	}

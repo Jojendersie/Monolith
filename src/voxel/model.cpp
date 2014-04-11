@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include "../input/camera.hpp"
 #include "../graphic/core/uniformbuffer.hpp"
+#include "../graphic/content.hpp"
 
 using namespace Math;
 
@@ -34,23 +35,23 @@ namespace Voxel {
 		const Input::Camera& camera;					// Required for culling and LOD
 		Model::ModelData* model;						// Operate on this data.
 		std::unordered_map<Math::IVec4, Chunk>* chunks;	// Create or find chunks here.
-		Graphic::UniformBuffer& objectConstants;
 		const Math::Mat4x4& modelTransform;
 		const Math::Mat4x4& modelView;
 		ChunkBuilder* builder;
+		double gameTime;
 
 		DecideToDraw(const Input::Camera& _camera,
 				Model::ModelData* _model,
 				std::unordered_map<Math::IVec4, Chunk>* _chunks,
-				Graphic::UniformBuffer& _objectConstants,
 				const Math::Mat4x4& _modelView,
 				const Math::Mat4x4& _modelTransform,
-				ChunkBuilder* _builder) :
+				ChunkBuilder* _builder,
+				double _gameTime) :
 			camera(_camera), model(_model), chunks(_chunks),
-			objectConstants(_objectConstants),
 			modelTransform(_modelTransform),
 			modelView(_modelView),
-			builder(_builder)
+			builder(_builder),
+			gameTime(_gameTime)
 		{}
 
 		bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
@@ -91,14 +92,14 @@ namespace Voxel {
 						std::make_pair(position, std::move(Chunk(model, _position, levels)))
 						).first;
 					builder->RecomputeVertexBuffer(chunk->second);
-				} else if( _node->Data().IsDirty() )
-					builder->RecomputeVertexBuffer(chunk->second);
+				} else assert( !_node->Data().IsDirty() ); //if( _node->Data().IsDirty() )
+					//builder->RecomputeVertexBuffer(chunk->second);
 				// There are empty inner chunks
 				if( chunk->second.NumVoxels() > 0 )
 				{
 					RenderStat::g_numVoxels += chunk->second.NumVoxels();
 					RenderStat::g_numChunks++;
-					chunk->second.Draw( objectConstants, modelView, camera.GetProjection() );
+					chunk->second.Draw( *Graphic::Resources::GetUBO(Graphic::UniformBuffers::OBJECT_VOXEL), modelView, camera.GetProjection(), gameTime );
 				}
 				return false;
 			}
@@ -107,15 +108,19 @@ namespace Voxel {
 	};
 
 	// ********************************************************************* //
-	void Model::Draw( Graphic::UniformBuffer& _objectConstants, const Input::Camera& _camera )
+	void Model::Draw( const Input::Camera& _camera, double _gameTime )
 	{
+		// Delete all invalid and old chunks
+		ClearChunkCache( _gameTime );
+
 		// Create a new model space transformation
-		Math::Mat4x4 modelTransform = Mat4x4::Translation(-m_center) * Mat4x4::Rotation(m_rotation) * Mat4x4::Translation( m_position + m_center );
+		Math::Mat4x4 modelTransform;
+		GetModelMatrix( modelTransform );
 		Math::Mat4x4 modelView = modelTransform * _camera.GetView();
 
 		// Iterate through the octree and render chunks depending on the lod.
 		ChunkBuilder* builder = new ChunkBuilder(); // TEMP -> in job verschieben
-		DecideToDraw param(_camera, &this->m_voxelTree, &this->m_chunks, _objectConstants, modelView, modelTransform, builder);
+		DecideToDraw param(_camera, &this->m_voxelTree, &this->m_chunks, modelView, modelTransform, builder, _gameTime);
 		m_voxelTree.Traverse( param );
 		delete builder;
 	}
@@ -127,6 +132,14 @@ namespace Voxel {
 		if( node ) return node->Data().type;
 		
 		return VoxelType::UNDEFINED;
+	}
+
+
+	// ********************************************************************* //
+	Math::Mat4x4& Model::GetModelMatrix( Math::Mat4x4& _out ) const
+	{
+		_out = Mat4x4::Translation(-m_center) * Mat4x4::Rotation(m_rotation) * Mat4x4::Translation(m_position + m_center);
+		return _out;
 	}
 
 
@@ -165,9 +178,30 @@ namespace Voxel {
 	bool Model::RayCast( const Math::Ray& _ray, int _targetLevel, ModelData::HitResult& _hit ) const
 	{
 		// Convert ray to model space
-		Math::Mat4x4 inverseModelTransform = Mat4x4::Translation( -m_position - m_center ) * Mat4x4::Rotation(-m_rotation) * Mat4x4::Translation(m_center);
+		// TODO: Mat4x4::Scaling(m_scale)
+		Math::Mat4x4 inverseModelTransform = Mat4x4::Translation( -m_position - m_center ) * Mat4x4::Rotation(m_rotation).Transposed() * Mat4x4::Translation(m_center);
 		Math::Ray ray = _ray * inverseModelTransform;
 		return m_voxelTree.RayCast(ray, _targetLevel, _hit);
+	}
+
+	// ********************************************************************* //
+	void Model::ClearChunkCache( double _gameTime )
+	{
+		for( auto it = m_chunks.begin(); it != m_chunks.end(); )
+		{
+			// Delete a chunk if it is not used in the last time
+			Chunk& chunk = it->second;
+			if( chunk.IsNotUsedLately(_gameTime) ) it = m_chunks.erase( it );
+			else {
+				// Get the node to check if it is dirty
+				Model::ModelData::SVON* node = m_voxelTree.Get( IVec3(chunk.m_root), chunk.m_root[3] );
+				if( node->Data().IsDirty() )
+					it = m_chunks.erase( it );
+				// Increase iterator only if nothing was deleted - deleting sets
+				// the iterator to the next element anyway.
+				else ++it;
+			}
+		}
 	}
 
 };

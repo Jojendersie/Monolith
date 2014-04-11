@@ -71,8 +71,10 @@ namespace Voxel {
 		///		which must be filled.
 		/// \param [in] _modelViewProjection The actual view projection matrix.
 		///		This matrix should contain the general model transformation too.
+		/// \param [in] _time Current game time.
 		void Draw( Graphic::UniformBuffer& _objectConstants,
-			const Math::Mat4x4& _modelView, const Math::Mat4x4& _projection );
+			const Math::Mat4x4& _modelView, const Math::Mat4x4& _projection,
+			double _time );
 
 		/// \brief Set position relative to the model.
 		//void SetPosition( const Math::Vec3& _position )	{ m_position = _position; }
@@ -81,6 +83,10 @@ namespace Voxel {
 
 		/// \brief Get the number of voxels in this chunk
 		int NumVoxels() const			{ return m_voxels.GetNumVertices(); }
+
+		/// \brief Test if this chunk was used in the last x seconds.
+		/// \param [in] _time Current game time.
+		bool IsNotUsedLately( double _time ) const	{ return _time - m_lastRendered > 15.0; }
 	private:
 		/// \brief Reference to the parent model used to access data.
 		Model::ModelData* m_modelData;
@@ -93,7 +99,10 @@ namespace Voxel {
 
 		Math::Vec3 m_position;			///< Relative position of the chunk respective to the model.
 
+		double m_lastRendered;			///< Point in time where this chunk was rendered the last time.
+
 		friend class ChunkBuilder;
+		friend void Model::ClearChunkCache( double _gameTime );
 
 		/// \brief Compute the initial visible voxel set vertex buffer.
 		/// \details TODO: This can be done parallel to the render thread because it
