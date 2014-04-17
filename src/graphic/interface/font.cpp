@@ -21,7 +21,7 @@ namespace Graphic
 		auto& PosY = Wrap.RootNode[std::string("positionY")];
 		auto& sizeX = Wrap.RootNode[std::string("sizeX")];
 		auto& sizeY = Wrap.RootNode[std::string("sizeY")];
-		//default values for testing
+		//get values
 		for(int i = 0; i < 256; i++)
 		{
 			m_sizeTable[i] = Math::Vec2(sizeX[i],sizeY[i]);
@@ -44,7 +44,7 @@ namespace Graphic
 		m_size = m_sizeD;
 		m_color = m_colorD;
 		m_thickness = m_thicknessD;
-		SetText("bla");
+		SetText("no input");
 	}
 
 
@@ -115,15 +115,15 @@ namespace Graphic
 		{
 			CharacterVertex CV;
 			CV.scale = m_size;//1.f 
-			CV.size = m_font->m_sizeTable[m_text[i]];
-			CV.texCoord = m_font->m_coordTable[m_text[i]];
+			CV.size = m_font->m_sizeTable[(unsigned char)m_text[i]];
+			CV.texCoord = m_font->m_coordTable[(unsigned char)m_text[i]];
 			CV.position = Math::Vec2(currentPos[0],currentPos[1]); //(m_size-1.f) * CV.size[1]) 
 			CV.thickness = m_thickness;
 			CV.color = m_color.RGBA(); 
 			//line break
-			if(m_text[i] == '\n'){currentPos[0] = m_screenPos[0]; currentPos[1] -= m_font->m_sizeTable[m_text[i]][1]*m_size*0.666f;}//offset to lower line space; requieres additional testing
+			if(m_text[i] == '\n'){currentPos[0] = m_screenPos[0]; currentPos[1] -= GetDim()[1];}//offset to lower line space; requieres additional testing; m_font->m_sizeTable[m_text[i]][1]*m_size*0.666f
 			else if(m_text[i] == '<'){ i += CntrlChr(i)-1; continue;} 
-			else currentPos[0] += m_font->m_sizeTable[m_text[i]][0]*m_size;  
+			else currentPos[0] += m_font->m_sizeTable[(unsigned char)m_text[i]][0]*m_size;  
  			m_characters.Add(CV);
 		}
 		m_characters.Commit();
