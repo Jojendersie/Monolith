@@ -116,6 +116,7 @@
     <ClCompile Include="src\math\matrix.cpp" />
     <ClCompile Include="src\math\quaternion.cpp" />
     <ClCompile Include="src\math\sphere.cpp" />
+    <ClCompile Include="src\math\transformation.cpp" />
     <ClCompile Include="src\resources.cpp" />
     <ClCompile Include="src\timer.cpp" />
     <ClCompile Include="src\utilities\color.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="src\graphic\marker\wireframerenderer.hpp" />
     <ClInclude Include="src\input\camera.hpp" />
     <ClInclude Include="src\input\input.hpp" />
+    <ClInclude Include="src\math\fixedpoint.hpp" />
     <ClInclude Include="src\math\intersection.hpp" />
     <ClInclude Include="src\math\math.hpp" />
     <ClInclude Include="src\math\mathbase.hpp" />
@@ -169,6 +171,7 @@
     <ClInclude Include="src\math\quaternion.hpp" />
     <ClInclude Include="src\math\ray.hpp" />
     <ClInclude Include="src\math\sphere.hpp" />
+    <ClInclude Include="src\math\transformation.hpp" />
     <ClInclude Include="src\math\vector.hpp" />
     <ClInclude Include="src\predeclarations.hpp" />
     <ClInclude Include="src\resources.hpp" />
