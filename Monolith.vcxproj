@@ -40,7 +40,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LibraryPath>dependencies\glfw-3.0.3\bin;dependencies\glew-1.10.0\lib\Release\Win32;dependencies\JoFileLib\lib\Debug;$(LibraryPath)</LibraryPath>
-    <IncludePath>dependencies\JoFileLib\include;D:\C++\Spiele\Monolith\src;$(IncludePath)</IncludePath>
+    <IncludePath>dependencies\JoFileLib\include;$(SolutionDir)\src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LibraryPath>dependencies\glfw-3.0.3\bin;dependencies\glew-1.10.0\lib\Release\Win32;dependencies\JoFileLib\lib\Release;$(LibraryPath)</LibraryPath>
