@@ -82,6 +82,7 @@ namespace Graphic {
 			s_ubos[(int)_ubo]->AddAttribute( "Corner101", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
 			s_ubos[(int)_ubo]->AddAttribute( "Corner110", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
 			s_ubos[(int)_ubo]->AddAttribute( "Corner111", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
+			s_ubos[(int)_ubo]->AddAttribute( "MaxOffset", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 			break;
 		case UniformBuffers::OBJECT_WIRE:
 			s_ubos[(int)_ubo] = new UniformBuffer( "Object" );

@@ -21,6 +21,7 @@ layout(std140) uniform Object
 	vec4 c_vCorner101;
 	vec4 c_vCorner110;
 	vec4 c_vCorner111;
+	float c_fMaxOffset;
 };
 
 layout(std140) uniform Camera
@@ -91,7 +92,7 @@ void main(void)
 	vec4 vPos = vec4( x, y, z, 1 ) * c_mWorldViewProjection;
 
 	// Discard voxel outside the viewing volume
-	float w = vPos.w + max(max(length(c_vCorner000), length(c_vCorner001)), max(length(c_vCorner010), length(c_vCorner011)));
+	float w = vPos.w + c_fMaxOffset;//max(max(length(c_vCorner000), length(c_vCorner001)), max(length(c_vCorner010), length(c_vCorner011)));
 	if( abs(vPos.z) > w ||
 		abs(vPos.x) > w ||
 		abs(vPos.y) > w )

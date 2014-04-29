@@ -173,7 +173,7 @@ namespace Input {
 						InputManagerInstance.m_lastClickedPosition = mousePosition;
 					}
 				} else keyInfo.lastRelease = now;
-			} else assert(false);
+			} else { assert(false); }
 		}
 	}
 
