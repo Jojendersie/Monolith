@@ -195,7 +195,7 @@ namespace Voxel {
 			else {
 				// Get the node to check if it is dirty
 				Model::ModelData::SVON* node = m_voxelTree.Get( IVec3(chunk.m_root), chunk.m_root[3] );
-				if( node->Data().IsDirty() )
+				if( !node || node->Data().IsDirty() )
 					it = m_chunks.erase( it );
 				// Increase iterator only if nothing was deleted - deleting sets
 				// the iterator to the next element anyway.
