@@ -33,14 +33,14 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 	m_stateStack( nullptr )
 {
 	// Init scene framebuffer
-	/*{
+	{
 		using namespace Graphic;
 		m_sceneColorTexture = new Texture(Graphic::Device::GetBackbufferSize()[0], Device::GetBackbufferSize()[1],
 			Texture::Format(4, 8, Texture::Format::ChannelType::UINT));
 		m_sceneDepthTexture = new Texture(Graphic::Device::GetBackbufferSize()[0], Device::GetBackbufferSize()[1],
 			Texture::Format(1, 32, Texture::Format::ChannelType::FLOAT, Texture::Format::FormatType::DEPTH));
 		m_sceneFramebuffer = new Framebuffer(Framebuffer::Attachment(m_sceneColorTexture), Framebuffer::Attachment(m_sceneDepthTexture));
-	}*/
+	}
 
 	// Init timer
 	g_fInvFrequency = std::chrono::high_resolution_clock::period::num/double(std::chrono::high_resolution_clock::period::den);

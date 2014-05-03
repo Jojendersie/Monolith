@@ -55,14 +55,19 @@ namespace Voxel {
 		_objectConstants["WorldViewProjection"] = modelViewProjection;
 
 		float halfScale = m_scale * 0.5f;
-		_objectConstants["Corner000"] = Vec4( -0.5f, -0.5f, -0.5f, 0.0f ) * modelViewProjection;
-		_objectConstants["Corner001"] = Vec4( -0.5f, -0.5f,  0.5f, 0.0f ) * modelViewProjection;
-		_objectConstants["Corner010"] = Vec4( -0.5f,  0.5f, -0.5f, 0.0f ) * modelViewProjection;
-		_objectConstants["Corner011"] = Vec4( -0.5f,  0.5f,  0.5f, 0.0f ) * modelViewProjection;
+		Vec4 c000 = Vec4( -0.5f, -0.5f, -0.5f, 0.0f ) * modelViewProjection;
+		Vec4 c001 = Vec4( -0.5f, -0.5f,  0.5f, 0.0f ) * modelViewProjection;
+		Vec4 c010 = Vec4( -0.5f,  0.5f, -0.5f, 0.0f ) * modelViewProjection;
+		Vec4 c011 = Vec4( -0.5f,  0.5f,  0.5f, 0.0f ) * modelViewProjection;
+		_objectConstants["Corner000"] = c000;
+		_objectConstants["Corner001"] = c001;
+		_objectConstants["Corner010"] = c010;
+		_objectConstants["Corner011"] = c011;
 		_objectConstants["Corner100"] = Vec4(  0.5f, -0.5f, -0.5f, 0.0f ) * modelViewProjection;
 		_objectConstants["Corner101"] = Vec4(  0.5f, -0.5f,  0.5f, 0.0f ) * modelViewProjection;
 		_objectConstants["Corner110"] = Vec4(  0.5f,  0.5f, -0.5f, 0.0f ) * modelViewProjection;
 		_objectConstants["Corner111"] = Vec4(  0.5f,  0.5f,  0.5f, 0.0f ) * modelViewProjection;
+		_objectConstants["MaxOffset"] = max(max(length(c000), length(c001)), max(length(c010), length(c011)));
 
 		Graphic::Device::DrawVertices( m_voxels, 0, m_voxels.GetNumVertices() );
 

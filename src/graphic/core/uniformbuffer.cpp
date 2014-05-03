@@ -86,7 +86,9 @@ namespace Graphic {
 			// twice has no effect. (In case both times the same program is used.)
 			glFlush();
 
+#ifdef _DEBUG
 			LogGlError("An error during binding and uploading data occured.");
+#endif
 
 			m_isDirty = false;
 		}

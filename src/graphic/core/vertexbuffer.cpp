@@ -235,7 +235,9 @@ void VertexBuffer::Commit()
 			(m_lastDirtyIndex - m_firstDirtyIndex + 1) * m_vertexSize,
 			m_data );
 		glBindBuffer( GL_ARRAY_BUFFER, 0 );
+#ifdef _DEBUG
 		LogGlError("[VertexBuffer::Commit] Update of dynamic data failed.");
+#endif
 
 		m_firstDirtyIndex = std::numeric_limits<int>::max();
 		m_lastDirtyIndex = -1;
@@ -252,7 +254,9 @@ void VertexBuffer::Commit(void* _data, int _size)
 	glBufferData(GL_ARRAY_BUFFER, _size, _data, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+#ifdef _DEBUG
 	LogGlError("Could not upload vertex data");
+#endif
 
 	// Derive the statistic data
 	m_cursor = m_maxNumVertices = _size / m_vertexSize;
