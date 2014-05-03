@@ -36,13 +36,13 @@ namespace Graphic {
 		/// \brief Each buffer must be bound to a program once to be used.
 		/// \param [in] _uniformBuffer The buffer which should be bound. A
 		///		buffer can be bound to many shaders but should not be bound
-		///		more than oneth to the same shader.
+		///		more than once to the same shader.
 		///
 		///		The buffer object must be persistent over time. It should
 		///		not be deleted before the effect.
 		void BindUniformBuffer( UniformBuffer& _uniformBuffer );
 
-		/// \brief Assoziates a texture sampler with a texture binding point
+		/// \brief Associates a texture sampler with a texture binding point
 		/// \param [in] _name Sampler uniform name used in the glsl code.
 		/// \param [in] _location Texture binding point. This location is equal
 		///		to the one in Device::SetTexture.

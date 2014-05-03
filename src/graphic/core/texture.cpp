@@ -7,49 +7,120 @@
 namespace Graphic {
 
 // Maps number of channels to a type
-static uint32_t MapToGLFormats( int _numChannels, int _bitDepth, Jo::Files::ImageWrapper::ChannelType _type )
+Texture::Format::Format(unsigned int _numChannels, unsigned int _bitDepth, Format::ChannelType _type, FormatType _formatType)
 {
 	assert( _numChannels > 0 && _numChannels <= 4 );
-	--_numChannels;
-	static const uint32_t FLOAT_FORMATS[2][4] = {{GL_R16F, GL_RG16F, GL_RGB16F, GL_RGBA16F},
-												 {GL_R32F, GL_RG32F, GL_RGB32F, GL_RGBA32F}};
-	static const uint32_t INT_FORMATS[2][4] = {{GL_R8_SNORM, GL_RG8_SNORM, GL_RGB8_SNORM, GL_RGBA8_SNORM},
-											   {GL_R16_SNORM, GL_RG16_SNORM, GL_RGB16_SNORM, GL_RGBA16_SNORM}};
-	static const uint32_t UINT_FORMATS[2][4] = {{GL_R8, GL_RG8, GL_RGB8, GL_RGBA8},
-											    {GL_R16, GL_RG16, GL_RGB16, GL_RGBA16}};
-	switch( _type )
+	assert((_formatType == FormatType::COLOR || _numChannels == 1) && "Multiple channels are not possible for depth/stencil formats!");
+
+	if (_formatType == FormatType::COLOR)
 	{
-	case Jo::Files::ImageWrapper::ChannelType::FLOAT:
-		assert(_bitDepth == 32 || _bitDepth == 16);
-		return FLOAT_FORMATS[_bitDepth/16-1][_numChannels];
-	case Jo::Files::ImageWrapper::ChannelType::INT:
-		assert(_bitDepth == 16 || _bitDepth == 8);
-		return INT_FORMATS[_bitDepth/8-1][_numChannels];
-	case Jo::Files::ImageWrapper::ChannelType::UINT:
-		assert(_bitDepth == 16 || _bitDepth == 8);
-		return UINT_FORMATS[_bitDepth/8-1][_numChannels];
+		--_numChannels;
+		static const uint32_t FLOAT_FORMATS[2][4] = { { GL_R16F, GL_RG16F, GL_RGB16F, GL_RGBA16F },
+		{ GL_R32F, GL_RG32F, GL_RGB32F, GL_RGBA32F } };
+		static const uint32_t INT_FORMATS[2][4] = { { GL_R8_SNORM, GL_RG8_SNORM, GL_RGB8_SNORM, GL_RGBA8_SNORM },
+		{ GL_R16_SNORM, GL_RG16_SNORM, GL_RGB16_SNORM, GL_RGBA16_SNORM } };
+		static const uint32_t UINT_FORMATS[2][4] = { { GL_R8, GL_RG8, GL_RGB8, GL_RGBA8 },
+		{ GL_R16, GL_RG16, GL_RGB16, GL_RGBA16 } };
+
+
+		switch (_type)
+		{
+		case Format::ChannelType::FLOAT:
+			assert(_bitDepth == 32 || _bitDepth == 16);
+			internalFormat = FLOAT_FORMATS[_bitDepth / 16 - 1][_numChannels];
+			break;
+		case Format::ChannelType::INT:
+			assert(_bitDepth == 16 || _bitDepth == 8);
+			internalFormat = INT_FORMATS[_bitDepth / 8 - 1][_numChannels];
+			break;
+		case Format::ChannelType::UINT:
+			assert(_bitDepth == 16 || _bitDepth == 8);
+			internalFormat = UINT_FORMATS[_bitDepth / 8 - 1][_numChannels];
+			break;
+
+		default:
+			throw std::string("Image format is not supported as texture.");
+		}
+
+
+		// The array dimension is numChannels
+		const uint32_t FORMAT[] = { GL_RED, GL_RG, GL_RGB, GL_RGBA };
+		format = FORMAT[_numChannels];
+	}
+	else if (_formatType == FormatType::DEPTH)
+	{
+		if (_type == ChannelType::FLOAT)
+		{
+			assert(_bitDepth == 32 && "Unsupported depth format bitdepth!");
+			internalFormat = GL_DEPTH_COMPONENT32;
+		}
+		else
+		{
+			assert((_bitDepth == 32 || _bitDepth == 24 || _bitDepth == 16) && "Unsupported depth format bitdepth!");
+			static const GLuint depthFormats[] = { GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT32F };
+			internalFormat = depthFormats[(_bitDepth - 16) / 8];
+		}
+		
+		format = GL_DEPTH_COMPONENT;
+	}
+	else //  if (_formatType == FormatType::DEPTH_STENCIL)
+	{
+		internalFormat = GL_DEPTH24_STENCIL8;
+		format = GL_DEPTH_STENCIL;
 	}
 
-	throw std::string("Image format is not supported as texture.");
-	return 0;
+	// The inner array dimension depends on bitDepth, the outer on the ChannelType
+	const uint32_t TYPE[][4] = { { GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, 0, GL_UNSIGNED_INT },
+									{ GL_BYTE, GL_SHORT, 0, GL_UNSIGNED_INT },
+									{ 0, 0, 0, GL_FLOAT } };
+	type = TYPE[int(_type)][_bitDepth / 8 - 1];
 }
 
-// The array dimension is numChannels
-const uint32_t FORMAT[] = {GL_RED, GL_RG, GL_RGB, GL_RGBA};
+Texture::Texture(unsigned int _width, unsigned int _height, const Format& format, unsigned int _numMipLevels) :
+	m_width(_width),
+	m_height(_height),
+	m_depth(1),
+	m_numMipLevels(_numMipLevels),
+	m_bindingPoint(GL_TEXTURE_2D)
+{
+	if (m_numMipLevels == 0)
+	{
+		m_numMipLevels = GetMaxPossibleMipMapLevels();
+	}
+	else
+	{
+		assert(m_numMipLevels < GetMaxPossibleMipMapLevels() && "Invalid mipmap count!");
+	}
+	assert(_width != 0 && _height != 0 && "Invalid texture dimension!");
 
-// The inner array dimension depends on bitDepth, the outer on the ChannelType
-const uint32_t TYPE[][4] = {{GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, 0, GL_UNSIGNED_INT},
-							{GL_BYTE, GL_SHORT, 0, GL_UNSIGNED_INT},
-							{0, 0, 0, GL_FLOAT}};
+	glGenTextures(1, &m_textureID);
 
+	glBindTexture(m_bindingPoint, m_textureID);
+#ifdef _DEBUG
+	LogGlError("Could not bind a texture");
+#endif
 
-Texture::Texture( const std::string& _fileName )
+	for (unsigned int i = 0; i < m_numMipLevels; ++i)
+	{
+		glTexImage2D(m_bindingPoint, 0, format.internalFormat, m_width, m_height, 0, format.format, format.type, NULL);
+	}
+#ifdef _DEBUG
+	LogGlError("Could not create a texture");
+#endif
+
+	SetDefaultTextureParameter();
+
+	glBindTexture(m_bindingPoint, 0);
+}
+
+Texture::Texture( const std::string& _fileName ) :
+	m_numMipLevels(1)
 {
 	glGenTextures( 1, &m_textureID );
 	LogGlError("Could not create a texture");
 
 	m_bindingPoint = GL_TEXTURE_2D;	// TODO swtich
-	glBindTexture( GL_TEXTURE_2D, m_textureID );
+	glBindTexture(m_bindingPoint, m_textureID);
 	LogGlError("Could not bind a texture");
 
 	Jo::Files::HDDFile file(_fileName);
@@ -59,36 +130,33 @@ Texture::Texture( const std::string& _fileName )
 	m_height = image.Height();
 	m_depth = 1;	// TODO: volume texture support
 
-	uint32_t internalFormat = MapToGLFormats(image.NumChannels(), image.BitDepth(), image.GetChannelType());
+	Format format = Format(image.NumChannels(), image.BitDepth(), static_cast<Format::ChannelType>(image.GetChannelType()));
 	int width = image.Width() * 2;
 	int height = image.Height() * 2;
 	int level = 0;
 	do {
         width = Math::max(1, (width / 2));
         height = Math::max(1, (height / 2));
-        glTexImage2D(m_bindingPoint, level, internalFormat, width, height,
-			0, FORMAT[image.NumChannels()-1],
-			TYPE[int(image.GetChannelType())][image.BitDepth()/8-1],
-			level==0? image.GetBuffer() : nullptr);
+		glTexImage2D(m_bindingPoint, level, format.internalFormat, width, height, 0,
+					format.format, format.type, level==0? image.GetBuffer() : nullptr);
 		++level;
     } while( width * height > 1 );
 
 	LogGlError("Allocating memory for a texture failed");
 
-	// Always set some texture parameters (required for some drivers)
-	glTexParameteri( m_bindingPoint, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	// Use nearest for more voxel feeling
-	glTexParameteri( m_bindingPoint, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+	m_numMipLevels = GetMaxPossibleMipMapLevels();
+	SetDefaultTextureParameter();
 
 	glGenerateMipmap( m_bindingPoint );
 
 	LogGlError("Something in texture upload and setup failed");
 
-	glBindTexture( GL_TEXTURE_2D, 0 );
+	glBindTexture(m_bindingPoint, 0);
 }
 
 
-Texture::Texture( const std::vector<std::string>& _fileNames )
+Texture::Texture( const std::vector<std::string>& _fileNames ) :
+	m_numMipLevels(1)
 {
 	glGenTextures( 1, &m_textureID );
 	LogGlError("Could not create a texture");
@@ -105,24 +173,22 @@ Texture::Texture( const std::vector<std::string>& _fileNames )
 	m_depth = (int)_fileNames.size();
 	
 	// Expect all textures to be ok. Some of the layers might be empty later.
-	uint32_t internalFormat = MapToGLFormats(firstImage.NumChannels(), firstImage.BitDepth(), firstImage.GetChannelType());
-	uint32_t type = TYPE[int(firstImage.GetChannelType())][firstImage.BitDepth()/8-1];
-	uint32_t format = FORMAT[firstImage.NumChannels()-1];
+	Format format = Format(firstImage.NumChannels(), firstImage.BitDepth(), static_cast<Format::ChannelType>(firstImage.GetChannelType()));
 	int width = firstImage.Width() * 2;
 	int height = firstImage.Height() * 2;
 	int level = 0;
 	do {
         width = Math::max(1, (width / 2));
         height = Math::max(1, (height / 2));
-        glTexImage3D(m_bindingPoint, level, internalFormat, width, height, _fileNames.size(),
-			0, format, type, nullptr);
+        glTexImage3D(m_bindingPoint, level, format.internalFormat, width, height, _fileNames.size(),
+							0, format.format, format.type, nullptr);
 		++level;
     } while( width * height > 1 );
 	LogGlError("Allocating memory for a texture failed");
 
 	// Upload pixel data of first image.
 	glTexSubImage3D( m_bindingPoint, 0, 0, 0, 0, firstImage.Width(), firstImage.Height(), 1,
-		format, type, firstImage.GetBuffer() );
+		format.format, format.type, firstImage.GetBuffer());
 	LogGlError("glTexSubImage3D failed");
 
 	// Load all images from file.
@@ -134,27 +200,55 @@ Texture::Texture( const std::vector<std::string>& _fileNames )
 			assert(image.Width() == firstImage.Width() && image.Height() == firstImage.Height());
 			// Upload pixel data.
 			glTexSubImage3D( GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, firstImage.Width(), firstImage.Height(), 1,
-					format, type, image.GetBuffer() );
+				format.format, format.type, image.GetBuffer());
 		} catch( std::string _message ) {
 			LOG_ERROR(_message + ". Will use first texture of the texture array as fall back.");
 			// Upload alternative pixel data.
 			glTexSubImage3D( GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, firstImage.Width(), firstImage.Height(), 1,
-				format, type, firstImage.GetBuffer() );
+				format.format, format.type, firstImage.GetBuffer());
 		}
 		LogGlError("glTexSubImage3D failed");
 	}
 
-	// Always set some texture parameters (required for some drivers)
-	glTexParameteri( GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	// Use nearest for more voxel feeling
-	glTexParameteri( GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+	m_numMipLevels = GetMaxPossibleMipMapLevels();
+	SetDefaultTextureParameter();
 
-	glGenerateMipmap( GL_TEXTURE_2D_ARRAY );
+	glGenerateMipmap(m_bindingPoint);
 
 	LogGlError("Something in texture upload and setup failed");
 
 	// Unbind to avoid later side effects
-	glBindTexture( GL_TEXTURE_2D_ARRAY, 0 );
+	glBindTexture(m_bindingPoint, 0);
+}
+
+void Texture::SetDefaultTextureParameter()
+{
+	// Always set some texture parameters (required for some drivers)
+	glTexParameteri(m_bindingPoint, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	// Use nearest for more voxel feeling
+	glTexParameteri(m_bindingPoint, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	// Define valid mipmap range. See https://www.opengl.org/wiki/Common_Mistakes#Creating_a_complete_texture
+	glTexParameteri(m_bindingPoint, GL_TEXTURE_BASE_LEVEL, 0);
+	glTexParameteri(m_bindingPoint, GL_TEXTURE_MAX_LEVEL, m_numMipLevels);
+}
+
+unsigned int Texture::GetMaxPossibleMipMapLevels()
+{
+	unsigned int x = m_width;
+	unsigned int y = m_height;
+	unsigned int z = m_depth;
+	unsigned int numMipLevels = 0;
+
+	while (x > 1 || y > 1 || z > 1)
+	{
+		++numMipLevels;
+		x /= 2;
+		y /= 2;
+		z /= 2;
+	}
+	
+	return numMipLevels;
 }
 
 Texture::~Texture()

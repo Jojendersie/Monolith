@@ -3,6 +3,7 @@
 #include "../../predeclarations.hpp"
 #include "vertexbuffer.hpp"
 #include "texture.hpp"
+#include "framebuffer.hpp"
 //#include <cstdio>
 #include <cassert>
 
@@ -15,8 +16,12 @@ namespace Graphic {
 		LOG_ERROR( std::string("glfw [") + std::to_string(_iError) + "] " + _sDescription );
 	}
 
-	GLFWwindow* Device::GetWindow()		{ return g_Device.m_window; }
-	Math::IVec2 Device::GetFramebufferSize()
+	GLFWwindow* Device::GetWindow()
+	{
+		return g_Device.m_window;
+	}
+
+	Math::IVec2 Device::GetBackbufferSize()
 	{
 		Math::IVec2 size;
 		glfwGetFramebufferSize( g_Device.m_window, &size[0], &size[1] );
@@ -65,8 +70,9 @@ namespace Graphic {
 		g_Device.m_blendState = -1;
 		g_Device.m_depthStencilState = -1;
 		g_Device.m_rasterizerState = -1;
-		for( int i=0; i<8; ++i )
+		for (int i = 0; i<8; ++i)
 			g_Device.m_samplerStates[i] = -1;
+		g_Device.s_BoundFrameBuffer = NULL;
 	}
 
 
@@ -164,6 +170,52 @@ namespace Graphic {
 #ifdef _DEBUG
 		LogGlError( "[Device::SetTexture] Could not bind a texture" );
 #endif
+	}
+
+	void Device::BindFramebuffer(const Framebuffer* _framebuffer, bool _autoViewportSet)
+	{
+		if (_framebuffer)
+		{
+			if (g_Device.s_BoundFrameBuffer != _framebuffer)
+			{
+				glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer->m_framebuffer);
+				g_Device.s_BoundFrameBuffer = _framebuffer;
+
+				if (_autoViewportSet)
+				{
+					const Framebuffer::Attachment* pSizeSource = NULL;
+					if (_framebuffer->m_depthStencil.pTexture)
+						pSizeSource = &_framebuffer->m_depthStencil;
+					else
+						pSizeSource = &_framebuffer->m_colorAttachments[0];
+
+					// Due to asserts on creation, pSizeSource should be now non zero!
+					Math::IVec2 size = pSizeSource->pTexture->Size2D();
+					for (unsigned int mipLevel = 0; mipLevel < pSizeSource->mipLevel; ++mipLevel)
+					{
+						size[0] /= 2;
+						size[1] /= 2;
+					}
+					glViewport(0, 0, size[0], size[1]);
+				}
+			}
+
+#ifdef _DEBUG
+			LogGlError("[Device::BindFramebuffer] Framebuffer binding.");
+#endif
+		}
+		else
+		{
+			if (g_Device.s_BoundFrameBuffer != NULL)
+			{
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				g_Device.s_BoundFrameBuffer = NULL;
+			}
+
+#ifdef _DEBUG
+			LogGlError("[Device::BindFramebuffer] Backbuffer binding");
+#endif
+		}
 	}
 
 

@@ -1,3 +1,7 @@
+// TESTING CODE
+#include "graphic/core/opengl.hpp"
+// -- PLEASE REMOVE WHEN DONE WITH POSTPROCESSING
+
 #include <thread>
 #include <cassert>
 #include "game.hpp"
@@ -11,6 +15,8 @@
 #include "gamestates/gssoundopt.hpp"
 #include "timer.hpp"
 #include "graphic/core/device.hpp"
+#include "graphic/core/texture.hpp"
+#include "graphic/core/framebuffer.hpp"
 #include "graphic/core/uniformbuffer.hpp"
 #include "graphic/content.hpp"
 #include "input/input.hpp"
@@ -26,6 +32,16 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 	m_time( 0.0 ),
 	m_stateStack( nullptr )
 {
+	// Init scene framebuffer
+	/*{
+		using namespace Graphic;
+		m_sceneColorTexture = new Texture(Graphic::Device::GetBackbufferSize()[0], Device::GetBackbufferSize()[1],
+			Texture::Format(4, 8, Texture::Format::ChannelType::UINT));
+		m_sceneDepthTexture = new Texture(Graphic::Device::GetBackbufferSize()[0], Device::GetBackbufferSize()[1],
+			Texture::Format(1, 32, Texture::Format::ChannelType::FLOAT, Texture::Format::FormatType::DEPTH));
+		m_sceneFramebuffer = new Framebuffer(Framebuffer::Attachment(m_sceneColorTexture), Framebuffer::Attachment(m_sceneDepthTexture));
+	}*/
+
 	// Init timer
 	g_fInvFrequency = std::chrono::high_resolution_clock::period::num/double(std::chrono::high_resolution_clock::period::den);
 	m_microSecPerFrame = std::chrono::microseconds(unsigned(1000000.0 / _fTargetFrameRate));
@@ -71,7 +87,6 @@ Monolith::~Monolith()
 		m_stateStack = m_stateStack->m_previous;
 	}
 
-
 	Input::Manager::Close();
 
 	try {
@@ -85,6 +100,10 @@ Monolith::~Monolith()
 
 	Graphic::Resources::Unload();
 	Voxel::TypeInfo::Unload();
+
+//	delete m_sceneFramebuffer;
+//	delete m_sceneColorTexture;
+//	delete m_sceneDepthTexture;
 }
 
 // ************************************************************************* //
@@ -101,7 +120,7 @@ void Monolith::Run()
 			// Call stuff
 			Input::Manager::Update();
 			m_stateStack->Render( m_time, deltaTime );
-			m_stateStack->Update( m_time, deltaTime );
+			m_stateStack->Update(m_time, deltaTime);
 
 			glfwSwapBuffers(Graphic::Device::GetWindow());
 			glfwPollEvents();
