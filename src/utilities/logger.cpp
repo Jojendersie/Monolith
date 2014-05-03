@@ -30,6 +30,7 @@ namespace Logger {
 	// ********************************************************************* //
 	void Logger::Initialize( Policy* _policy )
 	{
+		delete m_policy;
 		m_policy = _policy;
 		m_policy->Write( GetTimeString() );
 		m_policy->Write( " Initialized Logger\n" );

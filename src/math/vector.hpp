@@ -207,7 +207,7 @@ namespace Math {
 	Vector<n, Data> abs(const Vector<n, Data>& _v)
 	{
 		Vector<n, Data> result;
-		for( int i=0; i<n; ++i ) result[i] = abs(_v);
+		for( int i=0; i<n; ++i ) result[i] = abs(_v[i]);
 		return result;
 	}
 

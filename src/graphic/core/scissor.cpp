@@ -12,7 +12,7 @@ ScissorRect::ScissorRect( float _x, float _y, float _w, float _h )
 	m_wasEnabled = glIsEnabled( GL_SCISSOR_TEST ) == GL_TRUE;
 	glGetIntegerv( GL_SCISSOR_BOX, m_previousRect );
 
-	Math::IVec2 size = Device::GetFramebufferSize();
+	Math::IVec2 size = Device::GetBackbufferSize();
 	// Translate coordinates to absolute pixel coordinates and set directly.
 	glScissor( GLint((_x * 0.5f + 0.5f) * size[0]),
 			   GLint((_y * 0.5f + 0.5f) * size[1]),

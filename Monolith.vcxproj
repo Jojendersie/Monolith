@@ -40,7 +40,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LibraryPath>dependencies\glfw-3.0.3\bin;dependencies\glew-1.10.0\lib\Release\Win32;dependencies\JoFileLib\lib\Debug;$(LibraryPath)</LibraryPath>
-    <IncludePath>dependencies\JoFileLib\include;D:\C++\Spiele\Monolith\src;$(IncludePath)</IncludePath>
+    <IncludePath>dependencies\JoFileLib\include;$(SolutionDir)\src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LibraryPath>dependencies\glfw-3.0.3\bin;dependencies\glew-1.10.0\lib\Release\Win32;dependencies\JoFileLib\lib\Release;$(LibraryPath)</LibraryPath>
@@ -69,7 +69,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>LOG_NO_LOCALIZATION;LOG_LEVEL=0;WINDOWS;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;LOG_NO_LOCALIZATION;LOG_LEVEL=0;WINDOWS;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -116,6 +116,7 @@
     <ClCompile Include="src\math\matrix.cpp" />
     <ClCompile Include="src\math\quaternion.cpp" />
     <ClCompile Include="src\math\sphere.cpp" />
+    <ClCompile Include="src\math\transformation.cpp" />
     <ClCompile Include="src\resources.cpp" />
     <ClCompile Include="src\timer.cpp" />
     <ClCompile Include="src\utilities\color.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="src\graphic\marker\wireframerenderer.hpp" />
     <ClInclude Include="src\input\camera.hpp" />
     <ClInclude Include="src\input\input.hpp" />
+    <ClInclude Include="src\math\fixedpoint.hpp" />
     <ClInclude Include="src\math\intersection.hpp" />
     <ClInclude Include="src\math\math.hpp" />
     <ClInclude Include="src\math\mathbase.hpp" />
@@ -169,6 +171,7 @@
     <ClInclude Include="src\math\quaternion.hpp" />
     <ClInclude Include="src\math\ray.hpp" />
     <ClInclude Include="src\math\sphere.hpp" />
+    <ClInclude Include="src\math\transformation.hpp" />
     <ClInclude Include="src\math\vector.hpp" />
     <ClInclude Include="src\predeclarations.hpp" />
     <ClInclude Include="src\resources.hpp" />

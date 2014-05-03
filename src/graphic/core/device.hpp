@@ -8,6 +8,7 @@ namespace Graphic {
 
 	class VertexBuffer;
 	class Texture;
+	class Framebuffer;
 
 	/// \brief A singleton wrapper to control the render pipeline.
 	/// \details The device must be created on program start with the
@@ -24,7 +25,7 @@ namespace Graphic {
 		static void Exit();
 
 		static GLFWwindow* GetWindow();
-		static Math::IVec2 GetFramebufferSize();
+		static Math::IVec2 GetBackbufferSize();
 
 		/// \brief FramebufferWidth / FramebufferHeight
 		static float GetAspectRatio();
@@ -45,11 +46,21 @@ namespace Graphic {
 		///		which uniform variable in the shader is set by Effect::BindTexture.
 		static void SetTexture( const Texture& _texture, unsigned _location );
 
-		/// \brief Clear back buffer and z-buffer
+
+		/// \brief Binds a framebuffer.
+		/// \param[in] pFrameBuffer	A framebuffer object, use nullptr to bind the backbuffer.
+		/// \param[in] autoViewportSet If true the viewport will be set to 
+		///		match the framebuffer's dimensions.
+		static void BindFramebuffer(const Framebuffer* _framebuffer, bool _autoViewportSet = true);
+
+
+		/// \brief Clear current framebuffer/backbuffer.
 		static void Clear( float _r, float _g, float _b );
 
 		/// \brief Clears the z-buffer only
 		static void ClearZ();
+
+
 
 		/// \brief Draw call to render direct from a bound vertex buffer
 		///		without indices.
@@ -58,6 +69,9 @@ namespace Graphic {
 
 	private:
 		GLFWwindow* m_window;		///< Reference to the one window created during Initialize()
+
+		/// Currently bound framebuffer object (NULL means backbuffer)
+		const Framebuffer* s_BoundFrameBuffer;
 
 		int m_rasterizerState;		///< Hash of the current rasterizer state to optimize unnecessary changes.
 		int m_blendState;			///< Hash of the current blend state used for all render targets.

@@ -3,6 +3,7 @@
 #include "../../predeclarations.hpp"
 #include "vertexbuffer.hpp"
 #include "texture.hpp"
+#include "framebuffer.hpp"
 //#include <cstdio>
 #include <cassert>
 
@@ -15,8 +16,94 @@ namespace Graphic {
 		LOG_ERROR( std::string("glfw [") + std::to_string(_iError) + "] " + _sDescription );
 	}
 
-	GLFWwindow* Device::GetWindow()		{ return g_Device.m_window; }
-	Math::IVec2 Device::GetFramebufferSize()
+	static void APIENTRY DebugErrorCallback(
+		GLenum _source,
+		GLenum _type,
+		GLuint _id,
+		GLenum _severity,
+		GLsizei _length,
+		const GLchar* _message,
+		GLvoid* _userParam
+		)
+	{
+		std::string debSource, debType;
+		int eventType = 2;	// Use LOG_LVL1 if no other option is better
+
+		switch( _source )
+		{
+		case GL_DEBUG_SOURCE_API_ARB:             debSource = "OpenGL";
+			break;
+		case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB:   debSource = "Windows";
+			break;
+		case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB: debSource = "Shader Compiler";
+			break;
+		case GL_DEBUG_SOURCE_THIRD_PARTY_ARB:     debSource = "Third Party";
+			break;
+		case GL_DEBUG_SOURCE_APPLICATION_ARB:     debSource = "Application";
+			break;
+		case GL_DEBUG_SOURCE_OTHER_ARB:           debSource = "Other";
+			break;
+		}
+
+		switch ( _type )
+		{
+		case GL_DEBUG_TYPE_ERROR_ARB:
+			eventType = 0;
+			debType = "error";
+			break;
+		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB:
+			debType = "deprecated behavior";
+			break;
+		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB:
+			eventType = 1;
+			debType = "undefined behavior";
+			break;
+		case GL_DEBUG_TYPE_PORTABILITY_ARB:
+			debType = "portability";
+			break;
+		case GL_DEBUG_TYPE_PERFORMANCE_ARB:
+			debType = "performance";
+			break;
+		case GL_DEBUG_TYPE_OTHER_ARB:
+			debType = "message";
+			break;
+		}
+
+		if(_severity == GL_DEBUG_SEVERITY_HIGH_ARB)
+			LOG_CRITICAL( "[" + debSource + "|" + debType + "]: " + _message );
+
+		switch(eventType)
+		{
+		case 0: LOG_ERROR( "[" + debSource + "|" + debType + "]: " + _message );
+			break;
+		case 1: LOG_LVL2( "[" + debSource + "|" + debType + "]: " + _message );
+			break;
+		case 2: LOG_LVL1( "[" + debSource + "|" + debType + "]: " + _message );
+			break;
+		}
+	}
+
+	static void ActivateOpenGLDebugging()
+	{
+		glEnable( GL_DEBUG_OUTPUT );
+		LogGlError( "Cannot activate debug output" );
+		glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS );
+		LogGlError( "Cannot set debug output synchronous" );
+		if( glDebugMessageControl && glDebugMessageCallback )
+		{
+			glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_MEDIUM, 0, nullptr, GL_TRUE );
+			glDebugMessageCallback( &DebugErrorCallback, nullptr );
+			LogGlError( "Cannot set debug callback" );
+		} else
+			LOG_ERROR("glDebugMessage functions not loaded.");
+	}
+
+	GLFWwindow* Device::GetWindow()
+	{
+		return g_Device.m_window;
+	}
+
+	Math::IVec2 Device::GetBackbufferSize()
 	{
 		Math::IVec2 size;
 		glfwGetFramebufferSize( g_Device.m_window, &size[0], &size[1] );
@@ -58,6 +145,8 @@ namespace Graphic {
 			LOG_ERROR(std::string((char*)glewGetErrorString(GlewInitResult)));
 		else glGetError();	// Sometimes glewInit creates an error even if return val correct
 
+		ActivateOpenGLDebugging();
+
 		glViewport(0, 0, _width, _height);
 
 		// Null the references
@@ -65,8 +154,9 @@ namespace Graphic {
 		g_Device.m_blendState = -1;
 		g_Device.m_depthStencilState = -1;
 		g_Device.m_rasterizerState = -1;
-		for( int i=0; i<8; ++i )
+		for (int i = 0; i<8; ++i)
 			g_Device.m_samplerStates[i] = -1;
+		g_Device.s_BoundFrameBuffer = NULL;
 	}
 
 
@@ -139,6 +229,7 @@ namespace Graphic {
 
 	void Device::SetEffect( const Effect& _effect )
 	{
+		//glBindTexture( 1234, 1234 );
 		assert(glGetError() == GL_NO_ERROR);
 		if( g_Device.m_currentEffect != &_effect )
 		{
@@ -164,6 +255,52 @@ namespace Graphic {
 #ifdef _DEBUG
 		LogGlError( "[Device::SetTexture] Could not bind a texture" );
 #endif
+	}
+
+	void Device::BindFramebuffer(const Framebuffer* _framebuffer, bool _autoViewportSet)
+	{
+		if (_framebuffer)
+		{
+			if (g_Device.s_BoundFrameBuffer != _framebuffer)
+			{
+				glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer->m_framebuffer);
+				g_Device.s_BoundFrameBuffer = _framebuffer;
+
+				if (_autoViewportSet)
+				{
+					const Framebuffer::Attachment* pSizeSource = NULL;
+					if (_framebuffer->m_depthStencil.pTexture)
+						pSizeSource = &_framebuffer->m_depthStencil;
+					else
+						pSizeSource = &_framebuffer->m_colorAttachments[0];
+
+					// Due to asserts on creation, pSizeSource should be now non zero!
+					Math::IVec2 size = pSizeSource->pTexture->Size2D();
+					for (unsigned int mipLevel = 0; mipLevel < pSizeSource->mipLevel; ++mipLevel)
+					{
+						size[0] /= 2;
+						size[1] /= 2;
+					}
+					glViewport(0, 0, size[0], size[1]);
+				}
+			}
+
+#ifdef _DEBUG
+			LogGlError("[Device::BindFramebuffer] Framebuffer binding.");
+#endif
+		}
+		else
+		{
+			if (g_Device.s_BoundFrameBuffer != NULL)
+			{
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				g_Device.s_BoundFrameBuffer = NULL;
+			}
+
+#ifdef _DEBUG
+			LogGlError("[Device::BindFramebuffer] Backbuffer binding");
+#endif
+		}
 	}
 
 

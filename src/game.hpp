@@ -4,7 +4,11 @@
 #include "predeclarations.hpp"
 #include <jofilelib.hpp>
 
-
+namespace Graphic
+{
+	class Framebuffer;
+	class Texture;
+}
 
 /// \brief The game consists of a main-loop and several different game-states.
 /// \details Game states are managed on a stack based on the following rules:
@@ -22,7 +26,8 @@ public:
 
 	/// \brief Create a multi threaded variant with a limited frame rate for
 	///		each thread.
-	Monolith( float _targetRenderFR, float _targetUpdateFR, float _targetSoundFR );
+	// NOT IMPLEMENTED YET
+	//Monolith( float _targetRenderFR, float _targetUpdateFR, float _targetSoundFR );
 
 	/// \brief Delete all created resources
 	~Monolith();
@@ -70,6 +75,10 @@ private:
 
 	double m_time;					///< Total time since run in seconds
 	std::chrono::microseconds m_microSecPerFrame;
+
+	Graphic::Texture* m_sceneDepthTexture; ///< Main depth target for the 3D scene.
+	Graphic::Texture* m_sceneColorTexture; ///< Main color target for the 3D scene.
+	Graphic::Framebuffer* m_sceneFramebuffer; ///< Framebuffer into which the entire 3D scene is rendered before it is passed to the postprocessing module.
 
 	/// \brief The kernel of the push state method
 	void _PushState( IGameStateP _state );

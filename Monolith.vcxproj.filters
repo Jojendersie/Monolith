@@ -185,6 +185,9 @@
     <ClCompile Include="src\graphic\marker\box.cpp">
       <Filter>Source Files\graphic\markers</Filter>
     </ClCompile>
+    <ClCompile Include="src\math\transformation.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game.hpp">
@@ -354,6 +357,12 @@
     </ClInclude>
     <ClInclude Include="src\graphic\marker\box.hpp">
       <Filter>Source Files\graphic\markers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\fixedpoint.hpp">
+      <Filter>Source Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\transformation.hpp">
+      <Filter>Source Files\math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

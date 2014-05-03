@@ -2,42 +2,103 @@
 
 #include <string>
 #include <vector>
+#include "math/vector.hpp"
 
 namespace Graphic {
 
-	/// \brief Wrapper for one OpenGL texture.
+	/// \brief Wrapper for an OpenGL texture.
 	class Texture {
 	public:
+		/// \brief Format descriptor that converts a human readable description into OpenGL descriptors.
+		/// See tables at https://www.opengl.org/wiki/GLAPI/glTexImage2D
+		struct Format
+		{
+			/// Channel type description. Compatible to Jo::Files::ImageWrapper::ChannelType
+			enum struct ChannelType
+			{
+				UINT,	///< Any unsigned int with 1,2,4,8,16 or 32 bit (depends on bit depth)
+				INT,	///< Any signed int with 8, 16 or 32 bit (depends on bit depth)
+				FLOAT	///< 32bit float with 16 or 32 bit (depends on bit depth)
+			};
+
+			/// Different texture format types.
+			enum struct FormatType
+			{
+				COLOR,
+				DEPTH,
+				DEPTH_STENCIL
+			};
+
+			/// Constructs a new format form the given parameters.
+			/// \param[in] _numChannels
+			///   Number of channels for this format. Will be ignored for _formatType != FormatType::COLOR.
+			/// \param[in] _bitDepth
+			///   bitDepth per Channel. For stencil formats this value is ignored since only GL_DEPTH24_STENCIL8 is supported.
+			///   (This means that neither GL_DEPTH32F_STENCIL8 nor GL_STENCIL_INDEX8 are supported)
+			Format(unsigned int _numChannels, unsigned int _bitDepth, ChannelType _channelType, FormatType _formatType = FormatType::COLOR);
+		
+			// OpenGL internal format descriptors.
+			unsigned int internalFormat;
+			unsigned int format;
+			unsigned int type;
+		};
+
+		/// \brief Creates an empty 2D texture.
+		/// \param _numMipLevels[in] 0 will result in a full mipmap chain.
+		/// \todo Is there a better channel description?
+		Texture(unsigned int _width, unsigned int _height, const Format& format, unsigned int _numMipLevels = 1);
+
 		/// \brief Load a single 2D,3D or cubemap texture from file.
-		// Currently supported: 2D TODO: the others
+		///
+		/// Currently supported: 2D TODO: the others
+		/// Will create a full mipmapchain.
 		Texture( const std::string& _fileName );
 
 		/// \brief Load an 2D texture array. The texture index in the
 		///		array is derived from its index in the vector.
+		///
+		/// Will create a full mipmapchain.
 		/// \param [in] _fileNames List of image files to be loaded into
 		///		the array.
 		Texture( const std::vector<std::string>& _fileNames );
 
 		/// \brief Release resource
 		~Texture();
+		
+		/// \brief Return width of the loaded texture.
+		unsigned int Width()		{ return m_width; }
 
 		/// \brief Return width of the loaded texture.
-		int Width()			{ return m_width; }
-
-		/// \brief Return width of the loaded texture.
-		int Height()		{ return m_height; }
+		unsigned int Height()		{ return m_height; }
 
 		/// \brief Return depth/layers of a volume texture or texture array.
 		/// \details For standard 2D textures the return value is 1.
-		int Depth()			{ return m_depth; }
+		unsigned int Depth()		{ return m_depth; }
+
+		/// \brief Returns number of available mipLevels.
+		unsigned int MipLevels()	{ return m_numMipLevels; }
+
+		/// \brief Returns the 2d size of the texture as Vector2
+		Math::IVec2 Size2D() { return Math::IVec2(m_width, m_height); }
+
 	private:
+		/// Sets some default texture parameter to the binding point.
+		void SetDefaultTextureParameter();
+
+		/// Determines how many mipmap levels a full mipmap chain would contain.
+		unsigned int GetMaxPossibleMipMapLevels();
+
 		unsigned m_textureID;		///< OpenGL texture handle
 		unsigned m_bindingPoint;	///< The constructor determines GL_TEXTURE_2D_ARRAY,... 
 
-		int m_width;				///< Just informative: width of the texture
-		int m_height;				///< Just informative: height of the texture
-		int m_depth;				///< Just informative: depth of the texture (volume), or number of slices in an array or 1
+		unsigned int m_width;		///< Just informative: width of the texture
+		unsigned int m_height;		///< Just informative: height of the texture
+		unsigned int m_depth;		///< Just informative: depth of the texture (volume), or number of slices in an array or 1
+
+		unsigned int m_numMipLevels;
+
 		friend class Device;
+		friend class Framebuffer;
 	};
 
 }; // namespace Graphic
