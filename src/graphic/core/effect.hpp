@@ -18,13 +18,13 @@ namespace Graphic {
 		/// \brief Construction with pixel shader and vertex shader only.
 		Effect( const std::string& _VSFile, const std::string& _PSFile,
 			RasterizerState::CULL_MODE _cullMode = RasterizerState::CULL_MODE::BACK, RasterizerState::FILL_MODE _fillMode = RasterizerState::FILL_MODE::SOLID,
-			BlendState::BLEND_OPERATION _blendOp = BlendState::BLEND_OPERATION::ADD, BlendState::BLEND _srcOp = BlendState::BLEND::ONE, BlendState::BLEND _dstOp = BlendState::BLEND::ZERO,
+			BlendState::BLEND_OPERATION _blendOp = BlendState::BLEND_OPERATION::DISABLE, BlendState::BLEND _srcOp = BlendState::BLEND::ONE, BlendState::BLEND _dstOp = BlendState::BLEND::ZERO,
 			DepthStencilState::COMPARISON_FUNC _depthFunc = DepthStencilState::COMPARISON_FUNC::LESS, bool _zWrite = true );
 
 		/// \brief Construction of a program with pixel, vertex and geometry shader.
 		Effect( const std::string& _VSFile, const std::string& _GSFile, const std::string& _PSFile,
 			RasterizerState::CULL_MODE _cullMode = RasterizerState::CULL_MODE::BACK, RasterizerState::FILL_MODE _fillMode = RasterizerState::FILL_MODE::SOLID,
-			BlendState::BLEND_OPERATION _blendOp = BlendState::BLEND_OPERATION::ADD, BlendState::BLEND _srcOp = BlendState::BLEND::ONE, BlendState::BLEND _dstOp = BlendState::BLEND::ZERO,
+			BlendState::BLEND_OPERATION _blendOp = BlendState::BLEND_OPERATION::DISABLE, BlendState::BLEND _srcOp = BlendState::BLEND::ONE, BlendState::BLEND _dstOp = BlendState::BLEND::ZERO,
 			DepthStencilState::COMPARISON_FUNC _depthFunc = DepthStencilState::COMPARISON_FUNC::LESS, bool _zWrite = true);
 
 		~Effect();
