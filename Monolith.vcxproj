@@ -121,6 +121,7 @@
     <ClCompile Include="src\math\transformation.cpp" />
     <ClCompile Include="src\resources.cpp" />
     <ClCompile Include="src\timer.cpp" />
+    <ClCompile Include="src\utilities\assert.cpp" />
     <ClCompile Include="src\utilities\color.cpp" />
     <ClCompile Include="src\utilities\logger.cpp" />
     <ClCompile Include="src\utilities\policy.cpp" />
@@ -180,6 +181,7 @@
     <ClInclude Include="src\predeclarations.hpp" />
     <ClInclude Include="src\resources.hpp" />
     <ClInclude Include="src\timer.hpp" />
+    <ClInclude Include="src\utilities\assert.hpp" />
     <ClInclude Include="src\utilities\color.hpp" />
     <ClInclude Include="src\utilities\logger.hpp" />
     <ClInclude Include="src\utilities\loggerinit.hpp" />

@@ -1,6 +1,6 @@
 #include "opengl.hpp"
 #include <sstream>
-#include <cassert>
+#include "utilities/assert.hpp"
 #ifndef LOG_NO_LOCALIZATION
 #	define LOG_NO_LOCALIZATION
 #endif
@@ -21,7 +21,7 @@ void LogGlError( const char* _pMessage )
 			case GL_STACK_OVERFLOW: message << "GL_STACK_OVERFLOW"; break;
 			case GL_STACK_UNDERFLOW: message << "GL_STACK_UNDERFLOW"; break;
 			case GL_OUT_OF_MEMORY: message << "GL_OUT_OF_MEMORY"; break;
-			default: assert(false);	// If breaks here add specific error code above
+			default: Assert(false, "Unknown GL error.");	// If breaks here add specific error code above
 		}
 		LOG_ERROR(message.str());
 	}

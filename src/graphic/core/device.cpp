@@ -5,7 +5,7 @@
 #include "texture.hpp"
 #include "framebuffer.hpp"
 //#include <cstdio>
-#include <cassert>
+#include "utilities/assert.hpp"
 
 namespace Graphic {
 
@@ -231,7 +231,7 @@ namespace Graphic {
 	void Device::SetEffect( const Effect& _effect )
 	{
 		//glBindTexture( 1234, 1234 );
-		assert(glGetError() == GL_NO_ERROR);
+		Assert(glGetError() == GL_NO_ERROR, "Unexpected GL error");
 		if( g_Device.m_currentEffect != &_effect )
 		{
 			SetRasterizerState( _effect.m_rasterizerState );
@@ -260,26 +260,19 @@ namespace Graphic {
 
 	void Device::BindFramebuffer(const Framebuffer* _framebuffer, bool _autoViewportSet)
 	{
+		unsigned int previousColorTargetCount = 1;
+		if (g_Device.m_BoundFrameBuffer != nullptr)
+			previousColorTargetCount = g_Device.m_BoundFrameBuffer->m_colorAttachments.size();
+		unsigned int currentColorTargetCount = previousColorTargetCount;
+
 		if (_framebuffer)
 		{
 			if (g_Device.m_BoundFrameBuffer != _framebuffer)
 			{
-				unsigned int previousColorTargetCount = 1;
-				if (g_Device.m_BoundFrameBuffer != nullptr)
-					g_Device.m_BoundFrameBuffer->m_colorAttachments.size();
+				currentColorTargetCount = _framebuffer->m_colorAttachments.size();
 
 				glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer->m_framebuffer);
 				g_Device.m_BoundFrameBuffer = _framebuffer;
-
-				// setup draw buffers
-				if (previousColorTargetCount != _framebuffer->m_colorAttachments.size())
-				{
-					static const GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3,
-															GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7,
-															GL_COLOR_ATTACHMENT8, GL_COLOR_ATTACHMENT9, GL_COLOR_ATTACHMENT10, GL_COLOR_ATTACHMENT11,
-															GL_COLOR_ATTACHMENT12, GL_COLOR_ATTACHMENT13, GL_COLOR_ATTACHMENT14, GL_COLOR_ATTACHMENT15 };
-					glDrawBuffers(_framebuffer->m_colorAttachments.size(), drawBuffers);
-				}
 
 				if (_autoViewportSet)
 				{
@@ -309,16 +302,24 @@ namespace Graphic {
 			if (g_Device.m_BoundFrameBuffer != NULL)
 			{
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-				static const GLenum drawBuffers[] = { GL_BACK };
-				glDrawBuffers(1, drawBuffers);
-
 				g_Device.m_BoundFrameBuffer = NULL;
+				currentColorTargetCount = 1;
 			}
 
 #ifdef _DEBUG
 			LogGlError("[Device::BindFramebuffer] Backbuffer binding");
 #endif
+		}
+
+
+		// setup draw buffers
+		if(previousColorTargetCount != currentColorTargetCount)
+		{
+			static const GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3,
+				GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7,
+				GL_COLOR_ATTACHMENT8, GL_COLOR_ATTACHMENT9, GL_COLOR_ATTACHMENT10, GL_COLOR_ATTACHMENT11,
+				GL_COLOR_ATTACHMENT12, GL_COLOR_ATTACHMENT13, GL_COLOR_ATTACHMENT14, GL_COLOR_ATTACHMENT15 };
+			glDrawBuffers(previousColorTargetCount, drawBuffers);
 		}
 	}
 

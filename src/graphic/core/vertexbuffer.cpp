@@ -2,7 +2,7 @@
 #include "opengl.hpp"
 #include <cstdlib>
 #include <cstring>
-#include <cassert>
+#include "utilities/assert.hpp"
 #include <cstdint>
 
 namespace Graphic {
@@ -201,7 +201,7 @@ VertexBuffer::~VertexBuffer()
 void VertexBuffer::Resize(unsigned _numVertices)
 {
 	// Private method should never be called for static buffers!
-	assert(!IsStatic());
+	Assert(!IsStatic(), "Static vertex buffers can not be resized!");
 
 	m_maxNumVertices = _numVertices;
 
@@ -217,7 +217,7 @@ void VertexBuffer::Resize(unsigned _numVertices)
 // Set the number of vertices back to 0.
 void VertexBuffer::Clear()
 {
-	assert(!IsStatic());
+	Assert(!IsStatic(), "Static vertex buffers can not be cleared!");
 	m_cursor = 0;
 	m_firstDirtyIndex = std::numeric_limits<int>::max();
 	m_lastDirtyIndex = -1;
@@ -247,8 +247,8 @@ void VertexBuffer::Commit()
 
 void VertexBuffer::Commit(void* _data, int _size)
 {
-	assert(IsStatic());
-	assert(_data);
+	Assert(IsStatic(), "Static vertex buffers can update their data!");
+	Assert(_data, "No data to commit!");
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 	glBufferData(GL_ARRAY_BUFFER, _size, _data, GL_STATIC_DRAW);
@@ -265,7 +265,7 @@ void VertexBuffer::Commit(void* _data, int _size)
 // ******************************************************************************** //
 void VertexBuffer::DeleteVertex(unsigned _index)
 {
-	assert( m_cursor > 0 );	// Number of vertices
+	Assert( m_cursor > 0, "Cursor is already at the buffer's beginning!");	// Number of vertices
 	if(m_cursor <= _index) LOG_LVL2("Vertex cannot be deleted: Index too large.");
 	--m_cursor;
 	if(_index != m_cursor) {
@@ -288,7 +288,7 @@ void VertexBuffer::FlipNormals()
 void VertexBuffer::Bind() const
 {
 	// Don't use a empty buffer. Call Commit before.
-	assert( !IsDirty() );
+	Assert( !IsDirty(), "Don't use a empty buffer. Call Commit before.");
 
 	glBindVertexArray(m_VAO);
 }

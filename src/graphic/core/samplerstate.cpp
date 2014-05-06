@@ -1,6 +1,6 @@
 #include "samplerstate.hpp"
 #include "opengl.hpp"
-#include <cassert>
+#include "utilities/assert.hpp"
 
 namespace Graphic {
 

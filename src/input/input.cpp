@@ -1,8 +1,9 @@
 #include "input.hpp"
-#include "../gamestates/gamestatebase.hpp"
-#include "../timer.hpp"
-#include "../math/vector.hpp"
-#include "../graphic/core/device.hpp"
+#include "gamestates/gamestatebase.hpp"
+#include "timer.hpp"
+#include "math/vector.hpp"
+#include "graphic/core/device.hpp"
+#include "utilities/assert.hpp"
 
 using namespace std;
 
@@ -173,7 +174,7 @@ namespace Input {
 						InputManagerInstance.m_lastClickedPosition = mousePosition;
 					}
 				} else keyInfo.lastRelease = now;
-			} else { assert(false); }
+			} else { Assert(false, "Unknown GLFW key action."); }
 		}
 	}
 

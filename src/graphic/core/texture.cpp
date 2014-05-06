@@ -2,15 +2,16 @@
 #include <jofilelib.hpp>
 #include "texture.hpp"
 #include "opengl.hpp"
-#include "../../math/math.hpp"
+#include "math/math.hpp"
+#include "utilities/assert.hpp"
 
 namespace Graphic {
 
 // Maps number of channels to a type
 Texture::Format::Format(unsigned int _numChannels, unsigned int _bitDepth, Format::ChannelType _type, FormatType _formatType)
 {
-	assert( _numChannels > 0 && _numChannels <= 4 );
-	assert((_formatType == FormatType::COLOR || _numChannels == 1) && "Multiple channels are not possible for depth/stencil formats!");
+	Assert(_numChannels > 0 && _numChannels <= 4, "More than 4 channels are not supported!");
+	Assert(_formatType == FormatType::COLOR || _numChannels == 1, "Multiple channels are not possible for depth/stencil formats!");
 
 	if (_formatType == FormatType::COLOR)
 	{
@@ -26,15 +27,15 @@ Texture::Format::Format(unsigned int _numChannels, unsigned int _bitDepth, Forma
  		switch (_type)
 		{
 		case Format::ChannelType::FLOAT:
-			assert(_bitDepth == 32 || _bitDepth == 16);
+			Assert(_bitDepth == 32 || _bitDepth == 16, "Float format is only available in 16 and 32 bit.");
 			internalFormat = FLOAT_FORMATS[_bitDepth / 16 - 1][_numChannels];
 			break;
 		case Format::ChannelType::INT:
-			assert(_bitDepth == 16 || _bitDepth == 8);
+			Assert(_bitDepth == 16 || _bitDepth == 8, "Int format is currently only available in 8 and 16 bit.");
 			internalFormat = INT_FORMATS[_bitDepth / 8 - 1][_numChannels];
 			break;
 		case Format::ChannelType::UINT:
-			assert(_bitDepth == 16 || _bitDepth == 8);
+			Assert(_bitDepth == 16 || _bitDepth == 8, "Int format is currently only available in 8 and 16 bit.");
 			internalFormat = UINT_FORMATS[_bitDepth / 8 - 1][_numChannels];
 			break;
 
@@ -51,12 +52,12 @@ Texture::Format::Format(unsigned int _numChannels, unsigned int _bitDepth, Forma
 	{
 		if (_type == ChannelType::FLOAT)
 		{
-			assert(_bitDepth == 32 && "Unsupported depth format bitdepth!");
+			Assert(_bitDepth == 32, "Unsupported depth format bitdepth!");
 			internalFormat = GL_DEPTH_COMPONENT32;
 		}
 		else
 		{
-			assert((_bitDepth == 32 || _bitDepth == 24 || _bitDepth == 16) && "Unsupported depth format bitdepth!");
+			Assert(_bitDepth == 32 || _bitDepth == 24 || _bitDepth == 16, "Unsupported depth format bitdepth!");
 			static const GLuint depthFormats[] = { GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT32F };
 			internalFormat = depthFormats[(_bitDepth - 16) / 8];
 		}
@@ -89,9 +90,9 @@ Texture::Texture(unsigned int _width, unsigned int _height, const Format& format
 	}
 	else
 	{
-		assert(m_numMipLevels < GetMaxPossibleMipMapLevels() && "Invalid mipmap count!");
+		Assert(m_numMipLevels < GetMaxPossibleMipMapLevels(), "Invalid mipmap count!");
 	}
-	assert(_width != 0 && _height != 0 && "Invalid texture dimension!");
+	Assert(_width != 0 && _height != 0,  "Invalid texture dimension!");
 
 	glGenTextures(1, &m_textureID);
 
@@ -197,7 +198,7 @@ Texture::Texture( const std::vector<std::string>& _fileNames ) :
 		try {
 			Jo::Files::HDDFile file(_fileNames[i]);
 			Jo::Files::ImageWrapper image(file, Jo::Files::Format::PNG );
-			assert(image.Width() == firstImage.Width() && image.Height() == firstImage.Height());
+			Assert(image.Width() == firstImage.Width() && image.Height() == firstImage.Height(), "All images in texture array need to have the same dimensions.");
 			// Upload pixel data.
 			glTexSubImage3D( GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, firstImage.Width(), firstImage.Height(), 1,
 				format.format, format.type, image.GetBuffer());

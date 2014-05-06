@@ -8,7 +8,7 @@
 #include "../graphic/marker/grid.hpp"
 using namespace Math;
 using namespace Graphic;
-#include <cassert>
+#include "utilities/assert.hpp"
 
 // TODO: remove after test
 #include "../generators/asteroid.hpp"

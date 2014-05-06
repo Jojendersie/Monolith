@@ -92,7 +92,7 @@ namespace Voxel {
 						std::make_pair(position, std::move(Chunk(model, _position, levels)))
 						).first;
 					builder->RecomputeVertexBuffer(chunk->second);
-				} else assert( !_node->Data().IsDirty() ); //if( _node->Data().IsDirty() )
+				} else Assert( !_node->Data().IsDirty(), "Node-data was not changed."); //if( _node->Data().IsDirty() )
 					//builder->RecomputeVertexBuffer(chunk->second);
 				// There are empty inner chunks
 				if( chunk->second.NumVoxels() > 0 )

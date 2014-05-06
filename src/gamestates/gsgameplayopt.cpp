@@ -5,7 +5,7 @@
 #include "../input/input.hpp"
 #include "../graphic/interface/hud.hpp"
 using namespace Math;
-#include <cassert>
+#include "utilities/assert.hpp"
 
 // ************************************************************************* //
 GSGameplayOpt::GSGameplayOpt(Monolith* _game) : IGameState(_game)

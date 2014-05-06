@@ -10,10 +10,6 @@ using namespace Math;
 
 namespace Voxel {
 
-	/// \brief The level offsets in number of voxels to the start of the octree
-	//const int LEVEL_OFFSETS[] = {0,1,9,73,585,4681};
-	const int NUM_OCTREE_NODES = 37449;
-
 #	define INDEX(P, L)		(LEVEL_OFFSETS[L] + (P.x) + (1<<(L))*((P.y) + (1<<(L))*(P.z)))
 #	define INDEX2(X,Y,Z, L)	(LEVEL_OFFSETS[L] + (X) + (1<<(L))*((Y) + (1<<(L))*(Z)))
 
@@ -148,7 +144,7 @@ namespace Voxel {
 				for( int i = 0; i < 8; ++i )
 				{
 					if( _node->Children()[i].Data().surface ) {
-					//	assert( _node->Children()[i].Data().material != Material::UNDEFINED );
+					//	Assert( _node->Children()[i].Data().material != Material::UNDEFINED );
 						materials[num++] = _node->Children()[i].Data().material;
 					}
 				}
@@ -348,7 +344,6 @@ namespace Voxel {
 		int numVoxels = FillP.appendBuffer - m_vertexBuffer;
 		//*/
 
-		assert( 37449 >= numVoxels );
 		if( numVoxels )
 			_chunk.m_voxels.Commit(m_vertexBuffer, numVoxels * sizeof(VoxelVertex));
 	}

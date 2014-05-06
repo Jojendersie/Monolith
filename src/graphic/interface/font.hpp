@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <cassert>
+#include "utilities/assert.hpp"
 #include <cstdint>
 #include "../core/vertexbuffer.hpp"
 #include "../core/effect.hpp"

@@ -200,6 +200,9 @@
     <ClCompile Include="src\graphic\highlevel\screenalignedtriangle.cpp">
       <Filter>Source Files\graphic\highlevel</Filter>
     </ClCompile>
+    <ClCompile Include="src\utilities\assert.cpp">
+      <Filter>Source Files\utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\game.hpp">
@@ -381,6 +384,9 @@
     </ClInclude>
     <ClInclude Include="src\graphic\highlevel\screenalignedtriangle.h">
       <Filter>Source Files\graphic\highlevel</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utilities\assert.hpp">
+      <Filter>Source Files\utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -3,7 +3,7 @@
 // -- PLEASE REMOVE WHEN DONE WITH POSTPROCESSING
 
 #include <thread>
-#include <cassert>
+#include "utilities/assert.hpp"
 #include "game.hpp"
 #include "gamestates/gsmainmenu.hpp"
 #include "gamestates/gsplay.hpp"
@@ -60,7 +60,7 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 		BuildDefaultConfig();
 	}
 
-	assert(glGetError() == GL_NO_ERROR);
+	Assert(glGetError() == GL_NO_ERROR, "GL during initialization!");
 
 	Resources::LoadLanguageData( Config[std::string("Game")][std::string("Language")] );
 	Input::Manager::Initialize( Graphic::Device::GetWindow(), Config[std::string("Input")] );

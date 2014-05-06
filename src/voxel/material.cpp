@@ -1,6 +1,6 @@
 #include "material.hpp"
 #include "component.hpp"
-#include <cassert>
+#include "utilities/assert.hpp"
 #include <cmath>
 #include "..\math\mathbase.hpp"
 
@@ -13,9 +13,9 @@ namespace Voxel {
 	{
 		SetTransparent(false);
 		SetEmissive(_emissive);
-		SetSpecular(_specular);			assert(_specular < 16);
-		SetShininess(_shininess);		assert(_shininess < 16);
-		SetVar(_variance);				assert(_variance < 16);
+		SetSpecular(_specular);			Assert(_specular < 16, "Specular is out of range.");
+		SetShininess(_shininess);		Assert(_shininess < 16, "Shineness is out of range.");
+		SetVar(_variance);				Assert(_variance < 16, "Variance is out of range.");
 
 		// Encode color to YPbPr:855 discretization.
 		SetY( uint8_t((_r * 299000 + _g * 587000 + _b * 114000) / 1000000) );
@@ -28,9 +28,9 @@ namespace Voxel {
 	{
 		SetTransparent(true);
 		SetEmissive(_emissive);
-		SetSpecular(_specular);			assert(_specular < 16);
-		SetShininess(_shininess);		assert(_shininess < 16);
-		SetVar(_a);						assert(_a < 16);
+		SetSpecular(_specular);			Assert(_specular < 16, "Specular is out of range.");
+		SetShininess(_shininess);		Assert(_shininess < 16, "Shineness is out of range.");
+		SetVar(_a);						Assert(_a < 16, "Variance is out of range.");
 
 		// Encode color to YPbPr:855 discretization.
 		SetY( uint8_t((_r * 299000 + _g * 587000 + _b * 114000) / 1000000) );

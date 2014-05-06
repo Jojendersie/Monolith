@@ -4,7 +4,7 @@
 #include "math/vector.hpp"
 #include "device.hpp"
 
-#include <cassert>
+#include "utilities/assert.hpp"
 #include <memory>
 
 namespace Graphic {
@@ -12,8 +12,8 @@ namespace Graphic {
 Framebuffer::Attachment::Attachment(Texture* _pTexture, unsigned int _mipLevel, unsigned int _layer) :
 	pTexture(_pTexture), mipLevel(_mipLevel), layer(_layer)
 {
-	assert(pTexture == nullptr || _layer < pTexture->Depth() && "Can't bind non-existing texture layer to framebuffer!");
-	assert(pTexture == nullptr || _mipLevel < pTexture->MipLevels() && "Can't bind non-existing texture mipLevel to framebuffer!");
+	Assert(pTexture == nullptr || _layer < pTexture->Depth(), "Can't bind non-existing texture layer to framebuffer!");
+	Assert(pTexture == nullptr || _mipLevel < pTexture->MipLevels(), "Can't bind non-existing texture mipLevel to framebuffer!");
 }
 
 Framebuffer::Framebuffer(const Attachment& _colorAttachment, const Attachment& _depthStencilAttachment, bool _depthWithStencil) :
@@ -59,7 +59,7 @@ void Framebuffer::Initialize(const std::vector<Attachment>& _colorAttachments, b
 
 	for (auto it = _colorAttachments.begin(); it != _colorAttachments.end(); ++it)
 	{
-		assert(it->pTexture && "FBO Color attachment texture is NULL!");
+		Assert(it->pTexture, "FBO Color attachment texture is NULL!");
 		GLint attachment = GL_COLOR_ATTACHMENT0 + m_colorAttachments.size();
 		if (it->layer > 0)
 			glFramebufferTextureLayer(GL_FRAMEBUFFER, attachment, it->pTexture->m_textureID, it->mipLevel, it->layer);
@@ -71,7 +71,7 @@ void Framebuffer::Initialize(const std::vector<Attachment>& _colorAttachments, b
 
 	// Error checking
 #ifdef _DEBUG
-	assert(m_depthStencil.pTexture != NULL || m_colorAttachments.size() > 0 && "You cannot create empty FBOs! Need at least a depth/stencil buffer or a color attachment.");
+	Assert(m_depthStencil.pTexture != NULL || m_colorAttachments.size() > 0, "You cannot create empty FBOs! Need at least a depth/stencil buffer or a color attachment.");
 	GLenum framebufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	switch (framebufferStatus)
 	{
@@ -95,7 +95,7 @@ void Framebuffer::Initialize(const std::vector<Attachment>& _colorAttachments, b
 		LOG_ERROR("The combination of internal formats of the attached images violates an implementation - dependent set of restrictions.");
 		break;
 	}
-	assert(framebufferStatus == GL_FRAMEBUFFER_COMPLETE && "Frame buffer creation failed!");
+	Assert(framebufferStatus == GL_FRAMEBUFFER_COMPLETE, "Frame buffer creation failed!");
 
 	LogGlError("Framebuffer creation");
 #endif

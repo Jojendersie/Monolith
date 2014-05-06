@@ -1,6 +1,6 @@
 #include "random.hpp"
 #include "../math/math.hpp"
-#include <cassert>
+#include "utilities/assert.hpp"
 #include <cmath>
 #include <algorithm>
 
@@ -74,7 +74,7 @@ namespace Generators {
 	{
 		uint32_t interval = uint32_t(_max - _min + 1);
 		// Do not use integer maximum bounds!
-		assert(interval != 0);
+		Assert(interval != 0, "Do not use integer maximum bounds!");
 
 		uint32_t value = Xorshift128();
 		return _min + value % interval;

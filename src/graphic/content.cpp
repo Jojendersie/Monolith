@@ -1,4 +1,4 @@
-#include <cassert>
+#include "utilities/assert.hpp"
 #include "content.hpp"
 #include "core/texture.hpp"
 #include "core/device.hpp"

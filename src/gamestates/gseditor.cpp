@@ -5,7 +5,7 @@
 #include "../graphic/interface/hud.hpp"
 #include "../graphic/marker/box.hpp"
 #include "../voxel/model.hpp"
-#include <cassert>
+#include "utilities/assert.hpp"
 #include "../graphic/content.hpp"
 
 using namespace Math;
@@ -194,7 +194,7 @@ void GSEditor::KeyDoubleClick( int _key )
 void GSEditor::CreateNewModel( const Voxel::Model* _copyFrom )
 {
 	// Currently undefined situation: Delete/store model with a request.
-	assert( !m_model );
+	Assert( !m_model, "Need model before creating a new one" );
 
 	if( _copyFrom )
 	{

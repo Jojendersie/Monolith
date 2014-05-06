@@ -9,7 +9,7 @@
 #include "../graphic/interface/hud.hpp"
 #include "../resources.hpp"
 using namespace Math;
-#include <cassert>
+#include "utilities/assert.hpp"
 
 // ************************************************************************* //
 GSMainMenu::GSMainMenu(Monolith* _game) : IGameState(_game)
