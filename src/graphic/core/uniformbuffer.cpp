@@ -82,12 +82,8 @@ namespace Graphic {
 			glBindBuffer( GL_UNIFORM_BUFFER, m_bufferID );
 			glBufferSubData( GL_UNIFORM_BUFFER, 0, m_size, m_memory );
 
-			// The following line forces a sync on Intel HD chips. Otherwise reseting the buffer
-			// twice has no effect. (In case both times the same program is used.)
-			glFlush();
-
 #ifdef _DEBUG
-			LogGlError("An error during binding and uploading data occured.");
+			LogGlError("An error during binding and uploading data occurred.");
 #endif
 
 			m_isDirty = false;
