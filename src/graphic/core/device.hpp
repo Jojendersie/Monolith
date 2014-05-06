@@ -53,6 +53,10 @@ namespace Graphic {
 		///		match the framebuffer's dimensions.
 		static void BindFramebuffer(const Framebuffer* _framebuffer, bool _autoViewportSet = true);
 
+		/// \brief Retrieves currently bound framebuffer.
+		/// \return nullptr if the hardware backbuffer is active.
+		static const Framebuffer* GetCurrentFramebufferBinding();
+
 
 		/// \brief Clear current framebuffer/backbuffer.
 		static void Clear( float _r, float _g, float _b );
@@ -71,7 +75,7 @@ namespace Graphic {
 		GLFWwindow* m_window;		///< Reference to the one window created during Initialize()
 
 		/// Currently bound framebuffer object (NULL means backbuffer)
-		const Framebuffer* s_BoundFrameBuffer;
+		const Framebuffer* m_BoundFrameBuffer;
 
 		int m_rasterizerState;		///< Hash of the current rasterizer state to optimize unnecessary changes.
 		int m_blendState;			///< Hash of the current blend state used for all render targets.

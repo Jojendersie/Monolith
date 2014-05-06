@@ -23,7 +23,7 @@ Texture::Format::Format(unsigned int _numChannels, unsigned int _bitDepth, Forma
 		{ GL_R16, GL_RG16, GL_RGB16, GL_RGBA16 } };
 
 
-		switch (_type)
+ 		switch (_type)
 		{
 		case Format::ChannelType::FLOAT:
 			assert(_bitDepth == 32 || _bitDepth == 16);
@@ -119,7 +119,7 @@ Texture::Texture( const std::string& _fileName ) :
 	glGenTextures( 1, &m_textureID );
 	LogGlError("Could not create a texture");
 
-	m_bindingPoint = GL_TEXTURE_2D;	// TODO swtich
+	m_bindingPoint = GL_TEXTURE_2D;	// TODO switch
 	glBindTexture(m_bindingPoint, m_textureID);
 	LogGlError("Could not bind a texture");
 
@@ -225,12 +225,12 @@ void Texture::SetDefaultTextureParameter()
 {
 	// Always set some texture parameters (required for some drivers)
 	glTexParameteri(m_bindingPoint, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	// Use nearest for more voxel feeling
+	// Use nearest by default for more voxel feeling
 	glTexParameteri(m_bindingPoint, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	// Define valid mipmap range. See https://www.opengl.org/wiki/Common_Mistakes#Creating_a_complete_texture
 	glTexParameteri(m_bindingPoint, GL_TEXTURE_BASE_LEVEL, 0);
-	glTexParameteri(m_bindingPoint, GL_TEXTURE_MAX_LEVEL, m_numMipLevels);
+	glTexParameteri(m_bindingPoint, GL_TEXTURE_MAX_LEVEL, m_numMipLevels-1);
 }
 
 unsigned int Texture::GetMaxPossibleMipMapLevels()

@@ -12,8 +12,8 @@ namespace Graphic {
 Framebuffer::Attachment::Attachment(Texture* _pTexture, unsigned int _mipLevel, unsigned int _layer) :
 	pTexture(_pTexture), mipLevel(_mipLevel), layer(_layer)
 {
-	assert(_layer < pTexture->Depth() && "Can't bind non-existing texture layer to framebuffer!");
-	assert(_mipLevel < pTexture->MipLevels() && "Can't bind non-existing texture mipLevel to framebuffer!");
+	assert(pTexture == nullptr || _layer < pTexture->Depth() && "Can't bind non-existing texture layer to framebuffer!");
+	assert(pTexture == nullptr || _mipLevel < pTexture->MipLevels() && "Can't bind non-existing texture mipLevel to framebuffer!");
 }
 
 Framebuffer::Framebuffer(const Attachment& _colorAttachment, const Attachment& _depthStencilAttachment, bool _depthWithStencil) :
@@ -32,12 +32,18 @@ Framebuffer::Framebuffer(const std::vector<Attachment>& _colorAttachments, const
 
 void Framebuffer::Initialize(const std::vector<Attachment>& _colorAttachments, bool _depthWithStencil)
 {
+	if (_colorAttachments.size() >= GL_MAX_DRAW_BUFFERS)
+	{
+		LOG_ERROR("Too many color attachments for framebuffer!");
+	}
+
 	/// \todo Plaster with glGetError function
 
 	glGenFramebuffers(1, &m_framebuffer);
 
 	// Need to bind framebuffer to be able to create it.
-	Device::BindFramebuffer(this, true);
+	glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
+
 
 	if (m_depthStencil.pTexture)
 	{
@@ -63,15 +69,6 @@ void Framebuffer::Initialize(const std::vector<Attachment>& _colorAttachments, b
 		m_colorAttachments.push_back(*it);
 	}
 
-	// setup draw buffers
-	std::unique_ptr<GLuint[]> drawBuffers(new GLuint[m_colorAttachments.size()]);
-	for (size_t i = 0; i < m_colorAttachments.size(); ++i)
-		drawBuffers[i] = GL_COLOR_ATTACHMENT0 + i;
-	glDrawBuffers(m_colorAttachments.size(), drawBuffers.get());
-
-	// Set read buffers to first color target.
-	glReadBuffer(GL_COLOR_ATTACHMENT0);
-
 	// Error checking
 #ifdef _DEBUG
 	assert(m_depthStencil.pTexture != NULL || m_colorAttachments.size() > 0 && "You cannot create empty FBOs! Need at least a depth/stencil buffer or a color attachment.");
@@ -89,19 +86,25 @@ void Framebuffer::Initialize(const std::vector<Attachment>& _colorAttachments, b
 		break;
 	//case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS
 	case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-		Jo::Logger::g_logger.Write("Error", "Not all attached images have the same width and height.");
+		LOG_ERROR("Not all attached images have the same width and height.");
 		break;
 	case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-		Jo::Logger::g_logger.Write("Error", "No images are attached to the framebuffer.");
+		LOG_ERROR("No images are attached to the framebuffer.");
 		break;
 	case GL_FRAMEBUFFER_UNSUPPORTED:
-		Jo::Logger::g_logger.Write("Error", "The combination of internal formats of the attached images violates an implementation - dependent set of restrictions.");
+		LOG_ERROR("The combination of internal formats of the attached images violates an implementation - dependent set of restrictions.");
 		break;
 	}
 	assert(framebufferStatus == GL_FRAMEBUFFER_COMPLETE && "Frame buffer creation failed!");
 
 	LogGlError("Framebuffer creation");
 #endif
+
+	// Restore framebuffer binding
+	if(Device::GetCurrentFramebufferBinding() != NULL)
+		glBindFramebuffer(GL_FRAMEBUFFER, Device::GetCurrentFramebufferBinding()->m_framebuffer);
+	else
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 Framebuffer::~Framebuffer()

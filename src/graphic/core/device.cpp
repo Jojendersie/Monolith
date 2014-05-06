@@ -147,8 +147,6 @@ namespace Graphic {
 
 		ActivateOpenGLDebugging();
 
-		glViewport(0, 0, _width, _height);
-
 		// Null the references
 		g_Device.m_currentEffect = nullptr;
 		g_Device.m_blendState = -1;
@@ -156,7 +154,10 @@ namespace Graphic {
 		g_Device.m_rasterizerState = -1;
 		for (int i = 0; i<8; ++i)
 			g_Device.m_samplerStates[i] = -1;
-		g_Device.s_BoundFrameBuffer = NULL;
+
+		// Bind the hardware-backbuffer.
+		glViewport(0, 0, _width, _height);
+		g_Device.m_BoundFrameBuffer = NULL;
 	}
 
 
@@ -173,7 +174,7 @@ namespace Graphic {
 		if( iHash != g_Device.m_rasterizerState )
 		{
 			g_Device.m_rasterizerState = iHash;
-			// Set all relateted states now.
+			// Set all related states now.
 			_state.Apply();
 #ifdef _DEBUG
 			LogGlError( "[Device::SetRasterizerState] Could not set rasterizer state" );
@@ -188,7 +189,7 @@ namespace Graphic {
 		if( iHash != g_Device.m_samplerStates[_location] )
 		{
 			g_Device.m_samplerStates[_location] = iHash;
-			// Set all relateted states now.
+			// Set all related states now.
 			_state.Apply(_location);
 #ifdef _DEBUG
 			LogGlError( "[Device::SetSamplerState] Could not set a sampler state" );
@@ -203,7 +204,7 @@ namespace Graphic {
 		if( iHash != g_Device.m_blendState )
 		{
 			g_Device.m_blendState = iHash;
-			// Set all relateted states now.
+			// Set all related states now.
 			_state.Apply();
 #ifdef _DEBUG
 			LogGlError( "[Device::SetBlendState] Could not set the blend state" );
@@ -218,7 +219,7 @@ namespace Graphic {
 		if( iHash != g_Device.m_depthStencilState )
 		{
 			g_Device.m_depthStencilState = iHash;
-			// Set all relateted states now.
+			// Set all related states now.
 			_state.Apply();
 #ifdef _DEBUG
 			LogGlError( "[Device::SetDepthStencilState] Could not set the depth stencil state" );
@@ -261,10 +262,24 @@ namespace Graphic {
 	{
 		if (_framebuffer)
 		{
-			if (g_Device.s_BoundFrameBuffer != _framebuffer)
+			if (g_Device.m_BoundFrameBuffer != _framebuffer)
 			{
+				unsigned int previousColorTargetCount = 1;
+				if (g_Device.m_BoundFrameBuffer != nullptr)
+					g_Device.m_BoundFrameBuffer->m_colorAttachments.size();
+
 				glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer->m_framebuffer);
-				g_Device.s_BoundFrameBuffer = _framebuffer;
+				g_Device.m_BoundFrameBuffer = _framebuffer;
+
+				// setup draw buffers
+				if (previousColorTargetCount != _framebuffer->m_colorAttachments.size())
+				{
+					static const GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3,
+															GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7,
+															GL_COLOR_ATTACHMENT8, GL_COLOR_ATTACHMENT9, GL_COLOR_ATTACHMENT10, GL_COLOR_ATTACHMENT11,
+															GL_COLOR_ATTACHMENT12, GL_COLOR_ATTACHMENT13, GL_COLOR_ATTACHMENT14, GL_COLOR_ATTACHMENT15 };
+					glDrawBuffers(_framebuffer->m_colorAttachments.size(), drawBuffers);
+				}
 
 				if (_autoViewportSet)
 				{
@@ -291,10 +306,14 @@ namespace Graphic {
 		}
 		else
 		{
-			if (g_Device.s_BoundFrameBuffer != NULL)
+			if (g_Device.m_BoundFrameBuffer != NULL)
 			{
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
-				g_Device.s_BoundFrameBuffer = NULL;
+
+				static const GLenum drawBuffers[] = { GL_BACK };
+				glDrawBuffers(1, drawBuffers);
+
+				g_Device.m_BoundFrameBuffer = NULL;
 			}
 
 #ifdef _DEBUG
@@ -303,6 +322,10 @@ namespace Graphic {
 		}
 	}
 
+	const Framebuffer* Device::GetCurrentFramebufferBinding()
+	{
+		return g_Device.m_BoundFrameBuffer;
+	}
 
 	void Device::Clear( float _r, float _g, float _b )
 	{

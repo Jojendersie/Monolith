@@ -1,2 +1,2 @@
 This directory contains:
- * Primitive basic graphic wrappers (DX/OpenGL)
+ * Primitive basic graphic wrappers (OpenGL)
