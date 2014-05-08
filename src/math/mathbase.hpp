@@ -14,7 +14,7 @@ namespace Math {
 	template<typename T> const T min(const T& a, const T& b)	{ return a<b ? a : b; }
 	template<typename T> const T max(const T& a, const T& b)	{ return a>b ? a : b; }
 	template<typename T> const T clamp(const T& x, const T& _min, const T& _max)	{ return x < _min ? _min : ( x > _max ? _max : x ); }
-	template<typename T> const T sqr(const T& a)				{ return a*a; }
+	template<typename T> const T sq(const T& a)					{ return T(a*a); }
 	/// \brief Round down to integer
 	inline int floor( const float a )							{ int r=(int)a; return r - (int)((a<0)&&(a-r!=0.0f)); }
 	/// \brief Round up to integer

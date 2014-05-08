@@ -35,7 +35,7 @@ public:
 	Plane(const Vec3& _n, float _d)											{ float invLength = 1.0f / length(_n); a = _n[0]*invLength; b = _n[1]*invLength; c = _n[2]*invLength; d = _d*invLength; }
 	Plane(const Vec3& _p, const Vec3& _n)									{ float invLength = 1.0f / length(_n); a = _n[0]*invLength; b = _n[1]*invLength; c = _n[2]*invLength; d = -n[0] * _p[0] - n[1] * _p[1] - n[2] * _p[2]; }
 	Plane(const Vec3& v1, const Vec3& v2, const Vec3& v3)					{ Vec3 _n=cross(v3 - v2, v1 - v2); float invLength = length(_n); a = _n[0]*invLength; b = _n[1]*invLength; c = _n[2]*invLength; d = -n[0] * v1[0] - n[1] * v1[1] - n[2] * v1[2]; }
-	Plane(const Vec4& _plane)												{ float invLength = 1.0f / sqrt(sqr(_plane[0])+sqr(_plane[1])+sqr(_plane[2])); a = _plane[0]*invLength; b = _plane[1]*invLength; c = _plane[2]*invLength; d = _plane[3]*invLength; }
+	Plane(const Vec4& _plane)												{ float invLength = 1.0f / sqrt(sq(_plane[0])+sq(_plane[1])+sq(_plane[2])); a = _plane[0]*invLength; b = _plane[1]*invLength; c = _plane[2]*invLength; d = _plane[3]*invLength; }
 
 	// Casting-operators
 	operator float* ()				{ return (float*)(this); }

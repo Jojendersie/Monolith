@@ -12,10 +12,10 @@ namespace Math {
 	{
 	public:
 		Transformation() : m_x(0ll), m_y(0ll), m_z(0ll) {}
-		Transformation(Fixed _x, Fixed _y, Fixed _z, const Quaternion& _rotation) : m_x(_x), m_y(_y), m_z(_z), m_rotation(_rotation)	{}
+		Transformation(Fix _x, Fix _y, Fix _z, const Quaternion& _rotation) : m_x(_x), m_y(_y), m_z(_z), m_rotation(_rotation)	{}
 
 		/// \brief Move the object.
-		void translate( const Vec3& _vector )	{ m_x += _vector[0]; m_y += _vector[1]; m_z += _vector[2]; }
+		void translate( const Vec3& _vector )	{ m_x += Fix(_vector[0]); m_y += Fix(_vector[1]); m_z += Fix(_vector[2]); }
 
 		void rotate( const Quaternion& _rot )					{ m_rotation *= _rot; }
 		void rotate( float _yaw, float _pitch, float _roll )	{ m_rotation *= Quaternion( _yaw, _pitch, _roll ); }
@@ -34,9 +34,9 @@ namespace Math {
 		/// \brief Get the squared distance between two transformed points in space.
 		float distanceSq(const Transformation& _object);
 	private:
-		Fixed m_x;				///< Position x coordinate
-		Fixed m_y;				///< Position y coordinate
-		Fixed m_z;				///< Position z coordinate
+		Fix m_x;				///< Position x coordinate
+		Fix m_y;				///< Position y coordinate
+		Fix m_z;				///< Position z coordinate
 		Quaternion m_rotation;	///< Standard rotation component
 	};
 
