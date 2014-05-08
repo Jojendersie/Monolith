@@ -48,9 +48,9 @@ namespace Voxel {
 		VoxelType Get( const Math::IVec3& _position, int _level ) const;
 
 		/// \brief Get the center of gravity (mass center)
-		Math::Vec3 GetCenter() const						{ return m_center + m_position; }
+		Math::Vec3 GetPosition() const						{ return m_position; }
 		/// \brief Set the position of the model based on its current center of gravity
-		void SetCenter(const Math::Vec3& _position)			{ m_position = _position - m_center; }
+		void SetPosition(const Math::Vec3& _position)		{ m_position = _position; }
 		/// \brief Rotate without any physical influence (rotatory velocity
 		///		will be unchanged, no test for breaking of)
 		void Rotate( const Math::Quaternion& _rotation )	{ m_rotation *= _rotation; }

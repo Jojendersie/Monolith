@@ -57,7 +57,7 @@ void GSPlay::OnBegin()
 	if( !m_astTest )
 	{
 		m_astTest = new Generators::Asteroid( 80, 50, 30, 2 );
-		m_astTest->SetCenter( Vec3(0.0f) );
+		m_astTest->SetPosition( Vec3(0.0f) );
 	}
 	m_camera->ZoomAt( *m_astTest );
 

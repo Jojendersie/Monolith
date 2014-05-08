@@ -60,7 +60,7 @@ namespace Input {
 			// Do an object relative rotation.
 			// In soft case the reference point is recomputed since we don't
 			// want to jump back but center movement at the object
-			if( !m_hardAttached ) m_referencePos = m_view.Transform( m_attachedTo->GetCenter() );
+			if( !m_hardAttached ) m_referencePos = m_view.Transform( m_attachedTo->GetPosition() );
 			m_rotation = m_rotation * Math::Quaternion( -_theta, _phi, 0.0f );
 			NormalizeReference();
 		} else
@@ -118,7 +118,7 @@ namespace Input {
 	{
 		m_attachedTo = _model;
 		// Compute actual reference frame.
-		m_referencePos = _model->GetCenter() * m_view;
+		m_referencePos = _model->GetPosition() * m_view;
 	}
 
 	// ********************************************************************* //
@@ -129,7 +129,7 @@ namespace Input {
 			// Transform by rotation inverse (which is multiplying from right for
 			// rotations)
 			Math::Mat4x4 mCurrentView = Mat4x4::Rotation( m_rotation );
-			m_position = m_attachedTo->GetCenter() - mCurrentView * m_referencePos;
+			m_position = m_attachedTo->GetPosition() - mCurrentView * m_referencePos;
 		//} else
 		//	LOG_LVL1("Camera is not attached and cannot be set to a reference position.");
 	}

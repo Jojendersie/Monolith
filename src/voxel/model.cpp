@@ -138,7 +138,7 @@ namespace Voxel {
 	// ********************************************************************* //
 	Math::Mat4x4& Model::GetModelMatrix( Math::Mat4x4& _out ) const
 	{
-		_out = Mat4x4::Translation(-m_center) * Mat4x4::Rotation(m_rotation) * Mat4x4::Translation(m_position + m_center);
+		_out = Mat4x4::Translation(-m_center) * Mat4x4::Rotation(m_rotation) * Mat4x4::Translation(m_position);
 		return _out;
 	}
 
@@ -179,7 +179,7 @@ namespace Voxel {
 	{
 		// Convert ray to model space
 		// TODO: Mat4x4::Scaling(m_scale)
-		Math::Mat4x4 inverseModelTransform = Mat4x4::Translation( -m_position - m_center ) * Mat4x4::Rotation(m_rotation).Transposed() * Mat4x4::Translation(m_center);
+		Math::Mat4x4 inverseModelTransform = Mat4x4::Translation( -m_position ) * Mat4x4::Rotation(m_rotation).Transposed() * Mat4x4::Translation(m_center);
 		Math::Ray ray = _ray * inverseModelTransform;
 		return m_voxelTree.RayCast(ray, _targetLevel, _hit);
 	}
