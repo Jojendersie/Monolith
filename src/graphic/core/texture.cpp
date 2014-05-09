@@ -94,35 +94,26 @@ Texture::Texture(unsigned int _width, unsigned int _height, const Format& format
 	}
 	Assert(_width != 0 && _height != 0,  "Invalid texture dimension!");
 
-	glGenTextures(1, &m_textureID);
-
-	glBindTexture(m_bindingPoint, m_textureID);
-#ifdef _DEBUG
-	LogGlError("Could not bind a texture");
-#endif
+	GL_CALL(glGenTextures, 1, &m_textureID);
+	GL_CALL(glBindTexture, m_bindingPoint, m_textureID);  // Todo: Tell device that a texture has changed
 
 	for (unsigned int i = 0; i < m_numMipLevels; ++i)
 	{
-		glTexImage2D(m_bindingPoint, 0, format.internalFormat, m_width, m_height, 0, format.format, format.type, NULL);
+		GL_CALL(glTexImage2D, m_bindingPoint, 0, format.internalFormat, m_width, m_height, 0, format.format, format.type, nullptr);
 	}
-#ifdef _DEBUG
-	LogGlError("Could not create a texture");
-#endif
 
 	SetDefaultTextureParameter();
 
-	glBindTexture(m_bindingPoint, 0);
+	GL_CALL(glBindTexture, m_bindingPoint, 0);  // Todo: Tell device that a texture has changed
 }
 
 Texture::Texture( const std::string& _fileName ) :
 	m_numMipLevels(1)
 {
-	glGenTextures( 1, &m_textureID );
-	LogGlError("Could not create a texture");
+	GL_CALL(glGenTextures, 1, &m_textureID);
 
 	m_bindingPoint = GL_TEXTURE_2D;	// TODO switch
-	glBindTexture(m_bindingPoint, m_textureID);
-	LogGlError("Could not bind a texture");
+	GL_CALL(glBindTexture, m_bindingPoint, m_textureID); // Todo: Tell device that a texture has changed
 
 	Jo::Files::HDDFile file(_fileName);
 	Jo::Files::ImageWrapper image(file, Jo::Files::Format::PNG );
@@ -138,32 +129,28 @@ Texture::Texture( const std::string& _fileName ) :
 	do {
         width = Math::max(1, (width / 2));
         height = Math::max(1, (height / 2));
-		glTexImage2D(m_bindingPoint, level, format.internalFormat, width, height, 0,
-					format.format, format.type, level==0? image.GetBuffer() : nullptr);
+		GL_CALL(glTexImage2D, m_bindingPoint, level, format.internalFormat, width, height, 0,
+								format.format, format.type, level==0? image.GetBuffer() : nullptr);
 		++level;
     } while( width * height > 1 );
 
-	LogGlError("Allocating memory for a texture failed");
-
+	
 	m_numMipLevels = GetMaxPossibleMipMapLevels();
 	SetDefaultTextureParameter();
 
-	glGenerateMipmap( m_bindingPoint );
+	GL_CALL(glGenerateMipmap, m_bindingPoint);
 
-	LogGlError("Something in texture upload and setup failed");
-
-	glBindTexture(m_bindingPoint, 0);
+	GL_CALL(glBindTexture, m_bindingPoint, 0); // Todo: Tell device that a texture has changed
 }
 
 
 Texture::Texture( const std::vector<std::string>& _fileNames ) :
 	m_numMipLevels(1)
 {
-	glGenTextures( 1, &m_textureID );
-	LogGlError("Could not create a texture");
+	GL_CALL(glGenTextures, 1, &m_textureID);
+
 	m_bindingPoint = GL_TEXTURE_2D_ARRAY;
-	glBindTexture( GL_TEXTURE_2D_ARRAY, m_textureID );
-	LogGlError("Could not bind a texture");
+	GL_CALL(glBindTexture, GL_TEXTURE_2D_ARRAY, m_textureID); // Todo: Tell device that a texture has changed
 
 	// Use first file as reference file.
 	Jo::Files::HDDFile firstFile(_fileNames[0]);
@@ -181,57 +168,55 @@ Texture::Texture( const std::vector<std::string>& _fileNames ) :
 	do {
         width = Math::max(1, (width / 2));
         height = Math::max(1, (height / 2));
-        glTexImage3D(m_bindingPoint, level, format.internalFormat, width, height, _fileNames.size(),
-							0, format.format, format.type, nullptr);
+		GL_CALL(glTexImage3D, m_bindingPoint, level, format.internalFormat, width, height, _fileNames.size(),
+							  0, format.format, format.type, nullptr);
 		++level;
-    } while( width * height > 1 );
-	LogGlError("Allocating memory for a texture failed");
-
+	} while (width * height > 1);
 	// Upload pixel data of first image.
-	glTexSubImage3D( m_bindingPoint, 0, 0, 0, 0, firstImage.Width(), firstImage.Height(), 1,
-		format.format, format.type, firstImage.GetBuffer());
-	LogGlError("glTexSubImage3D failed");
+	GL_CALL(glTexSubImage3D, m_bindingPoint, 0, 0, 0, 0, firstImage.Width(), firstImage.Height(), 1,
+							format.format, format.type, firstImage.GetBuffer());
 
 	// Load all images from file.
 	for( size_t i=1; i<_fileNames.size(); ++i )
 	{
-		try {
+		try
+		{
 			Jo::Files::HDDFile file(_fileNames[i]);
 			Jo::Files::ImageWrapper image(file, Jo::Files::Format::PNG );
 			Assert(image.Width() == firstImage.Width() && image.Height() == firstImage.Height(), "All images in texture array need to have the same dimensions.");
 			// Upload pixel data.
-			glTexSubImage3D( GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, firstImage.Width(), firstImage.Height(), 1,
+			GL_CALL(glTexSubImage3D, GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, firstImage.Width(), firstImage.Height(), 1,
 				format.format, format.type, image.GetBuffer());
-		} catch( std::string _message ) {
+		}
+		catch( std::string _message )
+		{
 			LOG_ERROR(_message + ". Will use first texture of the texture array as fall back.");
 			// Upload alternative pixel data.
-			glTexSubImage3D( GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, firstImage.Width(), firstImage.Height(), 1,
+			GL_CALL(glTexSubImage3D, GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, firstImage.Width(), firstImage.Height(), 1,
 				format.format, format.type, firstImage.GetBuffer());
 		}
-		LogGlError("glTexSubImage3D failed");
 	}
 
 	m_numMipLevels = GetMaxPossibleMipMapLevels();
 	SetDefaultTextureParameter();
 
-	glGenerateMipmap(m_bindingPoint);
+	GL_CALL(glGenerateMipmap, m_bindingPoint);
 
-	LogGlError("Something in texture upload and setup failed");
 
 	// Unbind to avoid later side effects
-	glBindTexture(m_bindingPoint, 0);
+	GL_CALL(glBindTexture, m_bindingPoint, 0); // Todo: Tell device that a texture has changed
 }
 
 void Texture::SetDefaultTextureParameter()
 {
 	// Always set some texture parameters (required for some drivers)
-	glTexParameteri(m_bindingPoint, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	GL_CALL(glTexParameteri, m_bindingPoint, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	// Use nearest by default for more voxel feeling
-	glTexParameteri(m_bindingPoint, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	GL_CALL(glTexParameteri, m_bindingPoint, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	// Define valid mipmap range. See https://www.opengl.org/wiki/Common_Mistakes#Creating_a_complete_texture
-	glTexParameteri(m_bindingPoint, GL_TEXTURE_BASE_LEVEL, 0);
-	glTexParameteri(m_bindingPoint, GL_TEXTURE_MAX_LEVEL, m_numMipLevels-1);
+	GL_CALL(glTexParameteri, m_bindingPoint, GL_TEXTURE_BASE_LEVEL, 0);
+	GL_CALL(glTexParameteri, m_bindingPoint, GL_TEXTURE_MAX_LEVEL, m_numMipLevels - 1);
 }
 
 unsigned int Texture::GetMaxPossibleMipMapLevels()
@@ -254,7 +239,7 @@ unsigned int Texture::GetMaxPossibleMipMapLevels()
 
 Texture::~Texture()
 {
-	glDeleteTextures( 1, &m_textureID );
+	GL_CALL(glDeleteTextures, 1, &m_textureID);
 }
 
 }; // namespace Graphic
