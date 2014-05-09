@@ -45,8 +45,8 @@ namespace Details
 	#define __GL_CALL_HANDLING_RET(openGLFunctionName, openGLFunction, ...) \
 	{ \
 		if (!CheckGLFunctionExistsAndReport	(openGLFunctionName, openGLFunction)) \
-			return GLResult::FAILED; \
-		GLuint out = openGLFunction(__VA_ARGS__); \
+			return 0; \
+		auto out = openGLFunction(__VA_ARGS__); \
 		CheckGLError(openGLFunctionName); \
 		return out; \
 	}
@@ -99,6 +99,11 @@ namespace Details
 	GLuint CheckedGLCall_Ret(const char* openGLFunctionName, GlFunction openGLFunction) __GL_CALL_HANDLING_RET(openGLFunctionName, openGLFunction);
 	template<typename GlFunction, typename Arg0>
 	GLuint CheckedGLCall_Ret(const char* openGLFunctionName, GlFunction openGLFunction, Arg0 arg0) __GL_CALL_HANDLING_RET(openGLFunctionName, openGLFunction, arg0);
+	template<typename GlFunction, typename Arg0, typename Arg1>
+	GLuint CheckedGLCall_Ret(const char* openGLFunctionName, GlFunction openGLFunction, Arg0 arg0, Arg1 arg1) __GL_CALL_HANDLING_RET(openGLFunctionName, openGLFunction, arg0, arg1);
+	template<typename GlFunction, typename Arg0, typename Arg1, typename Arg2>
+	GLuint CheckedGLCall_Ret(const char* openGLFunctionName, GlFunction openGLFunction, Arg0 arg0, Arg1 arg1, Arg2 arg2) __GL_CALL_HANDLING_RET(openGLFunctionName, openGLFunction, arg0, arg1, arg2);
+
 }
 
 // Remove internal call handling helper macro.

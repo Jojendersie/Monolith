@@ -51,6 +51,21 @@
     <Filter Include="Resource Files\postprocessing">
       <UniqueIdentifier>{dc61f87e-e68e-4ff8-9433-7e7658d9177e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\dependencies">
+      <UniqueIdentifier>{80c09e81-3836-4cae-8522-e413f05b47bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dependencies\glew">
+      <UniqueIdentifier>{ce0dcc39-d95f-4357-92b4-d5e5c6d6e1d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dependencies\glfw">
+      <UniqueIdentifier>{3442d994-7692-42af-b028-e664c2528e9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dependencies\FileWatcher">
+      <UniqueIdentifier>{b10c3063-c3db-4b15-abe0-25aa62f218de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dependencies\JoFileLib">
+      <UniqueIdentifier>{aad1fd60-67da-4a84-85fc-0450a7ce9308}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
@@ -202,6 +217,18 @@
     </ClCompile>
     <ClCompile Include="src\utilities\assert.cpp">
       <Filter>Source Files\utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\FileWatcher\FileWatcherLinux.cpp">
+      <Filter>Source Files\dependencies\FileWatcher</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\FileWatcher\FileWatcherOSX.cpp">
+      <Filter>Source Files\dependencies\FileWatcher</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\FileWatcher\FileWatcherWin32.cpp">
+      <Filter>Source Files\dependencies\FileWatcher</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\FileWatcher\FileWatcher.cpp">
+      <Filter>Source Files\dependencies\FileWatcher</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -388,6 +415,69 @@
     <ClInclude Include="src\utilities\assert.hpp">
       <Filter>Source Files\utilities</Filter>
     </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\hybridarray.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\imagewrapper.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\jofilelib.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\memfile.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\plattform.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\poolallocator.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\streamreader.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\file.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\fileutils.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\filewrapper.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\hddfile.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\glfw-3.0.3\include\GLFW\glfw3native.h">
+      <Filter>Source Files\dependencies\glfw</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\glfw-3.0.3\include\GLFW\glfw3.h">
+      <Filter>Source Files\dependencies\glfw</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\glew-1.10.0\include\GL\glxew.h">
+      <Filter>Source Files\dependencies\glew</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\glew-1.10.0\include\GL\wglew.h">
+      <Filter>Source Files\dependencies\glew</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\glew-1.10.0\include\GL\glew.h">
+      <Filter>Source Files\dependencies\glew</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\FileWatcher\FileWatcherLinux.h">
+      <Filter>Source Files\dependencies\FileWatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\FileWatcher\FileWatcherOSX.h">
+      <Filter>Source Files\dependencies\FileWatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\FileWatcher\FileWatcherWin32.h">
+      <Filter>Source Files\dependencies\FileWatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\FileWatcher\FileWatcher.h">
+      <Filter>Source Files\dependencies\FileWatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\FileWatcher\FileWatcherImpl.h">
+      <Filter>Source Files\dependencies\FileWatcher</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\voxel.ps">
@@ -438,5 +528,13 @@
     <None Include="shader\postprocessing\screentri.vs">
       <Filter>Resource Files\postprocessing</Filter>
     </None>
+    <None Include="shader\postprocessing\ambientocclusion.ps">
+      <Filter>Resource Files\postprocessing</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="dependencies\FileWatcher\License.txt">
+      <Filter>Source Files\dependencies\FileWatcher</Filter>
+    </Text>
   </ItemGroup>
 </Project>

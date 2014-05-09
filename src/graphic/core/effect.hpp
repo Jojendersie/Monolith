@@ -7,6 +7,9 @@
 #include "blendstate.hpp"
 #include "depthstencilstate.hpp"
 
+/// Remove this define to disable FileWatcher on all shader files.
+#define AUTO_SHADER_RELOAD
+
 namespace Graphic {
 
 	class UniformBuffer;
@@ -50,6 +53,11 @@ namespace Graphic {
 		///		are read.
 		void BindTexture( const char* _name, unsigned _location, const SamplerState& _sampler );
 
+#ifdef AUTO_SHADER_RELOAD
+		/// Triggers shader reloads for changed shaders.
+		static void UpdateShaderFileWatcher();
+#endif
+
 	private:
 		RasterizerState m_rasterizerState;		///< The rasterizer state
 		BlendState m_blendState;				///< Effect blend mode
@@ -71,6 +79,21 @@ namespace Graphic {
 		unsigned m_geometryShader;
 		unsigned m_pixelShader;
 		unsigned m_programID;
+			
+
+#ifdef AUTO_SHADER_RELOAD
+
+		friend class ShaderFileWatch;
+
+		void AddToFileWatcher(const std::string& _VSFile, const std::string& _GSFile, const std::string& _PSFile);
+		void RemoveFromFileWatcher();
+		void HandleChangedShaderFile(const std::string& shaderFilename);
+
+		std::string m_OriginalVSFile;
+		std::string m_OriginalGSFile;
+		std::string m_OriginalPSFile;
+
+#endif
 
 		/// \brief Commit all changes in the bound constant buffers before a
 		///		draw call.

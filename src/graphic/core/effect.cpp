@@ -1,7 +1,17 @@
 #include "effect.hpp"
 #include "opengl.hpp"
 #include "uniformbuffer.hpp"
+#include "utilities\assert.hpp"
+
 #include <cstdint>
+
+#ifdef AUTO_SHADER_RELOAD
+	#include "../../../dependencies/FileWatcher/FileWatcher.h"
+
+	#include <unordered_set>
+	#include <unordered_map>
+#endif
+
 
 namespace Graphic {
 
@@ -10,6 +20,8 @@ namespace Graphic {
 		if( !_fileName || *_fileName==0 ) return 0;
 		unsigned shaderID = glCreateShader(_shaderType);
 		if(!shaderID) {LOG_ERROR("Could not create a shader!"); return 0;}
+
+		Assert(strstr(_fileName, "\\") == nullptr, "A shader path uses backslashes. Please avoid this, since Unix systems rely on forward slashes as path separators!");
 
 		// Read in file
 		FILE* file = fopen( _fileName, "rb" );
@@ -24,13 +36,13 @@ namespace Graphic {
 
 		// Compile
 		const GLchar* sourceConst = (GLchar*)source;
-		glShaderSource(shaderID, 1, &sourceConst, nullptr);
-		glCompileShader(shaderID);
+		GL_CALL(glShaderSource, shaderID, 1, &sourceConst, nullptr);
+		GL_CALL(glCompileShader, shaderID);
 		free( source );
 
 		// Compilation success?
 		GLint res;
-		glGetShaderiv( shaderID, GL_COMPILE_STATUS, &res );
+		GL_CALL(glGetShaderiv, shaderID, GL_COMPILE_STATUS, &res);
 		if( res == GL_TRUE )
 		{
 			LOG_LVL2("Successfully loaded shader: '" + std::string(_fileName) + "'");
@@ -38,9 +50,9 @@ namespace Graphic {
 		{
 			GLsizei charsWritten  = 0;
 
-			glGetShaderiv( shaderID, GL_INFO_LOG_LENGTH, &res );
+			GL_CALL(glGetShaderiv, shaderID, GL_INFO_LOG_LENGTH, &res);
 			char* log = (char *)malloc(res);
-			glGetShaderInfoLog( shaderID, res, &charsWritten, log );
+			GL_CALL(glGetShaderInfoLog, shaderID, res, &charsWritten, log);
 			LOG_ERROR("Error in compiling the shader '" + std::string(_fileName) + "': " + log);
 			free( log );
 		}
@@ -67,21 +79,25 @@ namespace Graphic {
 		}
 
 		// Create new program
-		m_programID = glCreateProgram();
+		m_programID = GL_RET_CALL(glCreateProgram);
 
 		// Link
-		glAttachShader(m_programID, m_vertexShader);
-		glAttachShader(m_programID, m_pixelShader);
-		glLinkProgram(m_programID);
+		GL_CALL(glAttachShader, m_programID, m_vertexShader);
+		GL_CALL(glAttachShader, m_programID, m_pixelShader);
+		GL_CALL(glLinkProgram, m_programID);
 
 		// Check of linking the shader program worked
 		GLint testResult;
-		glGetProgramiv(m_programID, GL_LINK_STATUS, &testResult);
+		GL_CALL(glGetProgramiv, m_programID, GL_LINK_STATUS, &testResult);
 		if (testResult == GL_FALSE) {
 			char acInfoLog[512];
-			glGetProgramInfoLog(m_programID, 512, 0, acInfoLog);
+			GL_CALL(glGetProgramInfoLog, m_programID, 512, nullptr, acInfoLog);
 			LOG_ERROR(std::string("Failed to build shader program:") + acInfoLog);
 		}
+
+#ifdef AUTO_SHADER_RELOAD
+		AddToFileWatcher(_VSFile, "", _PSFile);
+#endif
 	}
 
 	// ********************************************************************* //
@@ -103,33 +119,185 @@ namespace Graphic {
 		}
 
 		// Create new program
-		m_programID = glCreateProgram();
+		m_programID = GL_RET_CALL(glCreateProgram);
 
 		// Link
-		glAttachShader(m_programID, m_vertexShader);
-		glAttachShader(m_programID, m_geometryShader);
-		glAttachShader(m_programID, m_pixelShader);
-		glLinkProgram(m_programID);
+		GL_CALL(glAttachShader, m_programID, m_vertexShader);
+		GL_CALL(glAttachShader, m_programID, m_geometryShader);
+		GL_CALL(glAttachShader, m_programID, m_pixelShader);
+		GL_CALL(glLinkProgram, m_programID);
 
 		// Check of linking the shader program worked
 		GLint testResult;
-		glGetProgramiv(m_programID, GL_LINK_STATUS, &testResult);
+		GL_CALL(glGetProgramiv, m_programID, GL_LINK_STATUS, &testResult);
 		if (testResult == GL_FALSE) {
 			char acInfoLog[512];
-			glGetProgramInfoLog(m_programID, 512, 0, acInfoLog);
+			GL_CALL(glGetProgramInfoLog, m_programID, 512, nullptr, acInfoLog);
 			LOG_ERROR(std::string("Failed to build shader program:") + acInfoLog);
 		}
+
+
+#ifdef AUTO_SHADER_RELOAD
+		AddToFileWatcher(_VSFile, _GSFile, _PSFile);
+#endif
 	}
 
 	// ********************************************************************* //
 	Effect::~Effect()
 	{
-		glDeleteProgram(m_programID);
+#ifdef AUTO_SHADER_RELOAD
+		RemoveFromFileWatcher();
+#endif
 
-		glDeleteShader(m_vertexShader);
-		glDeleteShader(m_geometryShader);
-		glDeleteShader(m_pixelShader);
+		GL_CALL(glDeleteProgram, m_programID);
+
+		GL_CALL(glDeleteShader, m_vertexShader);
+		GL_CALL(glDeleteShader, m_geometryShader);
+		GL_CALL(glDeleteShader, m_pixelShader);
 	}
+
+#ifdef AUTO_SHADER_RELOAD
+
+	class ShaderFileWatch : FW::FileWatchListener
+	{
+	public:
+
+		/// Registers a new effect to the watcher to be notified when changes occur in its directory of interest.
+		void RegisterEffect(const std::string& watchedDirectory, Effect* listeningEffect)
+		{
+			if (watchedDirectory == "")
+				return;
+
+			auto element = m_listeningEffects.emplace(watchedDirectory, std::unordered_set<Effect*>());
+			if (!element.second) // New directory
+				m_fileWatcher.addWatch(watchedDirectory, this);
+			element.first->second.insert(listeningEffect);
+		}
+
+		/// Removes effect from all directories.
+		void UnregisterEffect(Effect* effect)
+		{
+			for (auto dirEntry = m_listeningEffects.begin(); dirEntry != m_listeningEffects.end(); ++dirEntry)
+			{
+				dirEntry->second.erase(effect);
+				if (dirEntry->second.empty())
+				{
+					m_fileWatcher.removeWatch(dirEntry->first);
+					dirEntry = m_listeningEffects.erase(dirEntry);
+					if (dirEntry == m_listeningEffects.end())
+						break;
+				}
+			}
+		}
+
+		/// Updates intern filewatcher
+		void Update()
+		{
+			m_fileWatcher.update();
+		}
+
+	private: 
+		/// Broadcasts file changes to listening shaders.
+		virtual void handleFileAction(FW::WatchID watchid, const FW::String& dir, const FW::String& filename, FW::Action action) override
+		{
+			if (action != FW::Actions::Modified)
+				return;
+
+			auto entry = m_listeningEffects.find(dir);
+			Assert(entry != m_listeningEffects.end(), "Changed directory is not registered as watched directory!");
+			for (Effect* effect : entry->second)
+				effect->HandleChangedShaderFile(dir + filename);
+		}
+
+		FW::FileWatcher m_fileWatcher;
+		std::unordered_map<std::string, std::unordered_set<Effect*>> m_listeningEffects;
+	};
+
+	static ShaderFileWatch s_fileChangeListener;
+
+	void Effect::UpdateShaderFileWatcher()
+	{
+		s_fileChangeListener.Update();
+	}
+
+	void Effect::AddToFileWatcher(const std::string& _VSFile, const std::string& _GSFile, const std::string& _PSFile)
+	{
+		m_OriginalVSFile = _VSFile;
+		m_OriginalGSFile = _GSFile;
+		m_OriginalPSFile = _PSFile;
+
+		s_fileChangeListener.RegisterEffect(_VSFile.substr(0, _VSFile.find_last_of('/') + 1), this);
+		s_fileChangeListener.RegisterEffect(_GSFile.substr(0, _GSFile.find_last_of('/') + 1), this);
+		s_fileChangeListener.RegisterEffect(_PSFile.substr(0, _PSFile.find_last_of('/') + 1), this);
+	}
+
+	void Effect::RemoveFromFileWatcher()
+	{
+		s_fileChangeListener.UnregisterEffect(this);
+	}
+
+	void Effect::HandleChangedShaderFile(const std::string& shaderFilename)
+	{
+		unsigned int shaderType = 0;
+		if (shaderFilename == m_OriginalVSFile)
+			shaderType = GL_VERTEX_SHADER;
+		else if (shaderFilename == m_OriginalPSFile)
+			shaderType = GL_FRAGMENT_SHADER;
+		else if (shaderFilename == m_OriginalGSFile)
+			shaderType = GL_GEOMETRY_SHADER;
+		else
+			return;
+
+
+		unsigned int newShader = LoadShader(shaderFilename.c_str(), shaderType);
+		if (newShader == 0)
+		{
+			LOG_ERROR("Failed to reload shader " + shaderFilename + " on change. Will keep old one");
+			return;
+		}
+
+		unsigned int newProgramID = GL_RET_CALL(glCreateProgram);
+
+		GL_CALL(glAttachShader, newProgramID, shaderType == GL_VERTEX_SHADER ? newShader : m_vertexShader);
+		GL_CALL(glAttachShader, newProgramID, shaderType == GL_FRAGMENT_SHADER ? newShader : m_pixelShader);
+		if (m_geometryShader != 0)
+			GL_CALL(glAttachShader, newProgramID, shaderType == GL_GEOMETRY_SHADER ? newShader : m_geometryShader);
+
+		if (GL_CALL(glLinkProgram, newProgramID) == GLResult::SUCCESS)
+		{
+			m_programID = newProgramID;
+
+			switch (shaderType)
+			{
+			case GL_VERTEX_SHADER:
+				GL_CALL(glDeleteShader, m_vertexShader);
+				m_vertexShader = newShader;
+				break;
+
+			case GL_FRAGMENT_SHADER:
+				GL_CALL(glDeleteShader, m_pixelShader);
+				m_pixelShader = newShader;
+				break;
+
+			case GL_GEOMETRY_SHADER:
+				GL_CALL(glDeleteShader, m_geometryShader);
+				m_geometryShader = newShader;
+				break;
+
+			default:
+				Assert(true, "Incomplete shader auto reload implementation for the given shader type!");
+			};
+
+			LOG_LVL0("Successfully reloaded the shader " + shaderFilename);
+		}
+		else
+		{
+			GL_CALL(glDeleteProgram, newProgramID);
+			GL_CALL(glDeleteShader, newShader);
+		}
+	}
+
+#endif
 
 	// ********************************************************************* //
 	void Effect::BindUniformBuffer( UniformBuffer& _uniformBuffer )
@@ -140,22 +308,22 @@ namespace Graphic {
 
 		m_boundUniformBuffers.push_back( &_uniformBuffer );
 
-		unsigned index = glGetUniformBlockIndex(m_programID, _uniformBuffer.GetName().c_str());
+		unsigned index = GL_RET_CALL(glGetUniformBlockIndex, m_programID, _uniformBuffer.GetName().c_str()); /// \todo Do this in bulk at loading. This a slow operation that can be avoided
+		
 		// Ignore the errors. There are shaders without the blocks
-		if( !glGetError() && index!=GL_INVALID_INDEX ) {
-			glUniformBlockBinding(m_programID, index, _uniformBuffer.GetBufferBaseIndex());
-		}
+		if( index != GL_INVALID_INDEX )
+			GL_CALL(glUniformBlockBinding, m_programID, index, _uniformBuffer.GetBufferBaseIndex());
 	}
 
 	// ********************************************************************* //
 	void Effect::BindTexture( const char* _name, unsigned _location, const SamplerState& _sampler )
 	{
 		// First bind the texture
-		glUseProgram( m_programID );
-		GLint uniformLocation = glGetUniformLocation(m_programID, _name);
+		GL_CALL(glUseProgram, m_programID);
+		GLint uniformLocation = GL_RET_CALL(glGetUniformLocation, m_programID, _name);
 		LogGlError("[Effect::BindTexture] Uniform location not found");
 
-		glUniform1i(uniformLocation, _location);
+		GL_CALL(glUniform1i, uniformLocation, _location);
 		LogGlError("[Effect::BindTexture] Failed to set the uniform sampler variable.");
 
 		// Now store or overwrite the sampler state binding.

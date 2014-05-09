@@ -18,6 +18,7 @@
 #include "graphic/core/device.hpp"
 #include "graphic/core/texture.hpp"
 #include "graphic/core/framebuffer.hpp"
+#include "graphic/core/effect.hpp"
 #include "graphic/core/uniformbuffer.hpp"
 #include "graphic/highlevel/postprocessing.h"
 #include "graphic/content.hpp"
@@ -139,6 +140,10 @@ void Monolith::Run()
 
 			glfwSwapBuffers(Graphic::Device::GetWindow());
 			glfwPollEvents();
+
+#ifdef AUTO_SHADER_RELOAD
+			Graphic::Effect::UpdateShaderFileWatcher();
+#endif
 
 
 			//glFinish();

@@ -79,6 +79,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="dependencies\FileWatcher\FileWatcher.cpp" />
+    <ClCompile Include="dependencies\FileWatcher\FileWatcherLinux.cpp" />
+    <ClCompile Include="dependencies\FileWatcher\FileWatcherOSX.cpp" />
+    <ClCompile Include="dependencies\FileWatcher\FileWatcherWin32.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\gamestates\gseditor.cpp" />
     <ClCompile Include="src\gamestates\gseditorchoice.cpp" />
@@ -131,6 +135,27 @@
     <ClCompile Include="src\voxel\voxel.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dependencies\FileWatcher\FileWatcher.h" />
+    <ClInclude Include="dependencies\FileWatcher\FileWatcherImpl.h" />
+    <ClInclude Include="dependencies\FileWatcher\FileWatcherLinux.h" />
+    <ClInclude Include="dependencies\FileWatcher\FileWatcherOSX.h" />
+    <ClInclude Include="dependencies\FileWatcher\FileWatcherWin32.h" />
+    <ClInclude Include="dependencies\glew-1.10.0\include\GL\glew.h" />
+    <ClInclude Include="dependencies\glew-1.10.0\include\GL\glxew.h" />
+    <ClInclude Include="dependencies\glew-1.10.0\include\GL\wglew.h" />
+    <ClInclude Include="dependencies\glfw-3.0.3\include\GLFW\glfw3.h" />
+    <ClInclude Include="dependencies\glfw-3.0.3\include\GLFW\glfw3native.h" />
+    <ClInclude Include="dependencies\JoFileLib\include\file.hpp" />
+    <ClInclude Include="dependencies\JoFileLib\include\fileutils.hpp" />
+    <ClInclude Include="dependencies\JoFileLib\include\filewrapper.hpp" />
+    <ClInclude Include="dependencies\JoFileLib\include\hddfile.hpp" />
+    <ClInclude Include="dependencies\JoFileLib\include\hybridarray.hpp" />
+    <ClInclude Include="dependencies\JoFileLib\include\imagewrapper.hpp" />
+    <ClInclude Include="dependencies\JoFileLib\include\jofilelib.hpp" />
+    <ClInclude Include="dependencies\JoFileLib\include\memfile.hpp" />
+    <ClInclude Include="dependencies\JoFileLib\include\plattform.hpp" />
+    <ClInclude Include="dependencies\JoFileLib\include\poolallocator.hpp" />
+    <ClInclude Include="dependencies\JoFileLib\include\streamreader.hpp" />
     <ClInclude Include="src\algorithm\smallsort.hpp" />
     <ClInclude Include="src\game.hpp" />
     <ClInclude Include="src\gamestates\gamestatebase.hpp" />
@@ -200,6 +225,7 @@
     <None Include="shader\font.gs" />
     <None Include="shader\font.ps" />
     <None Include="shader\font.vs" />
+    <None Include="shader\postprocessing\ambientocclusion.ps" />
     <None Include="shader\postprocessing\output.ps" />
     <None Include="shader\postprocessing\screentri.vs" />
     <None Include="shader\screentex.gs" />
@@ -210,6 +236,9 @@
     <None Include="shader\voxel.vs" />
     <None Include="shader\wire.ps" />
     <None Include="shader\wire.vs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="dependencies\FileWatcher\License.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
