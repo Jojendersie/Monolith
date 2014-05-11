@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include "rasterizerstate.hpp"
 #include "samplerstate.hpp"
 #include "blendstate.hpp"
@@ -51,7 +52,7 @@ namespace Graphic {
 		///		to the one in Device::SetTexture.
 		/// \param [in] _sampler A sampler object which defines how textures
 		///		are read.
-		void BindTexture( const char* _name, unsigned _location, const SamplerState& _sampler );
+		void BindTexture( const std::string& _name, unsigned _location, const SamplerState& _sampler );
 
 #ifdef AUTO_SHADER_RELOAD
 		/// Triggers shader reloads for changed shaders.
@@ -66,20 +67,21 @@ namespace Graphic {
 		/// \brief A list of uniform buffers which where bound to the effect.
 		std::vector<UniformBuffer*> m_boundUniformBuffers;
 
-		/// \brief This struct is a pair which maps texture locations to
-		///		sampler states.
-		struct SamplerStateBinding {
+		struct SamplerStateBinding
+		{
+			SamplerStateBinding(unsigned int location, const SamplerState* sampler) : location(location), sampler(sampler) {}
+
 			unsigned location;				///< Texture stage to which this sampler is applied
 			const SamplerState* sampler;	///< A reference to an existing sampler state object.
 		};
-		/// \brief A list of all samplers for all used texture stages (forced by setter)
-		std::vector<SamplerStateBinding> m_samplerStates;
+
+		/// \brief A list of texture slots and samplers which where bound to the effect.
+		std::unordered_map<std::string, SamplerStateBinding> m_boundTextures;
 
 		unsigned m_vertexShader;
 		unsigned m_geometryShader;
 		unsigned m_pixelShader;
 		unsigned m_programID;
-			
 
 #ifdef AUTO_SHADER_RELOAD
 

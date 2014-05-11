@@ -37,7 +37,8 @@ namespace Graphic {
 		// Compile
 		const GLchar* sourceConst = (GLchar*)source;
 		GL_CALL(glShaderSource, shaderID, 1, &sourceConst, nullptr);
-		GL_CALL(glCompileShader, shaderID);
+		if (GL_CALL(glCompileShader, shaderID) == GLResult::FAILED)
+			return 0;
 		free( source );
 
 		// Compilation success?
@@ -55,6 +56,8 @@ namespace Graphic {
 			GL_CALL(glGetShaderInfoLog, shaderID, res, &charsWritten, log);
 			LOG_ERROR("Error in compiling the shader '" + std::string(_fileName) + "': " + log);
 			free( log );
+
+			return 0;
 		}
 
 		return shaderID;
@@ -288,6 +291,18 @@ namespace Graphic {
 				Assert(true, "Incomplete shader auto reload implementation for the given shader type!");
 			};
 
+			// Rebind UBOs
+			auto oldBindings = m_boundUniformBuffers;
+			m_boundUniformBuffers.clear();
+			for (auto uniformBuffer : oldBindings)
+				BindUniformBuffer(*uniformBuffer);
+
+			// Rebind Textures
+			auto oldTextures = m_boundTextures;
+			m_boundTextures.clear();
+			for (auto& textureBinding : oldTextures)
+				BindTexture(textureBinding.first, textureBinding.second.location, *textureBinding.second.sampler);
+
 			LOG_LVL0("Successfully reloaded the shader " + shaderFilename);
 		}
 		else
@@ -316,26 +331,28 @@ namespace Graphic {
 	}
 
 	// ********************************************************************* //
-	void Effect::BindTexture( const char* _name, unsigned _location, const SamplerState& _sampler )
+	void Effect::BindTexture(const std::string& _name, unsigned _location, const SamplerState& _sampler )
 	{
-		// First bind the texture
-		GL_CALL(glUseProgram, m_programID);
-		GLint uniformLocation = GL_RET_CALL(glGetUniformLocation, m_programID, _name);
-		LogGlError("[Effect::BindTexture] Uniform location not found");
+		auto textureEntryIt = m_boundTextures.emplace(_name, SamplerStateBinding(_location, &_sampler));
 
-		GL_CALL(glUniform1i, uniformLocation, _location);
-		LogGlError("[Effect::BindTexture] Failed to set the uniform sampler variable.");
+		// First bind the texture
+		if (textureEntryIt.second || textureEntryIt.first->second.location != _location) // Means: New or not yet set.
+		{
+			GL_CALL(glUseProgram, m_programID); /// \todo Often called redundant currently. Device should know which program is bound.
+			GLint uniformLocation = GL_RET_CALL(glGetUniformLocation, m_programID, _name.c_str());
+			LogGlError("[Effect::BindTexture] Uniform location not found");
+
+			GL_CALL(glUniform1i, uniformLocation, _location);
+			LogGlError("[Effect::BindTexture] Failed to set the uniform sampler variable.");
+
+			textureEntryIt.first->second.location = _location;
+		}
 
 		// Now store or overwrite the sampler state binding.
-		for( size_t i=0; i<m_samplerStates.size(); ++i )
-			if( m_samplerStates[i].location == _location ) {
-				m_samplerStates[i].sampler = &_sampler;
-				return;
-			}
-		SamplerStateBinding newBinding;
-		newBinding.location = _location;
-		newBinding.sampler = &_sampler;
-		m_samplerStates.push_back(newBinding);
+		if (textureEntryIt.second || textureEntryIt.first->second.sampler != &_sampler) // Means: New or not yet set.
+		{
+			textureEntryIt.first->second.sampler = &_sampler;
+		}
 	}
 
 	// ********************************************************************* //

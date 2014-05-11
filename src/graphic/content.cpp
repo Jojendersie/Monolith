@@ -69,6 +69,9 @@ namespace Graphic {
 			s_ubos[(int)_ubo]->AddAttribute( "ViewProjection", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
 			s_ubos[(int)_ubo]->AddAttribute( "ProjectionInverse", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
 			s_ubos[(int)_ubo]->AddAttribute( "Position", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC3 );
+			s_ubos[(int)_ubo]->AddAttribute( "Padding0", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
+			s_ubos[(int)_ubo]->AddAttribute( "NearPlane", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
+			s_ubos[(int)_ubo]->AddAttribute( "FarPlane", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 			break;
 		case UniformBuffers::OBJECT_VOXEL:
 			s_ubos[(int)_ubo] = new UniformBuffer( "Object" );
@@ -127,12 +130,16 @@ namespace Graphic {
 		{
 			case SamplerStates::POINT:
 				s_samplers[(int)_state] = new SamplerState(Graphic::SamplerState::EDGE_TREATMENT::WRAP, Graphic::SamplerState::SAMPLE::POINT,
-					Graphic::SamplerState::SAMPLE::POINT, Graphic::SamplerState::SAMPLE::LINEAR );
+					Graphic::SamplerState::SAMPLE::POINT, Graphic::SamplerState::SAMPLE::POINT);
+				break;
+			case SamplerStates::LINEAR_NOMIPMAP:
+				s_samplers[(int)_state] = new SamplerState(Graphic::SamplerState::EDGE_TREATMENT::WRAP, Graphic::SamplerState::SAMPLE::LINEAR,
+					Graphic::SamplerState::SAMPLE::LINEAR, Graphic::SamplerState::SAMPLE::POINT);
 				break;
 			case SamplerStates::LINEAR:
 				s_samplers[(int)_state] = new SamplerState(Graphic::SamplerState::EDGE_TREATMENT::WRAP, Graphic::SamplerState::SAMPLE::LINEAR,
-					Graphic::SamplerState::SAMPLE::LINEAR, Graphic::SamplerState::SAMPLE::LINEAR );
-				break;
+					Graphic::SamplerState::SAMPLE::LINEAR, Graphic::SamplerState::SAMPLE::LINEAR);
+				break;	
 		}
 
 		return s_samplers[(int)_state];

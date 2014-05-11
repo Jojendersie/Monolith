@@ -237,8 +237,8 @@ namespace Graphic {
 			SetRasterizerState( _effect.m_rasterizerState );
 			SetBlendState( _effect.m_blendState );
 			SetDepthStencilState( _effect.m_depthStencilState );
-			for( size_t i=0; i<_effect.m_samplerStates.size(); ++i )
-				SetSamplerState( _effect.m_samplerStates[i].location, *_effect.m_samplerStates[i].sampler );
+			for (auto& it : _effect.m_boundTextures)
+				SetSamplerState(it.second.location, *it.second.sampler);
 
 			glUseProgram( _effect.m_programID );
 #ifdef _DEBUG
@@ -304,6 +304,11 @@ namespace Graphic {
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 				g_Device.m_BoundFrameBuffer = NULL;
 				currentColorTargetCount = 1;
+
+				if (_autoViewportSet)
+				{
+					glViewport(0, 0, GetBackbufferSize()[0], GetBackbufferSize()[1]);
+				}
 			}
 
 #ifdef _DEBUG
