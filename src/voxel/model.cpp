@@ -129,18 +129,6 @@ namespace Voxel {
 		return VoxelType::UNDEFINED;
 	}
 
-	// ********************************************************************* //
-	Math::FixVec3 Model::GetPosition() const
-	{
-		return m_position;
-	}
-
-	// ********************************************************************* //
-	void Model::SetPosition(const Math::FixVec3& _position)
-	{
-		m_position = _position;
-	}
-
 
 
 	// ********************************************************************* //

@@ -46,10 +46,12 @@ namespace Voxel {
 		///		approximating LOD (majority) of the children.
 		VoxelType Get( const Math::IVec3& _position, int _level ) const;
 
-		/// \brief Get the center of gravity (mass center)
-		Math::FixVec3 GetPosition() const;
+		/// \brief Get the position of the center in world space
+		const Math::FixVec3& GetPosition() const			{ return m_position; }
 		/// \brief Set the position of the model based on its current center of gravity
-		void SetPosition(const Math::FixVec3& _position);
+		void SetPosition(const Math::FixVec3& _position)	{ m_position = _position; }
+		/// \brief Get the center of gravity (mass center) in object space
+		const Math::Vec3& GetCenter() const					{ return m_center; }
 
 		/// \brief Get the bounding radius of the sphere centered at the center
 		///		of gravity.
