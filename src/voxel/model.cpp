@@ -177,12 +177,12 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	bool Model::RayCast( const Math::Ray& _ray, int _targetLevel, ModelData::HitResult& _hit ) const
+	bool Model::RayCast( const Math::WorldRay& _ray, int _targetLevel, ModelData::HitResult& _hit ) const
 	{
 		// Convert ray to model space
-		// TODO: Mat4x4::Scaling(m_scale)
-		Math::Mat4x4 inverseModelTransform = Mat4x4::Rotation(m_rotation).Transposed() * Mat4x4::Translation(m_center);
-		Math::Ray ray = _ray * inverseModelTransform;
+		Ray ray( _ray, *this );
+		ray.m_origin += GetCenter();
+		// TODO: Mat4x4::Scaling(m_scale) translation relevant?
 		return m_voxelTree.RayCast(ray, _targetLevel, _hit);
 	}
 
@@ -197,7 +197,7 @@ namespace Voxel {
 			else {
 				// Get the node to check if it is dirty
 				Model::ModelData::SVON* node = m_voxelTree.Get( IVec3(chunk.m_root), chunk.m_root[3] );
-				if( node->Data().IsDirty() )
+				if( !node || node->Data().IsDirty() )
 					it = m_chunks.erase( it );
 				// Increase iterator only if nothing was deleted - deleting sets
 				// the iterator to the next element anyway.

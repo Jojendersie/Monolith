@@ -73,7 +73,7 @@ namespace Voxel {
 		///	\param [in] _oldType The type of the voxel which was before.
 		void Update( const Math::IVec4& _position, const Component& _oldType, const Component& _newType );
 
-		bool RayCast( const Math::Ray& _ray, int _targetLevel, ModelData::HitResult& _hit ) const;
+		bool RayCast( const Math::WorldRay& _ray, int _targetLevel, ModelData::HitResult& _hit ) const;
 
 		/// \brief Remove all chunks which were not used or dirty.
 		void ClearChunkCache( double _gameTime );

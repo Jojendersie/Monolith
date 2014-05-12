@@ -65,7 +65,6 @@ namespace Input {
 		void UpdateMatrices();
 
 		const Math::Mat4x4& GetProjection() const			{ return m_projection; }			///< Return projection matrix
-		const Math::Mat4x4& GetInverseProjection() const	{ return m_inverseProjection; }		///< Return inverse (view * projection) matrix
 		const Math::Mat4x4& GetRotation() const				{ return m_rotationMatrix; }		///< Return inverse (view * projection) matrix
 
 		/// \brief Checks a sphere against the frustum and returns true if any
@@ -73,11 +72,11 @@ namespace Input {
 		bool IsVisible( const Math::Sphere& _S ) const;
 
 		/// \brief Determines the ray starting at camera's near plane in world space.
-		Math::Ray GetRay(const Math::Vec2& _screenSpaceCoordinate) const;
+		Math::WorldRay GetRay(const Math::Vec2& _screenSpaceCoordinate) const;
 	private:
 		// Computed matrices used in rendering
 		Math::Mat4x4 m_projection;
-		Math::Mat4x4 m_inverseProjection;
+		Math::Vec4 m_inverseProjection;		///< A vector to invert projection calculations: (1/p(0,0), 1/p(1,1), 1/p(2,2), -p(3,2)/p(2,2); Usage: pos.xyz * invProj.xyz + vec3(0,0,invProj.w)
 		Math::Mat4x4 m_rotationMatrix;		///< Precomputed matrix from quaternion which only changes once per frame
 		Math::Plane m_frustum[6];			///< Left, Right, Bottom, Top, Near, Far all showing inwards in view space
 

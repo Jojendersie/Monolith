@@ -104,7 +104,7 @@ void GSEditor::UpdateInput()
 	m_modelCamera->UpdateMatrices();
 
 	// Find out the position where the cursor points to.
-	Ray ray = m_modelCamera->GetRay( Input::Manager::GetCursorPosScreenSpace() );
+	WorldRay ray = m_modelCamera->GetRay( Input::Manager::GetCursorPosScreenSpace() );
 	Voxel::Model::ModelData::HitResult hit;
 	m_rayHits = m_model->RayCast( ray, 0, hit );
 	if( m_rayHits )

@@ -21,7 +21,7 @@ namespace Input {
 	void Camera::Set( Graphic::UniformBuffer& _cameraUBO )
 	{
 		_cameraUBO["Projection"] = Vec4(GetProjection()(0,0), GetProjection()(1,1), GetProjection()(2,2), GetProjection()(3,2));
-		_cameraUBO["ProjectionInverse"] = Vec4(1.0f/GetProjection()(0,0), 1.0f/GetProjection()(1,1), 1.0f/GetProjection()(2,2), -GetProjection()(3,2) / GetProjection()(2,2));
+		_cameraUBO["ProjectionInverse"] = m_inverseProjection;
 	}
 
 	// ********************************************************************* //
@@ -32,8 +32,8 @@ namespace Input {
 		if( m_hardAttached ) NormalizeReference();
 		m_projection = Math::Mat4x4::Projection( m_fov, m_aspect, 5.0f, 50000.0f );
 		m_mutex.unlock();
-		// TODO: construct inverse explicit
-		m_inverseProjection = m_projection.Inverse();
+		// construct explicit invert-vector
+		m_inverseProjection = Vec4(1.0f/GetProjection()(0,0), 1.0f/GetProjection()(1,1), 1.0f/GetProjection()(2,2), -GetProjection()(3,2) / GetProjection()(2,2));
 
 		// Compute frustum planes from viewProjection
 		// http://www.cs.otago.ac.nz/postgrads/alexis/planeExtraction.pdf
@@ -144,11 +144,16 @@ namespace Input {
 	}
 
 	// ********************************************************************* //
-	Ray Camera::GetRay(const Vec2& _screenSpaceCoordinate) const
+	WorldRay Camera::GetRay(const Vec2& _screenSpaceCoordinate) const
 	{
-		Vec4 nearPoint = Vec4(_screenSpaceCoordinate, -1.0f, 1.0f) * m_inverseProjection;
-		Vec3 start = Vec3(nearPoint);// nearPoint[3];
-		return Ray( start, normalize(start) );
+		WorldRay ray;
+		// Compute view space position of a point on the near plane
+		Vec3 nearPoint = Vec3( m_inverseProjection[0] * _screenSpaceCoordinate[0],
+							   m_inverseProjection[1] * _screenSpaceCoordinate[1],
+							   m_inverseProjection[2] );	// z == 1.0 in projection space
+		ray.origin = TransformInverse(nearPoint);
+		ray.direction = normalize(Mat3x3::Rotation(m_rotation) * nearPoint);
+		return ray;
 	}
 
 } // namespace Input

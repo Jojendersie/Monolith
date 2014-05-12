@@ -55,6 +55,7 @@ namespace Math {
 	class Plane;
 	struct Sphere;
 	struct Ray;
+	struct WorldRay;
 	template<int n, class Data>	class Vector;
 //	template<int n>	class FixedPoint;
 //	typedef FixedPoint<30> Fix;

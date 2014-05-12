@@ -58,7 +58,7 @@ void GSPlay::OnBegin()
 	if( !m_astTest )
 	{
 		m_astTest = new Generators::Asteroid( 80, 50, 30, 2 );
-		m_astTest->SetPosition( FixVec3(Fix(10000000ll)) );
+		m_astTest->SetPosition( FixVec3(Fix(10000000.0)) );
 	}
 	m_camera->ZoomAt( *m_astTest );
 
@@ -139,7 +139,7 @@ void GSPlay::KeyClick( int _key )
 	if( _key == GLFW_MOUSE_BUTTON_1 )
 	{
 		// Do a ray cast and delete the clicked voxel
-		Ray ray = m_camera->GetRay( Input::Manager::GetCursorPosScreenSpace() );
+		WorldRay ray = m_camera->GetRay( Input::Manager::GetCursorPosScreenSpace() );
 		Voxel::Model::ModelData::HitResult hit;
 		if( m_astTest->RayCast(ray, 0, hit) )
 			m_astTest->Set( hit.position, 0, Voxel::VoxelType::UNDEFINED );

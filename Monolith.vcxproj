@@ -119,6 +119,7 @@
     <ClCompile Include="src\math\intersection.cpp" />
     <ClCompile Include="src\math\matrix.cpp" />
     <ClCompile Include="src\math\quaternion.cpp" />
+    <ClCompile Include="src\math\ray.cpp" />
     <ClCompile Include="src\math\sphere.cpp" />
     <ClCompile Include="src\math\transformation.cpp" />
     <ClCompile Include="src\resources.cpp" />
