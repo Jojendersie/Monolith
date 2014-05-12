@@ -4,6 +4,7 @@
 #include "math/vector.hpp"
 #include "graphic/core/device.hpp"
 #include "utilities/assert.hpp"
+#include "../dependencies/glfw-3.0.3/include/GLFW/glfw3.h"
 
 using namespace std;
 

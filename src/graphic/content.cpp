@@ -64,18 +64,25 @@ namespace Graphic {
 			break; }
 		case UniformBuffers::CAMERA:
 			s_ubos[(int)_ubo] = new UniformBuffer( "Camera" );
-			s_ubos[(int)_ubo]->AddAttribute( "View", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
-			s_ubos[(int)_ubo]->AddAttribute( "Projection", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
-			s_ubos[(int)_ubo]->AddAttribute( "ViewProjection", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
+			// The projection matrix is very sparse. That can be used
+			// explicitly to reduce constant buffer size and arithmetic
+			// instructions in shader:
+			// x 0 0 0
+			// 0 y 0 0
+			// 0 0 z 1
+			// 0 0 w 0
+			// The projection vector contains (x, y, z, w)
+			// Usage: vec4(pos.xyz * proj.xyz + vec3(0,0,proj.w), pos.z)
+			s_ubos[(int)_ubo]->AddAttribute( "Projection", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
+			// The inverse projection vector contains (1/x, 1/y, 1/z, -w/z)
+			// Usage: pos.xyz * invProj.xyz + vec3(0,0,invProj.w)
 			s_ubos[(int)_ubo]->AddAttribute( "ProjectionInverse", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
-			s_ubos[(int)_ubo]->AddAttribute( "Position", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC3 );
 			s_ubos[(int)_ubo]->AddAttribute( "Padding0", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 			s_ubos[(int)_ubo]->AddAttribute( "NearPlane", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 			s_ubos[(int)_ubo]->AddAttribute( "FarPlane", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 			break;
 		case UniformBuffers::OBJECT_VOXEL:
 			s_ubos[(int)_ubo] = new UniformBuffer( "Object" );
-			s_ubos[(int)_ubo]->AddAttribute( "WorldViewProjection", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
 			s_ubos[(int)_ubo]->AddAttribute( "WorldView", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
 			s_ubos[(int)_ubo]->AddAttribute( "Corner000", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
 			s_ubos[(int)_ubo]->AddAttribute( "Corner001", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );

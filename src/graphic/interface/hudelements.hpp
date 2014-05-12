@@ -1,5 +1,5 @@
 #include "font.hpp"
-#include "../../game.hpp"
+#include "game.hpp"
 #include <functional>
 #include <memory>
 

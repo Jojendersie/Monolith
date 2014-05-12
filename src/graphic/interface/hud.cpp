@@ -1,6 +1,7 @@
 #include "hud.hpp"
-#include "..\..\input\input.hpp"
-#include "..\content.hpp"
+#include "input/input.hpp"
+#include "graphic/content.hpp"
+#include "../../../dependencies/glfw-3.0.3/include/GLFW/glfw3.h"
 
 namespace Graphic
 {

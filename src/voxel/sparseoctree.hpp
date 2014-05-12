@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../math/vector.hpp"
-#include "../math/ray.hpp"
-#include "../math/intersection.hpp"
-#include "../algorithm/smallsort.hpp"
+#include "math/vector.hpp"
+#include "math/ray.hpp"
+#include "math/intersection.hpp"
+#include "algorithm/smallsort.hpp"
 #include <hybridarray.hpp>
 #include <poolallocator.hpp>
 

@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include "utilities/assert.hpp"
-#include "../math/math.hpp"
 
 namespace Voxel {
 

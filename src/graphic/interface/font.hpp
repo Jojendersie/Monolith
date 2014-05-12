@@ -3,12 +3,12 @@
 #include <string>
 #include "utilities/assert.hpp"
 #include <cstdint>
-#include "../core/vertexbuffer.hpp"
-#include "../core/effect.hpp"
-#include "../core/texture.hpp"
-#include "../core/device.hpp"
+#include "graphic/core/vertexbuffer.hpp"
+#include "graphic/core/effect.hpp"
+#include "graphic/core/texture.hpp"
+#include "graphic/core/device.hpp"
 #include <jofilelib.hpp>
-#include "../../utilities/color.hpp"
+#include "utilities/color.hpp"
 
 
 namespace Graphic {

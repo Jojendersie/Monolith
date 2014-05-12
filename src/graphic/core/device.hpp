@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../predeclarations.hpp"
+#include "predeclarations.hpp"
 #include "effect.hpp"
 struct GLFWwindow;
 

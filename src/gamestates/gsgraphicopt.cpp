@@ -1,9 +1,10 @@
-#include "../game.hpp"
+#include "game.hpp"
 #include "gsgraphicopt.hpp"
-#include "../math/math.hpp"
-#include "../input/camera.hpp"
-#include "../input/input.hpp"
-#include "../graphic/interface/hud.hpp"
+#include "math/math.hpp"
+#include "input/camera.hpp"
+#include "input/input.hpp"
+#include "graphic/interface/hud.hpp"
+#include "../dependencies/glfw-3.0.3/include/GLFW/glfw3.h"
 using namespace Math;
 #include "utilities/assert.hpp"
 

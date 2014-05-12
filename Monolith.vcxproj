@@ -84,7 +84,9 @@
     <ClCompile Include="dependencies\FileWatcher\FileWatcherOSX.cpp" />
     <ClCompile Include="dependencies\FileWatcher\FileWatcherWin32.cpp" />
     <ClCompile Include="src\game.cpp" />
-    <ClCompile Include="src\gamestates\gseditor.cpp" />
+    <ClCompile Include="src\gamestates\gseditor.cpp">
+      <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</PreprocessToFile>
+    </ClCompile>
     <ClCompile Include="src\gamestates\gseditorchoice.cpp" />
     <ClCompile Include="src\gamestates\gsgameplayopt.cpp" />
     <ClCompile Include="src\gamestates\gsgraphicopt.cpp" />
@@ -121,6 +123,7 @@
     <ClCompile Include="src\math\intersection.cpp" />
     <ClCompile Include="src\math\matrix.cpp" />
     <ClCompile Include="src\math\quaternion.cpp" />
+    <ClCompile Include="src\math\ray.cpp" />
     <ClCompile Include="src\math\sphere.cpp" />
     <ClCompile Include="src\math\transformation.cpp" />
     <ClCompile Include="src\resources.cpp" />

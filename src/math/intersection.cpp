@@ -13,19 +13,19 @@ namespace Intersect {
 		float min, max, tmin, tmax;
 		if( _ray.m_direction[0] >= 0 )
 		{
-			min = (_min[0] - _ray.m_start[0]) * _ray.m_directionInv[0];
-			max = (_min[0] + _edgeLength - _ray.m_start[0]) * _ray.m_directionInv[0];
+			min = (_min[0] - _ray.m_origin[0]) * _ray.m_directionInv[0];
+			max = (_min[0] + _edgeLength - _ray.m_origin[0]) * _ray.m_directionInv[0];
 		} else {
-			max = (_min[0] - _ray.m_start[0]) * _ray.m_directionInv[0];
-			min = (_min[0] + _edgeLength - _ray.m_start[0]) * _ray.m_directionInv[0];
+			max = (_min[0] - _ray.m_origin[0]) * _ray.m_directionInv[0];
+			min = (_min[0] + _edgeLength - _ray.m_origin[0]) * _ray.m_directionInv[0];
 		}
 		if( _ray.m_direction[1] >= 0 )
 		{
-			tmin = (_min[1] - _ray.m_start[1]) * _ray.m_directionInv[1];
-			tmax = (_min[1] + _edgeLength - _ray.m_start[1]) * _ray.m_directionInv[1];
+			tmin = (_min[1] - _ray.m_origin[1]) * _ray.m_directionInv[1];
+			tmax = (_min[1] + _edgeLength - _ray.m_origin[1]) * _ray.m_directionInv[1];
 		} else {
-			tmax = (_min[1] - _ray.m_start[1]) * _ray.m_directionInv[1];
-			tmin = (_min[1] + _edgeLength - _ray.m_start[1]) * _ray.m_directionInv[1];
+			tmax = (_min[1] - _ray.m_origin[1]) * _ray.m_directionInv[1];
+			tmin = (_min[1] + _edgeLength - _ray.m_origin[1]) * _ray.m_directionInv[1];
 		}
 
 		if(	(min > tmax) || (tmin > max) )
@@ -36,11 +36,11 @@ namespace Intersect {
 
 		if( _ray.m_direction[2] >= 0 )
 		{
-			tmin = (_min[2] - _ray.m_start[2]) * _ray.m_directionInv[2];
-			tmax = (_min[2] + _edgeLength - _ray.m_start[2]) * _ray.m_directionInv[2];
+			tmin = (_min[2] - _ray.m_origin[2]) * _ray.m_directionInv[2];
+			tmax = (_min[2] + _edgeLength - _ray.m_origin[2]) * _ray.m_directionInv[2];
 		} else {
-			tmax = (_min[2] - _ray.m_start[2]) * _ray.m_directionInv[2];
-			tmin = (_min[2] + _edgeLength - _ray.m_start[2]) * _ray.m_directionInv[2];
+			tmax = (_min[2] - _ray.m_origin[2]) * _ray.m_directionInv[2];
+			tmin = (_min[2] + _edgeLength - _ray.m_origin[2]) * _ray.m_directionInv[2];
 		}
 
 		if(	(min > tmax) || (tmin > max) )
@@ -62,22 +62,22 @@ namespace Intersect {
 		Side tside;
 		if( _ray.m_direction[0] >= 0 )
 		{
-			min = (_min[0] - _ray.m_start[0]) * _ray.m_directionInv[0];
-			max = (_min[0] + _edgeLength - _ray.m_start[0]) * _ray.m_directionInv[0];
+			min = (_min[0] - _ray.m_origin[0]) * _ray.m_directionInv[0];
+			max = (_min[0] + _edgeLength - _ray.m_origin[0]) * _ray.m_directionInv[0];
 			_side = Side::LEFT;
 		} else {
-			max = (_min[0] - _ray.m_start[0]) * _ray.m_directionInv[0];
-			min = (_min[0] + _edgeLength - _ray.m_start[0]) * _ray.m_directionInv[0];
+			max = (_min[0] - _ray.m_origin[0]) * _ray.m_directionInv[0];
+			min = (_min[0] + _edgeLength - _ray.m_origin[0]) * _ray.m_directionInv[0];
 			_side = Side::RIGHT;
 		}
 		if( _ray.m_direction[1] >= 0 )
 		{
-			tmin = (_min[1] - _ray.m_start[1]) * _ray.m_directionInv[1];
-			tmax = (_min[1] + _edgeLength - _ray.m_start[1]) * _ray.m_directionInv[1];
+			tmin = (_min[1] - _ray.m_origin[1]) * _ray.m_directionInv[1];
+			tmax = (_min[1] + _edgeLength - _ray.m_origin[1]) * _ray.m_directionInv[1];
 			tside = Side::BOTTOM;
 		} else {
-			tmax = (_min[1] - _ray.m_start[1]) * _ray.m_directionInv[1];
-			tmin = (_min[1] + _edgeLength - _ray.m_start[1]) * _ray.m_directionInv[1];
+			tmax = (_min[1] - _ray.m_origin[1]) * _ray.m_directionInv[1];
+			tmin = (_min[1] + _edgeLength - _ray.m_origin[1]) * _ray.m_directionInv[1];
 			tside = Side::TOP;
 		}
 
@@ -89,12 +89,12 @@ namespace Intersect {
 
 		if( _ray.m_direction[2] >= 0 )
 		{
-			tmin = (_min[2] - _ray.m_start[2]) * _ray.m_directionInv[2];
-			tmax = (_min[2] + _edgeLength - _ray.m_start[2]) * _ray.m_directionInv[2];
+			tmin = (_min[2] - _ray.m_origin[2]) * _ray.m_directionInv[2];
+			tmax = (_min[2] + _edgeLength - _ray.m_origin[2]) * _ray.m_directionInv[2];
 			tside = Side::FRONT;
 		} else {
-			tmax = (_min[2] - _ray.m_start[2]) * _ray.m_directionInv[2];
-			tmin = (_min[2] + _edgeLength - _ray.m_start[2]) * _ray.m_directionInv[2];
+			tmax = (_min[2] - _ray.m_origin[2]) * _ray.m_directionInv[2];
+			tmin = (_min[2] + _edgeLength - _ray.m_origin[2]) * _ray.m_directionInv[2];
 			tside = Side::BACK;
 		}
 
@@ -112,7 +112,7 @@ namespace Intersect {
 	{
 		// Calculate projection and hypotenuse - two sides of the right-angled
 		// triangle.
-		Vec3 p = _sphere.m_center - _ray.m_start;
+		Vec3 p = _sphere.m_center - _ray.m_origin;
 		float hypotenuseSq = lengthSq( p );
 		_t = dot(p, _ray.m_direction);
 
