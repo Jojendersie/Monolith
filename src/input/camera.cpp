@@ -7,10 +7,9 @@ using namespace Math;
 namespace Input {
 
 	// ********************************************************************* //
-	Camera::Camera( const Math::Vec3& _position, const Math::Quaternion& _rotation,
+	Camera::Camera( const Math::FixVec3& _position, const Math::Quaternion& _rotation,
 				float _fov, float _aspect ) :
-		m_position( _position ),
-		m_rotation( _rotation ),
+		Transformation( _position, _rotation ),
 		m_fov( _fov ),
 		m_aspect( _aspect ),
 		m_hardAttached( false )
@@ -21,34 +20,29 @@ namespace Input {
 	// ********************************************************************* //
 	void Camera::Set( Graphic::UniformBuffer& _cameraUBO )
 	{
-		_cameraUBO["View"] = GetView();
-		_cameraUBO["Projection"] = GetProjection();
-		_cameraUBO["ViewProjection"] = GetViewProjection();
+		_cameraUBO["Projection"] = Vec4(GetProjection()(0,0), GetProjection()(1,1), GetProjection()(2,2), GetProjection()(3,2));
 		_cameraUBO["ProjectionInverse"] = Vec4(1.0f/GetProjection()(0,0), 1.0f/GetProjection()(1,1), 1.0f/GetProjection()(2,2), -GetProjection()(3,2) / GetProjection()(2,2));
-		_cameraUBO["Position"] = GetPosition();
 	}
 
 	// ********************************************************************* //
 	void Camera::UpdateMatrices()
 	{
 		m_mutex.lock();
+		m_rotationMatrix = Mat4x4::Rotation(m_rotation);
 		if( m_hardAttached ) NormalizeReference();
-		m_view = Math::Mat4x4::Translation( -m_position ) * Math::Mat4x4::Rotation( m_rotation );
 		m_projection = Math::Mat4x4::Projection( m_fov, m_aspect, 5.0f, 50000.0f );
 		m_mutex.unlock();
-		m_viewProjection = m_view * m_projection;
 		// TODO: construct inverse explicit
-		m_inverseView = m_view.Inverse();
-		m_inverseViewProjection = m_viewProjection.Inverse();
+		m_inverseProjection = m_projection.Inverse();
 
 		// Compute frustum planes from viewProjection
 		// http://www.cs.otago.ac.nz/postgrads/alexis/planeExtraction.pdf
-		m_frustum[0] = m_viewProjection.Column(3) + m_viewProjection.Column(0);
-		m_frustum[1] = m_viewProjection.Column(3) - m_viewProjection.Column(0);
-		m_frustum[2] = m_viewProjection.Column(3) + m_viewProjection.Column(1);
-		m_frustum[3] = m_viewProjection.Column(3) - m_viewProjection.Column(1);
-		m_frustum[4] = m_viewProjection.Column(3) + m_viewProjection.Column(2);
-		m_frustum[5] = m_viewProjection.Column(3) - m_viewProjection.Column(2);
+		m_frustum[0] = m_projection.Column(3) + m_projection.Column(0);
+		m_frustum[1] = m_projection.Column(3) - m_projection.Column(0);
+		m_frustum[2] = m_projection.Column(3) + m_projection.Column(1);
+		m_frustum[3] = m_projection.Column(3) - m_projection.Column(1);
+		m_frustum[4] = m_projection.Column(3) + m_projection.Column(2);
+		m_frustum[5] = m_projection.Column(3) - m_projection.Column(2);
 	}
 
 
@@ -60,7 +54,7 @@ namespace Input {
 			// Do an object relative rotation.
 			// In soft case the reference point is recomputed since we don't
 			// want to jump back but center movement at the object
-			if( !m_hardAttached ) m_referencePos = m_view.Transform( m_attachedTo->GetPosition() );
+			if( !m_hardAttached ) m_referencePos = Transform( m_attachedTo->GetPosition() );
 			m_rotation = m_rotation * Math::Quaternion( -_theta, _phi, 0.0f );
 			NormalizeReference();
 		} else
@@ -78,7 +72,7 @@ namespace Input {
 			_dy *= m_referencePos[2] * m_fov;
 		}
 		// Compute actual xy directions in camera space
-		m_position += m_rotation.YAxis() * _dy - m_rotation.XAxis() * _dx;
+		Translate( m_rotation.YAxis() * _dy - m_rotation.XAxis() * _dx );
 		// Make soft attachment
 		m_hardAttached = false;
 	}
@@ -94,7 +88,7 @@ namespace Input {
 			_dz = Math::min( _dz, -m_attachedTo->GetRadius() * 0.75f + m_referencePos[2] );
 		} // Linear movement otherwise
 
-		m_position += m_rotation.ZAxis() * _dz;
+		Translate( m_rotation.ZAxis() * _dz );
 		m_referencePos[2] -= _dz;
 	}
 
@@ -118,7 +112,7 @@ namespace Input {
 	{
 		m_attachedTo = _model;
 		// Compute actual reference frame.
-		m_referencePos = _model->GetPosition() * m_view;
+		m_referencePos = Transform( _model->GetPosition() );
 	}
 
 	// ********************************************************************* //
@@ -126,10 +120,9 @@ namespace Input {
 	{
 		//if( m_attachedTo )
 		//{
-			// Transform by rotation inverse (which is multiplying from right for
+			// Transform by rotation inverse (which is multiplying from left for
 			// rotations)
-			Math::Mat4x4 mCurrentView = Mat4x4::Rotation( m_rotation );
-			m_position = m_attachedTo->GetPosition() - mCurrentView * m_referencePos;
+			m_position = m_attachedTo->GetPosition() - FixVec3(GetRotation() * m_referencePos);
 		//} else
 		//	LOG_LVL1("Camera is not attached and cannot be set to a reference position.");
 	}
@@ -153,9 +146,9 @@ namespace Input {
 	// ********************************************************************* //
 	Ray Camera::GetRay(const Vec2& _screenSpaceCoordinate) const
 	{
-		Vec4 nearPoint = Vec4(_screenSpaceCoordinate, -1.0f, 1.0f) * m_inverseViewProjection;
-		Vec3 start = Vec3(nearPoint) / nearPoint[3];
-		return Ray( start, normalize(start - m_position) );
+		Vec4 nearPoint = Vec4(_screenSpaceCoordinate, -1.0f, 1.0f) * m_inverseProjection;
+		Vec3 start = Vec3(nearPoint);// nearPoint[3];
+		return Ray( start, normalize(start) );
 	}
 
 } // namespace Input

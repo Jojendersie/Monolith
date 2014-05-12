@@ -11,7 +11,6 @@ layout(triangle_strip, max_vertices = OUT_VERTS) out;
 
 layout(std140) uniform Object
 {
-	mat4 c_mWorldViewProjection;
 	mat4 c_mWorldView;
 	vec4 c_vCorner000;
 	vec4 c_vCorner001;
@@ -26,11 +25,8 @@ layout(std140) uniform Object
 
 layout(std140) uniform Camera
 {
-	mat4 c_mView;
-	mat4 c_mProjection;
-	mat4 c_mViewProjection;
+	vec4 c_vProjection;
 	vec4 c_vInverseProjection;
-	vec3 c_vCameraPosition;
 };
 
 layout(std140) uniform Global
@@ -68,7 +64,7 @@ vec2 AshikminShirleyMod(vec3 _normal, vec3 _view, vec3 _light, float _shininess,
 vec3 Lightning(/*vec3 _position, */vec3 _normal, vec3 _viewDir, float _shininess, float _power, vec3 _color, float _emissive)
 {
 	// Test with 
-	vec3 light = normalize((vec4(0.13557,0.96596,0.2203,0) * c_mView).xyz);
+	vec3 light = normalize((vec4(0.13557,0.96596,0.2203,0)).xyz);
 
 	// Compute BRDF for this light
 	vec2 ds = AshikminShirleyMod(_normal, _viewDir, light, _shininess, _power);
@@ -89,7 +85,9 @@ void main(void)
 	float y = float((vs_out_VoxelCode[0] >> 14) & uint(0x1f)) + 0.5;
 	float z = float((vs_out_VoxelCode[0] >> 19) & uint(0x1f)) + 0.5;
 
-	vec4 vPos = vec4( x, y, z, 1 ) * c_mWorldViewProjection;
+	vec4 vPos = vec4(x, y, z, 1) * c_mWorldView;
+	vec3 vViewPos = vPos.xyz;
+	vPos = vec4(vPos.xyz * c_vProjection.xyz + vec3(0,0,c_vProjection.w), vPos.z);
 
 	// Discard voxel outside the viewing volume
 	float w = vPos.w + c_fMaxOffset;//max(max(length(c_vCorner000), length(c_vCorner001)), max(length(c_vCorner010), length(c_vCorner011)));
@@ -98,7 +96,6 @@ void main(void)
 		abs(vPos.y) > w )
 		return;
 
-	vec3 vViewPos = (vec4(x, y, z, 1) * c_mWorldView).xyz;
 	vec3 vViewDirection = normalize(-vViewPos);
 
 	// Decode transparency or color rotation

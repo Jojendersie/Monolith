@@ -1,5 +1,6 @@
 #include "voxel.hpp"
 #include "material.hpp"
+#include "utilities/logger.hpp"
 #include <jofilelib.hpp>
 #include <hybridarray.hpp>
 

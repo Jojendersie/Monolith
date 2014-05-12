@@ -1,11 +1,12 @@
-#include "../game.hpp"
+#include "game.hpp"
 #include "gsplay.hpp"
-#include "../graphic/core/device.hpp"
-#include "../math/math.hpp"
-#include "../input/camera.hpp"
-#include "../input/input.hpp"
-#include "../graphic/interface/hud.hpp"
-#include "../graphic/marker/grid.hpp"
+#include "graphic/core/device.hpp"
+#include "math/math.hpp"
+#include "input/camera.hpp"
+#include "input/input.hpp"
+#include "graphic/interface/hud.hpp"
+#include "graphic/marker/grid.hpp"
+#include "../dependencies/glfw-3.0.3/include/GLFW/glfw3.h"
 using namespace Math;
 using namespace Graphic;
 #include "utilities/assert.hpp"
@@ -29,7 +30,7 @@ GSPlay::GSPlay(Monolith* _game) : IGameState(_game), m_astTest(nullptr)
 
 	m_hud = new Graphic::Hud(_game);
 
-	m_camera = new Input::Camera( Vec3( 0.0f, 0.0f, 0.0f ),
+	m_camera = new Input::Camera( FixVec3( Fix(0ll), Fix(0ll), Fix(0ll) ),
 		Quaternion( 0.0f, 0.0f, 0.0f ),
 		0.3f,
 		Graphic::Device::GetAspectRatio() );
@@ -57,7 +58,7 @@ void GSPlay::OnBegin()
 	if( !m_astTest )
 	{
 		m_astTest = new Generators::Asteroid( 80, 50, 30, 2 );
-		m_astTest->SetPosition( Vec3(0.0f) );
+		m_astTest->SetPosition( FixVec3(Fix(10000000ll)) );
 	}
 	m_camera->ZoomAt( *m_astTest );
 
@@ -90,7 +91,7 @@ void GSPlay::Render( double _time, double _deltaTime )
 	Graphic::Device::SetEffect(	*Resources::GetEffect(Effects::VOXEL_RENDER) );
 	m_astTest->Draw( *m_camera, _time );
 
-	m_objectPlane->Draw( m_camera->GetViewProjection() );
+	m_objectPlane->Draw( m_camera->GetProjection() );
 	
 	m_hud->m_dbgLabel->SetText("<s 024>" + std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(RenderStat::g_numVoxels) + "\n#Chunks: " + std::to_string(RenderStat::g_numChunks)+"</s>");
 	m_hud->Draw(  _time, _deltaTime );

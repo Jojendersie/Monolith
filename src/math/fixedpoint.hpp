@@ -52,6 +52,13 @@ namespace Math {
 
 	// ************************************************************************* //
 	template<int FracDigits>
+	TFix<FracDigits>::TFix( float _float )
+	{
+		m_data = int64_t(_float * float(1 << FracDigits));
+	}
+
+	// ************************************************************************* //
+	template<int FracDigits>
 	TFix<FracDigits>& TFix<FracDigits>::operator += (TFix<FracDigits> _rhs)
 	{
 		m_data += _rhs.m_data;

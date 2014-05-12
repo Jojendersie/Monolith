@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../predeclarations.hpp"
-#include "../math/vector.hpp"
-#include "../../dependencies/glfw-3.0.3/include/GLFW/glfw3.h"
+#include "predeclarations.hpp"
+#include "math/vector.hpp"
+//#include "../../dependencies/glfw-3.0.3/include/GLFW/glfw3.h"
 #include <jofilelib.hpp>
 #include <unordered_map>
 

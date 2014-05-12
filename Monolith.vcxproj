@@ -80,7 +80,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp" />
-    <ClCompile Include="src\gamestates\gseditor.cpp" />
+    <ClCompile Include="src\gamestates\gseditor.cpp">
+      <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</PreprocessToFile>
+    </ClCompile>
     <ClCompile Include="src\gamestates\gseditorchoice.cpp" />
     <ClCompile Include="src\gamestates\gsgameplayopt.cpp" />
     <ClCompile Include="src\gamestates\gsgraphicopt.cpp" />

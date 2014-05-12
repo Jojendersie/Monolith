@@ -1,9 +1,9 @@
 #include "model.hpp"
 #include "chunk.hpp"
 #include <cstdlib>
-#include "../input/camera.hpp"
-#include "../graphic/core/uniformbuffer.hpp"
-#include "../graphic/content.hpp"
+#include "input/camera.hpp"
+#include "graphic/core/uniformbuffer.hpp"
+#include "graphic/content.hpp"
 
 using namespace Math;
 
@@ -16,7 +16,6 @@ namespace Voxel {
 
 	Model::Model() :
 		m_numVoxels(0),
-		m_position(0.0f),
 		m_mass(0.0f),
 		m_center(0.0f),
 		m_boundingSphereRadius(0.0f),
@@ -35,7 +34,6 @@ namespace Voxel {
 		const Input::Camera& camera;					// Required for culling and LOD
 		Model::ModelData* model;						// Operate on this data.
 		std::unordered_map<Math::IVec4, Chunk>* chunks;	// Create or find chunks here.
-		const Math::Mat4x4& modelTransform;
 		const Math::Mat4x4& modelView;
 		ChunkBuilder* builder;
 		double gameTime;
@@ -44,11 +42,9 @@ namespace Voxel {
 				Model::ModelData* _model,
 				std::unordered_map<Math::IVec4, Chunk>* _chunks,
 				const Math::Mat4x4& _modelView,
-				const Math::Mat4x4& _modelTransform,
 				ChunkBuilder* _builder,
 				double _gameTime) :
 			camera(_camera), model(_model), chunks(_chunks),
-			modelTransform(_modelTransform),
 			modelView(_modelView),
 			builder(_builder),
 			gameTime(_gameTime)
@@ -62,7 +58,7 @@ namespace Voxel {
 			float chunkLength = float(1 << _position[3]);
 			Sphere boundingSphere(Vec3(_position[0] * chunkLength, _position[1] * chunkLength, _position[2] * chunkLength), 0.87f * chunkLength);
 			boundingSphere.m_center += chunkLength * 0.5f;
-			boundingSphere.m_center = boundingSphere.m_center * modelTransform;
+			boundingSphere.m_center = boundingSphere.m_center * modelView;
 
 			// View frustum culling
 			if( !camera.IsVisible( boundingSphere ) )
@@ -73,7 +69,7 @@ namespace Voxel {
 			// required root node level. The resulting chunk will be up to 5
 			// levels more tessellated
 			//float detailResolution = 0.31f * log( lengthSq(boundingSphere.m_center - camera.GetPosition()) );
-			float detailResolution = 0.021f * sq(log( lengthSq(boundingSphere.m_center - camera.GetPosition()) ));
+			float detailResolution = 0.021f * sq(log( lengthSq(boundingSphere.m_center) ));
 			//float detailResolution = 0.045f * pow(log( lengthSq(boundingSphere.m_center - camera.GetPosition()) ), 1.65f);
 			int targetLOD = max(2, Math::ceil(detailResolution));
 			if( _position[3] <= targetLOD )
@@ -99,7 +95,7 @@ namespace Voxel {
 				{
 					RenderStat::g_numVoxels += chunk->second.NumVoxels();
 					RenderStat::g_numChunks++;
-					chunk->second.Draw( *Graphic::Resources::GetUBO(Graphic::UniformBuffers::OBJECT_VOXEL), modelView, camera.GetProjection(), gameTime );
+					chunk->second.Draw( modelView, camera.GetProjection(), gameTime );
 				}
 				return false;
 			}
@@ -114,13 +110,12 @@ namespace Voxel {
 		ClearChunkCache( _gameTime );
 
 		// Create a new model space transformation
-		Math::Mat4x4 modelTransform;
-		GetModelMatrix( modelTransform );
-		Math::Mat4x4 modelView = modelTransform * _camera.GetView();
+		Math::Mat4x4 modelView;
+		GetModelMatrix( modelView, _camera );
 
 		// Iterate through the octree and render chunks depending on the lod.
 		ChunkBuilder* builder = new ChunkBuilder(); // TEMP -> in job verschieben
-		DecideToDraw param(_camera, &this->m_voxelTree, &this->m_chunks, modelView, modelTransform, builder, _gameTime);
+		DecideToDraw param( _camera, &this->m_voxelTree, &this->m_chunks, modelView, builder, _gameTime );
 		m_voxelTree.Traverse( param );
 		delete builder;
 	}
@@ -134,11 +129,30 @@ namespace Voxel {
 		return VoxelType::UNDEFINED;
 	}
 
+	// ********************************************************************* //
+	Math::FixVec3 Model::GetPosition() const
+	{
+		return m_position;
+	}
 
 	// ********************************************************************* //
-	Math::Mat4x4& Model::GetModelMatrix( Math::Mat4x4& _out ) const
+	void Model::SetPosition(const Math::FixVec3& _position)
 	{
-		_out = Mat4x4::Translation(-m_center) * Mat4x4::Rotation(m_rotation) * Mat4x4::Translation(m_position);
+		m_position = _position;
+	}
+
+
+
+	// ********************************************************************* //
+	Math::Mat4x4& Model::GetModelMatrix( Math::Mat4x4& _out, const Math::Transformation& _reference ) const
+	{
+		_out = Mat4x4::Translation(-m_center) * GetTransformation(_reference);
+		return _out;
+	}
+
+	Math::Mat4x4& Model::GetModelMatrix( Math::Mat4x4& _out, const Input::Camera& _reference ) const
+	{
+		_out = Mat4x4::Translation(-m_center) * GetTransformation(_reference);
 		return _out;
 	}
 
@@ -179,7 +193,7 @@ namespace Voxel {
 	{
 		// Convert ray to model space
 		// TODO: Mat4x4::Scaling(m_scale)
-		Math::Mat4x4 inverseModelTransform = Mat4x4::Translation( -m_position ) * Mat4x4::Rotation(m_rotation).Transposed() * Mat4x4::Translation(m_center);
+		Math::Mat4x4 inverseModelTransform = Mat4x4::Rotation(m_rotation).Transposed() * Mat4x4::Translation(m_center);
 		Math::Ray ray = _ray * inverseModelTransform;
 		return m_voxelTree.RayCast(ray, _targetLevel, _hit);
 	}

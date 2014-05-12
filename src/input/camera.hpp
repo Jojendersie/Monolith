@@ -1,14 +1,16 @@
 #pragma once
 
-#include "../math/math.hpp"
+#include "math/transformation.hpp"
+#include "math/plane.hpp"
 namespace Voxel { class Model; }
 
 #include <mutex>
 
+
 namespace Input {
 
 	/// \brief A free camera in 3D space.
-	class Camera
+	class Camera: public Math::Transformation
 	{
 	public:
 
@@ -16,8 +18,8 @@ namespace Input {
 		/// \param [in] _position Initial position.
 		/// \param [in] _rotation Initial rotation.
 		/// \param [in] _fov Field of view in radiance.
-		/// \param [in] _aspect Viewport width/height.
-		Camera( const Math::Vec3& _position, const Math::Quaternion& _rotation,
+		/// \param [in] _aspect View port width/height.
+		Camera( const Math::FixVec3& _position, const Math::Quaternion& _rotation,
 				float _fov, float _aspect );
 
 		/// \brief Returns the x-axis of the camera from the current matrix
@@ -31,15 +33,10 @@ namespace Input {
 		/// \brief Set all matrices, and further information in the camera uniform buffer.
 		void Set( Graphic::UniformBuffer& _cameraUBO );
 
-		/// \brief Set a total new position.
-		void SetPosition( const Math::Vec3& _position );
-		/// \brief Read position
-		const Math::Vec3& GetPosition() const	{ return m_position; }
-
 		/// \brief Move in camera space.
 		void Move( float _dx, float _dy );
 
-		/// \brief Zoom in and out to the refence point.
+		/// \brief Zoom in and out to the reference point.
 		/// \details This effectively moves the camera in view direction.
 		///
 		///		Scrolling keeps the attachment type untouched.
@@ -63,15 +60,13 @@ namespace Input {
 
 		/// \brief Recompute all the matrices.
 		/// \details Standard input does not change one of the matrices
-		///		(multithreading). This is the only function which will change
+		///		(multi threading). This is the only function which will change
 		///		them.
 		void UpdateMatrices();
 
-		const Math::Mat4x4& GetView() const					{ return m_view; }					///< Return view matrix
 		const Math::Mat4x4& GetProjection() const			{ return m_projection; }			///< Return projection matrix
-		const Math::Mat4x4& GetViewProjection() const		{ return m_viewProjection; }		///< Return view * projection matrix
-		const Math::Mat4x4& GetInverseView() const			{ return m_inverseView; }			///< Return inverse view matrix
-		const Math::Mat4x4& GetInverseViewProjection() const{ return m_inverseViewProjection; }	///< Return inverse (view * projection) matrix
+		const Math::Mat4x4& GetInverseProjection() const	{ return m_inverseProjection; }		///< Return inverse (view * projection) matrix
+		const Math::Mat4x4& GetRotation() const				{ return m_rotationMatrix; }		///< Return inverse (view * projection) matrix
 
 		/// \brief Checks a sphere against the frustum and returns true if any
 		///		point of the sphere is inside.
@@ -81,16 +76,12 @@ namespace Input {
 		Math::Ray GetRay(const Math::Vec2& _screenSpaceCoordinate) const;
 	private:
 		// Computed matrices used in rendering
-		Math::Mat4x4 m_view;
 		Math::Mat4x4 m_projection;
-		Math::Mat4x4 m_viewProjection;
-		Math::Mat4x4 m_inverseView;
-		Math::Mat4x4 m_inverseViewProjection;
-		Math::Plane m_frustum[6];		///< Left, Right, Bottom, Top, Near, Far all showing inwards
+		Math::Mat4x4 m_inverseProjection;
+		Math::Mat4x4 m_rotationMatrix;		///< Precomputed matrix from quaternion which only changes once per frame
+		Math::Plane m_frustum[6];			///< Left, Right, Bottom, Top, Near, Far all showing inwards in view space
 
-		std::mutex m_mutex;				///< mutex between all update methods
-		Math::Quaternion m_rotation;
-		Math::Vec3 m_position;
+		std::mutex m_mutex;					///< mutex between all update methods
 		float m_fov;
 		float m_aspect;
 

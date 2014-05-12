@@ -67,14 +67,12 @@ namespace Voxel {
 		/// \brief Fills the constant buffer with the chunk specific data
 		///		and draw the voxels.
 		/// \details The effect must be set outside.
-		/// \param [out] _objectConstants A reference to the constant buffer
-		///		which must be filled.
-		/// \param [in] _modelViewProjection The actual view projection matrix.
+		/// \param [in] _modelView The actual view matrix.
 		///		This matrix should contain the general model transformation too.
+		///	\param [in] _projection The projection matrix to precompute the
+		///		corner vectors.
 		/// \param [in] _time Current game time.
-		void Draw( Graphic::UniformBuffer& _objectConstants,
-			const Math::Mat4x4& _modelView, const Math::Mat4x4& _projection,
-			double _time );
+		void Draw( const Math::Mat4x4& _modelView, const Math::Mat4x4& _projection, double _time );
 
 		/// \brief Set position relative to the model.
 		//void SetPosition( const Math::Vec3& _position )	{ m_position = _position; }

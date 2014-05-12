@@ -1,4 +1,5 @@
 #include "vertexbuffer.hpp"
+#include "math/vector.hpp"
 #include "opengl.hpp"
 #include <cstdlib>
 #include <cstring>

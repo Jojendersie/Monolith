@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../../math/math.hpp"
+#include "predeclarations.hpp"
+#include "math/mathbase.hpp"
 
 namespace Graphic {
 
