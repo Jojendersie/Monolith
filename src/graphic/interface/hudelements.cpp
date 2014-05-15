@@ -1,36 +1,35 @@
 #include "hudelements.hpp"
+#include "..\..\math\ray.hpp"
+#include "..\..\input\camera.hpp"
+#include "../../voxel/model.hpp"
 
 namespace Graphic
 {
-	ScreenTexture::ScreenTexture(Jo::Files::MetaFileWrapper* _posMap, std::string _name, Math::Vec2 _position, Math::Vec2 _position2,
+	ScreenTexture::ScreenTexture(Jo::Files::MetaFileWrapper* _posMap, std::string _name, Math::Vec2 _position, Math::Vec2 _size,
 		std::function<void()> _OnMouseUp):
-		OnMouseUp(_OnMouseUp),
-		m_active(true),
-		m_visible(true)
+		ScreenOverlay(_position, _size, _OnMouseUp)
 	{
 		m_vertex.position = _position;
 		m_vertex.texCoord = Math::Vec2(_posMap->RootNode[_name][std::string("positionX")],_posMap->RootNode[_name][std::string("positionY")]);
 		m_vertex.size = Math::Vec2(_posMap->RootNode[_name][std::string("sizeX")],_posMap->RootNode[_name][std::string("sizeY")]);
-		m_vertex.screenSize = Math::Vec2(0.f,0.f) == _position2 ? m_vertex.size : _position2 ;
+		m_vertex.screenSize = Math::Vec2(0.f,0.f) == _size ? m_vertex.size : _size ;
 	}
 
-	void ScreenTexture::MouseEnter()
+	void ScreenTexture::SetPos(Math::Vec2 _pos)
 	{
-		if(OnMouseEnter != NULL) OnMouseEnter();
-	}
-	void ScreenTexture::MouseLeave()
-	{
-		if(OnMouseLeave != NULL) OnMouseLeave();
-	}
-	void ScreenTexture::MouseDown(Math::Vec2 _pos)
-	{
-		if(OnMouseDown != NULL) OnMouseDown();
+		ScreenOverlay::SetPos(_pos);
+		m_vertex.position = _pos;// + Math::Vec2(0.f, m_vertex.screenSize[1]/2.f);
 	}
 
-	void ScreenTexture::MouseUp(Math::Vec2 _pos)
+	// ************************************************************************ //
+
+	void ScreenTexture::SetSize(Math::Vec2 _size)
 	{
-		if(OnMouseUp != NULL) OnMouseUp();
+		ScreenOverlay::SetSize(_size);
+		m_vertex.screenSize = _size;
 	}
+
+	// ************************************************************************ //
 
 	Button::Button(Jo::Files::MetaFileWrapper* _posMap, Font* _font, std::string _name, Math::Vec2 _position, Math::Vec2 _size,
 		 std::function<void()> _OnMouseUp ):
@@ -42,42 +41,120 @@ namespace Graphic
 	{
 		SetVisibility(false); 
 		SetState(true);
-		m_caption.SetPos(_position+Math::Vec2(0.02f,-_size[1] * 0.5f - m_caption.GetDim()[1] * 0.5f));//-0.75f*_size[1]
+		//scan for linebreaks to adjust the line height
+		m_caption.SetPos(_position+Math::Vec2(0.02f,-_size[1] * 0.5f - m_caption.GetDim()[1] * m_caption.GetMaxSize() * 0.5f));//-0.75f*_size[1]
 		m_caption.SetText(_name);
 		m_btnDefault.SetVisibility(true);
 		m_btnOver.SetVisibility(false);
 		m_btnDown.SetVisibility(false);
 	}
 
+	// ************************************************************************ //
+	void Button::SetPos(Math::Vec2 _pos)
+	{
+		ScreenOverlay::SetPos(_pos);
+/*		m_btnDefault.SetPos(_pos);
+		m_btnOver.SetPos(_pos);
+		m_btnDown.SetPos(_pos);
+		m_caption.SetPos(_pos);*/
+		SetCaption(m_caption.GetText());
+	}
+
+	// ************************************************************************ //
+	void Button::SetSize(Math::Vec2 _size)
+	{
+		ScreenOverlay::SetSize(_size);
+		m_btnDefault.SetSize(_size);
+		m_btnOver.SetSize(_size);
+		m_btnDown.SetSize(_size);
+	}
+
+	// ************************************************************************ //
+	void Button::SetCaption(const std::string& _caption)
+	{
+		int len = _caption.length();
+		int lineCount = 1;
+		for(int i = 0; i < len; i++)
+			if(_caption[i] == '\n') lineCount++;
+		m_caption.SetPos(m_pos+Math::Vec2(0.02f,-m_size[1]/lineCount * 0.5f - m_caption.GetDim()[1] * 0.7f));//*0.5f
+		m_caption.SetText(_caption);
+	}
+
 	void Button::MouseEnter()
 	{
-		ScreenTexture::MouseEnter();
+		ScreenOverlay::MouseEnter();
 		m_btnDefault.SetVisibility(false);
 		m_btnOver.SetVisibility(true);
 	}
 	void Button::MouseLeave()
 	{
-		ScreenTexture::MouseLeave();
+		ScreenOverlay::MouseLeave();
 		m_btnDefault.SetVisibility(true);
 		m_btnOver.SetVisibility(false);
 		m_btnDown.SetVisibility(false);
 	}
-	void Button::MouseDown(Math::Vec2 _pos)
+	bool Button::KeyDown(int _key, int _modifiers, Math::Vec2 _pos)
 	{
-		ScreenTexture::MouseDown();
+		ScreenOverlay::KeyDown(_key, _modifiers, _pos);
 		m_btnDefault.SetVisibility(false);
 		m_btnOver.SetVisibility(false);
 		m_btnDown.SetVisibility(true);
+		//since an object(this) is hit, the return value is always true
+		return true;
 	}
 
-	void Button::MouseUp(Math::Vec2 _pos)
+	bool Button::KeyUp(int _key, int _modifiers, Math::Vec2 _pos)
 	{
-		ScreenTexture::MouseUp();
+		ScreenOverlay::KeyUp(_key, _modifiers, _pos);
 		m_btnDefault.SetVisibility(true);
 		m_btnOver.SetVisibility(false);
 		m_btnDown.SetVisibility(false);
+		return true;
+	}
+	
+	
+	// ************************************************************** //
+
+	ScreenModel::ScreenModel(Math::Vec2 _position, Math::Vec2 _size, Voxel::Model* _model ):
+		ScreenOverlay(_position, _size),
+		m_model(_model)
+	{
+		Center();
 	}
 
+	ScreenModel::~ScreenModel()
+	{
+		delete m_model;
+	}
+
+	void ScreenModel::SetPos(Math::Vec2 _pos)
+	{
+		ScreenOverlay::SetPos(_pos);
+		Center();
+	}
+
+	// ************************************************************************ //
+
+	void ScreenModel::SetSize(Math::Vec2 _size)
+	{
+		ScreenOverlay::SetSize(_size);
+		Center();
+	}
+
+	void ScreenModel::Center()
+	{
+		m_center[0] = m_pos[0] + m_size[0] * 0.5f;
+		m_center[1] = m_pos[1] + m_size[1] * 0.5f;
+	}
+	
+	void ScreenModel::Draw(const Input::Camera& _cam, double _time)
+	{
+		Math::Ray ray = _cam.GetRay(m_center);
+		m_model->SetCenter(ray.m_start+35.f*ray.m_direction);
+		m_model->Draw( _cam, _time );
+	}
+
+	// ************************************************************** //
 
 
 	Editfield::Editfield(Jo::Files::MetaFileWrapper* _posMap, Font* _font, Math::Vec2 _position, Math::Vec2 _size, int _lines, float _fontSize):
@@ -104,15 +181,17 @@ namespace Graphic
 			m_lines[i]->SetPos(m_vertex.position+Math::Vec2(0.02f,-0.75f*i));
 	}
 
-	void Editfield::MouseDown(Math::Vec2 _pos)
+	bool Editfield::KeyDown(int _key, int _modifiers, Math::Vec2 _pos)
 	{
 		//calc pursor pos
 		//take dimensions of the first char, as every 
 //		m_cursor[0] = _pos[0] / m_font->m_sizeTable[0][0];
 	//	m_cursor[1] = _pos[1] / m_fontSize;
+		return true;
 	}
 
-	void Editfield::MouseUp(Math::Vec2 _pos)
+	bool Editfield::KeyUp(int _key, int _modifiers, Math::Vec2 _pos)
 	{
+		return true;
 	}
 };
