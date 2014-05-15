@@ -1,12 +1,11 @@
 #pragma once
 
 #include <unordered_map>
+#include "predeclarations.hpp"
 #include "sparseoctree.hpp"
 #include "component.hpp"
 #include "material.hpp"
-#include "../math/math.hpp"
-#include "../math/vector.hpp"
-#include "../predeclarations.hpp"
+#include "math/transformation.hpp"
 
 namespace Voxel {
 
@@ -15,7 +14,7 @@ namespace Voxel {
 
 	/// \brief A model is a high level abstraction with graphics and
 	///		game play elements.
-	class Model
+	class Model: public Math::Transformation
 	{
 	public:
 		typedef SparseVoxelOctree<Component, Model> ModelData;
@@ -33,7 +32,7 @@ namespace Voxel {
 		///		The effect must be set outside.
 		/// \param [in] _camera The actual camera for transformation, culling
 		///		and LOD computations.
-		///	\param [in] _gameTime A time which is used for chunk udates.
+		///	\param [in] _gameTime A time which is used for chunk updates.
 		void Draw( const Input::Camera& _camera, double _gameTime );
 
 		/// \brief Set a voxel in the model and update mass properties.
@@ -47,13 +46,12 @@ namespace Voxel {
 		///		approximating LOD (majority) of the children.
 		VoxelType Get( const Math::IVec3& _position, int _level ) const;
 
-		/// \brief Get the center of gravity (mass center)
-		Math::Vec3 GetCenter() const						{ return m_center + m_position; }
+		/// \brief Get the position of the center in world space
+		const Math::FixVec3& GetPosition() const			{ return m_position; }
 		/// \brief Set the position of the model based on its current center of gravity
-		void SetCenter(const Math::Vec3& _position)			{ m_position = _position - m_center; }
-		/// \brief Rotate without any physical influence (rotatory velocity
-		///		will be unchanged, no test for breaking of)
-		void Rotate( const Math::Quaternion& _rotation )	{ m_rotation *= _rotation; }
+		void SetPosition(const Math::FixVec3& _position)	{ m_position = _position; }
+		/// \brief Get the center of gravity (mass center) in object space
+		const Math::Vec3& GetCenter() const					{ return m_center; }
 
 		/// \brief Get the bounding radius of the sphere centered at the center
 		///		of gravity.
@@ -62,7 +60,8 @@ namespace Voxel {
 		/// \brief Get the model transformation matrix
 		/// \param [out] _out A space where the matrix can be stored.
 		/// \return The reference to _out
-		Math::Mat4x4& GetModelMatrix( Math::Mat4x4& _out ) const;
+		Math::Mat4x4& GetModelMatrix( Math::Mat4x4& _out, const Math::Transformation& _reference ) const;
+		Math::Mat4x4& GetModelMatrix( Math::Mat4x4& _out, const Input::Camera& _reference ) const;
 
 		/// \brief Do an update of physical properties.
 		/// \details If a voxel is deleted _newType is NONE. If a new voxel
@@ -74,7 +73,7 @@ namespace Voxel {
 		///	\param [in] _oldType The type of the voxel which was before.
 		void Update( const Math::IVec4& _position, const Component& _oldType, const Component& _newType );
 
-		bool RayCast( const Math::Ray& _ray, int _targetLevel, ModelData::HitResult& _hit ) const;
+		bool RayCast( const Math::WorldRay& _ray, int _targetLevel, ModelData::HitResult& _hit ) const;
 
 		/// \brief Remove all chunks which were not used or dirty.
 		void ClearChunkCache( double _gameTime );
@@ -82,9 +81,7 @@ namespace Voxel {
 		std::unordered_map<Math::IVec4, Chunk> m_chunks;
 		int m_numVoxels;				///< Count the number of voxels for statistical issues
 
-		Math::Vec3 m_position;			///< Model position in the space.
 		Math::Vec3 m_center;			///< The center of gravity (relative to the model).
-		Math::Quaternion m_rotation;	///< The rotation around the center.
 
 		Math::Quaternion m_rotatoryVelocity;	///< Current change of rotation per second
 		Math::Vec3 m_velocity;			///< Velocity in m/s (vector length)

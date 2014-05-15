@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../../math/math.hpp"
+#include "predeclarations.hpp"
+#include "math/mathbase.hpp"
 
 namespace Graphic {
 
@@ -177,7 +178,7 @@ namespace Graphic {
 	void VertexBuffer::Set(unsigned _index, const T& _value)
 	{
 		if( IsStatic() ) {LOG_ERROR("Cannot set vertices in a static buffer."); return;}
-		assert( 0<=_index && _index < GetNumVertices() );
+		Assert( 0<=_index && _index < GetNumVertices(), "Index out of range.");
 		memcpy(m_data + _index * m_vertexSize, _value, m_vertexSize);
 
 		m_firstDirtyIndex = Math::min(_index, m_firstDirtyIndex);
@@ -189,7 +190,7 @@ namespace Graphic {
 	const T* VertexBuffer::Get(unsigned _index) const
 	{
 		if( IsStatic() ) {LOG_ERROR("Cannot get vertices in a static buffer."); return nullptr;}
-		assert( 0<=_index && _index < GetNumVertices() );
+		Assert(0 <= _index && _index < GetNumVertices(), "Index out of range.");
 		return (T*)(m_data + _index * m_vertexSize);
 	}
 

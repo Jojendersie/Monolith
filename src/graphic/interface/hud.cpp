@@ -1,9 +1,9 @@
 #include "hud.hpp"
 #include "..\..\input\input.hpp"
 #include "..\core\scissor.hpp"
+#include "graphic/content.hpp"
+#include "../../../dependencies/glfw-3.0.3/include/GLFW/glfw3.h"
 
-#include "..\..\input\input.hpp"
-#include "..\content.hpp"
 
 namespace Graphic
 {

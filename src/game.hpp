@@ -8,6 +8,7 @@ namespace Graphic
 {
 	class Framebuffer;
 	class Texture;
+	class PostProcessing;
 }
 
 /// \brief The game consists of a main-loop and several different game-states.
@@ -79,6 +80,7 @@ private:
 	Graphic::Texture* m_sceneDepthTexture; ///< Main depth target for the 3D scene.
 	Graphic::Texture* m_sceneColorTexture; ///< Main color target for the 3D scene.
 	Graphic::Framebuffer* m_sceneFramebuffer; ///< Framebuffer into which the entire 3D scene is rendered before it is passed to the postprocessing module.
+	Graphic::PostProcessing* m_postProcessing;
 
 	/// \brief The kernel of the push state method
 	void _PushState( IGameStateP _state );

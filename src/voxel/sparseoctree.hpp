@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../math/vector.hpp"
-#include "../math/ray.hpp"
-#include "../math/intersection.hpp"
-#include "../algorithm/smallsort.hpp"
+#include "math/vector.hpp"
+#include "math/ray.hpp"
+#include "math/intersection.hpp"
+#include "algorithm/smallsort.hpp"
 #include <hybridarray.hpp>
 #include <poolallocator.hpp>
 
@@ -133,8 +133,8 @@ namespace Voxel {
 			/// \details This method can be called on nullptrs and checks the
 			///		index in debug mode. Further it returns nullptr if the node
 			///		has no children or the specific child is undefined.
-			SVON* GetChild( int _index )	{ assert(_index >= 0 && _index < 8); if(!this) return nullptr; if( m_children && (m_children[_index].m_children || m_children[_index].m_data != T::UNDEFINED)) return m_children + _index; return nullptr; }
-			const SVON* GetChild( int _index ) const	{ assert(_index >= 0 && _index < 8); if(!this) return nullptr; if( m_children && (m_children[_index].m_children || m_children[_index].m_data != T::UNDEFINED)) return m_children + _index; return nullptr; }
+			SVON* GetChild( int _index )	{ Assert(_index >= 0 && _index < 8, "Invalid child index!"); if(!this) return nullptr; if( m_children && (m_children[_index].m_children || m_children[_index].m_data != T::UNDEFINED)) return m_children + _index; return nullptr; }
+			const SVON* GetChild(int _index) const	{ Assert(_index >= 0 && _index < 8, "Invalid child index!"); if(!this) return nullptr; if(m_children && (m_children[_index].m_children || m_children[_index].m_data != T::UNDEFINED)) return m_children + _index; return nullptr; }
 		private:
 			T m_data;
 			SVON* m_children;
@@ -338,7 +338,7 @@ namespace Voxel {
 	{
 		// Get on an empty model? Would be better if this never happens ->
 		// better performance because no 'if' on m_rootSize required.
-		assert(m_rootSize != -1);
+		Assert(m_rootSize != -1, "Octree not yet initialized!");
 
 		// Special cases: not inside octree
 		int scale = m_rootSize-_level;
@@ -366,7 +366,7 @@ namespace Voxel {
 	{
 		// Get on an empty model? Would be better if this never happens ->
 		// better performance because no 'if' on m_rootSize required.
-		assert(m_rootSize != -1);
+		Assert(m_rootSize != -1, "Get on an empty model? Would be better if this never happens -> better performance because no 'if' on m_rootSize required.");
 
 		// Special cases: not inside octree
 		int scale = m_rootSize-_level;
@@ -401,7 +401,7 @@ namespace Voxel {
 	template<typename T, typename Listener> template<typename Processor>
 	void SparseVoxelOctree<T,Listener>::Traverse( Processor& _processor )
 	{
-		assert(m_rootSize != -1);
+		Assert(m_rootSize != -1, "Octree not yet initialized!");
 
 		m_root.Traverse(IVec4(m_rootPosition, m_rootSize), _processor);
 	}
@@ -410,7 +410,7 @@ namespace Voxel {
 	template<typename T, typename Listener> template<typename Processor>
 	void SparseVoxelOctree<T,Listener>::TraverseEx( Processor& _processor )
 	{
-		assert(m_rootSize != -1);
+		Assert(m_rootSize != -1, "Octree not yet initialized!");
 
 		m_root.TraverseEx(IVec4(m_rootPosition, m_rootSize), _processor,
 			nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
@@ -420,7 +420,7 @@ namespace Voxel {
 	template<typename T, typename Listener>
 	bool SparseVoxelOctree<T,Listener>::RayCast( const Math::Ray& _ray, int _targetLevel, HitResult& _hit ) const
 	{
-		assert(m_rootSize != -1);
+		Assert(m_rootSize != -1, "Octree not yet initialized!");
 
 		// if root to small scale it up and test against a single box
 		if( m_rootSize < _targetLevel )
@@ -468,7 +468,7 @@ namespace Voxel {
 			currentElement->m_data.Touch();
 			// Do not set back to undefined with touch - undefined is used to
 			// mark non existent tree areas.
-			//assert(currentElement->m_data != T::UNDEFINED);// TODO: Use this property for optimizations
+			//Assert(currentElement->m_data != T::UNDEFINED);// TODO: Use this property for optimizations
 			int childIndex = ComputeChildIndex(_position, _currentSize-1);
 			if( !currentElement->m_children )
 			{ // Create new children
@@ -481,7 +481,7 @@ namespace Voxel {
 			callStack.PushBack(currentElement);
 			currentElement = &currentElement->m_children[childIndex];
 		}
-		assert( _currentSize == _position[3] );
+		Assert(_currentSize == _position[3], "Unexpected tree size!");
 
 		// This is the target voxel. Delete everything below.
 		if( currentElement->m_children ) currentElement->RemoveSubTree(_position, _parent, true);
@@ -520,8 +520,8 @@ namespace Voxel {
 	template<typename T, typename Listener>
 	void SparseVoxelOctree<T,Listener>::SVON::RemoveSubTree(const Math::IVec4& _position, SparseVoxelOctree* _parent, bool _removePhysically)
 	{
-		assert( _position[3] >= 0 );
-		assert( m_children );
+		Assert(_position[3] >= 0, "Negative positions are not allowed.");
+		Assert(m_children, "Tree has no children.");
 		for(int i=0; i<8; ++i)
 		{
 			// Recursive

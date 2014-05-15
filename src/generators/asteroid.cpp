@@ -24,7 +24,7 @@ namespace Generators {
 			{
 				Voxel::VoxelType type = Voxel::VoxelType(1+Rnd.Uniform(0,1)*2);
 				Set( IVec3(x,y,z), 0, type );
-				assert( type == Get( IVec3(x,y,z), 0 ) );
+				Assert( type == Get( IVec3(x,y,z), 0 ), "Set or Get failed!");
 			}
 		}
 

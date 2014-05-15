@@ -1,7 +1,7 @@
 #include "uniformbuffer.hpp"
 #include "opengl.hpp"
 #include <cstdint>
-#include <cassert>
+#include "utilities/assert.hpp"
 
 namespace Graphic {
 
@@ -31,7 +31,7 @@ namespace Graphic {
 	void UniformBuffer::AddAttribute( const std::string& _name, ATTRIBUTE_TYPE _type )
 	{
 		// Attribute already exists!
-		assert(m_attributes.find(_name) == m_attributes.end());
+		Assert(m_attributes.find(_name) == m_attributes.end(), "Attribute exists already!");
 
 		// Determine alignment
 		int offset = m_size & 0xf;	// modulo 16
@@ -55,7 +55,7 @@ namespace Graphic {
 	UniformBuffer::UniformVar UniformBuffer::operator [] (const std::string& _name)
 	{
 		// Cannot access unknown attribute!
-		assert(m_attributes.find(_name) != m_attributes.end());
+		Assert(m_attributes.find(_name) != m_attributes.end(), "Cannot access unknown attribute!");
 
 		return UniformVar((uint8_t*)m_memory + m_attributes[_name], this);
 	}
@@ -63,7 +63,7 @@ namespace Graphic {
 	const UniformBuffer::UniformVar UniformBuffer::operator [] ( const std::string& _name ) const
 	{
 		// Cannot access unknown attribute!
-		assert(m_attributes.find(_name) != m_attributes.end());
+		Assert(m_attributes.find(_name) != m_attributes.end(), "Cannot access unknown attribute!");
 
 		// Give a nullptr instead of a buffer - it is only accessed during write
 		return UniformVar((uint8_t*)m_memory + m_attributes.at(_name), nullptr);
@@ -82,12 +82,8 @@ namespace Graphic {
 			glBindBuffer( GL_UNIFORM_BUFFER, m_bufferID );
 			glBufferSubData( GL_UNIFORM_BUFFER, 0, m_size, m_memory );
 
-			// The following line forces a sync on Intel HD chips. Otherwise reseting the buffer
-			// twice has no effect. (In case both times the same program is used.)
-			glFlush();
-
 #ifdef _DEBUG
-			LogGlError("An error during binding and uploading data occured.");
+			LogGlError("An error during binding and uploading data occurred.");
 #endif
 
 			m_isDirty = false;

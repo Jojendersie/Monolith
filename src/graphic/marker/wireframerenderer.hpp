@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../predeclarations.hpp"
-#include "../../utilities/color.hpp"
-#include "../core/vertexbuffer.hpp"
+#include "predeclarations.hpp"
+#include "utilities/color.hpp"
+#include "graphic/core/vertexbuffer.hpp"
 
 namespace Graphic {
 namespace Marker {

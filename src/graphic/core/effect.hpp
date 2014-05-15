@@ -2,10 +2,14 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include "rasterizerstate.hpp"
 #include "samplerstate.hpp"
 #include "blendstate.hpp"
 #include "depthstencilstate.hpp"
+
+/// Remove this define to disable FileWatcher on all shader files.
+#define AUTO_SHADER_RELOAD
 
 namespace Graphic {
 
@@ -18,13 +22,13 @@ namespace Graphic {
 		/// \brief Construction with pixel shader and vertex shader only.
 		Effect( const std::string& _VSFile, const std::string& _PSFile,
 			RasterizerState::CULL_MODE _cullMode = RasterizerState::CULL_MODE::BACK, RasterizerState::FILL_MODE _fillMode = RasterizerState::FILL_MODE::SOLID,
-			BlendState::BLEND_OPERATION _blendOp = BlendState::BLEND_OPERATION::ADD, BlendState::BLEND _srcOp = BlendState::BLEND::ONE, BlendState::BLEND _dstOp = BlendState::BLEND::ZERO,
+			BlendState::BLEND_OPERATION _blendOp = BlendState::BLEND_OPERATION::DISABLE, BlendState::BLEND _srcOp = BlendState::BLEND::ONE, BlendState::BLEND _dstOp = BlendState::BLEND::ZERO,
 			DepthStencilState::COMPARISON_FUNC _depthFunc = DepthStencilState::COMPARISON_FUNC::LESS, bool _zWrite = true );
 
 		/// \brief Construction of a program with pixel, vertex and geometry shader.
 		Effect( const std::string& _VSFile, const std::string& _GSFile, const std::string& _PSFile,
 			RasterizerState::CULL_MODE _cullMode = RasterizerState::CULL_MODE::BACK, RasterizerState::FILL_MODE _fillMode = RasterizerState::FILL_MODE::SOLID,
-			BlendState::BLEND_OPERATION _blendOp = BlendState::BLEND_OPERATION::ADD, BlendState::BLEND _srcOp = BlendState::BLEND::ONE, BlendState::BLEND _dstOp = BlendState::BLEND::ZERO,
+			BlendState::BLEND_OPERATION _blendOp = BlendState::BLEND_OPERATION::DISABLE, BlendState::BLEND _srcOp = BlendState::BLEND::ONE, BlendState::BLEND _dstOp = BlendState::BLEND::ZERO,
 			DepthStencilState::COMPARISON_FUNC _depthFunc = DepthStencilState::COMPARISON_FUNC::LESS, bool _zWrite = true);
 
 		~Effect();
@@ -48,7 +52,12 @@ namespace Graphic {
 		///		to the one in Device::SetTexture.
 		/// \param [in] _sampler A sampler object which defines how textures
 		///		are read.
-		void BindTexture( const char* _name, unsigned _location, const SamplerState& _sampler );
+		void BindTexture( const std::string& _name, unsigned _location, const SamplerState& _sampler );
+
+#ifdef AUTO_SHADER_RELOAD
+		/// Triggers shader reloads for changed shaders.
+		static void UpdateShaderFileWatcher();
+#endif
 
 	private:
 		RasterizerState m_rasterizerState;		///< The rasterizer state
@@ -58,19 +67,35 @@ namespace Graphic {
 		/// \brief A list of uniform buffers which where bound to the effect.
 		std::vector<UniformBuffer*> m_boundUniformBuffers;
 
-		/// \brief This struct is a pair which maps texture locations to
-		///		sampler states.
-		struct SamplerStateBinding {
+		struct SamplerStateBinding
+		{
+			SamplerStateBinding(unsigned int location, const SamplerState* sampler) : location(location), sampler(sampler) {}
+
 			unsigned location;				///< Texture stage to which this sampler is applied
 			const SamplerState* sampler;	///< A reference to an existing sampler state object.
 		};
-		/// \brief A list of all samplers for all used texture stages (forced by setter)
-		std::vector<SamplerStateBinding> m_samplerStates;
+
+		/// \brief A list of texture slots and samplers which where bound to the effect.
+		std::unordered_map<std::string, SamplerStateBinding> m_boundTextures;
 
 		unsigned m_vertexShader;
 		unsigned m_geometryShader;
 		unsigned m_pixelShader;
 		unsigned m_programID;
+
+#ifdef AUTO_SHADER_RELOAD
+
+		friend class ShaderFileWatch;
+
+		void AddToFileWatcher(const std::string& _VSFile, const std::string& _GSFile, const std::string& _PSFile);
+		void RemoveFromFileWatcher();
+		void HandleChangedShaderFile(const std::string& shaderFilename);
+
+		std::string m_OriginalVSFile;
+		std::string m_OriginalGSFile;
+		std::string m_OriginalPSFile;
+
+#endif
 
 		/// \brief Commit all changes in the bound constant buffers before a
 		///		draw call.

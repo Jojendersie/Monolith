@@ -5,14 +5,11 @@
 #include "../input/camera.hpp"
 #include <cstdlib>
 #include <cstring>
+#include "../graphic/content.hpp"
 
 using namespace Math;
 
 namespace Voxel {
-
-	/// \brief The level offsets in number of voxels to the start of the octree
-	//const int LEVEL_OFFSETS[] = {0,1,9,73,585,4681};
-	const int NUM_OCTREE_NODES = 37449;
 
 #	define INDEX(P, L)		(LEVEL_OFFSETS[L] + (P.x) + (1<<(L))*((P.y) + (1<<(L))*(P.z)))
 #	define INDEX2(X,Y,Z, L)	(LEVEL_OFFSETS[L] + (X) + (1<<(L))*((Y) + (1<<(L))*(Z)))
@@ -44,30 +41,28 @@ namespace Voxel {
 	}
 
 
-	void Chunk::Draw( Graphic::UniformBuffer& _objectConstants,
-			const Math::Mat4x4& _modelView, const Math::Mat4x4& _projection,
-			double _time )
+	void Chunk::Draw( const Math::Mat4x4& _modelView, const Math::Mat4x4& _projection, double _time )
 	{
+		Graphic::UniformBuffer& objectConstants = *Graphic::Resources::GetUBO(Graphic::UniformBuffers::OBJECT_VOXEL);
 		// Translation to center the chunks
-		Math::Mat4x4 modelViewProjection = Mat4x4::Translation(m_position) * Mat4x4::Scaling(m_scale) * _modelView;
-		_objectConstants["WorldView"] = modelViewProjection;
-		modelViewProjection *= _projection;
-		_objectConstants["WorldViewProjection"] = modelViewProjection;
+		Math::Mat4x4 modelView = Mat4x4::Translation(m_position) * Mat4x4::Scaling(m_scale) * _modelView;
+		objectConstants["WorldView"] = modelView;
+		Math::Mat4x4 modelViewProjection = modelView * _projection;
 
 		float halfScale = m_scale * 0.5f;
 		Vec4 c000 = Vec4( -0.5f, -0.5f, -0.5f, 0.0f ) * modelViewProjection;
 		Vec4 c001 = Vec4( -0.5f, -0.5f,  0.5f, 0.0f ) * modelViewProjection;
 		Vec4 c010 = Vec4( -0.5f,  0.5f, -0.5f, 0.0f ) * modelViewProjection;
 		Vec4 c011 = Vec4( -0.5f,  0.5f,  0.5f, 0.0f ) * modelViewProjection;
-		_objectConstants["Corner000"] = c000;
-		_objectConstants["Corner001"] = c001;
-		_objectConstants["Corner010"] = c010;
-		_objectConstants["Corner011"] = c011;
-		_objectConstants["Corner100"] = Vec4(  0.5f, -0.5f, -0.5f, 0.0f ) * modelViewProjection;
-		_objectConstants["Corner101"] = Vec4(  0.5f, -0.5f,  0.5f, 0.0f ) * modelViewProjection;
-		_objectConstants["Corner110"] = Vec4(  0.5f,  0.5f, -0.5f, 0.0f ) * modelViewProjection;
-		_objectConstants["Corner111"] = Vec4(  0.5f,  0.5f,  0.5f, 0.0f ) * modelViewProjection;
-		_objectConstants["MaxOffset"] = max(max(length(c000), length(c001)), max(length(c010), length(c011)));
+		objectConstants["Corner000"] = c000;
+		objectConstants["Corner001"] = c001;
+		objectConstants["Corner010"] = c010;
+		objectConstants["Corner011"] = c011;
+		objectConstants["Corner100"] = Vec4(  0.5f, -0.5f, -0.5f, 0.0f ) * modelViewProjection;
+		objectConstants["Corner101"] = Vec4(  0.5f, -0.5f,  0.5f, 0.0f ) * modelViewProjection;
+		objectConstants["Corner110"] = Vec4(  0.5f,  0.5f, -0.5f, 0.0f ) * modelViewProjection;
+		objectConstants["Corner111"] = Vec4(  0.5f,  0.5f,  0.5f, 0.0f ) * modelViewProjection;
+		objectConstants["MaxOffset"] = max(max(length(c000), length(c001)), max(length(c010), length(c011)));
 
 		Graphic::Device::DrawVertices( m_voxels, 0, m_voxels.GetNumVertices() );
 
@@ -148,7 +143,7 @@ namespace Voxel {
 				for( int i = 0; i < 8; ++i )
 				{
 					if( _node->Children()[i].Data().surface ) {
-					//	assert( _node->Children()[i].Data().material != Material::UNDEFINED );
+					//	Assert( _node->Children()[i].Data().material != Material::UNDEFINED );
 						materials[num++] = _node->Children()[i].Data().material;
 					}
 				}
@@ -348,7 +343,6 @@ namespace Voxel {
 		int numVoxels = FillP.appendBuffer - m_vertexBuffer;
 		//*/
 
-		assert( 37449 >= numVoxels );
 		if( numVoxels )
 			_chunk.m_voxels.Commit(m_vertexBuffer, numVoxels * sizeof(VoxelVertex));
 	}

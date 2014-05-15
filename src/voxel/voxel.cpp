@@ -1,5 +1,6 @@
 #include "voxel.hpp"
 #include "material.hpp"
+#include "utilities/logger.hpp"
 #include <jofilelib.hpp>
 #include <hybridarray.hpp>
 
@@ -179,9 +180,9 @@ namespace Voxel {
 			off = (m*m*m * 8) / 7 - (n*n*n * 8) / 7;
 		}
 
-		assert(_position[0] >= 0 && _position[0] < e);
-		assert(_position[1] >= 0 && _position[1] < e);
-		assert(_position[2] >= 0 && _position[2] < e);
+		Assert(_position[0] >= 0 && _position[0] < e, "Out of bounds access in voxel texture!");
+		Assert(_position[1] >= 0 && _position[1] < e, "Out of bounds access in voxel texture!");
+		Assert(_position[2] >= 0 && _position[2] < e, "Out of bounds access in voxel texture!");
 
 		MatSample borderSample;
 		ComponentTypeInfo& currentVoxel = g_InfoManager->m_voxels[(int)_type];

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "mathbase.hpp"
+#include "fixedpoint.hpp"
+#include <utility>
 
 namespace Math {
 	
@@ -60,23 +62,27 @@ namespace Math {
 		// Unary minus
 		Vector<n, Data> operator - () const								{ Vector<n, Data> result; for (int i = 0; i < n; i++) result[i] = -m_data[i]; return result; }
 
+		// A standard conform way to find the resulting type without the need
+		// of a constructor.
+#		define RESULT_TYPE(Op) decltype(std::declval<Data>() Op std::declval<Data2>())
+
 		// Arithmetic operators
 		template<class Data2>
-		Vector<n, decltype(Data(0)+Data2(0))> operator+ (const Vector<n, Data2>& _v) const		{ Vector<n, decltype(Data(0)+Data2(0))> result; for (int i = 0; i < n; i++) result[i] = m_data[i] + _v[i]; return result; }
+		Vector<n, RESULT_TYPE(+)> operator+ (const Vector<n, Data2>& _v) const		{ Vector<n, RESULT_TYPE(+)> result; for (int i = 0; i < n; i++) result[i] = m_data[i] + _v[i]; return result; }
 		template<class Data2>
-		Vector<n, decltype(Data(0)-Data2(0))> operator- (const Vector<n, Data2>& _v) const		{ Vector<n, decltype(Data(0)+Data2(0))> result; for (int i = 0; i < n; i++) result[i] = m_data[i] - _v[i]; return result; }
+		Vector<n, RESULT_TYPE(-)> operator- (const Vector<n, Data2>& _v) const		{ Vector<n, RESULT_TYPE(-)> result; for (int i = 0; i < n; i++) result[i] = m_data[i] - _v[i]; return result; }
 		template<class Data2>
-		Vector<n, decltype(Data(0)*Data2(0))> operator* (const Vector<n, Data2>& _v) const		{ Vector<n, decltype(Data(0)+Data2(0))> result; for (int i = 0; i < n; i++) result[i] = m_data[i] * _v[i]; return result; }
+		Vector<n, RESULT_TYPE(*)> operator* (const Vector<n, Data2>& _v) const		{ Vector<n, RESULT_TYPE(*)> result; for (int i = 0; i < n; i++) result[i] = m_data[i] * _v[i]; return result; }
 		template<class Data2>
-		Vector<n, decltype(Data(0)/Data2(0))> operator/ (const Vector<n, Data2>& _v) const		{ Vector<n, decltype(Data(0)+Data2(0))> result; for (int i = 0; i < n; i++) result[i] = m_data[i] / _v[i]; return result; }
+		Vector<n, RESULT_TYPE(/)> operator/ (const Vector<n, Data2>& _v) const		{ Vector<n, RESULT_TYPE(/)> result; for (int i = 0; i < n; i++) result[i] = m_data[i] / _v[i]; return result; }
 		template<class Data2>
-		Vector<n, decltype(Data(0)+Data2(0))> operator+ (const Data2 _d) const	{ Vector<n, decltype(Data(0)+Data2(0))> result; for (int i = 0; i < n; i++) result[i] = m_data[i] + _d; return result; }
+		Vector<n, RESULT_TYPE(+)> operator+ (const Data2 _d) const		{ Vector<n, RESULT_TYPE(+)> result; for (int i = 0; i < n; i++) result[i] = m_data[i] + _d; return result; }
 		template<class Data2>
-		Vector<n, decltype(Data(0)-Data2(0))> operator- (const Data2 _d) const	{ Vector<n, decltype(Data(0)-Data2(0))> result; for (int i = 0; i < n; i++) result[i] = m_data[i] - _d; return result; }
+		Vector<n, RESULT_TYPE(-)> operator- (const Data2 _d) const		{ Vector<n, RESULT_TYPE(-)> result; for (int i = 0; i < n; i++) result[i] = m_data[i] - _d; return result; }
 		template<class Data2>
-		Vector<n, decltype(Data(0)*Data2(0))> operator* (const Data2 _d) const	{ Vector<n, decltype(Data(0)*Data2(0))> result; for (int i = 0; i < n; i++) result[i] = m_data[i] * _d; return result; }
+		Vector<n, RESULT_TYPE(*)> operator* (const Data2 _d) const		{ Vector<n, RESULT_TYPE(*)> result; for (int i = 0; i < n; i++) result[i] = m_data[i] * _d; return result; }
 		template<class Data2>
-		Vector<n, decltype(Data(0)/Data2(0))> operator/ (const Data2 _d) const	{ Vector<n, decltype(Data(0)/Data2(0))> result; for (int i = 0; i < n; i++) result[i] = m_data[i] / _d; return result; }
+		Vector<n, RESULT_TYPE(/)> operator/ (const Data2 _d) const		{ Vector<n, RESULT_TYPE(/)> result; for (int i = 0; i < n; i++) result[i] = m_data[i] / _d; return result; }
 
 		/// \brief Shifting operator for integral types.
 		/// \details The Data is kept template to support anything which defines
@@ -119,16 +125,17 @@ namespace Math {
 		Data m_data[n];
 	}; // class Vector
 
+
 	// Arithmetic operators with Vector as RH
-	template<int n, class Data>
-	Vector<n, Data> operator+ (const Data _d, const Vector<n, Data>& _v) 				{ return Vector<n, Data>(_v) += _d; }
-	template<int n, class Data>
-	Vector<n, Data> operator- (const Data _d, const Vector<n, Data>& _v) 				{ return Vector<n, Data>(_v) -= _d; }
-	template<int n, class Data>
-	Vector<n, Data> operator* (const Data _d, const Vector<n, Data>& _v) 				{ return Vector<n, Data>(_v) *= _d; }
+	template<int n, class Data, class Data2>
+	Vector<n, RESULT_TYPE(+)> operator+ (const Data _d, const Vector<n, Data2>& _v) 				{ return Vector<n, RESULT_TYPE(+)>(_v) += _d; }
+	template<int n, class Data, class Data2>
+	Vector<n, RESULT_TYPE(-)> operator- (const Data _d, const Vector<n, Data2>& _v) 				{ return Vector<n, RESULT_TYPE(-)>(_v) -= _d; }
+	template<int n, class Data, class Data2>
+	Vector<n, RESULT_TYPE(*)> operator* (const Data _d, const Vector<n, Data2>& _v) 				{ return Vector<n, RESULT_TYPE(*)>(_v) *= _d; }
 	/// \brief Element wise scalar / vector.i
-	template<int n, class Data>
-	Vector<n, Data> operator/ (const Data _d, const Vector<n, Data>& _v) 				{ Vector<n, Data> result; for( int i=0; i<n; ++i ) result[i] = _d / _v[i]; return result; }
+	template<int n, class Data, class Data2>
+	Vector<n, RESULT_TYPE(/)> operator/ (const Data _d, const Vector<n, Data2>& _v) 				{ Vector<n, RESULT_TYPE(/)> result; for( int i=0; i<n; ++i ) result[i] = _d / _v[i]; return result; }
 
 	// comparison for float
 	template<int n>
@@ -224,6 +231,8 @@ namespace Math {
 		return normalize(result);
 	}
 
+#	undef RESULT_TYPE
+
 
 
 
@@ -236,6 +245,7 @@ namespace Math {
 	typedef Vector<2,float> Vec2;
 	typedef Vector<3,float> Vec3;
 	typedef Vector<4,float> Vec4;
+	typedef Vector<3,Math::Fix> FixVec3;
 
 } // namespace Math
 

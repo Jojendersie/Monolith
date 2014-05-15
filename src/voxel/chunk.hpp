@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <cassert>
+#include "utilities/assert.hpp"
 #include "../predeclarations.hpp"
 #include "../math/vector.hpp"
 #include "../graphic/core/vertexbuffer.hpp"
@@ -34,8 +34,8 @@ namespace Voxel {
 		VoxelVertex() : flags(0)	{}
 
 		void SetVisibility( int _l, int _r, int _bo, int _t, int _f, int _ba )	{ flags = (flags & 0xffffffc0) | _l | _r<<1 | _bo<<2 | _t<<3 | _f<<4 | _ba<<5; }
-		void SetVisibility( int _flags )					{ assert(_flags < 64); flags = (flags & 0xffffffc0) | _flags; }
-// DEPRECATED		void SetSize( int _level )							{ assert(0<=_level && _level<=5); flags = (flags & 0xfffffe3f) | (_level<<6); }
+		void SetVisibility( int _flags )					{ Assert(_flags < 64, "Invalid visiblity flag."); flags = (flags & 0xffffffc0) | _flags; }
+// DEPRECATED		void SetSize( int _level )							{ Assert(0<=_level && _level<=5); flags = (flags & 0xfffffe3f) | (_level<<6); }
 		void SetPosition( const Math::IVec3& _position )	{ flags = (flags & 0xff0001ff) | (_position[0] << 9) | (_position[1] << 14) | (_position[2] << 19); }
 // DEPRECATED		void SetTexture( int _textureIndex )				{ flags = (flags & 0x00ffffff) | (_textureIndex << 24); }
 //		void SetHasChildren( bool _bHasChildren )			{ flags = (flags & 0x7fffffff) | (_bHasChildren?0x80000000:0); }
@@ -67,14 +67,12 @@ namespace Voxel {
 		/// \brief Fills the constant buffer with the chunk specific data
 		///		and draw the voxels.
 		/// \details The effect must be set outside.
-		/// \param [out] _objectConstants A reference to the constant buffer
-		///		which must be filled.
-		/// \param [in] _modelViewProjection The actual view projection matrix.
+		/// \param [in] _modelView The actual view matrix.
 		///		This matrix should contain the general model transformation too.
+		///	\param [in] _projection The projection matrix to precompute the
+		///		corner vectors.
 		/// \param [in] _time Current game time.
-		void Draw( Graphic::UniformBuffer& _objectConstants,
-			const Math::Mat4x4& _modelView, const Math::Mat4x4& _projection,
-			double _time );
+		void Draw( const Math::Mat4x4& _modelView, const Math::Mat4x4& _projection, double _time );
 
 		/// \brief Set position relative to the model.
 		//void SetPosition( const Math::Vec3& _position )	{ m_position = _position; }

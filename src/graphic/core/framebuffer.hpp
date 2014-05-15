@@ -62,4 +62,4 @@ namespace Graphic {
 		Attachment m_depthStencil;
 		std::vector<Attachment> m_colorAttachments;
 	};
-}
+} // namespace Graphic

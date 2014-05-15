@@ -41,6 +41,7 @@ namespace Graphic {
 	{
 		POINT = 0,
 		LINEAR = 1,
+		LINEAR_NOMIPMAP = 2, ///< Performs no filter on mipmaps. Useful for lineraly sampling textures without mipmaps.
 		COUNT			///< Number of effects - this must be the last enumeration member
 	};
 

@@ -45,6 +45,27 @@
     <Filter Include="Source Files\graphic\interface">
       <UniqueIdentifier>{b4cc2e4f-2261-4c4d-b53b-2a4909a4abcd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\graphic\highlevel">
+      <UniqueIdentifier>{14ccf921-c052-4d25-a643-293637229e0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\postprocessing">
+      <UniqueIdentifier>{dc61f87e-e68e-4ff8-9433-7e7658d9177e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dependencies">
+      <UniqueIdentifier>{80c09e81-3836-4cae-8522-e413f05b47bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dependencies\glew">
+      <UniqueIdentifier>{ce0dcc39-d95f-4357-92b4-d5e5c6d6e1d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dependencies\glfw">
+      <UniqueIdentifier>{3442d994-7692-42af-b028-e664c2528e9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dependencies\FileWatcher">
+      <UniqueIdentifier>{b10c3063-c3db-4b15-abe0-25aa62f218de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dependencies\JoFileLib">
+      <UniqueIdentifier>{aad1fd60-67da-4a84-85fc-0450a7ce9308}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
@@ -186,6 +207,182 @@
       <Filter>Source Files\graphic\markers</Filter>
     </ClCompile>
     <ClCompile Include="src\math\transformation.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\highlevel\postprocessing.cpp">
+      <Filter>Source Files\graphic\highlevel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\highlevel\screenalignedtriangle.cpp">
+      <Filter>Source Files\graphic\highlevel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utilities\assert.cpp">
+      <Filter>Source Files\utilities</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\voxel\model.cpp">
+      <Filter>Source Files\voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\voxel\chunk.cpp">
+      <Filter>Source Files\voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\matrix.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\generators\asteroid.cpp">
+      <Filter>Source Files\generators</Filter>
+    </ClCompile>
+    <ClCompile Include="src\generators\random.cpp">
+      <Filter>Source Files\generators</Filter>
+    </ClCompile>
+    <ClCompile Include="src\timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\input.cpp">
+      <Filter>Source Files\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\camera.cpp">
+      <Filter>Source Files\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\sphere.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\content.cpp">
+      <Filter>Source Files\graphic</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utilities\color.cpp">
+      <Filter>Source Files\utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\quaternion.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\intersection.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\voxel\material.cpp">
+      <Filter>Source Files\voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gamestates\gsmainmenu.cpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gamestates\gsplay.cpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\voxel\voxel.cpp">
+      <Filter>Source Files\voxel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utilities\logger.cpp">
+      <Filter>Source Files\utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utilities\policy.cpp">
+      <Filter>Source Files\utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\marker\wireframerenderer.cpp">
+      <Filter>Source Files\graphic\markers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\marker\grid.cpp">
+      <Filter>Source Files\graphic\markers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\blendstate.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\depthstencilstate.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\device.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\effect.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\framebuffer.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\rasterizerstate.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\samplerstate.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\texture.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\uniformbuffer.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\vertexbuffer.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\interface\font.cpp">
+      <Filter>Source Files\graphic\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\interface\hud.cpp">
+      <Filter>Source Files\graphic\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\interface\hudelements.cpp">
+      <Filter>Source Files\graphic\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gamestates\gseditor.cpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gamestates\gsgraphicopt.cpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gamestates\gsinputopt.cpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gamestates\gssoundopt.cpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gamestates\gseditorchoice.cpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gamestates\gsgameplayopt.cpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClCompile>
+    <ClCompile Include="src\resources.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\opengl.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\core\scissor.cpp">
+      <Filter>Source Files\graphic\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\marker\box.cpp">
+      <Filter>Source Files\graphic\markers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\transformation.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\highlevel\postprocessing.cpp">
+      <Filter>Source Files\graphic\highlevel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\graphic\highlevel\screenalignedtriangle.cpp">
+      <Filter>Source Files\graphic\highlevel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utilities\assert.cpp">
+      <Filter>Source Files\utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\FileWatcher\FileWatcherLinux.cpp">
+      <Filter>Source Files\dependencies\FileWatcher</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\FileWatcher\FileWatcherOSX.cpp">
+      <Filter>Source Files\dependencies\FileWatcher</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\FileWatcher\FileWatcherWin32.cpp">
+      <Filter>Source Files\dependencies\FileWatcher</Filter>
+    </ClCompile>
+    <ClCompile Include="dependencies\FileWatcher\FileWatcher.cpp">
+      <Filter>Source Files\dependencies\FileWatcher</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\ray.cpp">
       <Filter>Source Files\math</Filter>
     </ClCompile>
   </ItemGroup>
@@ -364,6 +561,78 @@
     <ClInclude Include="src\math\transformation.hpp">
       <Filter>Source Files\math</Filter>
     </ClInclude>
+    <ClInclude Include="src\graphic\highlevel\postprocessing.h">
+      <Filter>Source Files\graphic\highlevel</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\highlevel\screenalignedtriangle.h">
+      <Filter>Source Files\graphic\highlevel</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utilities\assert.hpp">
+      <Filter>Source Files\utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\hybridarray.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\imagewrapper.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\jofilelib.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\memfile.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\plattform.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\poolallocator.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\streamreader.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\file.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\fileutils.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\filewrapper.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\JoFileLib\include\hddfile.hpp">
+      <Filter>Source Files\dependencies\JoFileLib</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\glfw-3.0.3\include\GLFW\glfw3native.h">
+      <Filter>Source Files\dependencies\glfw</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\glfw-3.0.3\include\GLFW\glfw3.h">
+      <Filter>Source Files\dependencies\glfw</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\glew-1.10.0\include\GL\glxew.h">
+      <Filter>Source Files\dependencies\glew</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\glew-1.10.0\include\GL\wglew.h">
+      <Filter>Source Files\dependencies\glew</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\glew-1.10.0\include\GL\glew.h">
+      <Filter>Source Files\dependencies\glew</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\FileWatcher\FileWatcherLinux.h">
+      <Filter>Source Files\dependencies\FileWatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\FileWatcher\FileWatcherOSX.h">
+      <Filter>Source Files\dependencies\FileWatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\FileWatcher\FileWatcherWin32.h">
+      <Filter>Source Files\dependencies\FileWatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\FileWatcher\FileWatcher.h">
+      <Filter>Source Files\dependencies\FileWatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="dependencies\FileWatcher\FileWatcherImpl.h">
+      <Filter>Source Files\dependencies\FileWatcher</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\voxel.ps">
@@ -408,5 +677,19 @@
     <None Include="shader\beam.gs">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="shader\postprocessing\output.ps">
+      <Filter>Resource Files\postprocessing</Filter>
+    </None>
+    <None Include="shader\postprocessing\screentri.vs">
+      <Filter>Resource Files\postprocessing</Filter>
+    </None>
+    <None Include="shader\postprocessing\ambientocclusion.ps">
+      <Filter>Resource Files\postprocessing</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="dependencies\FileWatcher\License.txt">
+      <Filter>Source Files\dependencies\FileWatcher</Filter>
+    </Text>
   </ItemGroup>
 </Project>

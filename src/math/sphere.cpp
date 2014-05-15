@@ -1,7 +1,7 @@
 #include "sphere.hpp"
 #include "vector.hpp"
 #include "matrix.hpp"
-#include <cassert>
+#include "utilities/assert.hpp"
 
 namespace Math {
 
@@ -127,7 +127,7 @@ namespace Math {
 		{
 			// Make sure the iterator will go to the correct next one
 			auto currentIt = p++;
-			assert( currentIt != _pointSet.end() );
+			Assert( currentIt != _pointSet.end(), "Unexpected list end!" );
 			Vec3 last = *currentIt;
 			if( !MBS.Encloses(last) )
 			{

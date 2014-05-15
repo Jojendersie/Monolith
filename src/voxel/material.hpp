@@ -1,8 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <cassert>
-#include "../math/math.hpp"
+#include "utilities/assert.hpp"
 
 namespace Voxel {
 

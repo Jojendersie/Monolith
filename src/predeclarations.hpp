@@ -55,13 +55,18 @@ namespace Math {
 	class Plane;
 	struct Sphere;
 	struct Ray;
+	struct WorldRay;
 	template<int n, class Data>	class Vector;
+//	template<int n>	class FixedPoint;
+//	typedef FixedPoint<30> Fix;
 	typedef Vector<2,int> IVec2;
 	typedef Vector<3,int> IVec3;
 	typedef Vector<4,int> IVec4;
 	typedef Vector<2,float> Vec2;
 	typedef Vector<3,float> Vec3;
 	typedef Vector<4,float> Vec4;
+//	typedef Vector<3,FixedPoint<30>> FixVec3;
+	class Transformation;
 } // namespace Math
 
 namespace Utils {

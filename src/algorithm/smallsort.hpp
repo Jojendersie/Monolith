@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cassert>
+#include "utilities/assert.hpp"
 
 namespace Algo {
 
@@ -163,7 +163,7 @@ namespace Algo {
 		case 8: Sort8(_data); break;
 		default:
 			// Can only sort up to 8 elements with SmallSort!
-			assert(false);
+			Assert(false, "Can only sort up to 8 elements with SmallSort!");
 			break;
 		}
 	}

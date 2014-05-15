@@ -1,0 +1,13 @@
+#version 330
+
+in vec2 vs_out_TexCoord;
+
+uniform sampler2D screenTex;
+
+out vec4 fragColor;
+
+void main()
+{
+	fragColor = textureLod(screenTex, vs_out_TexCoord, 0); // texelFetch is possibly better!
+  //fragColor.xy = vs_out_TexCoord;
+}

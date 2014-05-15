@@ -1,12 +1,13 @@
-#include "../game.hpp"
+#include "voxel/model.hpp"
+#include "game.hpp"
 #include "gseditor.hpp"
-#include "../input/camera.hpp"
-#include "../input/input.hpp"
-#include "../graphic/interface/hud.hpp"
-#include "../graphic/marker/box.hpp"
-#include "../voxel/model.hpp"
-#include <cassert>
-#include "../graphic/content.hpp"
+#include "input/camera.hpp"
+#include "input/input.hpp"
+#include "graphic/interface/hud.hpp"
+#include "graphic/marker/box.hpp"
+#include "graphic/content.hpp"
+#include "../../dependencies/glfw-3.0.3/include/GLFW/glfw3.h"
+#include "utilities/assert.hpp"
 
 using namespace Math;
 
@@ -46,7 +47,7 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 	Graphic::Hud* modelInfoContainer = m_hud->CreateContainer(Math::Vec2(-0.0f,-0.9f), Math::Vec2(1.f,0.8f));
 
 	// TODO: viewport for this camera in the upper right corner
-	m_modelCamera = new Input::Camera( Vec3( 0.0f, 0.0f, 0.0f ),
+	m_modelCamera = new Input::Camera( FixVec3( Fix(0ll), Fix(0ll), Fix(0ll) ),
 		Quaternion( 0.0f, 0.0f, 0.0f ),
 		0.3f,
 		Graphic::Device::GetAspectRatio() );
@@ -109,13 +110,13 @@ void GSEditor::Render( double _time, double _deltaTime )
 	{
 		// Use model coordinate system
 		Math::Mat4x4 modelTransform;
-		m_model->GetModelMatrix(modelTransform);
+		m_model->GetModelMatrix(modelTransform, *m_modelCamera);
 		// Compute position of edited voxel.
 		Math::Vec3 voxelPos = m_lvl0Position + 0.50001f;
 		if( m_deletionMode || !m_validPosition )
-			m_redBox->Draw( Math::Mat4x4::Translation( voxelPos ) * Math::Mat4x4::Scaling( 1.0f, 1.0f, 1.0f ) * modelTransform * m_modelCamera->GetViewProjection() );
+			m_redBox->Draw( Math::Mat4x4::Translation( voxelPos ) * Math::Mat4x4::Scaling( 1.0f, 1.0f, 1.0f ) * modelTransform * m_modelCamera->GetProjection() );
 		else 
-			m_greenBox->Draw( Math::Mat4x4::Translation( voxelPos ) * Math::Mat4x4::Scaling( 1.0f, 1.0f, 1.0f ) * modelTransform * m_modelCamera->GetViewProjection() );
+			m_greenBox->Draw( Math::Mat4x4::Translation( voxelPos ) * Math::Mat4x4::Scaling( 1.0f, 1.0f, 1.0f ) * modelTransform * m_modelCamera->GetProjection() );
 	}
 
 	// Draw hud and components in another view
@@ -136,7 +137,7 @@ void GSEditor::UpdateInput()
 	m_modelCamera->UpdateMatrices();
 
 	// Find out the position where the cursor points to.
-	Ray ray = m_modelCamera->GetRay( Input::Manager::GetCursorPosScreenSpace() );
+	WorldRay ray = m_modelCamera->GetRay( Input::Manager::GetCursorPosScreenSpace() );
 	Voxel::Model::ModelData::HitResult hit;
 	m_rayHits = m_model->RayCast( ray, 0, hit );
 	if( m_rayHits )
@@ -228,7 +229,7 @@ void GSEditor::KeyDoubleClick( int _key )
 void GSEditor::CreateNewModel( const Voxel::Model* _copyFrom )
 {
 	// Currently undefined situation: Delete/store model with a request.
-	assert( !m_model );
+	Assert( !m_model, "Need model before creating a new one" );
 
 	if( _copyFrom )
 	{

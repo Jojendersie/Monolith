@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <string>
 #include "material.hpp"
+#include "math/vector.hpp"
 
 namespace Voxel {
 
@@ -41,7 +42,7 @@ namespace Voxel {
 		///		and can therefore be used for alignment too. E.g. A tree which
 		///		stands on its border-side. If there are multiple neighbors the
 		///		union of all border and normal textures is calculated - so be
-		///		carefull with trees.
+		///		careful with trees.
 		/// \param [in] _type The type of the component voxel.
 		/// \param [in] _position A position inside the target levels 3D array.
 		/// \param [in] _level 0 Is the root of the mip map chain (1x1x1).

@@ -3,7 +3,7 @@
 // -- PLEASE REMOVE WHEN DONE WITH POSTPROCESSING
 
 #include <thread>
-#include <cassert>
+#include "utilities/assert.hpp"
 #include "game.hpp"
 #include "gamestates/gsmainmenu.hpp"
 #include "gamestates/gsplay.hpp"
@@ -14,11 +14,15 @@
 #include "gamestates/gsgameplayopt.hpp"
 #include "gamestates/gssoundopt.hpp"
 #include "timer.hpp"
+
 #include "graphic/core/device.hpp"
 #include "graphic/core/texture.hpp"
 #include "graphic/core/framebuffer.hpp"
+#include "graphic/core/effect.hpp"
 #include "graphic/core/uniformbuffer.hpp"
+#include "graphic/highlevel/postprocessing.h"
 #include "graphic/content.hpp"
+
 #include "input/input.hpp"
 #include "voxel/voxel.hpp"
 #include "resources.hpp"
@@ -33,14 +37,16 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 	m_stateStack( nullptr )
 {
 	// Init scene framebuffer
-	/*{
+	{
 		using namespace Graphic;
 		m_sceneColorTexture = new Texture(Graphic::Device::GetBackbufferSize()[0], Device::GetBackbufferSize()[1],
 			Texture::Format(4, 8, Texture::Format::ChannelType::UINT));
 		m_sceneDepthTexture = new Texture(Graphic::Device::GetBackbufferSize()[0], Device::GetBackbufferSize()[1],
 			Texture::Format(1, 32, Texture::Format::ChannelType::FLOAT, Texture::Format::FormatType::DEPTH));
 		m_sceneFramebuffer = new Framebuffer(Framebuffer::Attachment(m_sceneColorTexture), Framebuffer::Attachment(m_sceneDepthTexture));
-	}*/
+
+		m_postProcessing = new PostProcessing();
+	}
 
 	// Init timer
 	g_fInvFrequency = std::chrono::high_resolution_clock::period::num/double(std::chrono::high_resolution_clock::period::den);
@@ -55,7 +61,7 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 		BuildDefaultConfig();
 	}
 
-	assert(glGetError() == GL_NO_ERROR);
+	Assert(glGetError() == GL_NO_ERROR, "GL during initialization!");
 
 	Resources::LoadLanguageData( Config[std::string("Game")][std::string("Language")] );
 	Input::Manager::Initialize( Graphic::Device::GetWindow(), Config[std::string("Input")] );
@@ -101,9 +107,10 @@ Monolith::~Monolith()
 	Graphic::Resources::Unload();
 	Voxel::TypeInfo::Unload();
 
-//	delete m_sceneFramebuffer;
-//	delete m_sceneColorTexture;
-//	delete m_sceneDepthTexture;
+	delete m_postProcessing;
+	delete m_sceneFramebuffer;
+	delete m_sceneColorTexture;
+	delete m_sceneDepthTexture;
 }
 
 // ************************************************************************* //
@@ -118,12 +125,26 @@ void Monolith::Run()
 		while( m_running && !glfwWindowShouldClose(Graphic::Device::GetWindow()) && ClearStack() )
 		{			
 			// Call stuff
-			Input::Manager::Update();
+
+			// Render to scene framebuffer.
+			Graphic::Device::BindFramebuffer(m_sceneFramebuffer);
+
 			m_stateStack->Render( m_time, deltaTime );
+
+			// Postprocessing and draw to backbuffer.
+			m_postProcessing->PerformPostProcessing(*m_sceneColorTexture, *m_sceneDepthTexture);
+
+			// Perform updates
+			Input::Manager::Update();
 			m_stateStack->Update(m_time, deltaTime);
 
 			glfwSwapBuffers(Graphic::Device::GetWindow());
 			glfwPollEvents();
+
+#ifdef AUTO_SHADER_RELOAD
+			Graphic::Effect::UpdateShaderFileWatcher();
+#endif
+
 
 			//glFinish();
 
