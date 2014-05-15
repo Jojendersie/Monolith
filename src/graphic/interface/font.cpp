@@ -39,7 +39,8 @@ namespace Graphic
 		m_sizeD(2.f),
 		m_colorD((uint8_t)255,(uint8_t)255,(uint8_t)255,(uint8_t)255),
 		m_thicknessD(0.5f),
-		m_active(true)
+		m_active(true),
+		m_sizeMax(0)
 	{
 		m_size = m_sizeD;
 		m_color = m_colorD;
@@ -114,6 +115,7 @@ namespace Graphic
 		for(size_t i = 0; i<m_text.length(); i++)
 		{
 			CharacterVertex CV;
+			if(m_size > m_sizeMax) m_sizeMax = m_size;
 			CV.scale = m_size;//1.f 
 			CV.size = m_font->m_sizeTable[(unsigned char)m_text[i]];
 			CV.texCoord = m_font->m_coordTable[(unsigned char)m_text[i]];

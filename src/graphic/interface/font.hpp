@@ -55,14 +55,18 @@ namespace Graphic {
 		/// "<c rrr ggg bbb aaa>" "colored text" "</c>"
 		/// "<i>" "italic text" "</i" not yet implemented
 		/// "<t  ttt>" "thickness text" "</b>"
-		/*performance view of alternative syntax: 4x{ 2x cmp 3x {add; mul}} + all xx iterations need cmp, inc, jmp
-										 current: direct acsess possible*/
 		void SetText(const std::string& _text);
 
-		// \brief Sets the Position on the screen.
+		const std::string& GetText() {return m_text;};
+
+		/// \brief Sets the Position on the screen.
 		void SetPos(Math::Vec2 _screenPos);
 
+		/// \brief returns the real dimensions the string is drawn in
 		Math::Vec2 GetDim() {return Math::Vec2(m_font->m_sizeTable[0][0],m_font->m_sizeTable[0][1]*m_font->m_texture.Height() / m_font->m_texture.Width());};
+
+		/// \brief returns the largest size the string contains(set per <s>)
+		float GetMaxSize(){return m_sizeMax;}; 
 
 		bool m_active;
 
@@ -78,5 +82,7 @@ namespace Graphic {
 		Utils::Color8U m_color, m_colorD;
 		float m_size, m_sizeD;
 		float m_thickness, m_thicknessD;
+
+		float m_sizeMax;
 	};
 };
