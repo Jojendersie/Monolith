@@ -21,6 +21,29 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 	LOG_LVL2("Starting to create game state Editor");
 
 	m_hud = new Graphic::Hud(_game);
+	Graphic::Hud* voxelContainer = m_hud->CreateContainer(Math::Vec2(-1.f,-0.9f), Math::Vec2(0.6f,1.75f));
+	voxelContainer->SetScrollable(true);
+
+	//add every (aviable) voxel to the list wich fits the createria
+	for(int i = 0; i < Voxel::TypeInfo::GetNumVoxels()-1; i++)
+	{
+		Voxel::VoxelType type = (Voxel::VoxelType)(i+1);
+		Voxel::Model* vox = new Voxel::Model;
+		vox->Set(Math::IVec3(0,0,0),0,type);
+		voxelContainer->CreateModel(Math::Vec2(-0.887f,0.9f-i*0.2f), Math::Vec2(0.f, 0.f), vox);
+		voxelContainer->CreateBtn("voxelBtn", "<s 032>     "+Voxel::TypeInfo::GetName(type)
+									+ "\n     Ì:" + std::to_string(Voxel::TypeInfo::GetHydrogen(type))
+									+ " Í:" + std::to_string(Voxel::TypeInfo::GetCarbon(type))
+									+ " Î:" + std::to_string(Voxel::TypeInfo::GetMetals(type))
+									+ " \n     Ï:" + std::to_string(Voxel::TypeInfo::GetRareEarthElements(type))
+									+ " Ð:" + std::to_string(Voxel::TypeInfo::GetSemiconductors(type))
+									+ " Ñ:" + std::to_string(Voxel::TypeInfo::GetHeisenbergium(type)), 
+									Math::Vec2(-0.99f,1.f-i*0.2f), Math::Vec2(0.8f, 0.2f),
+									[this,type](){m_currentType = type;});
+	}
+
+	//box holding informations about the current model
+	Graphic::Hud* modelInfoContainer = m_hud->CreateContainer(Math::Vec2(-0.0f,-0.9f), Math::Vec2(1.f,0.8f));
 
 	// TODO: viewport for this camera in the upper right corner
 	m_modelCamera = new Input::Camera( Vec3( 0.0f, 0.0f, 0.0f ),
@@ -28,10 +51,12 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 		0.3f,
 		Graphic::Device::GetAspectRatio() );
 
+	voxelContainer->SetCamera(m_modelCamera);
+
 	// Create boxes for change previews
 	m_redBox = new Graphic::Marker::Box( Vec3( 1.0002f, 1.0002f, 1.0002f ), 0.55f, Utils::Color32F(0.9f, 0.1f, 0.1f, 1.0f) );
 	m_greenBox = new Graphic::Marker::Box( Vec3( 1.0002f, 1.0002f, 1.0002f ), 0.55f, Utils::Color32F(0.1f, 0.9f, 0.1f, 1.0f) );
-
+	
 	LOG_LVL2("Created game state Editor");
 }
 
@@ -95,6 +120,14 @@ void GSEditor::Render( double _time, double _deltaTime )
 
 	// Draw hud and components in another view
 	m_hud->Draw(  _time, _deltaTime );
+
+/*	Graphic::Device::SetEffect(	*Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
+	for(int i = 0; i < Voxel::TypeInfo::GetNumVoxels()-1; i++)
+	{
+		Math::Ray ray = m_modelCamera->GetRay(Math::Vec2(-0.887f,0.9f-i*0.2f));
+		m_availableVoxels[i].SetCenter(ray.m_start+35.f*ray.m_direction);
+		m_availableVoxels[i].Draw( *m_modelCamera, _time );
+	}*/
 }
 
 // ************************************************************************* //
@@ -143,6 +176,7 @@ void GSEditor::MouseMove( double _dx, double _dy )
 // ************************************************************************* //
 void GSEditor::Scroll( double _dx, double _dy )
 {
+	if(m_hud->Scroll(_dx, _dy)) return;
 	double scrollSpeed = m_game->Config[std::string("Input")][std::string("CameraScrollSpeed")];
 	m_modelCamera->Scroll( float(_dy * scrollSpeed) );
 }

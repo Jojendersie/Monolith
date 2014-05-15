@@ -1,7 +1,7 @@
 #pragma once
 
 #include "gamestatebase.hpp"
-#include "math/vector.hpp"
+#include "../math/vector.hpp"
 
 /// \brief Game state to edit voxel models.
 class GSEditor: public IGameState
