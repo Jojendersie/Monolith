@@ -64,6 +64,35 @@ namespace Voxel {
 		/// \brief Returns the mass of the voxel.
 		/// TODO: use integer(64?) mass
 		static float GetMass( VoxelType _type );
+		
+		/// \brief Returns the thresholdEnergy of the voxel.
+		static float GetThresholdEnergy( VoxelType _type );
+		
+		/// \brief Returns the reactionEnergy of the voxel.
+		static float GetReactionEnergy( VoxelType _type );
+		
+		/// \brief Returns the amount of hydrogen the voxel consists of voxel.
+		static int GetHydrogen( VoxelType _type );
+
+		/// \brief Returns the amount of carbon the voxel consists of voxel.
+		static int GetCarbon( VoxelType _type );
+
+		/// \brief Returns the amount of metal the voxel consists of voxel.
+		static int GetMetals( VoxelType _type );
+
+		/// \brief Returns the amount of rareEarthElements the voxel consists of voxel.
+		static int GetRareEarthElements( VoxelType _type );
+
+		/// \brief Returns the amount of semiconductors the voxel consists of voxel.
+		static int GetSemiconductors( VoxelType _type );
+
+		/// \brief Returns the amount of Heisenbergium the voxel consists of voxel.
+		static int GetHeisenbergium( VoxelType _type );
+
+		/// \brief Returns the name of the voxel
+		static std::string GetName( VoxelType _type );
+
+		static int GetNumVoxels();
 	private:
 		/// \brief singleton constructor - calls load.
 		TypeInfo();

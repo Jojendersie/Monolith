@@ -264,6 +264,101 @@ namespace Voxel {
 			return g_InfoManager->m_voxels[(int)_type].mass;
 	}
 
+	// ********************************************************************* //
+	float TypeInfo::GetThresholdEnergy( VoxelType _type )
+	{
+		if( (int)_type >= g_InfoManager->m_numVoxels ) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0.0f;
+		} else
+			return g_InfoManager->m_voxels[(int)_type].thresholdEnergy;
+	}
+
+	// ********************************************************************* //
+	float TypeInfo::GetReactionEnergy( VoxelType _type )
+	{
+		if( (int)_type >= g_InfoManager->m_numVoxels ) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0.0f;
+		} else
+			return g_InfoManager->m_voxels[(int)_type].reactionEnergy;
+	}
+
+	// ********************************************************************* //
+	int TypeInfo::GetHydrogen( VoxelType _type )
+	{
+		if( (int)_type >= g_InfoManager->m_numVoxels ) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0;
+		} else
+			return g_InfoManager->m_voxels[(int)_type].hydrogen;
+	}
+
+	// ********************************************************************* //
+	int TypeInfo::GetCarbon( VoxelType _type )
+	{
+		if( (int)_type >= g_InfoManager->m_numVoxels ) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0;
+		} else
+			return g_InfoManager->m_voxels[(int)_type].carbon;
+	}
+
+	// ********************************************************************* //
+	int TypeInfo::GetMetals( VoxelType _type )
+	{
+		if( (int)_type >= g_InfoManager->m_numVoxels ) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0;
+		} else
+			return g_InfoManager->m_voxels[(int)_type].metals;
+	}
+
+	// ********************************************************************* //
+	int TypeInfo::GetRareEarthElements( VoxelType _type )
+	{
+		if( (int)_type >= g_InfoManager->m_numVoxels ) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0;
+		} else
+			return g_InfoManager->m_voxels[(int)_type].rareEarthElements;
+	}
+
+	// ********************************************************************* //
+	int TypeInfo::GetSemiconductors( VoxelType _type )
+	{
+		if( (int)_type >= g_InfoManager->m_numVoxels ) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0;
+		} else
+			return g_InfoManager->m_voxels[(int)_type].semiconductors;
+	}
+
+	// ********************************************************************* //
+	int TypeInfo::GetHeisenbergium( VoxelType _type )
+	{
+		if( (int)_type >= g_InfoManager->m_numVoxels ) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0;
+		} else
+			return g_InfoManager->m_voxels[(int)_type].heisenbergium;
+	}
+
+	// ********************************************************************* //
+	std::string TypeInfo::GetName( VoxelType _type )
+	{
+		if( (int)_type >= g_InfoManager->m_numVoxels ) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0;
+		} else
+			return g_InfoManager->m_voxels[(int)_type].name;
+	}
+
+	// ********************************************************************* //
+	int TypeInfo::GetNumVoxels()
+	{
+		return g_InfoManager->m_numVoxels;
+	}
 
 	// ********************************************************************* //
 	int TypeInfo::GenerateMipMap( MatSample* _texture, int _e )
