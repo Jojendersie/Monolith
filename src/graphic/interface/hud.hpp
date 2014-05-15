@@ -7,39 +7,58 @@ namespace Graphic {
 	const int MAX_SCREENTEX = 64;
 	
 	/// \brief A class that handles (2d)graphic overlays.
-	class Hud
+	class Hud : public ScreenOverlay
 	{
 	public:
-		// functions intendet do be used in gamestates
+		/// \brief Creates an Hud object wich handles a 2d interface on the specfied screen rectangle
+		Hud( Monolith* _game, Math::Vec2 _pos=Math::Vec2(-1.f,-1.f) , Math::Vec2 _size=Math::Vec2(2.f,2.f), bool _showCursor = true);
+
+		// functions intended do be used in gamestates to create a button with the specefied params
 		void CreateBtn(std::string _texName, std::string _desc, Math::Vec2 _position, Math::Vec2 _size, std::function<void()> _OnMouseUp = [] () {return;});
+
+		/// \brief Creates an container in the current Hud and returns it as Hud* to fill it with elements 
+		Hud* CreateContainer(Math::Vec2 _pos=Math::Vec2(-1.f,-1.f) , Math::Vec2 _size=Math::Vec2(2.f,2.f));
+
+		/// \brief Creates an screenModel
+		/// ScreenModels requier a camera to be set first per SetCamera()
+		void CreateModel(Math::Vec2 _pos , Math::Vec2 _size, Voxel::Model* _model);
 
 		/// \brief Last call in every frame drawcall
 		void Draw(double _time, double _deltaTime);
 
-		/// \ Adds an existing label(TextRender) to the auto draw managment
+		/// \brief Adds an existing label(TextRender) to the auto draw managment
 		void AddTextRender(TextRender* _label);
 
-		/// \ Adds an existing screenTex to the auto draw managment
+		/// \brief Adds an existing screenTex to the auto draw and collision managment
 		void AddTexture(ScreenTexture* _tex);
 
-		/// \ Adds an existing button to the auto draw managment
+		/// \brief Adds an existing button to the auto draw managment
 		void AddButton(Button* _btn);
 
+		/// \brief Sets the camera; Currently only used by ScreenModel
+		void SetCamera(Input::Camera* _cam) {m_camera = _cam;};
+
+		/// \brief When scrollable all elements of the hud will move when a scrollevent is recieved
+		void SetScrollable(bool _scrollable) {m_scrollable = _scrollable;};
+
+		/// \brief Mouse events
+		//atleast one is important so that dynamic_cast can work
+		virtual void MouseEnter() override;
+		virtual void MouseLeave() override;
+		virtual bool KeyDown( int _key, int _modifiers, Math::Vec2 _pos = Math::Vec2(0.f,0.f)) override;
+		virtual bool KeyUp(int _key, int _modifiers, Math::Vec2 _pos = Math::Vec2(0.f,0.f)) override;
+
 		/// \ called by the current gamestate to update mouseinput
-		void MouseMove( double _dx, double _dy );
+		virtual void MouseMove( double _dx, double _dy )override;
 
-		/// \ Mouseclicks gets passed to the Hudelements
-		bool KeyDown( int _key, int _modifiers );
-		bool KeyUp( int _key, int _modifiers );
+		virtual bool Scroll(double _dx, double _dy) override;
 
-		bool Scroll(double _dx, double _dy);
-
-		Hud( Monolith* _game );
 		~Hud();
 
 		TextRender* m_dbgLabel;
 
 	private:
+
 		ScreenTexture* m_focus;///< object wich currently takes the input
 
 		/// \brief rebuilds the vertex buffer for screen textures
@@ -48,25 +67,31 @@ namespace Graphic {
 		// pointers to global information
 		Monolith* m_game;
 
+		Input::Camera* m_camera;
+
 		VertexBuffer m_characters;/// < vertex buffer that holds the screen textures
 
-		Texture m_container; ///< The basic texture container for screen elements 
+		Texture m_texContainer; ///< The basic texture container for screen elements 
 		//gets created dynamicly in constructor sinc it temporarly needs a hdd file handle
-		Jo::Files::MetaFileWrapper* m_containerMap; ///< the size and position informations of the elements in the container
+		Jo::Files::MetaFileWrapper* m_texContainerMap; ///< the size and position informations of the elements in the container
 
-		//static arrays to hold and manage HUD elements
+		//dynamic lists to hold and manage HUD elements
 		//todo use more dynamic datastructure like std::vector or std::list maybe combined with std:shared_ptr 
-		
-		int m_textRenderCount;
-		TextRender* m_textRenders[64];
-		
-		int m_screenTexCount; 
-		ScreenTexture* m_screenTextures[MAX_SCREENTEX];
 
-		int m_btnCount; 
-		Button* m_buttons[MAX_SCREENTEX/4];
+		std::forward_list<TextRender*> m_textRenders;
 
-		ScreenTexture* m_preTex;///< Handle to the screenTexture wich the cursor points to 
+		std::forward_list<ScreenOverlay*> m_screenOverlays;
+
+		std::forward_list<Button*> m_buttons;
+
+		std::forward_list<std::unique_ptr <Hud> > m_containers;
+
+		std::forward_list<std::unique_ptr <ScreenModel> > m_screenModels;
+
+		ScreenOverlay* m_preElem;///< Handle to the screenTexture wich the cursor points to 
 		ScreenTexture* m_cursor;///< the ingame cursor
+		bool m_showCursor;
+
+		bool m_scrollable; ///< wether mouse scrolling moves the elements
 	};
 };

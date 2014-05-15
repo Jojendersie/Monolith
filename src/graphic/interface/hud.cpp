@@ -1,87 +1,140 @@
 #include "hud.hpp"
 #include "..\..\input\input.hpp"
+#include "..\core\scissor.hpp"
+
+#include "..\..\input\input.hpp"
 #include "..\content.hpp"
 
 namespace Graphic
 {
-	Hud::Hud(Monolith* _game ):
+	Hud::Hud(Monolith* _game, Math::Vec2 _pos, Math::Vec2 _size, bool _showCursor):
+		ScreenOverlay(Math::Vec2(_pos[0],-_pos[1]), _size),
 		m_game(_game),
 		m_characters( "2222", VertexBuffer::PrimitiveType::POINT ),
-		m_container("texture/combined.png"),
-		m_screenTexCount(0),
-		m_textRenderCount(0),
-		m_btnCount(0),
-		m_preTex(NULL)
-//		m_mapFile("texture/combined.sraw", true),
-//		m_containerMap( m_mapFile, Jo::Files::Format::SRAW )
-//		m_labelMS(&TextRender(m_defaultFont))
+		m_texContainer("texture/combined.png"),
+		m_preElem(NULL),
+		m_showCursor(_showCursor),
+		m_scrollable(false)
 	{
 	//	for( int i = 0; i < MAX_SCREENTEX; i++ )
 	//		m_screenTextures[i] = nullptr;
 
-		m_dbgLabel = new TextRender(Graphic::Resources::GetFont(Graphic::Fonts::DEFAULT));
-		m_dbgLabel->SetPos(Math::Vec2(0.6f,0.8f));
+		m_dbgLabel = new TextRender(Graphic::Resources::GetFont(Graphic::Fonts::DEFAULT));//DEFAULT
+		m_dbgLabel->SetPos(Math::Vec2(0.7f,0.8f));
 		AddTextRender(m_dbgLabel);
+
+		//m_globalPipelineData->texture2DEffect.BindTexture( "u_screenTex", 7, _globalPipelineData->linearSampler );
 
 		//test screen tex
 		Jo::Files::HDDFile file("texture/combined.sraw");
-		m_containerMap = new Jo::Files::MetaFileWrapper( file, Jo::Files::Format::SRAW );
+		m_texContainerMap = new Jo::Files::MetaFileWrapper( file, Jo::Files::Format::SRAW );
 		
-		m_cursor = new ScreenTexture(m_containerMap, "cursor", Math::Vec2(0.f,0.f), Math::Vec2(0.07f,0.07f));
-
+		m_cursor = new ScreenTexture(m_texContainerMap, "cursor", Math::Vec2(0.f,0.f), Math::Vec2(0.07f,0.07f));
+	//	m_cursor->SetState(_showCursor);
 		AddTexture(m_cursor);
 
-	//	m_btnMenu = new Button(m_containerMap, m_globalPipelineData->defaultFont, "menuBtn", Math::Vec2(-0.9f,0.92f), Math::Vec2(0.16f,0.07f));
+	//	m_btnMenu = new Button(m_texContainerMap, m_globalPipelineData->defaultFont, "menuBtn", Math::Vec2(-0.9f,0.92f), Math::Vec2(0.16f,0.07f));
 	//	m_btnMenu->m_caption.SetText("<c 000 024 242 255> <s 032>Menue</s> </c>");
 	//	AddButton(m_btnMenu);
 	}
 
+	// ************************************************************************* //
 	Hud::~Hud()
 	{
 		delete m_dbgLabel;
 
-		delete m_containerMap;
+		delete m_texContainerMap;
 		delete m_cursor;
-		for( int i = 0; i < m_btnCount; i++ )
-			delete m_buttons[i];
+		for( Button* btn : m_buttons )
+			delete btn;
 	}
 
+	// ************************************************************************* //
 	void Hud::CreateBtn(std::string _texName, std::string _desc, Math::Vec2 _position, Math::Vec2 _size, std::function<void()> _OnMouseUp)
 	{
-		Button* btn = new Button(m_containerMap, Resources::GetFont(Fonts::GAME_FONT), _texName, _position, _size, _OnMouseUp);
-		btn->m_caption.SetText(_desc);
+		Button* btn = new Button(m_texContainerMap, Resources::GetFont(Fonts::GAME_FONT), _texName, _position, _size, _OnMouseUp);
+		btn->SetCaption(_desc);
 		AddButton(btn);
 	}
 
+	// ************************************************************************* //
+	Hud* Hud::CreateContainer(Math::Vec2 _pos, Math::Vec2 _size) 
+	{
+		Hud* hud = new Hud(m_game, _pos, _size, false);
+		m_containers.push_front(std::unique_ptr<Hud>(hud));
+		m_screenOverlays.push_front(hud);
+		return hud;
+	};
+
+	// ************************************************************************* //
+	void Hud::CreateModel(Math::Vec2 _pos , Math::Vec2 _size, Voxel::Model* _model)
+	{
+		ScreenModel* screenModel = new ScreenModel(_pos, _size, _model);
+		m_screenOverlays.push_front(screenModel);
+		m_screenModels.push_front(std::unique_ptr<ScreenModel>(screenModel));
+	};
+
+	// ************************************************************************* //
 	void Hud::Draw(double _time, double _deltaTime)
 	{
-
+		ScissorRect scissor(m_pos[0], -m_pos[1], m_size[0], m_size[1]);
 		RenewBuffer();
 
 		Device::SetEffect( *Resources::GetEffect(Effects::TEXTURE_2DQUAD) );
-		Device::SetTexture( m_container, 7 );
+		Device::SetTexture( m_texContainer, 7 );
 		//ignore cursor
 		Device::DrawVertices( m_characters, 0, m_characters.GetNumVertices()-1 );
 
-		for(int i = 0; i < m_textRenderCount; i++ )
-			if(m_textRenders[i]->m_active) m_textRenders[i]->Draw();
+	/*	for(int i = 1; i < 256; i++)
+			bla += (i%10 == 0)?(std::to_string(i)+":"+(char)i+"\n"):(std::to_string(i)+":"+(char)i+"  ");
+		m_dbgLabel->SetText(bla);
+		m_dbgLabel->SetPos(Math::Vec2(-0.9f,0.9f));*/
+		for(TextRender* textRender : m_textRenders )
+			if(textRender->m_active) textRender->Draw();
+
+		//draw every subhud(container)
+		for(ScreenOverlay* screenOverlay : m_screenOverlays)
+		{
+			Hud* hud = dynamic_cast<Hud*> (screenOverlay);
+			if(hud != NULL && hud->GetState() && hud->GetVisibility())
+				hud->Draw(_time, _deltaTime);
+		}
+
+		//activate voxel rendering
+		Graphic::Device::SetEffect(	*Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
+		//draw every screenModel
+		for(auto& screenModel : m_screenModels)
+		{
+			screenModel->Draw(*m_camera, _time);
+		}
 
 		//draw cursor last
-		Device::SetEffect( *Resources::GetEffect(Effects::TEXTURE_2DQUAD) );
-		Device::SetTexture( m_container, 7 );
-		Device::DrawVertices( m_characters, m_characters.GetNumVertices()-1, 1 );
+		if(m_showCursor)
+		{
+			Device::SetEffect( *Resources::GetEffect(Effects::TEXTURE_2DQUAD) );
+			Device::SetTexture( m_texContainer, 7 );
+			Device::DrawVertices( m_characters, m_characters.GetNumVertices()-1, 1 );
+		}
 	}
 
+	// ************************************************************************* //
 	void Hud::RenewBuffer()
 	{
 		m_characters.Clear();
-		for(int i = m_screenTexCount-1; i >= 0; i--)
+		for(ScreenOverlay* screenOverlay : m_screenOverlays)
 		{
-			if(m_screenTextures[i]->GetState() && m_screenTextures[i]->GetVisibility()) m_characters.Add(m_screenTextures[i]->m_vertex);
+			ScreenTexture* screenTex = dynamic_cast<ScreenTexture*> (screenOverlay);
+			if(screenTex != NULL && screenTex->GetState() && screenTex->GetVisibility()) 
+				m_characters.Add(screenTex->m_vertex);
 		}
+	/*	for(ScreenTexture* screenTex : m_screenTextures)
+		{
+			if(screenTex->GetState() && screenTex->GetVisibility()) m_characters.Add(screenTex->m_vertex);
+		}*/
 		m_characters.Commit();
 	}
 
+	// ************************************************************************* //
 	void Hud::MouseMove( double _dx, double _dy )
 	{
 		// Get cursor converted to screen coordinates
@@ -90,83 +143,104 @@ namespace Graphic
 
 		//todo: include mousespeed in config  
 
-		//collision with hud objects todo: rewrite with better form/structure
-		for(int i = m_screenTexCount-1; i >= 0; i--)
+		//collision with hud elements 
+		for(ScreenOverlay* screenOverlay : m_screenOverlays)
 		{
 			Math::Vec2 loc2;
-			loc2[0] = m_screenTextures[i]->m_vertex.position[0] + m_screenTextures[i]->m_vertex.screenSize[0];
-			loc2[1] = m_screenTextures[i]->m_vertex.position[1] - m_screenTextures[i]->m_vertex.screenSize[1];
-			if((m_screenTextures[i]->GetState())
-			&&(m_screenTextures[i]->m_vertex.position[0] < cursorPos[0]) && (m_screenTextures[i]->m_vertex.position[1] > cursorPos[1])
+			loc2[0] = screenOverlay->m_pos[0] + screenOverlay->m_size[0];
+			loc2[1] = screenOverlay->m_pos[1] - screenOverlay->m_size[1];
+			if((screenOverlay->GetState())
+			&&(screenOverlay->m_pos[0] < cursorPos[0]) && (screenOverlay->m_pos[1] > cursorPos[1])
 			&& (loc2[0] > cursorPos[0]) && (loc2[1] < cursorPos[1]))
 			{
-				//enter new tex; leave old
-				if(m_preTex != m_screenTextures[i]) 
+				//enter new element; leave old
+				if(m_preElem != screenOverlay) 
 				{
-					if(m_preTex != NULL){ m_preTex->MouseLeave(); m_preTex = nullptr;}
-					m_screenTextures[i]->MouseEnter();	
-					m_preTex = m_screenTextures[i];
+					if(m_preElem != NULL){ m_preElem->MouseLeave(); m_preElem = nullptr;}
+					screenOverlay->MouseEnter();	
+					m_preElem = screenOverlay;
 				}
+				//pass mouseMove to the active object
+				screenOverlay->MouseMove(_dx,_dy);
 				return;
 			}
 		}
-		//leave tex; enter free space 
-		if(m_preTex != NULL)
-		{
-			m_preTex->MouseLeave();
-			m_preTex = nullptr;
-		}
+		//leave element; enter free space 
+		MouseLeave();
 	}
 
-	bool Hud::KeyDown( int _key, int _modifiers )
+	// ************************************************************************* //
+	bool Hud::KeyDown( int _key, int _modifiers, Math::Vec2 _pos )
 	{
-		if(_key == GLFW_MOUSE_BUTTON_LEFT && m_preTex != nullptr)
+		if(_key == GLFW_MOUSE_BUTTON_LEFT && m_preElem != nullptr)
 		{
-			m_preTex->MouseDown();
+			m_preElem->KeyDown(_key, _modifiers);
 			return true;
 		}
 		return false;
 	}
 
-	bool Hud::KeyUp( int _key, int _modifiers )
+	bool Hud::KeyUp( int _key, int _modifiers, Math::Vec2 _pos )
 	{
-		if(_key == GLFW_MOUSE_BUTTON_LEFT && m_preTex != nullptr)
+		if(_key == GLFW_MOUSE_BUTTON_LEFT && m_preElem != nullptr)
 		{
-			m_preTex->MouseUp();
+			m_preElem->KeyUp(_key, _modifiers);
 			return true;
 		}
 		return false;
 	}
-
+	
 	bool Hud::Scroll(double _dx, double _dy)
 	{
-		if(m_focus != nullptr) ;
+		//The focused overlay takes the input
+		if(m_preElem && m_preElem->Scroll(_dx , _dy)) return true;
+		//The Hud moves all elements up/down
+		if(m_scrollable)
+		{
+			for(ScreenOverlay* screenOverlay : m_screenOverlays)
+			{
+				screenOverlay->SetPos(Math::Vec2(screenOverlay->m_pos[0]+_dx * 0.1, screenOverlay->m_pos[1]+_dy * 0.1));
+			}
+			return true;
+		}
 		return false;
 	}
 
+	void Hud::MouseEnter()
+	{
+		ScreenOverlay::MouseEnter();
+	}
+	void Hud::MouseLeave()
+	{
+		if(m_preElem)
+		{
+			m_preElem->MouseLeave();
+			m_preElem = nullptr;
+		}
+	}
+
+	// ************************************************************************* //
 	void Hud::AddTextRender(TextRender* _label)
 	{
-		m_textRenders[m_textRenderCount] = _label;
-		m_textRenderCount++;
+		m_textRenders.push_front(_label);
 	}
 
 	void Hud::AddTexture(ScreenTexture* _tex)
 	{
 		//adjustments for to display the texture right in the window
-		_tex->m_vertex.size[0] -= 1.5f/m_container.Width();//good
-	//	_tex->m_vertex.size[1] -= 1.f/m_container.Height();
-		_tex->m_vertex.texCoord[0] += 0.5f/m_container.Width();//good
-	//	_tex->m_vertex.texCoord[1] += 0.5f/m_container.Height(); 
+		_tex->m_vertex.size[0] -= 1.5f/m_texContainer.Width();
+	//	_tex->m_vertex.size[1] -= 1.f/m_texContainer.Height();
+		_tex->m_vertex.texCoord[0] += 0.5f/m_texContainer.Width();
+	//	_tex->m_vertex.texCoord[1] += 0.5f/m_texContainer.Height(); 
 		_tex->m_vertex.screenSize[0] /= Device::GetAspectRatio();
-		m_screenTextures[m_screenTexCount] = _tex;
-		m_screenTexCount++;
+		m_screenOverlays.push_front(_tex);
 	}
 
 	void Hud::AddButton(Button* _btn)
 	{
+		
 		//keep pointer to delete it later
-		m_buttons[m_btnCount] = _btn;
-		m_btnCount++;
+		m_buttons.push_front(_btn);
 		AddTexture(&(_btn->m_btnDefault));
 		AddTexture(&(_btn->m_btnOver));
 		AddTexture(&(_btn->m_btnDown));
