@@ -692,6 +692,9 @@
     <None Include="shader\globalubo.glsl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="shader\utils.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="dependencies\FileWatcher\License.txt">

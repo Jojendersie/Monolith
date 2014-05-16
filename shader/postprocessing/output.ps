@@ -2,12 +2,25 @@
 
 in vec2 vs_out_TexCoord;
 
-uniform sampler2D screenTex;
+//#define AMBIENT_OCCULSION
 
-out vec4 fragColor;
+uniform sampler2D screenTex;
+uniform sampler2D ambientOcclusionMap;
+
+out vec3 fragColor;
+
+#include "../globalubo.glsl"
 
 void main()
 {
-	fragColor = textureLod(screenTex, vs_out_TexCoord, 0); // texelFetch is possibly better!
-  //fragColor.xy = vs_out_TexCoord;
+	ivec2 texelCoord = ivec2(vs_out_TexCoord.x * c_fBBWidth, vs_out_TexCoord.y * c_fBBHeight);
+
+	vec3 screenColor = texelFetch(screenTex, texelCoord, 0).rgb;
+	
+	#ifdef AMBIENT_OCCULSION
+		float ao = texelFetch(ambientOcclusionMap, texelCoord, 0).r;
+		fragColor.rgb = screenColor * ao;
+	#else
+		fragColor.rgb = screenColor;
+	#endif
 }

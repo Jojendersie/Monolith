@@ -86,7 +86,7 @@ void GSPlay::Render( double _time, double _deltaTime )
 	RenderStat::g_numChunks = 0;
 	m_camera->Set( *Resources::GetUBO(UniformBuffers::CAMERA) );
 
-	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
+	Graphic::Device::Clear( 0.05f, 0.05f, 0.06f );
 
 	Graphic::Device::SetEffect(	*Resources::GetEffect(Effects::VOXEL_RENDER) );
 	m_astTest->Draw( *m_camera, _time );

@@ -236,6 +236,7 @@
     <None Include="shader\screentex.gs" />
     <None Include="shader\screentex.ps" />
     <None Include="shader\screentex.vs" />
+    <None Include="shader\utils.glsl" />
     <None Include="shader\voxel.gs" />
     <None Include="shader\voxel.ps" />
     <None Include="shader\voxel.vs" />

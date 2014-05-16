@@ -45,7 +45,7 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 			Texture::Format(1, 32, Texture::Format::ChannelType::FLOAT, Texture::Format::FormatType::DEPTH));
 		m_sceneFramebuffer = new Framebuffer(Framebuffer::Attachment(m_sceneColorTexture), Framebuffer::Attachment(m_sceneDepthTexture));
 
-		m_postProcessing = new PostProcessing();
+		m_postProcessing = new PostProcessing(PostProcessing::AmbientOcclusionConfig::OFF);
 	}
 
 	// Init timer
@@ -78,7 +78,7 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 	m_gameStates[6] = new GSGameplayOpt(this);
 	m_gameStates[7] = new GSSoundOpt(this);
 
-	PushState( GetMainMenuState() );
+	PushState(GetMainMenuState());
 }
 
 // ************************************************************************* //

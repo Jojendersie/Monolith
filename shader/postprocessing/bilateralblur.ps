@@ -1,0 +1,65 @@
+#version 330
+
+// Defines this for y blur pass with final output (no depth output anymore)
+// #define BLUR_Y_FIN
+
+in vec2 vs_out_TexCoord;
+
+// Expecting ao in r and linear depth in y! Will output the same.
+uniform sampler2D depthTex;
+uniform sampler2D ambientOcclusionMap;
+
+
+#include "../globalubo.glsl"
+#include "../utils.glsl"
+  
+out float fragColor;
+
+// Config
+#define BLUR_RADIUS 5 // Be careful! It is in both directions!
+const float BlurFalloff = 0.03; // 1/(2 sigma²) in the Gaussian function. Too low values result in a box filter, too high values waste samples!
+const float Sharpness = 100.0; // 0 is aquivalent with a Gaussian blur
+
+
+float blurFunction(ivec2 uv, float r, float centerAO, float centerDepth, inout float w_total)
+{
+	float depth = LinearizeZBufferDepth(texelFetch(depthTex, uv, 0).r);
+    float AO = texelFetch(ambientOcclusionMap, uv, 0).r;
+
+    float ddiff = depth - centerDepth;
+    float w = exp(-r * r * BlurFalloff - ddiff* ddiff * Sharpness);
+    w_total += w;
+
+    return w * AO;
+}
+
+void main()
+{
+	ivec2 texelCoord = ivec2(vs_out_TexCoord.x * c_fBBWidth, vs_out_TexCoord.y * c_fBBHeight);
+	float centerAO = texelFetch(ambientOcclusionMap, texelCoord, 0).r;
+	float centerDepth = LinearizeZBufferDepth(texelFetch(depthTex, texelCoord, 0).r);
+	
+	float b = centerAO;
+	float w_total = 1.0;
+
+	ivec2 dir0 = texelCoord;
+	ivec2 dir1 = texelCoord;
+	float relativeRadius = 0.0;
+	for (float r = 1; r <= BLUR_RADIUS; ++r)
+	{
+		#ifdef BLUR_Y_FIN
+			--dir0.x;
+			++dir1.x;
+		#else
+			--dir0.y;
+			++dir1.y;
+		#endif
+
+		++relativeRadius;
+	    b += blurFunction(dir0, relativeRadius, centerAO, centerDepth, w_total);
+	    b += blurFunction(dir1, relativeRadius, centerAO, centerDepth, w_total);
+	}
+
+	
+	fragColor = b / w_total;
+}
