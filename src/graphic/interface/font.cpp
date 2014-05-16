@@ -7,11 +7,11 @@ namespace Graphic
 {
 	Font::Font(std::string _fontName) :
 		m_texture("texture/"+_fontName+".png"),
-		m_effect( "shader/font.vs", "shader/font.gs", "shader/font.ps",
-				Graphic::RasterizerState::CULL_MODE::BACK, Graphic::RasterizerState::FILL_MODE::SOLID,
-				Graphic::BlendState::BLEND_OPERATION::ADD, Graphic::BlendState::BLEND::SRC_ALPHA, Graphic::BlendState::BLEND::INV_SRC_ALPHA,
-				Graphic::DepthStencilState::COMPARISON_FUNC::ALWAYS, false)
+		m_effect( "shader/font.vs", "shader/font.ps", "shader/font.gs")
 	{
+		m_effect.SetRasterizerState(RasterizerState(RasterizerState::CULL_MODE::NONE, RasterizerState::FILL_MODE::SOLID));
+		m_effect.SetBlendState(BlendState(BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::SRC_ALPHA, BlendState::BLEND::INV_SRC_ALPHA));
+		m_effect.SetDepthStencilState(DepthStencilState(DepthStencilState::COMPARISON_FUNC::ALWAYS, false));
 		m_effect.BindTexture( "u_characterTex", 7, *Graphic::Resources::GetSamplerState(SamplerStates::LINEAR) );
 		m_effect.BindUniformBuffer( *Graphic::Resources::GetUBO(UniformBuffers::GLOBAL) );
 

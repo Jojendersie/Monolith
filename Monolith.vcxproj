@@ -228,7 +228,9 @@
     <None Include="shader\font.gs" />
     <None Include="shader\font.ps" />
     <None Include="shader\font.vs" />
+    <None Include="shader\globalubo.glsl" />
     <None Include="shader\postprocessing\ambientocclusion.ps" />
+    <None Include="shader\postprocessing\bilateralblur.ps" />
     <None Include="shader\postprocessing\output.ps" />
     <None Include="shader\postprocessing\screentri.vs" />
     <None Include="shader\screentex.gs" />

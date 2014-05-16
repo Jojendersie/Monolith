@@ -20,22 +20,28 @@ namespace Graphic {
 		switch( _effect )
 		{
 		case Effects::VOXEL_RENDER:
-			s_effects[(int)_effect] = new Effect( "shader/voxel.vs", "shader/voxel.gs", "shader/voxel.ps", Graphic::RasterizerState::CULL_MODE::BACK, Graphic::RasterizerState::FILL_MODE::SOLID );
+			s_effects[(int)_effect] = new Effect("shader/voxel.vs", "shader/voxel.ps", "shader/voxel.gs");
 			s_effects[(int)_effect]->BindUniformBuffer( *GetUBO(UniformBuffers::OBJECT_VOXEL) );
 			s_effects[(int)_effect]->BindUniformBuffer( *GetUBO(UniformBuffers::CAMERA) );
 			s_effects[(int)_effect]->BindUniformBuffer( *GetUBO(UniformBuffers::GLOBAL) );
 			s_effects[(int)_effect]->BindTexture( "u_diffuseTex", 0, *GetSamplerState(SamplerStates::POINT) );
 			break;
 		case Effects::TEXTURE_2DQUAD:
-			s_effects[(int)_effect] = new Effect( "shader/screentex.vs", "shader/screentex.gs", "shader/screentex.ps", Graphic::RasterizerState::CULL_MODE::BACK, Graphic::RasterizerState::FILL_MODE::SOLID, Graphic::BlendState::BLEND_OPERATION::ADD, Graphic::BlendState::BLEND::SRC_ALPHA, Graphic::BlendState::BLEND::INV_SRC_ALPHA, Graphic::DepthStencilState::COMPARISON_FUNC::ALWAYS, false );
+			s_effects[(int)_effect] = new Effect("shader/screentex.vs", "shader/screentex.ps", "shader/screentex.gs");
+			s_effects[(int)_effect]->SetBlendState(BlendState(Graphic::BlendState::BLEND_OPERATION::ADD, Graphic::BlendState::BLEND::SRC_ALPHA, Graphic::BlendState::BLEND::INV_SRC_ALPHA));
+			s_effects[(int)_effect]->SetDepthStencilState(DepthStencilState(Graphic::DepthStencilState::COMPARISON_FUNC::ALWAYS, false));
 			s_effects[(int)_effect]->BindTexture( "u_screenTex", 7, *GetSamplerState(SamplerStates::LINEAR) );
 			break;
 		case Effects::WIRE:
-			s_effects[(int)_effect] = new Effect( "shader/wire.vs", "shader/wire.ps", Graphic::RasterizerState::CULL_MODE::BACK, Graphic::RasterizerState::FILL_MODE::SOLID, BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::SRC_ALPHA, BlendState::BLEND::ONE, Graphic::DepthStencilState::COMPARISON_FUNC::LESS, false );
+			s_effects[(int)_effect] = new Effect( "shader/wire.vs", "shader/wire.ps");
+			s_effects[(int)_effect]->SetBlendState(BlendState(BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::SRC_ALPHA, BlendState::BLEND::ONE));
+			s_effects[(int)_effect]->SetDepthStencilState(DepthStencilState(Graphic::DepthStencilState::COMPARISON_FUNC::LESS, false));
 			s_effects[(int)_effect]->BindUniformBuffer( *GetUBO(UniformBuffers::OBJECT_WIRE) );
 			break;
 		case Effects::BEAM:
-			s_effects[(int)_effect] = new Effect( "shader/beam.vs", "shader/beam.gs", "shader/beam.ps", Graphic::RasterizerState::CULL_MODE::BACK, Graphic::RasterizerState::FILL_MODE::SOLID, BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::SRC_ALPHA, BlendState::BLEND::ONE, Graphic::DepthStencilState::COMPARISON_FUNC::LESS, false );
+			s_effects[(int)_effect] = new Effect( "shader/beam.vs", "shader/beam.ps", "shader/beam.gs");
+			s_effects[(int)_effect]->SetBlendState(BlendState(BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::SRC_ALPHA, BlendState::BLEND::ONE));
+			s_effects[(int)_effect]->SetDepthStencilState(DepthStencilState(Graphic::DepthStencilState::COMPARISON_FUNC::LESS, false));
 			s_effects[(int)_effect]->BindUniformBuffer( *GetUBO(UniformBuffers::OBJECT_WIRE) );
 			break;
 		}
@@ -56,11 +62,15 @@ namespace Graphic {
 			s_ubos[(int)_ubo]->AddAttribute( "Aspect", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 			s_ubos[(int)_ubo]->AddAttribute( "Width", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 			s_ubos[(int)_ubo]->AddAttribute( "Height", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
+			s_ubos[(int)_ubo]->AddAttribute( "InvWidth", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT);
+			s_ubos[(int)_ubo]->AddAttribute( "InvHeight", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT);
 			s_ubos[(int)_ubo]->AddAttribute( "Time", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 			Math::IVec2 size = Graphic::Device::GetBackbufferSize();
 			(*s_ubos[(int)_ubo])["Aspect"] = Graphic::Device::GetAspectRatio();
 			(*s_ubos[(int)_ubo])["Width"] = (float)size[0];
 			(*s_ubos[(int)_ubo])["Height"] = (float)size[1];
+			(*s_ubos[(int)_ubo])["InvWidth"] = 1.0f / size[0];
+			(*s_ubos[(int)_ubo])["InvHeight"] = 1.0f / size[1];
 			break; }
 		case UniformBuffers::CAMERA:
 			s_ubos[(int)_ubo] = new UniformBuffer( "Camera" );
@@ -77,7 +87,6 @@ namespace Graphic {
 			// The inverse projection vector contains (1/x, 1/y, 1/z, -w/z)
 			// Usage: pos.xyz * invProj.xyz + vec3(0,0,invProj.w)
 			s_ubos[(int)_ubo]->AddAttribute( "ProjectionInverse", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
-			s_ubos[(int)_ubo]->AddAttribute( "Padding0", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 			s_ubos[(int)_ubo]->AddAttribute( "NearPlane", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 			s_ubos[(int)_ubo]->AddAttribute( "FarPlane", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 			break;

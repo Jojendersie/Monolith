@@ -84,6 +84,9 @@ namespace Input {
 		float m_fov;
 		float m_aspect;
 
+		float m_nearPlane;
+		float m_farPlane;
+
 		const Voxel::Model* m_attachedTo;	///< The camera can track this object and uses it as reference system
 		Math::Vec3 m_referencePos;			///< Object position in view space. This reference frame is kept for a tracked object.
 		bool m_hardAttached;				///< If the object is hard attached the camera position follows the object. If it is soft attached rotations are relative to the object.

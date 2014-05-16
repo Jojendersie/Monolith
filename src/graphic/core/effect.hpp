@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include "rasterizerstate.hpp"
 #include "samplerstate.hpp"
 #include "blendstate.hpp"
@@ -19,17 +20,15 @@ namespace Graphic {
 	class Effect
 	{
 	public:
-		/// \brief Construction with pixel shader and vertex shader only.
-		Effect( const std::string& _VSFile, const std::string& _PSFile,
-			RasterizerState::CULL_MODE _cullMode = RasterizerState::CULL_MODE::BACK, RasterizerState::FILL_MODE _fillMode = RasterizerState::FILL_MODE::SOLID,
-			BlendState::BLEND_OPERATION _blendOp = BlendState::BLEND_OPERATION::DISABLE, BlendState::BLEND _srcOp = BlendState::BLEND::ONE, BlendState::BLEND _dstOp = BlendState::BLEND::ZERO,
-			DepthStencilState::COMPARISON_FUNC _depthFunc = DepthStencilState::COMPARISON_FUNC::LESS, bool _zWrite = true );
 
-		/// \brief Construction of a program with pixel, vertex and geometry shader.
-		Effect( const std::string& _VSFile, const std::string& _GSFile, const std::string& _PSFile,
-			RasterizerState::CULL_MODE _cullMode = RasterizerState::CULL_MODE::BACK, RasterizerState::FILL_MODE _fillMode = RasterizerState::FILL_MODE::SOLID,
-			BlendState::BLEND_OPERATION _blendOp = BlendState::BLEND_OPERATION::DISABLE, BlendState::BLEND _srcOp = BlendState::BLEND::ONE, BlendState::BLEND _dstOp = BlendState::BLEND::ZERO,
-			DepthStencilState::COMPARISON_FUNC _depthFunc = DepthStencilState::COMPARISON_FUNC::LESS, bool _zWrite = true);
+		/// \brief Construction of a program with pixel, vertex and optional geometry shader.
+		/// \param _VSFile		Path of a vertex shader glsl file.
+		/// \param _PSFile		Path of a pixel shader glsl file.
+		/// \param _GSFile		Path of a geometry shader glsl file. If this string is empty, no geometry shader will be loaded.
+		/// \param _prefixCode	Code that is specified here will be inserted in each (root-)shader file right after the #version tag.
+		///						If no #version tag is present, nothing will happen. Additional #include commands are allowed since
+		///						_prefixCode will only inserted once in the first parsed code-file.
+		Effect(const std::string& _VSFile, const std::string& _PSFile, const std::string& _GSFile = "", const std::string& _prefixCode = "");
 
 		~Effect();
 
@@ -54,12 +53,28 @@ namespace Graphic {
 		///		are read.
 		void BindTexture( const std::string& _name, unsigned _location, const SamplerState& _sampler );
 
+
+		/// \brief Sets a new rasterizer state.
+		/// Default is RasterizerState(RasterizerState::CULL_MODE::BACK, RasterizerState::FILL_MODE::SOLID)
+		void SetRasterizerState(const RasterizerState& rasterizerState);
+
+		/// \brief Sets a new rasterizer state.
+		/// Default is BlendState(BlendState::BLEND_OPERATION::DISABLE, BlendState::BLEND::ONE, BlendState::BLEND::ZERO)
+		void SetBlendState(const BlendState& blendState);
+
+		/// \brief Sets a new rasterizer state.
+		/// Default is DepthStencilState(DepthStencilState::COMPARISON_FUNC::LESS, true)
+		void SetDepthStencilState(const DepthStencilState& depthStencilState);
+
 #ifdef AUTO_SHADER_RELOAD
 		/// Triggers shader reloads for changed shaders.
 		static void UpdateShaderFileWatcher();
 #endif
 
 	private:
+		/// Returns false if there is something wrong with the shader program.
+		bool CheckShaderProgramError();
+
 		RasterizerState m_rasterizerState;		///< The rasterizer state
 		BlendState m_blendState;				///< Effect blend mode
 		DepthStencilState m_depthStencilState;	///< Buffer options
@@ -83,17 +98,25 @@ namespace Graphic {
 		unsigned m_pixelShader;
 		unsigned m_programID;
 
+
+		// Debug & auto reload infos:
+
+		std::string m_prefixCode; ///< Used prefix code for loading.
+		std::unordered_set<std::string> m_VSFiles;	///< All shader files that were involved in the vertex shader source code. 
+		std::unordered_set<std::string> m_GSFiles;	///< All shader files that were involved in the geometry shader source code. 
+		std::unordered_set<std::string> m_PSFiles;	///< All shader files that were involved in the pixel shader source code. 
+
+		std::string m_VSMainFile; ///< Main file for the vertex shader.
+		std::string m_PSMainFile; ///< Main file for the pixel shader.
+		std::string m_GSMainFile; ///< Main file for the geometry shader.
+
 #ifdef AUTO_SHADER_RELOAD
 
 		friend class ShaderFileWatch;
 
-		void AddToFileWatcher(const std::string& _VSFile, const std::string& _GSFile, const std::string& _PSFile);
+		void AddToFileWatcher();
 		void RemoveFromFileWatcher();
 		void HandleChangedShaderFile(const std::string& shaderFilename);
-
-		std::string m_OriginalVSFile;
-		std::string m_OriginalGSFile;
-		std::string m_OriginalPSFile;
 
 #endif
 

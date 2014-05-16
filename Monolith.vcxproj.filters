@@ -686,6 +686,12 @@
     <None Include="shader\postprocessing\ambientocclusion.ps">
       <Filter>Resource Files\postprocessing</Filter>
     </None>
+    <None Include="shader\postprocessing\bilateralblur.ps">
+      <Filter>Resource Files\postprocessing</Filter>
+    </None>
+    <None Include="shader\globalubo.glsl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="dependencies\FileWatcher\License.txt">

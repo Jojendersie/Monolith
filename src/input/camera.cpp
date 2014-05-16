@@ -12,7 +12,10 @@ namespace Input {
 		Transformation( _position, _rotation ),
 		m_fov( _fov ),
 		m_aspect( _aspect ),
-		m_hardAttached( false )
+		m_hardAttached( false ),
+
+		m_nearPlane(5.0f),
+		m_farPlane(50000.0f)
 	{
 		UpdateMatrices();
 	}
@@ -22,6 +25,8 @@ namespace Input {
 	{
 		_cameraUBO["Projection"] = Vec4(GetProjection()(0,0), GetProjection()(1,1), GetProjection()(2,2), GetProjection()(3,2));
 		_cameraUBO["ProjectionInverse"] = m_inverseProjection;
+		_cameraUBO["NearPlane"] = m_nearPlane;
+		_cameraUBO["FarPlane"] = m_farPlane;
 	}
 
 	// ********************************************************************* //
@@ -30,7 +35,7 @@ namespace Input {
 		m_mutex.lock();
 		m_rotationMatrix = Mat4x4::Rotation(m_rotation);
 		if( m_hardAttached ) NormalizeReference();
-		m_projection = Math::Mat4x4::Projection( m_fov, m_aspect, 5.0f, 50000.0f );
+		m_projection = Math::Mat4x4::Projection( m_fov, m_aspect, m_nearPlane, m_farPlane );
 		m_mutex.unlock();
 		// construct explicit invert-vector
 		m_inverseProjection = Vec4(1.0f/GetProjection()(0,0), 1.0f/GetProjection()(1,1), 1.0f/GetProjection()(2,2), -GetProjection()(3,2) / GetProjection()(2,2));

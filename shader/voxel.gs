@@ -9,6 +9,8 @@ out vec3 gs_color;
 layout(points) in;
 layout(triangle_strip, max_vertices = OUT_VERTS) out;
 
+#include "globalubo.glsl"
+
 layout(std140) uniform Object
 {
 	mat4 c_mWorldView;
@@ -21,20 +23,6 @@ layout(std140) uniform Object
 	vec4 c_vCorner110;
 	vec4 c_vCorner111;
 	float c_fMaxOffset;
-};
-
-layout(std140) uniform Camera
-{
-	vec4 c_vProjection;
-	vec4 c_vInverseProjection;
-};
-
-layout(std140) uniform Global
-{
-	float c_fAspect;	// Width / Height
-	float c_fFBWidth;	// Framebuffer width
-	float c_fFBHeight;	// Framebuffer height
-	float c_fTime;		// Total game time in seconds
 };
 
 // Returns diffuse and specular coefficient for modified Ashikmin-Shirley-BRDF

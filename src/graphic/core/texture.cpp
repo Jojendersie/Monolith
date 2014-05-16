@@ -72,8 +72,8 @@ Texture::Format::Format(unsigned int _numChannels, unsigned int _bitDepth, Forma
 
 	// The inner array dimension depends on bitDepth, the outer on the ChannelType
 	const uint32_t TYPE[][4] = { { GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, 0, GL_UNSIGNED_INT },
-									{ GL_BYTE, GL_SHORT, 0, GL_UNSIGNED_INT },
-									{ 0, 0, 0, GL_FLOAT } };
+									              { GL_BYTE, GL_SHORT, 0, GL_UNSIGNED_INT },
+                                { 0, GL_FLOAT, 0, GL_FLOAT } };
 	type = TYPE[int(_type)][_bitDepth / 8 - 1];
 }
 
