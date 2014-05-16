@@ -59,6 +59,13 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 	} catch( std::string _message ) {
 		LOG_ERROR("Failed to load config file with message:\n" + _message + '\n' + "\nLoading default configuration.");
 		BuildDefaultConfig();
+
+		try {
+			Jo::Files::HDDFile file("config.json", Jo::Files::HDDFile::CREATE_FILE);
+			Config.Write(file, Jo::Files::Format::JSON);
+		} catch (std::string _message) {
+			LOG_ERROR("Failed to write config file with message:\n" + _message + '\n' + "\n");
+		}
 	}
 
 	Assert(glGetError() == GL_NO_ERROR, "GL during initialization!");
