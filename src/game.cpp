@@ -36,18 +36,6 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 	m_time( 0.0 ),
 	m_stateStack( nullptr )
 {
-	// Init scene framebuffer
-	{
-		using namespace Graphic;
-		m_sceneColorTexture = new Texture(Graphic::Device::GetBackbufferSize()[0], Device::GetBackbufferSize()[1],
-			Texture::Format(4, 8, Texture::Format::ChannelType::UINT));
-		m_sceneDepthTexture = new Texture(Graphic::Device::GetBackbufferSize()[0], Device::GetBackbufferSize()[1],
-			Texture::Format(1, 32, Texture::Format::ChannelType::FLOAT, Texture::Format::FormatType::DEPTH));
-		m_sceneFramebuffer = new Framebuffer(Framebuffer::Attachment(m_sceneColorTexture), Framebuffer::Attachment(m_sceneDepthTexture));
-
-		m_postProcessing = new PostProcessing(PostProcessing::AmbientOcclusionConfig::OFF);
-	}
-
 	// Init timer
 	g_fInvFrequency = std::chrono::high_resolution_clock::period::num/double(std::chrono::high_resolution_clock::period::den);
 	m_microSecPerFrame = std::chrono::microseconds(unsigned(1000000.0 / _fTargetFrameRate));
@@ -68,12 +56,34 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 		}
 	}
 
+	// Create a device with a window
+	int screenWidth = static_cast<int>(Config[std::string("Graphics")][std::string("ScreenWidth")]);
+	int screenHeight = static_cast<int>(Config[std::string("Graphics")][std::string("ScreenHeight")]);
+	screenWidth = screenWidth > 0 ? screenWidth : 1366;
+	screenHeight = screenHeight > 0 ? screenHeight : 768;
+	Graphic::Device::Initialize(screenWidth, screenHeight, false);
+
 	Assert(glGetError() == GL_NO_ERROR, "GL during initialization!");
 
 	Resources::LoadLanguageData( Config[std::string("Game")][std::string("Language")] );
 	Input::Manager::Initialize( Graphic::Device::GetWindow(), Config[std::string("Input")] );
 
 	Voxel::TypeInfo::Initialize();
+
+	// Init scene framebuffer
+	{
+		using namespace Graphic;
+		m_sceneColorTexture = new Texture(Graphic::Device::GetBackbufferSize()[0], Device::GetBackbufferSize()[1],
+			Texture::Format(4, 8, Texture::Format::ChannelType::UINT));
+		m_sceneDepthTexture = new Texture(Graphic::Device::GetBackbufferSize()[0], Device::GetBackbufferSize()[1],
+			Texture::Format(1, 32, Texture::Format::ChannelType::FLOAT, Texture::Format::FormatType::DEPTH));
+		m_sceneFramebuffer = new Framebuffer(Framebuffer::Attachment(m_sceneColorTexture), Framebuffer::Attachment(m_sceneDepthTexture));
+
+		PostProcessing::AmbientOcclusionConfig aoConfig = PostProcessing::AmbientOcclusionConfig::OFF;
+		if (static_cast<int>(Config[std::string("Graphics")][std::string("SSAO")]) > 0)
+			aoConfig = PostProcessing::AmbientOcclusionConfig::HIGH_QUALITY;
+		m_postProcessing = new PostProcessing(aoConfig);
+	}
 
 	// Create game states
 	m_gameStates[0] = new GSMainMenu(this);
@@ -211,6 +221,11 @@ void Monolith::BuildDefaultConfig()
 
 	auto& cgame = Config[std::string("Game")];
 	cgame[std::string("Language")] = "english.json";
+
+	auto& cgraphics = Config[std::string("Graphics")];
+	cgraphics[std::string("ScreenWidth")] = 1366;
+	cgraphics[std::string("ScreenHeight")] = 768;
+	cgraphics[std::string("SSAO")] = 0;
 }
 
 // ************************************************************************* //

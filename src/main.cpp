@@ -26,9 +26,6 @@ int main()
 	Jo::Logger::g_logger.Initialize( new Jo::Logger::FilePolicy( "run.log" ) );
 	atexit(exitprogram);
 
-	// Create a device with a window
-	Graphic::Device::Initialize( 1024, 768, false );
-
 	// Create and run game
 	{
 		Monolith Game( 60.0f );

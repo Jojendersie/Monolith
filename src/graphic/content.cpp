@@ -89,6 +89,10 @@ namespace Graphic {
 			s_ubos[(int)_ubo]->AddAttribute( "ProjectionInverse", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
 			s_ubos[(int)_ubo]->AddAttribute( "NearPlane", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 			s_ubos[(int)_ubo]->AddAttribute( "FarPlane", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
+
+			// Set dummy values to enable certain effects that rely on near/far.
+			(*s_ubos[(int)_ubo])["NearPlane"] = 1;
+			(*s_ubos[(int)_ubo])["FarPlane"] = 2;
 			break;
 		case UniformBuffers::OBJECT_VOXEL:
 			s_ubos[(int)_ubo] = new UniformBuffer( "Object" );
