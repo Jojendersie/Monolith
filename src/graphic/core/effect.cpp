@@ -117,10 +117,10 @@ namespace Graphic {
 				parseCursorOriginalFileNumber++; // after the include!
 
 				insertionBuffer = LoadShaderCodeFromFile(includeFile, "", _includedFiles);
-				insertionBuffer += "\n#line " + std::to_string(parseCursorOriginalFileNumber) + " \"" + _shaderFilename + "\"\n";
+				insertionBuffer += "\n#line " + std::to_string(parseCursorOriginalFileNumber) + " \"" + _shaderFilename + "\"\n"; // whitespace replaces #include!
 				sourceCode.replace(includePos, quotMarksLast - includePos + 1, insertionBuffer);
 
-				parseCursorPos += sourceCode.size();
+				parseCursorPos += insertionBuffer.size();
 			}
 
 			// find next include
