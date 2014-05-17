@@ -155,7 +155,8 @@ namespace Input {
 		// Compute view space position of a point on the near plane
 		Vec3 nearPoint = Vec3( m_inverseProjection[0] * _screenSpaceCoordinate[0],
 							   m_inverseProjection[1] * _screenSpaceCoordinate[1],
-							   m_inverseProjection[2] );	// z == 1.0 in projection space
+							   1.0f );	// 1.0 result of inverse project of any coordinate
+										// Division by 
 		ray.origin = TransformInverse(nearPoint);
 		ray.direction = normalize(Mat3x3::Rotation(m_rotation) * nearPoint);
 		return ray;

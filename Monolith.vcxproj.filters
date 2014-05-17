@@ -639,6 +639,9 @@
     <ClInclude Include="src\utilities\pathutils.hpp">
       <Filter>Source Files\utilities</Filter>
     </ClInclude>
+    <ClInclude Include="src\utilities\flagoperators.hpp">
+      <Filter>Source Files\input</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\voxel.ps">

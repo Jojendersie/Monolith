@@ -212,6 +212,7 @@
     <ClInclude Include="src\timer.hpp" />
     <ClInclude Include="src\utilities\assert.hpp" />
     <ClInclude Include="src\utilities\color.hpp" />
+    <ClInclude Include="src\utilities\flagoperators.hpp" />
     <ClInclude Include="src\utilities\logger.hpp" />
     <ClInclude Include="src\utilities\loggerinit.hpp" />
     <ClInclude Include="src\utilities\pathutils.hpp" />
