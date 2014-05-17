@@ -218,6 +218,9 @@
     <ClCompile Include="src\utilities\assert.cpp">
       <Filter>Source Files\utilities</Filter>
     </ClCompile>
+    <ClCompile Include="src\utilities\pathutils.cpp">
+      <Filter>Source Files\utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
@@ -632,6 +635,9 @@
     </ClInclude>
     <ClInclude Include="dependencies\FileWatcher\FileWatcherImpl.h">
       <Filter>Source Files\dependencies\FileWatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utilities\pathutils.hpp">
+      <Filter>Source Files\utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

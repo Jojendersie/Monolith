@@ -3,6 +3,9 @@
 #include "uniformbuffer.hpp"
 #include "utilities\assert.hpp"
 
+#include "jofilelib.hpp"
+#include "utilities/pathutils.hpp"
+
 #include <cstdint>
 #include <fstream>
 
@@ -16,10 +19,15 @@
 #include <memory>
 
 
+// Define this macro to safe all preprocessed shaders in the given location with generic file endings that are suitable for the glsllang parser
+//#define SHADER_CODE_DUMP_PATH "/processedshaderdump/"
+
+
 namespace Graphic {
 
+	/// \param fileIndex	This will used as second parameter for each #line macro. It is a kind of file identifier.
 	/// \remarks Uses a lot of potentially slow string operations.
-	static std::string LoadShaderCodeFromFile(const std::string& _shaderFilename, const std::string& _prefixCode, std::unordered_set<std::string>& _includedFiles)
+	static std::string LoadShaderCodeFromFile(const std::string& _shaderFilename, const std::string& _prefixCode, std::unordered_set<std::string>& _includedFiles, unsigned int _fileIndex = 0)
 	{
 		// open file
 		std::ifstream file(_shaderFilename.c_str());
@@ -38,19 +46,27 @@ namespace Graphic {
 		// Read
 		sourceCode.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
+		std::string insertionBuffer;
+		size_t parseCursorPos = 0;
+		size_t parseCursorOriginalFileNumber = 1;
+		size_t versionPos = sourceCode.find("#version");
 
 		// Add #line macro for proper error output (see http://stackoverflow.com/questions/18176321/is-line-0-valid-in-glsl)
-		std::string insertionBuffer = "#line 1 \"" + _shaderFilename + "\"\n";
-		sourceCode.insert(0, insertionBuffer);
-		size_t parseCursorPos = insertionBuffer.size();
-		size_t parseCursorOriginalFileNumber = 1;
+		// The big problem: Officially you can only give a number as second argument, no shader filename 
+		// Don't insert one if this is the main file, recognizable by a #version tag!
+		if (versionPos != std::string::npos)
+		{
+			insertionBuffer = "#line 1 " + std::to_string(_fileIndex) + "\n";
+			sourceCode.insert(0, insertionBuffer);
+			parseCursorPos = insertionBuffer.size();
+			parseCursorOriginalFileNumber = 1;
+		}
 
+		unsigned int lastFileIndex = _fileIndex;
 
 		// Prefix code (optional)
 		if (!_prefixCode.empty())
 		{
-			// Search for "version"
-			size_t versionPos = sourceCode.find("#version");
 			if (versionPos != std::string::npos)
 			{
 				// Insert after version and surround by #line macro for proper error output.
@@ -58,14 +74,14 @@ namespace Graphic {
 				size_t numLinesOfPrefixCode = std::count(_prefixCode.begin(), _prefixCode.end(), '\n') + 1;
 				size_t numLinesBeforeVersion = std::count(sourceCode.begin(), sourceCode.begin() + versionPos, '\n');
 
-				insertionBuffer = "\n#line 1 \"" + _shaderFilename + "<<RUNTIME PREFIX CODE>>\"\n";
+				insertionBuffer = "\n#line 1 " + std::to_string(++lastFileIndex) + "\n";
 				insertionBuffer += _prefixCode;
-				insertionBuffer += "\n#line " + std::to_string(numLinesBeforeVersion + 1) + " \"" + _shaderFilename + "\"";
+				insertionBuffer += "\n#line " + std::to_string(numLinesBeforeVersion + 1) + " " + std::to_string(_fileIndex) + "\n";
 
 				sourceCode.insert(nextLineIdx, insertionBuffer);
 
 				// parse cursor moves on
-				parseCursorPos = nextLineIdx + insertionBuffer.size();
+				parseCursorPos = nextLineIdx + insertionBuffer.size(); // This is the main reason why currently no #include files in prefix code is supported. Changing these has a lot of side effects in line numbering!
 				parseCursorOriginalFileNumber = numLinesBeforeVersion + 1; // jumped over #version!
 			}
 		}
@@ -75,7 +91,7 @@ namespace Graphic {
 
 		// parse all include tags
 		size_t includePos = sourceCode.find("#include", parseCursorPos);
-		std::string relativePath = _shaderFilename.substr(0, _shaderFilename.find_last_of('/') + 1);
+		std::string relativePath = PathUtils::GetDirectory(_shaderFilename);
 		while (includePos != std::string::npos)
 		{
 			parseCursorOriginalFileNumber += std::count(sourceCode.begin() + parseCursorPos, sourceCode.begin() + includePos, '\n');
@@ -104,7 +120,7 @@ namespace Graphic {
 
 
 			std::string includeCommand = sourceCode.substr(quotMarksFirst + 1, stringLength);
-			std::string includeFile = relativePath + includeCommand;
+			std::string includeFile = PathUtils::AppendPath(relativePath, includeCommand);
 			 
 			// check if already included
 			if (_includedFiles.find(includeFile) != _includedFiles.end())
@@ -116,8 +132,8 @@ namespace Graphic {
 			{
 				parseCursorOriginalFileNumber++; // after the include!
 
-				insertionBuffer = LoadShaderCodeFromFile(includeFile, "", _includedFiles);
-				insertionBuffer += "\n#line " + std::to_string(parseCursorOriginalFileNumber) + " \"" + _shaderFilename + "\"\n"; // whitespace replaces #include!
+				insertionBuffer = LoadShaderCodeFromFile(includeFile, "", _includedFiles, ++lastFileIndex);
+				insertionBuffer += "\n#line " + std::to_string(parseCursorOriginalFileNumber) + " " + std::to_string(_fileIndex) + "\n"; // whitespace replaces #include!
 				sourceCode.replace(includePos, quotMarksLast - includePos + 1, insertionBuffer);
 
 				parseCursorPos += insertionBuffer.size();
@@ -131,7 +147,7 @@ namespace Graphic {
 	}
 
 	/// \param includedFiles[out] Set of all included files.
-	static unsigned LoadShader(const std::string _fileName, unsigned _shaderType, const std::string& _prefixCode, std::unordered_set<std::string>& includedFiles)
+	static unsigned LoadShader(const std::string& _fileName, unsigned _shaderType, const std::string& _prefixCode, std::unordered_set<std::string>& includedFiles)
 	{
 		unsigned shaderID = glCreateShader(_shaderType);
 		if(!shaderID)
@@ -140,12 +156,31 @@ namespace Graphic {
 			return 0;
 		}
 
-		Assert(_fileName.find("\\") == std::string::npos, "A shader path uses backslashes. Please avoid this, since Unix systems rely on forward slashes as path separators!");
-
 		// Read source code
 		std::string sourceCode(LoadShaderCodeFromFile(_fileName, _prefixCode, includedFiles));
 		if (sourceCode == "")
 			return 0;
+
+		// Optional shader dump for easier debugging and validating.
+#ifdef SHADER_CODE_DUMP_PATH
+		{
+			std::string shaderEnding = "";
+			if (_shaderType == GL_VERTEX_SHADER)
+				shaderEnding = ".vert";
+			else if (_shaderType == GL_FRAGMENT_SHADER)
+				shaderEnding = ".frag";
+			else if (_shaderType == GL_GEOMETRY_SHADER)
+				shaderEnding = ".geom";
+			else
+				Assert(true, "SHADER_CODE_DUMP functionality does not know this shader type!");
+
+			static unsigned int shaderUID = 0;
+			std::string shaderDmpFilename = PathUtils::AppendPath(SHADER_CODE_DUMP_PATH, _fileName + "_" + std::to_string(++shaderUID) + shaderEnding);
+
+			Jo::Files::HDDFile shaderDmp(shaderDmpFilename, Jo::Files::HDDFile::CREATE_FILE);
+			shaderDmp.Write(sourceCode.c_str(), sourceCode.size());
+		}
+#endif
 
 		// Add prefix after first
 
@@ -168,8 +203,7 @@ namespace Graphic {
 			GL_CALL(glGetShaderInfoLog, shaderID, res, &res, log.get());
 			log[res] = '\0'; // important for some gpu vendors!
 
-			// Due to our #line directives, the filename should be contained in the driver's error message!
-			LOG_ERROR(std::string("Error in compiling shader: ") + log.get());
+			LOG_ERROR("Error in compiling shader: '" + _fileName + "': " + log.get());
 
 			return 0;
 		}

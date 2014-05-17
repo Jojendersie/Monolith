@@ -15,6 +15,8 @@ void exitprogram()
 	Graphic::Device::Exit();
 }
 
+#include "utilities/pathutils.hpp"
+
 /// \brief Entry point.
 int main()
 {

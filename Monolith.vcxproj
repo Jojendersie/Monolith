@@ -131,6 +131,7 @@
     <ClCompile Include="src\utilities\assert.cpp" />
     <ClCompile Include="src\utilities\color.cpp" />
     <ClCompile Include="src\utilities\logger.cpp" />
+    <ClCompile Include="src\utilities\pathutils.cpp" />
     <ClCompile Include="src\utilities\policy.cpp" />
     <ClCompile Include="src\voxel\chunk.cpp" />
     <ClCompile Include="src\voxel\material.cpp" />
@@ -213,6 +214,7 @@
     <ClInclude Include="src\utilities\color.hpp" />
     <ClInclude Include="src\utilities\logger.hpp" />
     <ClInclude Include="src\utilities\loggerinit.hpp" />
+    <ClInclude Include="src\utilities\pathutils.hpp" />
     <ClInclude Include="src\utilities\policy.hpp" />
     <ClInclude Include="src\voxel\chunk.hpp" />
     <ClInclude Include="src\voxel\component.hpp" />

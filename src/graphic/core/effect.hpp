@@ -28,6 +28,7 @@ namespace Graphic {
 		/// \param _prefixCode	Code that is specified here will be inserted in each (root-)shader file right after the #version tag.
 		///						If no #version tag is present, nothing will happen. Additional #include commands are allowed since
 		///						_prefixCode will only inserted once in the first parsed code-file.
+		///						Currently _prefixCode is not allowed to have include files on its own!
 		Effect(const std::string& _VSFile, const std::string& _PSFile, const std::string& _GSFile = "", const std::string& _prefixCode = "");
 
 		~Effect();
