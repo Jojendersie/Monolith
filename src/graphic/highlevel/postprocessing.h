@@ -13,7 +13,9 @@ namespace Graphic {
 		enum class AmbientOcclusionConfig
 		{
 			OFF,
-			HIGH_QUALITY // Todo: Lower qualities
+			LOW_QUALITY,
+			MEDIUM_QUALITY,
+			HIGH_QUALITY
 		};
 
 		PostProcessing(AmbientOcclusionConfig _aoConfig);

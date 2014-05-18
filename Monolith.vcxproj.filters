@@ -692,14 +692,14 @@
     <None Include="shader\postprocessing\ambientocclusion.ps">
       <Filter>Resource Files\postprocessing</Filter>
     </None>
-    <None Include="shader\postprocessing\bilateralblur.ps">
-      <Filter>Resource Files\postprocessing</Filter>
-    </None>
     <None Include="shader\globalubo.glsl">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="shader\utils.glsl">
       <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shader\postprocessing\ambientocclusionblur.ps">
+      <Filter>Resource Files\postprocessing</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

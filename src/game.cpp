@@ -80,8 +80,9 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 		m_sceneFramebuffer = new Framebuffer(Framebuffer::Attachment(m_sceneColorTexture), Framebuffer::Attachment(m_sceneDepthTexture));
 
 		PostProcessing::AmbientOcclusionConfig aoConfig = PostProcessing::AmbientOcclusionConfig::OFF;
-		if (static_cast<int>(Config[std::string("Graphics")][std::string("SSAO")]) > 0)
-			aoConfig = PostProcessing::AmbientOcclusionConfig::HIGH_QUALITY;
+		int ssaoConfigValue = static_cast<int>(Config[std::string("Graphics")][std::string("SSAO")]);
+		if (ssaoConfigValue > 0)
+			aoConfig = static_cast<PostProcessing::AmbientOcclusionConfig>(ssaoConfigValue);
 		m_postProcessing = new PostProcessing(aoConfig);
 	}
 

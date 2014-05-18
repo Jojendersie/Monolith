@@ -19,7 +19,7 @@ void main()
 	
 	#ifdef AMBIENT_OCCULSION
 		float ao = texelFetch(ambientOcclusionMap, texelCoord, 0).r;
-		fragColor.rgb = screenColor * ao;
+		fragColor.rgb = ao * screenColor;
 	#else
 		fragColor.rgb = screenColor;
 	#endif

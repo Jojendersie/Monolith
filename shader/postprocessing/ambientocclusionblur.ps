@@ -15,10 +15,19 @@ uniform sampler2D ambientOcclusionMap;
   
 out float fragColor;
 
+
 // Config
-#define BLUR_RADIUS 5 // Be careful! It is in both directions!
-const float BlurFalloff = 0.03; // 1/(2 sigma²) in the Gaussian function. Too low values result in a box filter, too high values waste samples!
-const float Sharpness = 100.0; // 0 is aquivalent with a Gaussian blur
+#if defined(HIGHQ)
+	#define BLUR_RADIUS 7// Be careful! It is in both directions!
+	const float BlurFalloff = 0.008; // 1/(2 sigma²) in the Gaussian function. Too low values result in a box filter, too high values waste samples!
+#elif defined(MEDIUMQ)
+	#define BLUR_RADIUS 5
+	const float BlurFalloff = 0.02;
+#else
+	#define BLUR_RADIUS 3
+	const float BlurFalloff = 0.09;
+#endif
+const float Sharpness = 120.0; // 0 is aquivalent with a Gaussian blur
 
 
 float blurFunction(ivec2 uv, float r, float centerAO, float centerDepth, inout float w_total)

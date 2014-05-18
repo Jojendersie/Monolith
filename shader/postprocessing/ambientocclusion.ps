@@ -15,12 +15,22 @@ out float outputAO;
 
 // Configuration values:
 
-#define NUM_SAMPLES 32
-const float bias = 0.0002; // Tweaks intensity angle dependently and serves to reduce noise on flat surfaces. Higher removes more noise, but too high leads to artifacts in corners.
-const float sampleRadiusSize = 1.4; // Is also dependent of screen depth. Keep in mind that higher values are slower (worse caching) and bring more screen border artifacts.
-const float sampleRadiusBias = 0.00001; // minimum sampling radius on screen texture. Higher removes more noise, but too high leads to artifacts in corners.
-const float aoIntensityScale = 1.0;
+#if defined(HIGHQ)
+	#define NUM_SAMPLES 32
+	const float sampleRadiusSize = 1.4; // Is also dependent of screen depth. Keep in mind that higher values are slower (worse caching) and bring more screen border
+	const float aoIntensityScale = 1.0;
+#elif defined(MEDIUMQ)
+	#define NUM_SAMPLES 16
+	const float sampleRadiusSize = 0.8;
+	const float aoIntensityScale = 0.6;
+#else
+	#define NUM_SAMPLES 8
+	const float sampleRadiusSize = 0.2;
+	const float aoIntensityScale = 0.3;
+#endif
 
+const float bias = 0.0002; // Tweaks intensity angle dependently and serves to reduce noise on flat surfaces. Higher removes more noise, but too high leads to artifacts in corners.
+const float sampleRadiusBias = 0.00001; // minimum sampling radius on screen texture. Higher removes more noise, but too high leads to artifacts in corners.
 
 // Random number - http://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl
 // Seems good enough (see also http://stackoverflow.com/questions/12964279/whats-the-origin-of-this-glsl-rand-one-liner)
