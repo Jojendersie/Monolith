@@ -71,22 +71,23 @@ namespace Graphic {
 
 		VertexBuffer m_characters;/// < vertex buffer that holds the screen textures
 
-		Texture m_texContainer; ///< The basic texture container for screen elements 
-		//gets created dynamicly in constructor sinc it temporarly needs a hdd file handle
+		Texture m_texContainer; ///< The basic texture container for screen elements; loads "combined.png" 
+		//gets created dynamicly in constructor since it temporarly needs a hdd file handle
 		Jo::Files::MetaFileWrapper* m_texContainerMap; ///< the size and position informations of the elements in the container
 
 		//dynamic lists to hold and manage HUD elements
-		//todo use more dynamic datastructure like std::vector or std::list maybe combined with std:shared_ptr 
+		//todo use std::vector + RAII - Mememorymanagment for better performance and readability
+		//all elements of m_containers and m_screenModels are aswell in m_screenOverlays
 
-		std::forward_list<TextRender*> m_textRenders;
+		std::vector<TextRender*> m_textRenders;
 
-		std::forward_list<ScreenOverlay*> m_screenOverlays;
+		std::vector<ScreenOverlay*> m_screenOverlays;
 
-		std::forward_list<Button*> m_buttons;
+		std::vector<Button*> m_buttons;
 
-		std::forward_list<std::unique_ptr <Hud> > m_containers;
+		std::vector<std::unique_ptr <Hud> > m_containers;
 
-		std::forward_list<std::unique_ptr <ScreenModel> > m_screenModels;
+		std::vector<std::unique_ptr <ScreenModel> > m_screenModels;
 
 		ScreenOverlay* m_preElem;///< Handle to the screenTexture wich the cursor points to 
 		ScreenTexture* m_cursor;///< the ingame cursor

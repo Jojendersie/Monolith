@@ -61,8 +61,8 @@ namespace Graphic
 	Hud* Hud::CreateContainer(Math::Vec2 _pos, Math::Vec2 _size) 
 	{
 		Hud* hud = new Hud(m_game, _pos, _size, false);
-		m_containers.push_front(std::unique_ptr<Hud>(hud));
-		m_screenOverlays.push_front(hud);
+		m_containers.push_back(std::unique_ptr<Hud>(hud));
+		m_screenOverlays.push_back(hud);
 		return hud;
 	};
 
@@ -70,8 +70,8 @@ namespace Graphic
 	void Hud::CreateModel(Math::Vec2 _pos , Math::Vec2 _size, Voxel::Model* _model)
 	{
 		ScreenModel* screenModel = new ScreenModel(_pos, _size, _model);
-		m_screenOverlays.push_front(screenModel);
-		m_screenModels.push_front(std::unique_ptr<ScreenModel>(screenModel));
+		m_screenOverlays.push_back(screenModel);
+		m_screenModels.push_back(std::unique_ptr<ScreenModel>(screenModel));
 	};
 
 	// ************************************************************************* //
@@ -89,13 +89,13 @@ namespace Graphic
 			bla += (i%10 == 0)?(std::to_string(i)+":"+(char)i+"\n"):(std::to_string(i)+":"+(char)i+"  ");
 		m_dbgLabel->SetText(bla);
 		m_dbgLabel->SetPos(Math::Vec2(-0.9f,0.9f));*/
-		for(TextRender* textRender : m_textRenders )
-			if(textRender->m_active) textRender->Draw();
+		for(int i = m_textRenders.size(); i-- > 0; )
+			if(m_textRenders[i]->m_active) m_textRenders[i]->Draw();
 
 		//draw every subhud(container)
-		for(ScreenOverlay* screenOverlay : m_screenOverlays)
+		for(int i = m_screenOverlays.size(); i-- > 0; )
 		{
-			Hud* hud = dynamic_cast<Hud*> (screenOverlay);
+			Hud* hud = dynamic_cast<Hud*> (m_screenOverlays[i]);
 			if(hud != NULL && hud->GetState() && hud->GetVisibility())
 				hud->Draw(_time, _deltaTime);
 		}
@@ -103,9 +103,9 @@ namespace Graphic
 		//activate voxel rendering
 		Graphic::Device::SetEffect(	*Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
 		//draw every screenModel
-		for(auto& screenModel : m_screenModels)
+		for(int i = m_screenModels.size(); i-- > 0; )
 		{
-			screenModel->Draw(*m_camera, _time);
+			m_screenModels[i]->Draw(*m_camera, _time);
 		}
 
 		//draw cursor last
@@ -121,9 +121,10 @@ namespace Graphic
 	void Hud::RenewBuffer()
 	{
 		m_characters.Clear();
-		for(ScreenOverlay* screenOverlay : m_screenOverlays)
+	
+		for( unsigned i = m_screenOverlays.size(); i-- > 0; )
 		{
-			ScreenTexture* screenTex = dynamic_cast<ScreenTexture*> (screenOverlay);
+			ScreenTexture* screenTex = dynamic_cast<ScreenTexture*> (m_screenOverlays[i]);
 			if(screenTex != NULL && screenTex->GetState() && screenTex->GetVisibility()) 
 				m_characters.Add(screenTex->m_vertex);
 		}
@@ -144,8 +145,9 @@ namespace Graphic
 		//todo: include mousespeed in config  
 
 		//collision with hud elements 
-		for(ScreenOverlay* screenOverlay : m_screenOverlays)
+		for(int i = m_screenOverlays.size(); i-- > 0; )
 		{
+			ScreenOverlay* screenOverlay = m_screenOverlays[i]; 
 			Math::Vec2 loc2;
 			loc2[0] = screenOverlay->m_pos[0] + screenOverlay->m_size[0];
 			loc2[1] = screenOverlay->m_pos[1] - screenOverlay->m_size[1];
@@ -197,9 +199,9 @@ namespace Graphic
 		//The Hud moves all elements up/down
 		if(m_scrollable)
 		{
-			for(ScreenOverlay* screenOverlay : m_screenOverlays)
+			for(int i = m_screenOverlays.size(); i-- > 0; )
 			{
-				screenOverlay->SetPos(Math::Vec2(screenOverlay->m_pos[0]+_dx * 0.1, screenOverlay->m_pos[1]+_dy * 0.1));
+				m_screenOverlays[i]->SetPos(Math::Vec2(m_screenOverlays[i]->m_pos[0]+(float)_dx * 0.1f, m_screenOverlays[i]->m_pos[1]+(float)_dy * 0.1f));
 			}
 			return true;
 		}
@@ -222,7 +224,7 @@ namespace Graphic
 	// ************************************************************************* //
 	void Hud::AddTextRender(TextRender* _label)
 	{
-		m_textRenders.push_front(_label);
+		m_textRenders.push_back(_label);
 	}
 
 	void Hud::AddTexture(ScreenTexture* _tex)
@@ -233,14 +235,14 @@ namespace Graphic
 		_tex->m_vertex.texCoord[0] += 0.5f/m_texContainer.Width();
 	//	_tex->m_vertex.texCoord[1] += 0.5f/m_texContainer.Height(); 
 		_tex->m_vertex.screenSize[0] /= Device::GetAspectRatio();
-		m_screenOverlays.push_front(_tex);
+		m_screenOverlays.push_back(_tex);
 	}
 
 	void Hud::AddButton(Button* _btn)
 	{
 		
 		//keep pointer to delete it later
-		m_buttons.push_front(_btn);
+		m_buttons.push_back(_btn);
 		AddTexture(&(_btn->m_btnDefault));
 		AddTexture(&(_btn->m_btnOver));
 		AddTexture(&(_btn->m_btnDown));
