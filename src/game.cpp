@@ -57,10 +57,8 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 	}
 
 	// Create a device with a window
-	int screenWidth = static_cast<int>(Config[std::string("Graphics")][std::string("ScreenWidth")]);
-	int screenHeight = static_cast<int>(Config[std::string("Graphics")][std::string("ScreenHeight")]);
-	screenWidth = screenWidth > 0 ? screenWidth : 1366;
-	screenHeight = screenHeight > 0 ? screenHeight : 768;
+	int screenWidth = Config[std::string("Graphics")][std::string("ScreenWidth")].Get(1366);
+	int screenHeight = Config[std::string("Graphics")][std::string("ScreenHeight")].Get(768);
 	Graphic::Device::Initialize(screenWidth, screenHeight, false);
 
 	Assert(glGetError() == GL_NO_ERROR, "GL during initialization!");
@@ -78,11 +76,8 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 		m_sceneDepthTexture = new Texture(Graphic::Device::GetBackbufferSize()[0], Device::GetBackbufferSize()[1],
 			Texture::Format(1, 32, Texture::Format::ChannelType::FLOAT, Texture::Format::FormatType::DEPTH));
 		m_sceneFramebuffer = new Framebuffer(Framebuffer::Attachment(m_sceneColorTexture), Framebuffer::Attachment(m_sceneDepthTexture));
-
-		PostProcessing::AmbientOcclusionConfig aoConfig = PostProcessing::AmbientOcclusionConfig::OFF;
-		int ssaoConfigValue = static_cast<int>(Config[std::string("Graphics")][std::string("SSAO")]);
-		if (ssaoConfigValue > 0)
-			aoConfig = static_cast<PostProcessing::AmbientOcclusionConfig>(ssaoConfigValue);
+		PostProcessing::AmbientOcclusionConfig aoConfig = static_cast<PostProcessing::AmbientOcclusionConfig>(
+										Config[std::string("Graphics")][std::string("SSAO")].Get(static_cast<int>(PostProcessing::AmbientOcclusionConfig::OFF)));
 		m_postProcessing = new PostProcessing(aoConfig);
 	}
 
