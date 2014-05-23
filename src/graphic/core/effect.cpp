@@ -54,7 +54,7 @@ namespace Graphic {
 		// Add #line macro for proper error output (see http://stackoverflow.com/questions/18176321/is-line-0-valid-in-glsl)
 		// The big problem: Officially you can only give a number as second argument, no shader filename 
 		// Don't insert one if this is the main file, recognizable by a #version tag!
-		if (versionPos != std::string::npos)
+		if (versionPos == std::string::npos)
 		{
 			insertionBuffer = "#line 1 " + std::to_string(_fileIndex) + "\n";
 			sourceCode.insert(0, insertionBuffer);
