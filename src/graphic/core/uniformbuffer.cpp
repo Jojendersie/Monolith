@@ -10,20 +10,20 @@ namespace Graphic {
 	UniformBuffer::UniformBuffer( const std::string& _name ) :
 		m_name(_name), m_size(0), m_isDirty(false)
 	{
-		glGenBuffers(1, &m_bufferID);
+		GL_CALL(glGenBuffers, 1, &m_bufferID);
 		m_index = g_iNumUBOs++;
 
 		// Allocate memory on CPU side. The maximum size is 1KB.
 		m_memory = malloc(1024);
 
 		// Create GPU side memory
-		glBindBuffer(GL_UNIFORM_BUFFER, m_bufferID);
-		glBufferData(GL_UNIFORM_BUFFER, 1024, 0, GL_STREAM_DRAW);
+		GL_CALL(glBindBuffer, GL_UNIFORM_BUFFER, m_bufferID);
+		GL_CALL(glBufferData, GL_UNIFORM_BUFFER, 1024, nullptr, GL_STREAM_DRAW);
 	}
 
 	UniformBuffer::~UniformBuffer()
 	{
-		glDeleteBuffers(1, &m_bufferID);
+		GL_CALL(glDeleteBuffers, 1, &m_bufferID);
 		free(m_memory);
 	}
 
@@ -79,12 +79,9 @@ namespace Graphic {
 		{
 			// Upload the whole used part of the buffer. It could be more efficient
 			// to upload only the changed part.
-			glBindBuffer( GL_UNIFORM_BUFFER, m_bufferID );
-			glBufferSubData( GL_UNIFORM_BUFFER, 0, m_size, m_memory );
+			GL_CALL(glBindBuffer, GL_UNIFORM_BUFFER, m_bufferID);
+			GL_CALL(glBufferSubData, GL_UNIFORM_BUFFER, 0, m_size, m_memory);
 
-#ifdef _DEBUG
-			LogGlError("An error during binding and uploading data occurred.");
-#endif
 
 			m_isDirty = false;
 		}

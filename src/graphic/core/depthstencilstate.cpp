@@ -39,24 +39,24 @@ namespace Graphic {
 	void DepthStencilState::Apply() const
 	{
 		// Z-Test
-		if( m_zTest == COMPARISON_FUNC::ALWAYS ) glDisable(GL_DEPTH_TEST);
+		if (m_zTest == COMPARISON_FUNC::ALWAYS) GL_CALL(glDisable, GL_DEPTH_TEST);
 		else {
-			glEnable(GL_DEPTH_TEST);
-			glDepthFunc( unsigned(m_zTest) );
+			GL_CALL(glEnable, GL_DEPTH_TEST);
+			GL_CALL(glDepthFunc, unsigned(m_zTest));
 		}
 
 		// Z-Write
-		glDepthMask( m_zWrite );
+		GL_CALL(glDepthMask, m_zWrite);
 
 		// Stencil Test
 		if( m_stencilRef )
 		{
-			glEnable( GL_STENCIL_TEST );
-			glStencilFuncSeparate( unsigned(m_SFTest), unsigned(m_SBTest), m_stencilRef, 0xffffffff );
-			glStencilOpSeparate( GL_FRONT, STENCIL_OP_MAP[m_SFFail], STENCIL_OP_MAP[m_SFFailZ], STENCIL_OP_MAP[m_SFPass] );
-			glStencilOpSeparate( GL_BACK, STENCIL_OP_MAP[m_SBFail], STENCIL_OP_MAP[m_SBFailZ], STENCIL_OP_MAP[m_SBPass] );
+			GL_CALL(glEnable, GL_STENCIL_TEST);
+			GL_CALL(glStencilFuncSeparate, unsigned(m_SFTest), unsigned(m_SBTest), m_stencilRef, 0xffffffff);
+			GL_CALL(glStencilOpSeparate, GL_FRONT, STENCIL_OP_MAP[m_SFFail], STENCIL_OP_MAP[m_SFFailZ], STENCIL_OP_MAP[m_SFPass]);
+			GL_CALL(glStencilOpSeparate, GL_BACK, STENCIL_OP_MAP[m_SBFail], STENCIL_OP_MAP[m_SBFailZ], STENCIL_OP_MAP[m_SBPass]);
 		} else
-			glDisable( GL_STENCIL_TEST );
+			GL_CALL(glDisable, GL_STENCIL_TEST);
 	}
 
 };

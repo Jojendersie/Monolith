@@ -40,11 +40,11 @@ void VertexBuffer::CreateVAO(const char* _vertexDeclaration)
 		}
 
 	// Second step create VAO and VBOs
-	glGenVertexArrays(1, &m_VAO);
-	glBindVertexArray(m_VAO);
+	GL_CALL(glGenVertexArrays, 1, &m_VAO);
+	GL_CALL(glBindVertexArray, m_VAO);
 		// Create Vertex buffer object
-		glGenBuffers(1, &m_VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);	// Bind VBO to VAO
+		GL_CALL(glGenBuffers, 1, &m_VBO);
+		GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, m_VBO);	// Bind VBO to VAO
 		int i=0;
 		int stride = 0, bindOff = 0, colorBindOff = 0, uintBindOff = 0;
 		while(_vertexDeclaration[i])
@@ -53,57 +53,57 @@ void VertexBuffer::CreateVAO(const char* _vertexDeclaration)
 			switch(_vertexDeclaration[i])
 			{
 			case 'p': location = int(BindingLocation::POSITION);
-				glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
-				glEnableVertexAttribArray(location);
+				GL_CALL(glVertexAttribPointer, location, 3, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
+				GL_CALL(glEnableVertexAttribArray, location);
 				stride += 3*sizeof(float);
 				break;
 			case 'n': location = int(BindingLocation::NORMAL);
-				glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
-				glEnableVertexAttribArray(location);
+				GL_CALL(glVertexAttribPointer, location, 3, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
+				GL_CALL(glEnableVertexAttribArray, location);
 				stride += 3*sizeof(float);
 				break;
 			case 't': location = int(BindingLocation::TANGENT);
-				glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
-				glEnableVertexAttribArray(location);
+				GL_CALL(glVertexAttribPointer, location, 3, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
+				GL_CALL(glEnableVertexAttribArray, location);
 				stride += 3*sizeof(float);
 				break;
 			case '1': location = int(BindingLocation::VEC) + bindOff;
-				glVertexAttribPointer(location, 1, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
-				glEnableVertexAttribArray(location);
+				GL_CALL(glVertexAttribPointer, location, 1, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
+				GL_CALL(glEnableVertexAttribArray, location);
 				stride += sizeof(float);
 				++bindOff;
 				break;
 			case '2': location = int(BindingLocation::VEC) + bindOff;
-				glVertexAttribPointer(location, 2, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
-				glEnableVertexAttribArray(location);
+				GL_CALL(glVertexAttribPointer, location, 2, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
+				GL_CALL(glEnableVertexAttribArray, location);
 				stride += 2*sizeof(float);
 				++bindOff;
 				break;
 			case '3': location = int(BindingLocation::VEC) + bindOff;
-				glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
-				glEnableVertexAttribArray(location);
+				GL_CALL(glVertexAttribPointer, location, 3, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
+				GL_CALL(glEnableVertexAttribArray, location);
 				stride += 3*sizeof(float);
 				++bindOff;
 				break;
 			case '4': location = int(BindingLocation::VEC) + bindOff;
-				glVertexAttribPointer(location, 4, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
-				glEnableVertexAttribArray(location);
+				GL_CALL(glVertexAttribPointer, location, 4, GL_FLOAT, GL_FALSE, m_vertexSize, (GLvoid*)(stride));
+				GL_CALL(glEnableVertexAttribArray, location);
 				stride += 4*sizeof(float);
 				++bindOff;
 				break;
 			case 'c':
 				if(colorBindOff>=3) LOG_ERROR("Too many 'c' in vertex declaration. The maximum number of color binding points is 4!");
 				location = int(BindingLocation::COLOR0) + colorBindOff;
-				glVertexAttribPointer(location, 4, GL_UNSIGNED_BYTE, GL_TRUE, m_vertexSize, (GLvoid*)(stride));
-				glEnableVertexAttribArray(location);
+				GL_CALL(glVertexAttribPointer, location, 4, GL_UNSIGNED_BYTE, GL_TRUE, m_vertexSize, (GLvoid*)(stride));
+				GL_CALL(glEnableVertexAttribArray, location);
 				stride += 4;
 				++colorBindOff;
 				break;
 			case 'u':
 				if(uintBindOff>=3) LOG_ERROR("Too many 'u' in vertex declaration. The maximum number of uint binding points is 4!");
 				location = int(BindingLocation::UINT0) + uintBindOff;
-				glVertexAttribIPointer(location, 1, GL_UNSIGNED_INT, m_vertexSize, (GLvoid*)(stride));
-				glEnableVertexAttribArray(location);
+				GL_CALL(glVertexAttribIPointer, location, 1, GL_UNSIGNED_INT, m_vertexSize, (GLvoid*)(stride));
+				GL_CALL(glEnableVertexAttribArray, location);
 				stride += 4;
 				++uintBindOff;
 				break;
@@ -111,8 +111,8 @@ void VertexBuffer::CreateVAO(const char* _vertexDeclaration)
 			++i;
 		}
 
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	GL_CALL(glBindVertexArray, 0);
+	GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
 }
 
 // ************************************************************************* //
@@ -127,7 +127,6 @@ VertexBuffer::VertexBuffer( const char* _vertexDeclaration, void* _data, int _si
 	m_primitiveType(_type)
 {
 	CreateVAO(_vertexDeclaration);
-	LogGlError("VAO creation got wrong.");
 
 	// Upload the data
 	if(_data)
@@ -151,9 +150,9 @@ VertexBuffer::VertexBuffer( const char* _vertexDeclaration, PrimitiveType _type 
 	CreateVAO(_vertexDeclaration);
 
 	// Create the data on GPU side
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glBufferData(GL_ARRAY_BUFFER, m_vertexSize * m_maxNumVertices, 0, GL_DYNAMIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, m_VBO);
+	GL_CALL(glBufferData, GL_ARRAY_BUFFER, m_vertexSize * m_maxNumVertices, nullptr, GL_DYNAMIC_DRAW);
+	GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
 	// Data on CPU side
 	m_data = (uint8_t*)malloc( m_vertexSize * m_maxNumVertices );
 }
@@ -184,13 +183,13 @@ VertexBuffer::~VertexBuffer()
 	if( m_VAO )
 	{
 		// Detach and delete Vertex buffer
-		glBindVertexArray(m_VAO);
+		GL_CALL(glBindVertexArray, m_VAO);
 		//glDisableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glDeleteBuffers(1, &m_VBO);
+		GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
+		GL_CALL(glDeleteBuffers, 1, &m_VBO);
 		// Detach and delete array
-		glBindVertexArray(0);
-		glDeleteVertexArrays(1, &m_VAO);
+		GL_CALL(glBindVertexArray, 0);
+		GL_CALL(glDeleteVertexArrays, 1, &m_VAO);
 	}
 
 	free(m_data);
@@ -207,9 +206,9 @@ void VertexBuffer::Resize(unsigned _numVertices)
 	m_maxNumVertices = _numVertices;
 
 	// Discard on GPU side
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glBufferData(GL_ARRAY_BUFFER, m_vertexSize * _numVertices, 0, GL_DYNAMIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, m_VBO);
+	GL_CALL(glBufferData, GL_ARRAY_BUFFER, m_vertexSize * _numVertices, nullptr, GL_DYNAMIC_DRAW);
+	GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
 	m_data = (uint8_t*)realloc(m_data, _numVertices * m_vertexSize);
 }
 
@@ -230,19 +229,16 @@ void VertexBuffer::Commit()
 	if(m_data && IsDirty())
 	{
 		// Discard everything in a range where vertices are dirty
-		glBindBuffer( GL_ARRAY_BUFFER, m_VBO );
-		glBufferSubData( GL_ARRAY_BUFFER,
+		GL_CALL(glBindBuffer,  GL_ARRAY_BUFFER, m_VBO );
+		GL_CALL(glBufferSubData, GL_ARRAY_BUFFER,
 			m_firstDirtyIndex * m_vertexSize,
 			(m_lastDirtyIndex - m_firstDirtyIndex + 1) * m_vertexSize,
 			m_data );
-		glBindBuffer( GL_ARRAY_BUFFER, 0 );
-#ifdef _DEBUG
-		LogGlError("[VertexBuffer::Commit] Update of dynamic data failed.");
-#endif
+		GL_CALL(glBindBuffer,  GL_ARRAY_BUFFER, 0 );
 
 		m_firstDirtyIndex = std::numeric_limits<int>::max();
 		m_lastDirtyIndex = -1;
-		glBindBuffer( GL_ARRAY_BUFFER, 0 );
+		GL_CALL(glBindBuffer,  GL_ARRAY_BUFFER, 0 );
 	}
 }
 
@@ -251,13 +247,10 @@ void VertexBuffer::Commit(void* _data, int _size)
 	Assert(IsStatic(), "Static vertex buffers can update their data!");
 	Assert(_data, "No data to commit!");
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glBufferData(GL_ARRAY_BUFFER, _size, _data, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, m_VBO);
+	GL_CALL(glBufferData, GL_ARRAY_BUFFER, _size, _data, GL_STATIC_DRAW);
+	GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
 
-#ifdef _DEBUG
-	LogGlError("Could not upload vertex data");
-#endif
 
 	// Derive the statistic data
 	m_cursor = m_maxNumVertices = _size / m_vertexSize;
@@ -291,7 +284,7 @@ void VertexBuffer::Bind() const
 	// Don't use a empty buffer. Call Commit before.
 	Assert( !IsDirty(), "Don't use a empty buffer. Call Commit before.");
 
-	glBindVertexArray(m_VAO);
+	GL_CALL(glBindVertexArray, m_VAO);
 }
 
 

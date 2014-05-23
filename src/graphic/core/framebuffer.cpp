@@ -39,10 +39,10 @@ void Framebuffer::Initialize(const std::vector<Attachment>& _colorAttachments, b
 
 	/// \todo Plaster with glGetError function
 
-	glGenFramebuffers(1, &m_framebuffer);
+	GL_CALL(glGenFramebuffers, 1, &m_framebuffer);
 
 	// Need to bind framebuffer to be able to create it.
-	glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer);
+	GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, m_framebuffer);
 
 
 	if (m_depthStencil.pTexture)
@@ -51,9 +51,9 @@ void Framebuffer::Initialize(const std::vector<Attachment>& _colorAttachments, b
 
 		// Sufficient for MSAA?
 		if (m_depthStencil.layer > 0)
-			glFramebufferTextureLayer(GL_FRAMEBUFFER, attachment, m_depthStencil.pTexture->m_textureID, m_depthStencil.mipLevel, m_depthStencil.layer);
+			GL_CALL(glFramebufferTextureLayer, GL_FRAMEBUFFER, attachment, m_depthStencil.pTexture->m_textureID, m_depthStencil.mipLevel, m_depthStencil.layer);
 		else
-			glFramebufferTexture(GL_FRAMEBUFFER, attachment, m_depthStencil.pTexture->m_textureID, m_depthStencil.mipLevel);
+			GL_CALL(glFramebufferTexture, GL_FRAMEBUFFER, attachment, m_depthStencil.pTexture->m_textureID, m_depthStencil.mipLevel);
 	}
 
 
@@ -62,9 +62,9 @@ void Framebuffer::Initialize(const std::vector<Attachment>& _colorAttachments, b
 		Assert(it->pTexture, "FBO Color attachment texture is NULL!");
 		GLint attachment = GL_COLOR_ATTACHMENT0 + m_colorAttachments.size();
 		if (it->layer > 0)
-			glFramebufferTextureLayer(GL_FRAMEBUFFER, attachment, it->pTexture->m_textureID, it->mipLevel, it->layer);
+			GL_CALL(glFramebufferTextureLayer, GL_FRAMEBUFFER, attachment, it->pTexture->m_textureID, it->mipLevel, it->layer);
 		else
-			glFramebufferTexture(GL_FRAMEBUFFER, attachment, it->pTexture->m_textureID, it->mipLevel);
+			GL_CALL(glFramebufferTexture, GL_FRAMEBUFFER, attachment, it->pTexture->m_textureID, it->mipLevel);
 
 		m_colorAttachments.push_back(*it);
 	}
@@ -72,7 +72,7 @@ void Framebuffer::Initialize(const std::vector<Attachment>& _colorAttachments, b
 	// Error checking
 #ifdef _DEBUG
 	Assert(m_depthStencil.pTexture != NULL || m_colorAttachments.size() > 0, "You cannot create empty FBOs! Need at least a depth/stencil buffer or a color attachment.");
-	GLenum framebufferStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	GLenum framebufferStatus = GL_RET_CALL(glCheckFramebufferStatus, GL_FRAMEBUFFER);
 	switch (framebufferStatus)
 	{
 	case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
@@ -96,20 +96,18 @@ void Framebuffer::Initialize(const std::vector<Attachment>& _colorAttachments, b
 		break;
 	}
 	Assert(framebufferStatus == GL_FRAMEBUFFER_COMPLETE, "Frame buffer creation failed!");
-
-	LogGlError("Framebuffer creation");
 #endif
 
 	// Restore framebuffer binding
 	if(Device::GetCurrentFramebufferBinding() != NULL)
-		glBindFramebuffer(GL_FRAMEBUFFER, Device::GetCurrentFramebufferBinding()->m_framebuffer);
+		GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, Device::GetCurrentFramebufferBinding()->m_framebuffer);
 	else
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, 0);
 }
 
 Framebuffer::~Framebuffer()
 {
-	glDeleteFramebuffers(1, &m_framebuffer);
+	GL_CALL(glDeleteFramebuffers, 1, &m_framebuffer);
 }
 
 /*

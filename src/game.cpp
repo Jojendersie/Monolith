@@ -61,8 +61,6 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 	int screenHeight = Config[std::string("Graphics")][std::string("ScreenHeight")].Get(768);
 	Graphic::Device::Initialize(screenWidth, screenHeight, false);
 
-	Assert(glGetError() == GL_NO_ERROR, "GL during initialization!");
-
 	Resources::LoadLanguageData( Config[std::string("Game")][std::string("Language")] );
 	Input::Manager::Initialize( Graphic::Device::GetWindow(), Config[std::string("Input")] );
 

@@ -459,10 +459,8 @@ namespace Graphic {
 		{
 			GL_CALL(glUseProgram, m_programID); /// \todo Often called redundant currently. Device should know which program is bound.
 			GLint uniformLocation = GL_RET_CALL(glGetUniformLocation, m_programID, _name.c_str());
-			LogGlError("[Effect::BindTexture] Uniform location not found");
 
 			GL_CALL(glUniform1i, uniformLocation, _location);
-			LogGlError("[Effect::BindTexture] Failed to set the uniform sampler variable.");
 
 			textureEntryIt.first->second.location = _location;
 		}

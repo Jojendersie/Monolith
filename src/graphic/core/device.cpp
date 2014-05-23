@@ -85,17 +85,11 @@ namespace Graphic {
 
 	static void ActivateOpenGLDebugging()
 	{
-		glEnable( GL_DEBUG_OUTPUT );
-		LogGlError( "Cannot activate debug output" );
-		glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS );
-		LogGlError( "Cannot set debug output synchronous" );
-		if( glDebugMessageControl && glDebugMessageCallback )
-		{
-			glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_MEDIUM, 0, nullptr, GL_TRUE );
-			glDebugMessageCallback( &DebugErrorCallback, nullptr );
-			LogGlError( "Cannot set debug callback" );
-		} else
-			LOG_ERROR("glDebugMessage functions not loaded.");
+		GL_CALL(glEnable, GL_DEBUG_OUTPUT);
+		GL_CALL(glEnable, GL_DEBUG_OUTPUT_SYNCHRONOUS);
+
+		GL_CALL(glDebugMessageControl, GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_MEDIUM, 0, nullptr, GL_TRUE);
+		GL_CALL(glDebugMessageCallback, &DebugErrorCallback, nullptr);
 	}
 
 	GLFWwindow* Device::GetWindow()
@@ -156,8 +150,11 @@ namespace Graphic {
 			g_Device.m_samplerStates[i] = -1;
 
 		// Bind the hardware-backbuffer.
-		glViewport(0, 0, _width, _height);
+		GL_CALL(glViewport, 0, 0, _width, _height);
 		g_Device.m_BoundFrameBuffer = NULL;
+
+		// Uses standard counterclockwise culling
+		GL_CALL(glFrontFace, GL_CCW);
 	}
 
 
@@ -176,9 +173,6 @@ namespace Graphic {
 			g_Device.m_rasterizerState = iHash;
 			// Set all related states now.
 			_state.Apply();
-#ifdef _DEBUG
-			LogGlError( "[Device::SetRasterizerState] Could not set rasterizer state" );
-#endif
 		}
 	}
 
@@ -191,9 +185,6 @@ namespace Graphic {
 			g_Device.m_samplerStates[_location] = iHash;
 			// Set all related states now.
 			_state.Apply(_location);
-#ifdef _DEBUG
-			LogGlError( "[Device::SetSamplerState] Could not set a sampler state" );
-#endif
 		}
 	}
 
@@ -206,9 +197,6 @@ namespace Graphic {
 			g_Device.m_blendState = iHash;
 			// Set all related states now.
 			_state.Apply();
-#ifdef _DEBUG
-			LogGlError( "[Device::SetBlendState] Could not set the blend state" );
-#endif
 		}
 	}
 
@@ -221,9 +209,6 @@ namespace Graphic {
 			g_Device.m_depthStencilState = iHash;
 			// Set all related states now.
 			_state.Apply();
-#ifdef _DEBUG
-			LogGlError( "[Device::SetDepthStencilState] Could not set the depth stencil state" );
-#endif
 		}
 	}
 
@@ -231,7 +216,6 @@ namespace Graphic {
 	void Device::SetEffect( const Effect& _effect )
 	{
 		//glBindTexture( 1234, 1234 );
-		Assert(glGetError() == GL_NO_ERROR, "Unexpected GL error");
 		if( g_Device.m_currentEffect != &_effect )
 		{
 			SetRasterizerState( _effect.m_rasterizerState );
@@ -240,10 +224,7 @@ namespace Graphic {
 			for (auto& it : _effect.m_boundTextures)
 				SetSamplerState(it.second.location, *it.second.sampler);
 
-			glUseProgram( _effect.m_programID );
-#ifdef _DEBUG
-			LogGlError( "[Device::SetEffect] Could not bind the shader program" );
-#endif
+			GL_CALL(glUseProgram, _effect.m_programID);
 			g_Device.m_currentEffect = &_effect;
 		}
 	}
@@ -251,11 +232,8 @@ namespace Graphic {
 
 	void Device::SetTexture( const Texture& _texture, unsigned _location )
 	{
-		glActiveTexture(_location+GL_TEXTURE0);
-		glBindTexture( _texture.m_bindingPoint, _texture.m_textureID );
-#ifdef _DEBUG
-		LogGlError( "[Device::SetTexture] Could not bind a texture" );
-#endif
+		GL_CALL(glActiveTexture, _location + GL_TEXTURE0);
+		GL_CALL(glBindTexture, _texture.m_bindingPoint, _texture.m_textureID);
 	}
 
 	void Device::BindFramebuffer(const Framebuffer* _framebuffer, bool _autoViewportSet)
@@ -271,7 +249,7 @@ namespace Graphic {
 			{
 				currentColorTargetCount = _framebuffer->m_colorAttachments.size();
 
-				glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer->m_framebuffer);
+				GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, _framebuffer->m_framebuffer);
 				g_Device.m_BoundFrameBuffer = _framebuffer;
 
 				if (_autoViewportSet)
@@ -289,31 +267,23 @@ namespace Graphic {
 						size[0] /= 2;
 						size[1] /= 2;
 					}
-					glViewport(0, 0, size[0], size[1]);
+					GL_CALL(glViewport, 0, 0, size[0], size[1]);
 				}
 			}
-
-#ifdef _DEBUG
-			LogGlError("[Device::BindFramebuffer] Framebuffer binding.");
-#endif
 		}
 		else
 		{
 			if (g_Device.m_BoundFrameBuffer != NULL)
 			{
-				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, 0);
 				g_Device.m_BoundFrameBuffer = NULL;
 				currentColorTargetCount = 1;
 
 				if (_autoViewportSet)
 				{
-					glViewport(0, 0, GetBackbufferSize()[0], GetBackbufferSize()[1]);
+					GL_CALL(glViewport, 0, 0, GetBackbufferSize()[0], GetBackbufferSize()[1]);
 				}
 			}
-
-#ifdef _DEBUG
-			LogGlError("[Device::BindFramebuffer] Backbuffer binding");
-#endif
 		}
 
 
@@ -324,7 +294,7 @@ namespace Graphic {
 				GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7,
 				GL_COLOR_ATTACHMENT8, GL_COLOR_ATTACHMENT9, GL_COLOR_ATTACHMENT10, GL_COLOR_ATTACHMENT11,
 				GL_COLOR_ATTACHMENT12, GL_COLOR_ATTACHMENT13, GL_COLOR_ATTACHMENT14, GL_COLOR_ATTACHMENT15 };
-			glDrawBuffers(previousColorTargetCount, drawBuffers);
+			GL_CALL(glDrawBuffers, previousColorTargetCount, drawBuffers);
 		}
 	}
 
@@ -335,38 +305,30 @@ namespace Graphic {
 
 	void Device::Clear( float _r, float _g, float _b )
 	{
-		glClearColor( _r, _g, _b, 1.0f );
+		GL_CALL(glClearColor, _r, _g, _b, 1.0f);
 		// Need to write z in clear call
-		GLboolean writeDepth; glGetBooleanv(GL_DEPTH_WRITEMASK, &writeDepth);
-		glDepthMask( true );
-		glClearDepth( 1.0f );
-		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+		GLboolean writeDepth; 
+		GL_CALL(glGetBooleanv, GL_DEPTH_WRITEMASK, &writeDepth);	// TODO: Get functions should be avoided!
+		GL_CALL(glDepthMask, true);
+		GL_CALL(glClearDepth, 1.0f);
+		GL_CALL(glClear, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// Return to old state, otherwise effects could get confused
-		glDepthMask( writeDepth );
+		GL_CALL(glDepthMask, writeDepth);
 	}
 
 	void Device::ClearZ()
 	{
-		glClearDepth( 1.0f );
-		glClear( GL_DEPTH_BUFFER_BIT );
+		GL_CALL(glClearDepth, 1.0f);
+		GL_CALL(glClear, GL_DEPTH_BUFFER_BIT);
 	}
 
 
 	void Device::DrawVertices( const VertexBuffer& _buffer, int _from, int _count )
 	{
 		_buffer.Bind();
-#ifdef _DEBUG
-		LogGlError("[Device::DrawVertices] Could not bind the vertex buffer");
-#endif
 
 		g_Device.m_currentEffect->CommitUniformBuffers();
 
-		glDrawArrays( unsigned(_buffer.GetPrimitiveType()), _from, _count );
-
-#ifdef _DEBUG
-		LogGlError("[Device::DrawVertices] glDrawArrays failed");
-#endif
-
-		//glBindVertexArray(0);
+		GL_CALL(glDrawArrays, unsigned(_buffer.GetPrimitiveType()), _from, _count);
 	}
 };

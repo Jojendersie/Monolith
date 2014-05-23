@@ -12,11 +12,11 @@ namespace Graphic {
 		// TODO: glBlendFunci... for MRT
 
 		if( m_blendOperation == BLEND_OPERATION::DISABLE )
-			glDisable( GL_BLEND );
+			GL_CALL(glDisable, GL_BLEND);
 		else {
-			glEnable( GL_BLEND );
-			glBlendEquation( unsigned(m_blendOperation) );
-			glBlendFunc( unsigned(m_srcOp), unsigned(m_dstOp) );
+			GL_CALL(glEnable, GL_BLEND);
+			GL_CALL(glBlendEquation, unsigned(m_blendOperation));
+			GL_CALL(glBlendFunc, unsigned(m_srcOp), unsigned(m_dstOp));
 		}
 	}
 };
