@@ -20,7 +20,7 @@
 
 
 // Define this macro to safe all preprocessed shaders in the given location with generic file endings that are suitable for the glsllang parser
-//#define SHADER_CODE_DUMP_PATH "/processedshaderdump/"
+#define SHADER_CODE_DUMP_PATH "processedshaderdump/"
 
 
 namespace Graphic {

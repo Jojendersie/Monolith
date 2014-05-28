@@ -73,5 +73,6 @@ namespace Files {
 		void operator = (const MemFile&);
 		MemFile(const MemFile&);
 	};
-};
-};
+
+} // namespace Files
+} // namespace Jo

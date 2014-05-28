@@ -17,6 +17,7 @@ namespace Utils {
 		};
 		std::vector<FileDesc>		m_files;
 		std::vector<std::string>	m_directories;
+		std::string					m_currentDirectory;
 	public:
 		/// \brief Reads all filenames form the given directory.
 		/// \details All the names are buffered so deletions or creations of
@@ -27,8 +28,8 @@ namespace Utils {
 		/// \param [in] _directory Name of any directory to reload the list from.
 		void Reset( const std::string& _directory );
 
-		int GetNumFiles() const					{ return m_files.size(); }
-		int GetNumDirectories() const			{ return m_directories.size(); }
+		int GetNumFiles() const					{ return (int)m_files.size(); }
+		int GetNumDirectories() const			{ return (int)m_directories.size(); }
 
 		uint64_t GetFileSize( int _index ) const					{ return m_files[_index].size; }
 
@@ -40,7 +41,7 @@ namespace Utils {
 
 		/// \brief Returns the name of the directory whose content is enumerated.
 		///
-		const std::string& GetCurrentDirectoryName() const;
+		const std::string& GetCurrentDirectoryName() const			{ return m_currentDirectory; }
 	};
 
 	/// \brief Splits a given path name into directory and file.
@@ -77,6 +78,6 @@ namespace Utils {
 	/// \brief Returns the file name without the directory
 	/// \param [in] _name Arbitrary file name.
 	std::string GetFileName( const std::string& _name );*/
-};
-};
-};
+} // namespace Utils
+} // namespace Files
+} // namespace Jo

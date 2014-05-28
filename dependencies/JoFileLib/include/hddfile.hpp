@@ -60,5 +60,6 @@ namespace Files {
 		void operator = (const HDDFile&);
 		HDDFile(const HDDFile&);
 	};
-};
-};
+	
+} // namespace Files
+} // namespace Jo

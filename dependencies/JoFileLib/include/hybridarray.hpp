@@ -23,6 +23,8 @@ namespace Jo {
 	class HybridArray
 	{
 	public:
+		typedef T ElemType;
+
 		/// \brief Standard: create an array with capacity n.
 		HybridArray();
 
@@ -40,7 +42,7 @@ namespace Jo {
 		~HybridArray();
 
 		/// \brief Deep copying assignment
-		HybridArray<T,n>& operator = (const HybridArray<T,n>& _other);
+		HybridArray<ElemType,n>& operator = (const HybridArray<T,n>& _other);
 
 		/// \brief Write-array access.
 		T& operator [] (uint32_t _index);
@@ -58,25 +60,25 @@ namespace Jo {
 
 		/// \brief Insert an element copy at the end of the array.
 		/// \details This might cause a resize with costs O(n).
-		const T& PushBack(const T& _element);
+		const ElemType& PushBack(const ElemType& _element);
 
 		/// \brief Insert an element at the end of the array.
 		/// \details This might cause a resize with costs O(n).
-		T& PushBack(T&& _element);
+		ElemType& PushBack(ElemType&& _element);
 
 		/// \brief Delete the last element
 		void PopBack();
 
 		/// \brief Insert an element copy at the given index of the array.
 		/// \details This might cause a resize with costs O(n).
-		const T& Insert(uint32_t _where, const T& _element);
+		const ElemType& Insert(uint32_t _where, const ElemType& _element);
 
 		/// \brief Insert an element at the given index of the array.
 		/// \details This might cause a resize with costs O(n).
-		T& Insert(uint32_t _where, T&& _element);
+		ElemType& Insert(uint32_t _where, ElemType&& _element);
 
 		/// \brief Delete an element in O(1). This operation changes the
-		///		element order.
+		///		element order by replacing the first with the last element.
 		void Delete(unsigned _index);
 
 		/// \brief Delete an element in O(n). This operation keeps the
@@ -87,16 +89,16 @@ namespace Jo {
 		uint32_t Capacity() const	{ return m_capacity; }
 
 		/// \brief Access first element
-		T& First()				{ assert(m_size>0); return *m_data; }
-		const T& First() const	{ assert(m_size>0); return *m_data; }
+		ElemType& First()				{ assert(m_size>0); return *m_data; }
+		const ElemType& First() const	{ assert(m_size>0); return *m_data; }
 
 		/// \brief Access last element
-		T& Last()				{ assert(m_size>0); return m_data[m_size-1]; }
-		const T& Last() const	{ assert(m_size>0); return m_data[m_size-1]; }
+		ElemType& Last()				{ assert(m_size>0); return m_data[m_size-1]; }
+		const ElemType& Last() const	{ assert(m_size>0); return m_data[m_size-1]; }
 	protected:
 		uint32_t m_capacity;	///< Maximum number of elements
 		uint32_t m_size;		///< Current number of elements
-		T* m_data;				///< Pointer to array memory block. Might be on stack or heap.
+		ElemType* m_data;		///< Pointer to array memory block. Might be on stack or heap.
 
 		T m_localStorage[n];	///< The local storage on stack or in object heap space.
 	};
@@ -126,7 +128,7 @@ namespace Jo {
 	{
 		if( m_capacity > n )
 			// Too large for local space
-			m_data = (T*)malloc(sizeof(T) * n);
+			m_data = (ElemType*)malloc(sizeof(ElemType) * n);
 		else {
 			m_data = m_localStorage;
 		}
@@ -143,7 +145,7 @@ namespace Jo {
 		if( m_capacity <= n )
 			m_data = m_localStorage;
 		else
-			m_data = (T*)malloc(sizeof(T) * m_capacity);
+			m_data = (ElemType*)malloc(sizeof(T) * m_capacity);
 		// Deep copy now
 		for( unsigned i=0; i<m_size; ++i )
 			new (m_data+i) T( _other.m_data[i] );
@@ -194,19 +196,19 @@ namespace Jo {
 
 	// ********************************************************************* //
 	template<typename T, unsigned n>
-	T& HybridArray<T,n>::operator [] (uint32_t _index)
+	typename HybridArray<T,n>::ElemType& HybridArray<T,n>::operator [] (uint32_t _index)
 	{
 		// TODO: logging system
-		assert(m_size >= _index);
+		assert(m_size > _index);
 
 		return m_data[_index];
 	}
 
 	template<typename T, unsigned n>
-	const T& HybridArray<T,n>::operator [] (uint32_t _index) const
+	const typename HybridArray<T,n>::ElemType& HybridArray<T,n>::operator [] (uint32_t _index) const
 	{
 		// TODO: logging system
-		assert(m_size >= _index);
+		assert(m_size > _index);
 
 		return m_data[_index];
 	}
@@ -228,22 +230,22 @@ namespace Jo {
 		// a realloc or copy is necessary
 		if( m_capacity > n || oldCapacity > n )
 		{
-			T* oldData = m_data;
+			ElemType* oldData = m_data;
 
 			// Determine target memory
 			if( m_capacity <= n ) m_data = m_localStorage;
-			else m_data = (T*)malloc( m_capacity * sizeof(T) );
+			else m_data = (ElemType*)malloc( m_capacity * sizeof(ElemType) );
 
 			// Now keep the old data
 			// Use flat copy if possible
 			for( unsigned i=0; i<m_size; ++i )
-				new (m_data + i) T( std::move(oldData[i]) );
+				new (m_data + i) ElemType( std::move(oldData[i]) );
 
 			// Correctly delete pruned elements
 			if( m_size > _capacity )
 			{
 				for( unsigned i=_capacity; i<m_size; ++i )
-					m_data[i].~T();
+					m_data[i].~ElemType();
 				m_size = _capacity;
 			}
 			if( oldCapacity > n ) free(oldData);
@@ -252,21 +254,21 @@ namespace Jo {
 
 	// ********************************************************************* //
 	template<typename T, unsigned n>
-	const T& HybridArray<T,n>::PushBack(const T& _element)
+	const T& HybridArray<T,n>::PushBack(const ElemType& _element)
 	{
 		// Exponential growth if necessary
 		if( m_size == m_capacity ) Resize(m_capacity * 2);
 		// Clone
-		return *(new (m_data + m_size++) T( _element ));
+		return *(new (m_data + m_size++) ElemType( _element ));
 	}
 
 	template<typename T, unsigned n>
-	T& HybridArray<T,n>::PushBack(T&& _element)
+	T& HybridArray<T,n>::PushBack(ElemType&& _element)
 	{
 		// Exponential growth if necessary
 		if( m_size == m_capacity ) Resize(m_capacity * 2);
 		// Take over
-		return *(new (m_data + m_size++) T( _element ));
+		return *(new (m_data + m_size++) ElemType( _element ));
 	}
 
 	template<typename T, unsigned n>
@@ -276,34 +278,34 @@ namespace Jo {
 		assert(m_size > 0);
 
 		// Delete old
-		m_data[--m_size].~T();
+		m_data[--m_size].~ElemType();
 	}
 
 	// ********************************************************************* //
 	template<typename T, unsigned n>
-	const T& HybridArray<T,n>::Insert(uint32_t _where, const T& _element)
+	const T& HybridArray<T,n>::Insert(uint32_t _where, const ElemType& _element)
 	{
 		// Exponential growth if necessary
 		if( m_size == m_capacity ) Resize(m_capacity * 2);
 		// Move everything after the index
 		for( unsigned i=m_size; i>_where; --i )
-			new (m_data+i) T(std::move(m_data[i-1]));
+			new (m_data+i) ElemType(std::move(m_data[i-1]));
 		m_size++;
 		// Clone
-		return *(new (m_data + _where) T( _element ));
+		return *(new (m_data + _where) ElemType( _element ));
 	}
 
 	template<typename T, unsigned n>
-	T& HybridArray<T,n>::Insert(uint32_t _where, T&& _element)
+	T& HybridArray<T,n>::Insert(uint32_t _where, ElemType&& _element)
 	{
 		// Exponential growth if necessary
 		if( m_size == m_capacity ) Resize(m_capacity * 2);
 		// Move everything after the index
 		for( unsigned i=m_size; i>_where; --i )
-			new (m_data+i) T(std::move(m_data[i-1]));
+			new (m_data+i) ElemType(std::move(m_data[i-1]));
 		m_size++;
 		// Take over
-		return *(new (m_data + _where) T( _element ));
+		return *(new (m_data + _where) ElemType( _element ));
 	}
 
 
@@ -315,11 +317,11 @@ namespace Jo {
 		assert(m_size > _index);
 
 		// Delete old
-		m_data[_index].~T();
+		m_data[_index].~ElemType();
 		--m_size;
 		// Replace with last
 		if(m_size != _index)
-			new (m_data+_index) T(std::move(m_data[m_size]));
+			new (m_data+_index) ElemType(std::move(m_data[m_size]));
 	}
 
 	template<typename T, unsigned n>
@@ -329,11 +331,11 @@ namespace Jo {
 		assert(m_size > _index);
 
 		// Delete old
-		m_data[_index].~T();
+		m_data[_index].~ElemType();
 		// Replace all successors
 		--m_size;
 		for( unsigned i=_index; i<m_size; ++i )
-			new (m_data+i) T(std::move(m_data[i+1]));
+			new (m_data+i) ElemType(std::move(m_data[i+1]));
 	}
 
 } // namespace Jo

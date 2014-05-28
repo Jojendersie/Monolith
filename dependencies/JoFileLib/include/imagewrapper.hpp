@@ -67,10 +67,14 @@ namespace Files {
 		/// \details If the format is not float the value will be converted.
 		///		Therefore the value is clamped to [0,1] or [-1,1]. It is not
 		///		clamped if the channel contains floats!
+		///		
+		///		If the out of bound check fails for x, y or c nothing is done.
 		void Set( int _x, int _y, int _c, float _value );
 
 		/// \brief Get one channel of a pixel.
 		/// \details If the format is not float the value will be converted.
+		/// 
+		///		If x, y, or c is out of bounds the return value is -10000.0f.
 		/// \return Value in [0,1] if unsigned channels, [-1,1] for signed int
 		///		or unconverted float value.
 		float Get( int _x, int _y, int _c );
@@ -97,5 +101,6 @@ namespace Files {
 		/// \brief Write a portable float map
 		void WritePFM( IFile& _file ) const;
 	};
-}
-}
+
+} // namespace Files
+} // namespace Jo

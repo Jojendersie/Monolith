@@ -1,8 +1,14 @@
 #pragma once
 
-#define JO_WINDOWS
-//#define JO_UNIX
-//#define JO_IOS
+#if defined(_WIN32) || defined(_WIN64) || defined(__WIN32__)
+#	define JO_WINDOWS
+#elif defined(__APPLE__)
+#	define JO_IOS
+#elif defined(unix) || defined(__unix__) || defined(__unix)
+#	define JO_UNIX
+#elif defined(__posix)
+#	define JO_POSIX
+#endif
 
 #include <cstdint>
 

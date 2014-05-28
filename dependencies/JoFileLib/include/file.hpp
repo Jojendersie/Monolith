@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <cassert>
 
 namespace Jo {
 namespace Files {
@@ -21,7 +22,7 @@ namespace Files {
 		bool m_readAccess;
 
 		IFile( uint64_t _size, bool _read, bool _write ) :
-			m_size( _size ), m_cursor( 0 ), m_readAccess( _read ), m_writeAccess( _write )
+			m_size( _size ), m_cursor( 0 ), m_writeAccess( _write ), m_readAccess( _read )
 		{}
 	public:
 
@@ -58,7 +59,7 @@ namespace Files {
 		/// \return true if file can be read.
 		bool CanRead() const			{ return m_readAccess; }
 
-		bool IsEof() const	{ return m_size == m_cursor; }
+		bool IsEof() const				{ assert(m_size >= m_cursor); return m_size == m_cursor; }
 
 		/// \brief Write a single uint8_t to the file.
 		void WriteU8( uint8_t _what )		{ Write(&_what, 1); }
@@ -83,5 +84,6 @@ namespace Files {
 		/// \brief Write a single word to the file. This does not write the string's length to the file.
 		void Write( const std::string& _what )		{ Write(_what.c_str(), _what.length()); }
 	};
-};
-};
+
+} // namespace Files
+} // namespace Jo

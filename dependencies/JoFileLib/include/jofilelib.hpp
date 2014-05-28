@@ -22,8 +22,8 @@ namespace Files {
 		PNG,
 		PFM			///< Portable float map
 	};
-};
-};
+} // namespace Files
+} // namespace Jo
 
 #include "file.hpp"
 #include "memfile.hpp"

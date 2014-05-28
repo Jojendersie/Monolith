@@ -278,5 +278,5 @@ namespace Files {
 		const Node& operator[]( uint64_t _index ) const				{ return RootNode[_index]; }
 	};
 
-};
-};
+} // namespace Files
+} // namespace Jo

@@ -34,6 +34,9 @@ namespace Files {
 
 		/// \brief Interpret text from a stream as int. Whitespaces at the
 		///		beginning are ignored.
+		///	\details If there is no number (other characters) the return value
+		///		is 0. The file cursor points to the first character which does
+		///		not belong to the interpreted int afterwards.
 		int ReadASCIIInt( const IFile& _file );
 
 	} // namespace StreamReader
