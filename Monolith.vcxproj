@@ -205,6 +205,7 @@
     <ClInclude Include="src\math\quaternion.hpp" />
     <ClInclude Include="src\math\ray.hpp" />
     <ClInclude Include="src\math\sphere.hpp" />
+    <ClInclude Include="src\math\sphericalfunction.hpp" />
     <ClInclude Include="src\math\transformation.hpp" />
     <ClInclude Include="src\math\vector.hpp" />
     <ClInclude Include="src\predeclarations.hpp" />

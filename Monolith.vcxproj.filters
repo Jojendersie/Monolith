@@ -642,6 +642,9 @@
     <ClInclude Include="src\utilities\flagoperators.hpp">
       <Filter>Source Files\input</Filter>
     </ClInclude>
+    <ClInclude Include="src\math\sphericalfunction.hpp">
+      <Filter>Source Files\math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\voxel.ps">
