@@ -67,6 +67,9 @@ namespace Math {
 	typedef Vector<4,float> Vec4;
 //	typedef Vector<3,FixedPoint<30>> FixVec3;
 	class Transformation;
+	template<int N> class CubeMap;
+	/// A typedef to have global control about the tessellation refinement
+	typedef CubeMap<3> SphericalFunction;
 } // namespace Math
 
 namespace Utils {

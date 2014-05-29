@@ -1,4 +1,3 @@
 This directory contains:
- * Input handling
+ * Core Mechanics
  * AI
- * GUI

@@ -221,6 +221,9 @@
     <ClCompile Include="src\utilities\pathutils.cpp">
       <Filter>Source Files\utilities</Filter>
     </ClCompile>
+    <ClCompile Include="src\gameplay\drive.cpp">
+      <Filter>Source Files\gameplay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
@@ -644,6 +647,9 @@
     </ClInclude>
     <ClInclude Include="src\math\sphericalfunction.hpp">
       <Filter>Source Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\drive.hpp">
+      <Filter>Source Files\gameplay</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
