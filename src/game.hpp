@@ -2,14 +2,49 @@
 
 #include <chrono>
 #include "predeclarations.hpp"
+#include "gameloop.hpp"
 #include <jofilelib.hpp>
+#include <hybridarray.hpp>
 
-namespace Graphic
+class Monolith;
+
+/// \brief Game loop for fixed step size simulation code.
+/// \details Handles simple simulations, input and poll network messages.
+class RenderLoop: public GameLoop
 {
-	class Framebuffer;
-	class Texture;
-	class PostProcessing;
-}
+public:
+	RenderLoop(Monolith& _game) : GameLoop("RenderLoop", 0.0f/60.0f), m_game(_game) {}
+	void Step( double _deltaTime );
+	/// \brief Just continue rendering - error messages are reported by the game loop.
+	void OnFailure()	{}
+private:
+	Monolith& m_game;
+};
+
+/// \brief Game loop for rendering.
+class SimulationLoop: public GameLoop
+{
+public:
+	SimulationLoop(Monolith& _game) : GameLoop("SimulationLoop", 1.0f/80.0f), m_game(_game) {}
+	void Step( double _deltaTime );
+	/// \brief Save the game and make an stop to check everything.
+	void OnFailure();
+private:
+	Monolith& m_game;
+};
+
+/// \brief A loop which handles all other loops in one.
+class CompositeLoop: public GameLoop
+{
+public:
+	CompositeLoop() : GameLoop("CompositeLoop", 1.0f/60.0f) {}
+	void Step( double _deltaTime );
+	void OnFailure();
+	/// \brief Register a loop. Memory management must be done outside.
+	void AddLoop( GameLoop* _loop );
+private:
+	Jo::HybridArray<GameLoop*> m_loops;
+};
 
 /// \brief The game consists of a main-loop and several different game-states.
 /// \details Game states are managed on a stack based on the following rules:
@@ -23,12 +58,7 @@ class Monolith
 {
 public:
 	/// \brief Create a single threaded variant with limited frame rate.
-	Monolith( float _targetFrameRate );
-
-	/// \brief Create a multi threaded variant with a limited frame rate for
-	///		each thread.
-	// NOT IMPLEMENTED YET
-	//Monolith( float _targetRenderFR, float _targetUpdateFR, float _targetSoundFR );
+	Monolith( bool _singleThreaded );
 
 	/// \brief Delete all created resources
 	~Monolith();
@@ -65,17 +95,23 @@ public:
 	GSGameplayOpt* GetGameplayOptState();
 	GSSoundOpt* GetSoundOptState();
 
+	IGameStateP GetState()	{ return m_stateStack; }
+
 	Jo::Files::MetaFileWrapper Config;
 
 	float Time() const { return (float)m_time; }
 private:
+	friend class RenderLoop;
+	friend class CompositeLoop;
+	friend class SimulationLoop;
+	CompositeLoop m_compositeLoop;
+	RenderLoop m_renderLoop;
+	SimulationLoop m_simulationLoop;
 	IGameStateP m_gameStates[8];	///< MainMenu, Play, Editor, EditorChoice, GraphicOpt, InputOpt, GameplayOpt, SoundOpt
 	IGameStateP m_stateStack;		///< The head of a stack of game states
 	bool m_singleThreaded;
-	bool m_running;
 
 	double m_time;					///< Total time since run in seconds
-	std::chrono::microseconds m_microSecPerFrame;
 
 	Graphic::Texture* m_sceneDepthTexture; ///< Main depth target for the 3D scene.
 	Graphic::Texture* m_sceneColorTexture; ///< Main color target for the 3D scene.
@@ -90,4 +126,8 @@ private:
 	bool ClearStack();
 
 	void BuildDefaultConfig();
+
+	/// \brief Stop parallel task if game states change
+	void PauseAllLoops();
+	void ContinueAllLoops();
 };

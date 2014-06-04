@@ -224,6 +224,9 @@
     <ClCompile Include="src\gameplay\drive.cpp">
       <Filter>Source Files\gameplay</Filter>
     </ClCompile>
+    <ClCompile Include="src\gameloop.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
@@ -650,6 +653,9 @@
     </ClInclude>
     <ClInclude Include="src\gameplay\drive.hpp">
       <Filter>Source Files\gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameloop.hpp">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
