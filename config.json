@@ -1,0 +1,19 @@
+{
+  "Input": {
+    "MoveCamera": 1,
+    "RotateCamera": 2,
+    "Zoom": 90,
+    "CameraRotationSpeed": 0.005000,
+    "CameraMovementSpeed": 0.002500,
+    "CameraScrollSpeed": 5.000000,
+    "EditorDeletionMode": 340
+  },
+  "Game": {
+    "Language": "english.json"
+  },
+  "Graphics": {
+    "ScreenWidth": 1900,
+    "ScreenHeight": 1000,
+    "SSAO": 3
+  }
+}}
