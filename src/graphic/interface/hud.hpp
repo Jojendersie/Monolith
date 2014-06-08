@@ -1,5 +1,4 @@
 #include "hudelements.hpp"
-#include <forward_list>
 
 
 namespace Graphic {
@@ -14,7 +13,9 @@ namespace Graphic {
 		Hud( Monolith* _game, Math::Vec2 _pos=Math::Vec2(-1.f,-1.f) , Math::Vec2 _size=Math::Vec2(2.f,2.f), bool _showCursor = true);
 
 		// functions intended do be used in gamestates to create a button with the specefied params
-		void CreateBtn(std::string _texName, std::string _desc, Math::Vec2 _position, Math::Vec2 _size, std::function<void()> _OnMouseUp = [] () {return;});
+		void CreateBtn(std::string _texName, std::string _desc, Math::Vec2 _position, Math::Vec2 _size,
+			RealDimension _rDim = no, std::function<void()> _OnMouseUp = [] () {return;},
+			Font* _font = Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT));
 
 		/// \brief Creates an container in the current Hud and returns it as Hud* to fill it with elements 
 		Hud* CreateContainer(Math::Vec2 _pos=Math::Vec2(-1.f,-1.f) , Math::Vec2 _size=Math::Vec2(2.f,2.f));
@@ -26,13 +27,17 @@ namespace Graphic {
 		/// \brief Last call in every frame drawcall
 		void Draw(double _time, double _deltaTime);
 
-		/// \brief Adds an existing label(TextRender) to the auto draw managment
+		/// \brief Adds an ScreenOverlay to the managegement and takes ownership
+		void AddScreenOverlay(ScreenOverlay* _screenOverlay);
+
+		/// \brief Adds an existing label(TextRender) to the auto draw managment and takes ownership
+		/// \details Size gets relativated to the hud it is member of
 		void AddTextRender(TextRender* _label);
 
-		/// \brief Adds an existing screenTex to the auto draw and collision managment
+		/// \brief Adds an existing screenTex to the auto draw and collision managment and takes ownership
 		void AddTexture(ScreenTexture* _tex);
 
-		/// \brief Adds an existing button to the auto draw managment
+		/// \brief Adds an existing button to the auto draw managment and takes ownership
 		void AddButton(Button* _btn);
 
 		/// \brief Sets the camera; Currently only used by ScreenModel

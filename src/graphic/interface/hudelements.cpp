@@ -6,8 +6,11 @@
 namespace Graphic
 {
 	ScreenTexture::ScreenTexture(Jo::Files::MetaFileWrapper* _posMap, std::string _name, Math::Vec2 _position, Math::Vec2 _size,
-		std::function<void()> _OnMouseUp):
-		ScreenOverlay(_position, _size, _OnMouseUp)
+		RealDimension _rDim, std::function<void()> _OnMouseUp):
+		ScreenOverlay(_position, _size, _OnMouseUp),
+		m_realDimension(_rDim),
+		m_posDef(_position),
+		m_sizeDef(_size)
 	{
 		m_vertex.position = _position;
 		m_vertex.texCoord = Math::Vec2(_posMap->RootNode[_name][std::string("positionX")],_posMap->RootNode[_name][std::string("positionY")]);
@@ -31,12 +34,12 @@ namespace Graphic
 
 	// ************************************************************************ //
 
-	Button::Button(Jo::Files::MetaFileWrapper* _posMap, Font* _font, std::string _name, Math::Vec2 _position, Math::Vec2 _size,
-		 std::function<void()> _OnMouseUp ):
-		ScreenTexture(_posMap, _name+"Default", _position, _size, _OnMouseUp),
-		m_btnDefault(_posMap, _name+"Default", _position, _size),
-		m_btnOver(_posMap, _name+"Over", _position, _size),
-		m_btnDown(_posMap, _name+"Down", _position, _size),
+	Button::Button(Jo::Files::MetaFileWrapper* _posMap, std::string _name, Math::Vec2 _position, Math::Vec2 _size,
+		 RealDimension _rDim, Font* _font, std::function<void()> _OnMouseUp ):
+		ScreenTexture(_posMap, _name+"Default", _position, _size, _rDim, _OnMouseUp),
+		m_btnDefault(_posMap, _name+"Default", _position, _size, _rDim),
+		m_btnOver(_posMap, _name+"Over", _position, _size, _rDim),
+		m_btnDown(_posMap, _name+"Down", _position, _size, _rDim),
 		m_caption(_font)
 	{
 		SetVisibility(false); 

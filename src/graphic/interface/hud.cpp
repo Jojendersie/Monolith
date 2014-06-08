@@ -29,7 +29,7 @@ namespace Graphic
 		Jo::Files::HDDFile file("texture/combined.sraw");
 		m_texContainerMap = new Jo::Files::MetaFileWrapper( file, Jo::Files::Format::SRAW );
 		
-		m_cursor = new ScreenTexture(m_texContainerMap, "cursor", Math::Vec2(0.f,0.f), Math::Vec2(0.07f,0.07f));
+		m_cursor = new ScreenTexture(m_texContainerMap, "cursor", Math::Vec2(0.f,0.f), Math::Vec2(0.07f,0.07f), height);
 	//	m_cursor->SetState(_showCursor);
 		AddTexture(m_cursor);
 
@@ -50,9 +50,10 @@ namespace Graphic
 	}
 
 	// ************************************************************************* //
-	void Hud::CreateBtn(std::string _texName, std::string _desc, Math::Vec2 _position, Math::Vec2 _size, std::function<void()> _OnMouseUp)
+	void Hud::CreateBtn(std::string _texName, std::string _desc, Math::Vec2 _position, Math::Vec2 _size, RealDimension _rDim, 
+		std::function<void()> _OnMouseUp, Font* _font)
 	{
-		Button* btn = new Button(m_texContainerMap, Resources::GetFont(Fonts::GAME_FONT), _texName, _position, _size, _OnMouseUp);
+		Button* btn = new Button(m_texContainerMap, _texName, _position, _size, no, Resources::GetFont(Fonts::GAME_FONT), _OnMouseUp);
 		btn->SetCaption(_desc);
 		AddButton(btn);
 	}
@@ -62,7 +63,7 @@ namespace Graphic
 	{
 		Hud* hud = new Hud(m_game, _pos, _size, false);
 		m_containers.push_back(std::unique_ptr<Hud>(hud));
-		m_screenOverlays.push_back(hud);
+		AddScreenOverlay(hud);
 		return hud;
 	};
 
@@ -70,7 +71,7 @@ namespace Graphic
 	void Hud::CreateModel(Math::Vec2 _pos , Math::Vec2 _size, Voxel::Model* _model)
 	{
 		ScreenModel* screenModel = new ScreenModel(_pos, _size, _model);
-		m_screenOverlays.push_back(screenModel);
+		AddScreenOverlay(screenModel);
 		m_screenModels.push_back(std::unique_ptr<ScreenModel>(screenModel));
 	};
 
@@ -222,6 +223,15 @@ namespace Graphic
 	}
 
 	// ************************************************************************* //
+
+	void Hud::AddScreenOverlay(ScreenOverlay* _screenOverlay)
+	{
+		_screenOverlay->SetSize(_screenOverlay->m_size * (m_size * 0.5f));
+		//calculate the offset, add one so that -1 means no offset; mul with size because thats the relative space the overlay is in
+		_screenOverlay->SetPos((_screenOverlay->m_pos + Math::Vec2(1.f,-1.f)) * m_size * 0.5f + m_pos);// + Math::Vec2(1.f, -1.f)
+		m_screenOverlays.push_back(_screenOverlay);
+	}
+
 	void Hud::AddTextRender(TextRender* _label)
 	{
 		m_textRenders.push_back(_label);
@@ -233,9 +243,20 @@ namespace Graphic
 		_tex->m_vertex.size[0] -= 1.5f/m_texContainer.Width();
 	//	_tex->m_vertex.size[1] -= 1.f/m_texContainer.Height();
 		_tex->m_vertex.texCoord[0] += 0.5f/m_texContainer.Width();
-	//	_tex->m_vertex.texCoord[1] += 0.5f/m_texContainer.Height(); 
-		_tex->m_vertex.screenSize[0] /= Device::GetAspectRatio();
-		m_screenOverlays.push_back(_tex);
+	//	_tex->m_vertex.texCoord[1] += 0.5f/m_texContainer.Height();
+		switch (_tex->m_realDimension)
+		{
+		case width:
+			_tex->SetSize(Math::Vec2(_tex->m_sizeDef[0], _tex->m_sizeDef[1] / Device::GetAspectRatio()));
+			break;
+		case height:
+			_tex->SetSize(Math::Vec2(_tex->m_sizeDef[0] / Device::GetAspectRatio(), _tex->m_sizeDef[1] ));
+			break;
+		default:
+			break;
+		}  
+//		_tex->m_vertex.screenSize[0] /= Device::GetAspectRatio();
+		AddScreenOverlay(_tex);
 	}
 
 	void Hud::AddButton(Button* _btn)

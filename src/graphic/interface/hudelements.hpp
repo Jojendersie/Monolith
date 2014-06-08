@@ -1,5 +1,6 @@
 #include "font.hpp"
 #include "game.hpp"
+#include "graphic/content.hpp"
 #include <functional>
 #include <memory>
 
@@ -12,8 +13,21 @@ namespace Graphic {
 		Math::Vec2 texCoord;	///< Texture position (XY = [0,1]x[0,1]) relative to the lower left corner (0,0)
 		Math::Vec2 size;		///< Width and height relative to the texture size [0,1]x[0,1]
 	};
+
+	/// \brief Defines how an element should be scaled to fit the current screen ratio
+	/// \details The choosen dimension is displayed as defined, while the other gets scaled to preserve the size ratio
+	enum RealDimension
+	{
+		width,
+		height,
+		no
+	};
+
 	/// \brief a basic class for 2d screen elements
-	/// \details a storage for size information and capable of interaction with the mouse and keys when managed by a hud 
+	/// \details a storage for size information and capable of interaction with the mouse and keys when managed by a hud
+	/// _position is the upper left corner of the Overlay in screenspace [-1,1]x[-1,1] starting from the lower left corner
+	/// _size is the size in screen space
+	/// both are relative to the owning parent(Hud), thus a size of 2.f will make that the Overlay has the size of the Hud 
 	class ScreenOverlay
 	{
 	public:
@@ -61,14 +75,18 @@ namespace Graphic {
 		std::function<void()> OnMouseLeave;
 		std::function<void()> OnMouseDown;
 		std::function<void()> OnMouseUp;
+
+	private:
 	};
 
 	/// \brief A 2d screen overlay texture 
+	/// \details To preserve the ratio defined in size one can define _rDim so that the other dimension is scaled to fit the needs
 	class ScreenTexture : public ScreenOverlay
 	{
 	public:
 		ScreenTexture( Jo::Files::MetaFileWrapper* _posMap, std::string _name,
-			Math::Vec2 _position, Math::Vec2 _size = Math::Vec2(0.f,0.f), std::function<void()> _OnMouseUp = [] () {return;});
+			Math::Vec2 _position, Math::Vec2 _size = Math::Vec2(0.f,0.f), RealDimension _rDim = no,
+			std::function<void()> _OnMouseUp = [] () {return;});
 		
 		TextureVertex m_vertex;
 
@@ -76,7 +94,13 @@ namespace Graphic {
 		virtual void SetPos(Math::Vec2 _pos) override;
 		virtual void SetSize(Math::Vec2 _size) override;
 
+
+		RealDimension m_realDimension;
+
+		Math::Vec2 m_posDef;///< size as defined
+		Math::Vec2 m_sizeDef;///< size as defined
 	protected:
+	private:
 	};
 
 	/// \brief A 2d screen overlay texture 
@@ -84,7 +108,8 @@ namespace Graphic {
 	{
 	public:
 		/// \brief creates a button
-		Button(Jo::Files::MetaFileWrapper* _posMap, Font* _font, std::string _name, Math::Vec2 _position, Math::Vec2 _size, 
+		Button(Jo::Files::MetaFileWrapper* _posMap, std::string _name, Math::Vec2 _position, Math::Vec2 _size, 
+			RealDimension _rDim = no, Font* _font = Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT),
 			std::function<void()> _OnMouseUp = [] () {return;} );
 
 		ScreenTexture m_btnDefault;

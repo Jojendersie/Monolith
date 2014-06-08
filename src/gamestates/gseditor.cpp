@@ -22,7 +22,7 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 	LOG_LVL2("Starting to create game state Editor");
 
 	m_hud = new Graphic::Hud(_game);
-	Graphic::Hud* voxelContainer = m_hud->CreateContainer(Math::Vec2(-1.f,-0.9f), Math::Vec2(0.6f,1.75f));
+	Graphic::Hud* voxelContainer = m_hud->CreateContainer(Math::Vec2(-0.98f,-1.0f), Math::Vec2(0.6f,1.8f));//Math::Vec2(0.6f,1.75f));
 	voxelContainer->SetScrollable(true);
 
 	//add every (aviable) voxel to the list wich fits the createria
@@ -31,15 +31,15 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 		Voxel::VoxelType type = (Voxel::VoxelType)(i+1);
 		Voxel::Model* vox = new Voxel::Model;
 		vox->Set(Math::IVec3(0,0,0),0,type);
-		voxelContainer->CreateModel(Math::Vec2(-0.887f,0.9f-i*0.2f), Math::Vec2(0.f, 0.f), vox);
-		voxelContainer->CreateBtn("voxelBtn", "<s 032>     "+Voxel::TypeInfo::GetName(type)
-									+ "\n     Ì:" + std::to_string(Voxel::TypeInfo::GetHydrogen(type))
+		voxelContainer->CreateModel(Math::Vec2(-0.76f,0.9f-i*0.2f), Math::Vec2(0.f, 0.f), vox);
+		voxelContainer->CreateBtn("voxelBtn", "<s 032>    "+Voxel::TypeInfo::GetName(type)
+									+ "\n    Ì:" + std::to_string(Voxel::TypeInfo::GetHydrogen(type))
 									+ " Í:" + std::to_string(Voxel::TypeInfo::GetCarbon(type))
 									+ " Î:" + std::to_string(Voxel::TypeInfo::GetMetals(type))
-									+ " \n     Ï:" + std::to_string(Voxel::TypeInfo::GetRareEarthElements(type))
+									+ " \n    Ï:" + std::to_string(Voxel::TypeInfo::GetRareEarthElements(type))
 									+ " Ð:" + std::to_string(Voxel::TypeInfo::GetSemiconductors(type))
 									+ " Ñ:" + std::to_string(Voxel::TypeInfo::GetHeisenbergium(type)), 
-									Math::Vec2(-0.99f,1.f-i*0.2f), Math::Vec2(0.8f, 0.2f),
+									Math::Vec2(-1.f,1.f-i*0.2f), Math::Vec2(1.8f, 0.2f), Graphic::no,
 									[this,type](){m_currentType = type;});
 	}
 
