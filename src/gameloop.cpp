@@ -1,0 +1,85 @@
+#include "gameloop.hpp"
+#include "utilities/logger.hpp"
+#include <thread>
+
+static bool g_stopLoops = false;
+
+// ************************************************************************* //
+void GameLoop::SetTargetFrameDuration( double _duration )
+{
+	m_targetFrameDuration = _duration;
+}
+
+// ************************************************************************* //
+void GameLoop::Run()
+{
+	LOG_LVL2( "Starting game loop " + m_name );
+	double deltaTime = 0.0;
+	TimeQuerySlot frameTimer;
+	while( !g_stopLoops )
+	{
+		m_executing.lock();
+		// Busy waiting?
+		while( m_pause )
+		{
+			if( g_stopLoops ) { m_executing.unlock(); return; }
+			std::this_thread::sleep_for( std::chrono::microseconds(50) );
+		}
+
+		TimeQuery( frameTimer );
+
+		// Do the work
+		try {
+			Step( deltaTime );
+		} catch( const std::exception& _e ) {
+			LOG_ERROR("Caught std::exception in game loop " + m_name + ": \"" + std::string(_e.what()) + "\"");
+			OnFailure();
+		} catch( const std::string& _e ) {
+			LOG_ERROR("Caught string-exception in game loop " + m_name + ": \"" + _e + "\"");
+			OnFailure();
+		} catch( ... ) {
+			LOG_ERROR("Caught exception of unknown type in game loop " + m_name);
+			OnFailure();
+		}
+		m_executing.unlock();
+
+		++m_stepCounter;
+
+		// Calculate time since last frame
+		double deltaFrameTime = TimeQuery( frameTimer );
+		// Smooth frame time
+//		deltaTime = deltaTime * 0.8 + deltaFrameTime * 0.2;
+		deltaTime = std::max( deltaFrameTime, m_targetFrameDuration );
+
+		// Limiting to target fps
+		double timeDifference = m_targetFrameDuration - deltaFrameTime;
+		if( timeDifference > 0.0 )
+		{
+			std::this_thread::sleep_for( std::chrono::microseconds(unsigned(timeDifference * 1000000.0))  );
+		}
+	}
+
+	LOG_LVL2( "Exiting game loop " + m_name );
+}
+
+// ************************************************************************* //
+void GameLoop::StopAll()
+{
+	g_stopLoops = true;
+}
+
+// ************************************************************************* //
+void GameLoop::Pause()
+{
+	// Lock until work is finished
+	m_executing.lock();
+	// The next time the loop will go into work lock it sees the pause flag set.
+	m_pause = true;
+	m_executing.unlock();
+}
+
+// ************************************************************************* //
+void GameLoop::Continue()
+{
+	m_pause = false;
+}

@@ -128,6 +128,7 @@ namespace Graphic {
 		if( !g_Device.m_window )
 			LOG_CRITICAL("Window was not created.");
 		glfwMakeContextCurrent(g_Device.m_window);
+		glfwSwapInterval(0);
 
 		// Init glew.
 		// There is a known bug in the NVidia driver -> DO NOT DELETE OR SET TO GL_FALSE

@@ -1,0 +1,20 @@
+Validating shader reduces the risk of writing shaders that work only with your local driver!
+However, keep in mind that this only helps standard conformity but does NOT make testing unnecessary!
+
+--------------------------------------------------------------------------------------------------------
+- Step by step instructions how to validate shaders with glslangValidator in Monolith
+--------------------------------------------------------------------------------------------------------
+
+1) Delete "processedshaderdump/shader" if it already exists.
+2) Go to "../src/graphic/core/effect.cpp" and uncomment or add "#define SHADER_CODE_DUMP_PATH "processedshaderdump/"
+3) Run Monolith with the single configuration that contains all shader you want to validate at once.
+4) End Monolith
+5) Run validateshaders.bat from cmd or pipe results into a file. If there are any warnings or errors you should see them there. 
+6) Repeat for other configurations if necessary
+
+
+--------------------------------------------------------------------------------------------------------
+- Where to get an up-to-date version of glslangValidator.exe
+--------------------------------------------------------------------------------------------------------
+http://www.opengl.org/sdk/tools/glslang/
+There is an SVN repository, building it yourself should (almost) work out of the box.

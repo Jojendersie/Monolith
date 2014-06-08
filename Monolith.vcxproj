@@ -84,6 +84,7 @@
     <ClCompile Include="dependencies\FileWatcher\FileWatcherOSX.cpp" />
     <ClCompile Include="dependencies\FileWatcher\FileWatcherWin32.cpp" />
     <ClCompile Include="src\game.cpp" />
+    <ClCompile Include="src\gameloop.cpp" />
     <ClCompile Include="src\gameplay\drive.cpp" />
     <ClCompile Include="src\gamestates\gseditor.cpp">
       <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</PreprocessToFile>
@@ -163,6 +164,7 @@
     <ClInclude Include="dependencies\JoFileLib\include\streamreader.hpp" />
     <ClInclude Include="src\algorithm\smallsort.hpp" />
     <ClInclude Include="src\game.hpp" />
+    <ClInclude Include="src\gameloop.hpp" />
     <ClInclude Include="src\gameplay\drive.hpp" />
     <ClInclude Include="src\gamestates\gamestatebase.hpp" />
     <ClInclude Include="src\gamestates\gseditor.hpp" />

@@ -18,7 +18,7 @@ html/
 /dependencies/glew-1.10.0/doc
 /dependencies/glew-1.10.0/lib/Release MX
 /dependencies/glew-1.10.0/lib/Release/x64
-/processedshaderdump
+/processedshaderdump/shader
 
 *.sdf
 *.opensdf

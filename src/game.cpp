@@ -27,19 +27,71 @@
 #include "voxel/voxel.hpp"
 #include "resources.hpp"
 
-static double g_fInvFrequency;
+// ************************************************************************* //
+void RenderLoop::Step( double _deltaTime )
+{
+	// Render to scene frame buffer.
+	Graphic::Device::BindFramebuffer( m_game.m_sceneFramebuffer );
+
+	m_game.GetState()->Render( m_game.Time(), _deltaTime );
+
+	// Post processing and draw to back buffer.
+	m_game.m_postProcessing->PerformPostProcessing(*m_game.m_sceneColorTexture, *m_game.m_sceneDepthTexture);
+
+	glfwSwapBuffers(Graphic::Device::GetWindow());
+	glFinish();
+
+#ifdef AUTO_SHADER_RELOAD
+	Graphic::Effect::UpdateShaderFileWatcher();
+#endif
+}
 
 // ************************************************************************* //
-Monolith::Monolith( float _fTargetFrameRate ) :
-	m_singleThreaded( true ),
-	m_running( true ),
+void SimulationLoop::Step( double _deltaTime )
+{
+	// Perform updates
+	Input::Manager::Update();
+	(*Graphic::Resources::GetUBO(Graphic::UniformBuffers::GLOBAL))["Time"] = (float)m_game.m_time;
+	m_game.GetState()->Update(m_game.Time(), _deltaTime);
+
+	glfwPollEvents();
+
+	if( glfwWindowShouldClose(Graphic::Device::GetWindow()) || !m_game.ClearStack() )
+		GameLoop::StopAll();
+
+	m_game.m_time += _deltaTime;
+}
+
+void SimulationLoop::OnFailure()
+{
+}
+
+// ************************************************************************* //
+void CompositeLoop::Step( double _deltaTime )
+{
+	for(unsigned i = 0; i < m_loops.Size(); ++i)
+		m_loops[i]->Step( _deltaTime );
+}
+
+void CompositeLoop::OnFailure()
+{
+	for(unsigned i = 0; i < m_loops.Size(); ++i)
+		m_loops[i]->OnFailure();
+}
+
+void CompositeLoop::AddLoop( GameLoop* _loop )
+{
+	m_loops.PushBack( _loop );
+}
+
+// ************************************************************************* //
+Monolith::Monolith( bool _singleThreaded ) :
+	m_renderLoop( *this ),
+	m_simulationLoop( *this ),
+	m_singleThreaded( _singleThreaded ),
 	m_time( 0.0 ),
 	m_stateStack( nullptr )
 {
-	// Init timer
-	g_fInvFrequency = std::chrono::high_resolution_clock::period::num/double(std::chrono::high_resolution_clock::period::den);
-	m_microSecPerFrame = std::chrono::microseconds(unsigned(1000000.0 / _fTargetFrameRate));
-
 	// Load configuration
 	try {
 		Jo::Files::HDDFile file( "config.json" );
@@ -66,7 +118,7 @@ Monolith::Monolith( float _fTargetFrameRate ) :
 
 	Voxel::TypeInfo::Initialize();
 
-	// Init scene framebuffer
+	// Init scene frame buffer
 	{
 		using namespace Graphic;
 		m_sceneColorTexture = new Texture(Graphic::Device::GetBackbufferSize()[0], Device::GetBackbufferSize()[1],
@@ -129,52 +181,37 @@ void Monolith::Run()
 {
 	if( m_singleThreaded )
 	{
-		m_stateStack->Update( m_time, 0.0 );
-		TimeQuerySlot frameTimer;
-		TimeQuery( frameTimer );
-		double deltaTime = 0.0;
-		while( m_running && !glfwWindowShouldClose(Graphic::Device::GetWindow()) && ClearStack() )
-		{			
-			// Call stuff
+		LOG_LVL2( "Starting single-threaded game loop." );
+		m_compositeLoop.AddLoop( &m_renderLoop );
+		m_compositeLoop.AddLoop( &m_simulationLoop );
+		m_compositeLoop.Run();
+	} else {
+		// Run most of the loops in Parallel
+		LOG_LVL2( "Starting multi-threaded game loop." );
 
-			// Render to scene framebuffer.
-			Graphic::Device::BindFramebuffer(m_sceneFramebuffer);
+		// Pass the context to the render thread and get it back later
+		glfwMakeContextCurrent( nullptr );
+		std::thread thread1([](GameLoop* _loop){
+				LOG_LVL2( "Created GameLoop thread." );
+				glfwMakeContextCurrent( Graphic::Device::GetWindow() );
+				_loop->Run();
+				glfwMakeContextCurrent( nullptr );
+			}, &m_renderLoop
+		);
 
-			m_stateStack->Render( m_time, deltaTime );
+		// The last one execute in this thread
+		m_simulationLoop.Run();
 
-			// Postprocessing and draw to backbuffer.
-			m_postProcessing->PerformPostProcessing(*m_sceneColorTexture, *m_sceneDepthTexture);
-
-			// Perform updates
-			Input::Manager::Update();
-			m_stateStack->Update(m_time, deltaTime);
-
-			glfwSwapBuffers(Graphic::Device::GetWindow());
-			glfwPollEvents();
-
-#ifdef AUTO_SHADER_RELOAD
-			Graphic::Effect::UpdateShaderFileWatcher();
-#endif
-
-
-			//glFinish();
-
-			// Calculate time since last frame
-			double deltaFrameTime = TimeQuery( frameTimer );
-			// Smooth frame time
-			deltaTime = deltaTime * 0.8 + deltaFrameTime * 0.2;
-			m_time += deltaTime;
-			(*Graphic::Resources::GetUBO(Graphic::UniformBuffers::GLOBAL))["Time"] = (float)m_time;
-
-			// Limiting to target fps
-			//std::this_thread::sleep_for( m_microSecPerFrame - std::chrono::microseconds(unsigned(deltaFrameTime * 1000000.0))  );
-		}
+		thread1.join();
+		glfwMakeContextCurrent( Graphic::Device::GetWindow() );
 	}
 }
 
 // ************************************************************************* //
 void Monolith::_PushState( IGameStateP _state )
 {
+	PauseAllLoops();
+
 	// Set in input manager
 	Input::Manager::SetGameState( _state );
 
@@ -182,6 +219,8 @@ void Monolith::_PushState( IGameStateP _state )
 	_state->m_previous = m_stateStack;
 	_state->m_finished = false;
 	m_stateStack = _state;
+
+	ContinueAllLoops();
 }
 
 // ************************************************************************* //
@@ -189,6 +228,8 @@ bool Monolith::ClearStack()
 {
 	if( m_stateStack->IsFinished() )
 	{
+		PauseAllLoops();
+		LOG_LVL2( std::string("Finishing game state: ") + typeid(*m_stateStack).name() );
 		// Pop
 		m_stateStack->OnEnd();
 		m_stateStack = m_stateStack->m_previous;
@@ -197,6 +238,8 @@ bool Monolith::ClearStack()
 		// Otherwise resume and continue
 		m_stateStack->OnResume();
 		Input::Manager::SetGameState( m_stateStack );
+		LOG_LVL2( std::string("Resumed to game state: ") + typeid(*m_stateStack).name() );
+		ContinueAllLoops();
 	}
 	return true;
 }
@@ -231,3 +274,16 @@ GSGraphicOpt* Monolith::GetGraphicOptState()		{ return static_cast<GSGraphicOpt*
 GSInputOpt* Monolith::GetInputOptState()			{ return static_cast<GSInputOpt*>(m_gameStates[5]); }
 GSGameplayOpt* Monolith::GetGameplayOptState()		{ return static_cast<GSGameplayOpt*>(m_gameStates[6]); }
 GSSoundOpt* Monolith::GetSoundOptState()			{ return static_cast<GSSoundOpt*>(m_gameStates[7]); }
+
+// ************************************************************************* //
+void Monolith::PauseAllLoops()
+{
+	m_simulationLoop.Pause();
+	m_renderLoop.Pause();
+}
+
+void Monolith::ContinueAllLoops()
+{
+	m_simulationLoop.Continue();
+	m_renderLoop.Continue();
+}

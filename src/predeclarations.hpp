@@ -34,6 +34,9 @@ namespace Graphic {
 	class Texture;
 	class UniformBuffer;
 	class Font;
+	class Framebuffer;
+	class Texture;
+	class PostProcessing;
 
 	namespace Marker {
 		class Grid;
