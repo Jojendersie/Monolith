@@ -130,7 +130,6 @@ namespace Voxel {
 
 	private:
 		PerVoxelInfo m_volumeBuffer[34*34*34];
-		VoxelVertex m_vertexBuffer[32*32*32];
 	};
 
 	/// \brief A general loop to make voxel iteration easier. The voxel

@@ -124,14 +124,25 @@ VertexBuffer::VertexBuffer( const char* _vertexDeclaration, void* _data, int _si
 	m_positionOffset(0xffffffff),
 	m_normalOffset(0xffffffff),
 	m_tangentOffset(0xffffffff),
-	m_primitiveType(_type)
+	m_primitiveType(_type),
+	m_isStatic(true),
+	m_state(State::INITIALIZING)
 {
 	CreateVAO(_vertexDeclaration);
 
 	// Upload the data
-	if(_data)
-		Commit(_data, _size);
-	else m_maxNumVertices = m_cursor = 0;
+	if(_data) {
+		GL_CALL(glBindBuffer,  GL_ARRAY_BUFFER, m_VBO );
+		GL_CALL(glBufferData, GL_ARRAY_BUFFER, _size, _data, GL_STATIC_DRAW);
+		GL_CALL(glBindBuffer,  GL_ARRAY_BUFFER, 0 );
+
+		m_firstDirtyIndex = std::numeric_limits<int>::max();
+		m_lastDirtyIndex = -1;
+		m_cursor = m_maxNumVertices = _size / m_vertexSize;
+
+		// Resolve thread-waiting
+		m_state = State::WORKING;
+	} else m_maxNumVertices = m_cursor = 0;
 }
 
 // ************************************************************************* //
@@ -145,7 +156,9 @@ VertexBuffer::VertexBuffer( const char* _vertexDeclaration, PrimitiveType _type 
 	m_positionOffset(0xffffffff),
 	m_normalOffset(0xffffffff),
 	m_tangentOffset(0xffffffff),
-	m_primitiveType(_type)
+	m_primitiveType(_type),
+	m_isStatic(false),
+	m_state(State::INITIALIZING)
 {
 	CreateVAO(_vertexDeclaration);
 
@@ -218,9 +231,24 @@ void VertexBuffer::Resize(unsigned _numVertices)
 void VertexBuffer::Clear()
 {
 	Assert(!IsStatic(), "Static vertex buffers can not be cleared!");
+	StartWorking();
 	m_cursor = 0;
 	m_firstDirtyIndex = std::numeric_limits<int>::max();
 	m_lastDirtyIndex = -1;
+}
+
+// ******************************************************************************** //
+void VertexBuffer::StartWorking()
+{
+	// Waiting
+	if(m_state == State::UPLOAD_READY)
+	{
+		std::unique_lock<std::mutex> lock(m_uploading);
+		m_state = State::WORKING;
+	}
+	// Until the first SetDirty od Commit(2) call INITIALIZATION is not left
+	Assert(m_state == State::WORKING || m_state == State::INITIALIZING,
+		"Thread state not clear!");
 }
 
 // ******************************************************************************** //
@@ -228,37 +256,52 @@ void VertexBuffer::Commit()
 {
 	if(m_data && IsDirty())
 	{
+		std::unique_lock<std::mutex> lock(m_uploading);
 		// Discard everything in a range where vertices are dirty
 		GL_CALL(glBindBuffer,  GL_ARRAY_BUFFER, m_VBO );
-		GL_CALL(glBufferSubData, GL_ARRAY_BUFFER,
-			m_firstDirtyIndex * m_vertexSize,
-			(m_lastDirtyIndex - m_firstDirtyIndex + 1) * m_vertexSize,
-			m_data );
+		if( IsStatic() )
+		{
+			GL_CALL(glBufferData, GL_ARRAY_BUFFER, m_vertexSize * m_maxNumVertices, m_data, GL_STATIC_DRAW);
+			free(m_data);
+			m_data = nullptr;
+		} else {
+			GL_CALL(glBufferSubData, GL_ARRAY_BUFFER,
+				m_firstDirtyIndex * m_vertexSize,
+				(m_lastDirtyIndex - m_firstDirtyIndex + 1) * m_vertexSize,
+				m_data );
+		}
 		GL_CALL(glBindBuffer,  GL_ARRAY_BUFFER, 0 );
 
 		m_firstDirtyIndex = std::numeric_limits<int>::max();
 		m_lastDirtyIndex = -1;
-		GL_CALL(glBindBuffer,  GL_ARRAY_BUFFER, 0 );
+		//GL_CALL(glBindBuffer,  GL_ARRAY_BUFFER, 0 );
+
+		// Resolve thread-waiting
+		m_state = State::WORKING;
 	}
 }
 
-void VertexBuffer::Commit(void* _data, int _size)
+void VertexBuffer::Commit(void*& _data, int _size)
 {
-	Assert(IsStatic(), "Static vertex buffers can update their data!");
 	Assert(_data, "No data to commit!");
 
-	GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, m_VBO);
-	GL_CALL(glBufferData, GL_ARRAY_BUFFER, _size, _data, GL_STATIC_DRAW);
-	GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
+	StartWorking();
 
+	// Take data for later commit
+	free(m_data);
+	m_data = (uint8_t*)_data;
+	_data = nullptr;
 
 	// Derive the statistic data
 	m_cursor = m_maxNumVertices = _size / m_vertexSize;
+
+	SetDirty();
 }
 
 // ******************************************************************************** //
 void VertexBuffer::DeleteVertex(unsigned _index)
 {
+	Assert( m_state != State::UPLOAD_READY, "Call StartWork() to make sure the buffer is in a clean state before changing things!");
 	Assert( m_cursor > 0, "Cursor is already at the buffer's beginning!");	// Number of vertices
 	if(m_cursor <= _index) LOG_LVL2("Vertex cannot be deleted: Index too large.");
 	--m_cursor;
@@ -270,6 +313,7 @@ void VertexBuffer::DeleteVertex(unsigned _index)
 // ******************************************************************************** //
 void VertexBuffer::FlipNormals()
 {
+	Assert( m_state != State::UPLOAD_READY, "Call StartWork() to make sure the buffer is in a clean state before changing things!");
 	if(m_normalOffset == 0xffffffff) return;
 	for(unsigned i=0; i<GetNumVertices(); ++i)
 	{
@@ -281,8 +325,8 @@ void VertexBuffer::FlipNormals()
 // ******************************************************************************** //
 void VertexBuffer::Bind() const
 {
-	// Don't use a empty buffer. Call Commit before.
-	Assert( !IsDirty(), "Don't use a empty buffer. Call Commit before.");
+	// In case there is nothing to upload commit will do nothing
+	const_cast<VertexBuffer*>(this)->Commit();
 
 	GL_CALL(glBindVertexArray, m_VAO);
 }

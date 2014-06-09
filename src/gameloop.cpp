@@ -18,30 +18,31 @@ void GameLoop::Run()
 	TimeQuerySlot frameTimer;
 	while( !g_stopLoops )
 	{
-		m_executing.lock();
-		// Busy waiting?
-		while( m_pause )
-		{
-			if( g_stopLoops ) { m_executing.unlock(); return; }
-			std::this_thread::sleep_for( std::chrono::microseconds(50) );
-		}
+		{	// artificial scope for the lock
+			std::unique_lock<std::recursive_mutex> lock(m_executing);
+			// Busy waiting?
+			while( m_pause )
+			{
+				if( g_stopLoops ) return;
+				std::this_thread::sleep_for( std::chrono::microseconds(50) );
+			}
 
-		TimeQuery( frameTimer );
+			TimeQuery( frameTimer );
 
-		// Do the work
-		try {
-			Step( deltaTime );
-		} catch( const std::exception& _e ) {
-			LOG_ERROR("Caught std::exception in game loop " + m_name + ": \"" + std::string(_e.what()) + "\"");
-			OnFailure();
-		} catch( const std::string& _e ) {
-			LOG_ERROR("Caught string-exception in game loop " + m_name + ": \"" + _e + "\"");
-			OnFailure();
-		} catch( ... ) {
-			LOG_ERROR("Caught exception of unknown type in game loop " + m_name);
-			OnFailure();
+			// Do the work
+			try {
+				Step( deltaTime );
+			} catch( const std::exception& _e ) {
+				LOG_ERROR("Caught std::exception in game loop " + m_name + ": \"" + std::string(_e.what()) + "\"");
+				OnFailure();
+			} catch( const std::string& _e ) {
+				LOG_ERROR("Caught string-exception in game loop " + m_name + ": \"" + _e + "\"");
+				OnFailure();
+			} catch( ... ) {
+				LOG_ERROR("Caught exception of unknown type in game loop " + m_name);
+				OnFailure();
+			}
 		}
-		m_executing.unlock();
 
 		++m_stepCounter;
 
@@ -72,10 +73,9 @@ void GameLoop::StopAll()
 void GameLoop::Pause()
 {
 	// Lock until work is finished
-	m_executing.lock();
+	std::unique_lock<std::recursive_mutex> lock(m_executing);
 	// The next time the loop will go into work lock it sees the pause flag set.
 	m_pause = true;
-	m_executing.unlock();
 }
 
 // ************************************************************************* //

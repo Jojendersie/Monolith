@@ -133,7 +133,7 @@ namespace Graphic
 		{
 			if(screenTex->GetState() && screenTex->GetVisibility()) m_characters.Add(screenTex->m_vertex);
 		}*/
-		m_characters.Commit();
+		m_characters.SetDirty();
 	}
 
 	// ************************************************************************* //

@@ -56,12 +56,16 @@ namespace Marker {
 	}
 
 	// ********************************************************************* //
+	void WireframeRenderer::Commit()
+	{
+		m_mesh.SetDirty();
+		// Force upload now
+		m_mesh.Bind();
+	}
+
+	// ********************************************************************* //
 	void WireframeRenderer::Draw( const Math::Mat4x4& _worldViewProjection )
 	{
-		// Updating somewhere else would require a finalize call or similar
-		// for the WireframRenderer. I assume this if does not cost much.
-		if( m_mesh.IsDirty() ) m_mesh.Commit();
-
 		// Setup pipeline
 		Device::SetEffect( *Resources::GetEffect(Effects::BEAM) );
 		(*Resources::GetUBO(UniformBuffers::OBJECT_WIRE))["WorldViewProjection"] = _worldViewProjection;

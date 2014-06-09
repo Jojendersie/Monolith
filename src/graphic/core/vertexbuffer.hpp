@@ -2,6 +2,10 @@
 
 #include "predeclarations.hpp"
 #include "math/mathbase.hpp"
+#include "utilities/assert.hpp"
+
+#include <atomic>
+#include <condition_variable>
 
 namespace Graphic {
 
@@ -17,37 +21,7 @@ namespace Graphic {
 			TRIANGLE_LIST = 0x0004,			// GL_TRIANGLES
 			INDEXED
 		};
-	private:
-		unsigned	m_VBO;				///< Only one vertex buffer is used for the whole array
-		unsigned	m_VAO;				///< The OpenGL ID for the whole mesh-vertices
-		unsigned	m_maxNumVertices;	///< Maximum size set at construction
-		unsigned	m_cursor;			///< Cursor for stream write methods
-		int			m_vertexSize;		///< Size of one vertex in bytes if single interleaved buffer, size of all components in an not interleaved buffer.
-		uint8_t*	m_data;				///< A CPU copy of the data or nullptr for static buffers
-		int			m_firstDirtyIndex;	///< If there is a non committed change which is the first updated vertex?
-		int			m_lastDirtyIndex;	///< If there is a non committed change which is the last updated vertex? A negative value (-1) determines a clean buffer.
-		PrimitiveType m_primitiveType;	///< What form of geometry is stored?
 
-		unsigned	m_positionOffset;	///< Byte offset inside a vertex to the position vector
-		unsigned	m_normalOffset;		///< Byte offset inside a vertex to the normal vector
-		unsigned	m_tangentOffset;	///< Byte offset inside a vertex to the tangent vector
-
-		/// \brief Create the VBO and VAO (vertex declaration)
-		/// \details Also sets the positionOffset, ..
-		void CreateVAO(const char* _vertexDeclaration);
-
-		/// \brief Reallocate CPU and GPU memory.
-		/// \details Increasing or decreasing are both allowed. The dirtiness
-		///		is not touched.
-		/// \param [in] _numVertices
-		void Resize(unsigned _numVertices);
-
-		// Prevent copy constructor and operator = being generated.
-		VertexBuffer(const VertexBuffer&);
-		const VertexBuffer& operator = (const VertexBuffer&);
-
-		friend class Mesh;
-	public:
 		/// \brief Shader binding locations of vertex attributes.
 		enum struct BindingLocation
 		{
@@ -116,14 +90,16 @@ namespace Graphic {
 		/// \details Only possible for dynamic buffers. The storage will not
 		///		be reduced!
 		void Clear();
-		
-		/// \brief Upload changed part of a buffer to GPU.
-		/// \details If the buffer was created static this is not necessary.
-		void Commit();
 
+		/// \brief Lock until work can be done without conflickt
+		void StartWorking();
+		
 		/// \brief Upload static vertex buffer direct.
 		/// \details In case of dynamic buffers the operation is invalid.
-		void Commit(void* _data, int _size);
+		/// \param [in] _data Data to upload. Ownership goes to the vertex buffer
+		///		and the pointer is set to nullptr. Data must be created with
+		///		malloc.
+		void Commit(void*& _data, int _size);
 
 		/// \brief Moving the last vertex to the specified index and overwrites the
 		///		one there. Then removing the last vertex.
@@ -139,9 +115,10 @@ namespace Graphic {
 		unsigned GetNumVertices() const			{ return m_cursor; }
 		int GetVertexSize() const				{ return m_vertexSize; }
 		PrimitiveType GetPrimitiveType() const	{ return m_primitiveType; }
-		//void SetDirty()							{ m_dirty = true;}
-		bool IsStatic() const					{ return m_data==nullptr; }
-		bool IsDirty() const					{ return m_lastDirtyIndex != -1; }
+		void SetDirty()							{ m_state = State::UPLOAD_READY;}
+		bool IsStatic() const					{ return m_isStatic; }
+		bool IsDirty() const					{ return m_state == State::UPLOAD_READY; }
+		bool IsRenderable() const				{ return m_state != State::INITIALIZING; }
 
 		unsigned GetPositionOffset() const		{ return m_positionOffset; }
 		unsigned GetNormalOffset() const		{ return m_normalOffset; }
@@ -150,6 +127,62 @@ namespace Graphic {
 		const Math::Vec3& GetPosition(unsigned _index) const	{ return *(Math::Vec3*)(m_data + _index*m_vertexSize + m_positionOffset); }
 		const Math::Vec3& GetNormal(unsigned _index) const		{ return *(Math::Vec3*)(m_data + _index*m_vertexSize + m_normalOffset); }
 		const Math::Vec3& GetTangent(unsigned _index) const		{ return *(Math::Vec3*)(m_data + _index*m_vertexSize + m_tangentOffset); }
+
+	private:
+		uint8_t*	m_data;				///< A CPU copy of the data or nullptr for static buffers
+		unsigned	m_VBO;				///< Only one vertex buffer is used for the whole array
+		unsigned	m_VAO;				///< The OpenGL ID for the whole mesh-vertices
+		unsigned	m_maxNumVertices;	///< Maximum size set at construction
+		unsigned	m_cursor;			///< Cursor for stream write methods
+		int			m_vertexSize;		///< Size of one vertex in bytes if single interleaved buffer, size of all components in an not interleaved buffer.
+		int			m_firstDirtyIndex;	///< If there is a non committed change which is the first updated vertex?
+		int			m_lastDirtyIndex;	///< If there is a non committed change which is the last updated vertex? A negative value (-1) determines a clean buffer.
+		bool		m_isStatic;			///< Set on buffer creation time. Static buffers do not keep a copy of the memory
+		PrimitiveType m_primitiveType;	///< What form of geometry is stored?
+
+		/// \brief The following states control the thread safety of vertex buffers.
+		/// \details The basic assumptions are:
+		///		* Do not upload while changing.
+		///		* The only reason for vertex buffer updates is to render their content.
+		///		* A dedicated worker thread can wait, rendering not.
+		///
+		///		Therefore the concept is: Except for initializing state there is
+		///		always a buffer on the GPU -> rendering possible. When flaged
+		///		as upload-ready upload, then render. Somebody how wants to
+		///		change something can do so except it is upload ready. Then the
+		///		worker must wait.
+		enum struct State
+		{
+			INITIALIZING,				///< Do not upload or render
+			WORKING,					///< The memory is inconsistent - do not upload
+			UPLOAD_READY,				///< The memory is consistent and can be uploaded to GPU (is set after a chain of changes), or is still uploading
+		};
+		std::atomic<State> m_state;
+		std::mutex m_uploading;
+
+		unsigned	m_positionOffset;	///< Byte offset inside a vertex to the position vector
+		unsigned	m_normalOffset;		///< Byte offset inside a vertex to the normal vector
+		unsigned	m_tangentOffset;	///< Byte offset inside a vertex to the tangent vector
+
+		/// \brief Create the VBO and VAO (vertex declaration)
+		/// \details Also sets the positionOffset, ..
+		void CreateVAO(const char* _vertexDeclaration);
+
+		/// \brief Reallocate CPU and GPU memory.
+		/// \details Increasing or decreasing are both allowed. The dirtiness
+		///		is not touched.
+		/// \param [in] _numVertices
+		void Resize(unsigned _numVertices);
+
+		/// \brief Upload changed part of a buffer to GPU.
+		/// \details If the buffer was created static this is not necessary.
+		void Commit();
+
+		// Prevent copy constructor and operator = being generated.
+		VertexBuffer(const VertexBuffer&);
+		const VertexBuffer& operator = (const VertexBuffer&);
+
+		friend class Mesh;
 	};
 	typedef VertexBuffer* VertexBufferP;
 
@@ -159,6 +192,7 @@ namespace Graphic {
 	void VertexBuffer::Add(const T& _value)
 	{
 		if( IsStatic() ) {LOG_ERROR("Cannot add vertices to a static buffer."); return;}
+		Assert( m_state != State::UPLOAD_READY, "Call StartWork() to make sure the buffer is in a clean state before changing things!");
 		if( m_cursor == m_maxNumVertices )
 		{
 			// Grow on CPU side
@@ -178,6 +212,7 @@ namespace Graphic {
 	void VertexBuffer::Set(unsigned _index, const T& _value)
 	{
 		if( IsStatic() ) {LOG_ERROR("Cannot set vertices in a static buffer."); return;}
+		Assert( m_state != State::UPLOAD_READY, "Call StartWork() to make sure the buffer is in a clean state before changing things!");
 		Assert( 0<=_index && _index < GetNumVertices(), "Index out of range.");
 		memcpy(m_data + _index * m_vertexSize, _value, m_vertexSize);
 
@@ -190,6 +225,7 @@ namespace Graphic {
 	const T* VertexBuffer::Get(unsigned _index) const
 	{
 		if( IsStatic() ) {LOG_ERROR("Cannot get vertices in a static buffer."); return nullptr;}
+		Assert( m_state != State::UPLOAD_READY, "Call StartWork() to make sure the buffer is in a clean state before changing things!");
 		Assert(0 <= _index && _index < GetNumVertices(), "Index out of range.");
 		return (T*)(m_data + _index * m_vertexSize);
 	}

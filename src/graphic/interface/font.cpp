@@ -128,6 +128,6 @@ namespace Graphic
 			else currentPos[0] += m_font->m_sizeTable[(unsigned char)m_text[i]][0]*m_size;  
  			m_characters.Add(CV);
 		}
-		m_characters.Commit();
+		m_characters.SetDirty();
 	}
 }; 

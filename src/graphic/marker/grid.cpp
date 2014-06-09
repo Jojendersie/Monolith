@@ -9,6 +9,7 @@ namespace Marker {
 		m_renderer( _color, _elliptic ? 1.0f : (4.0f / (_resolutionX + _resolutionZ)) )
 	{
 		Create2DSlice( _resolutionX, _resolutionZ, 0.0f, _spacing, _elliptic );
+		m_renderer.Commit();
 	}
 
 	// ********************************************************************* //
@@ -34,6 +35,7 @@ namespace Marker {
 				Math::Vec3(xOff * _spacing, length, zOff * _spacing),
 				1.0f );
 		}
+		m_renderer.Commit();
 	}
 
 	// ********************************************************************* //

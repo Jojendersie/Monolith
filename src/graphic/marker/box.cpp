@@ -94,6 +94,8 @@ namespace Marker {
 		m_renderer.AddLine( Vec3( sizeHalf[0],  sizeHalf[1],  sizeHalf[2] * 1.01f                     ),
 							Vec3( sizeHalf[0],  sizeHalf[1],  sizeHalf[2] - _fading * _size[0]),
 							1.0f, 0.0f );
+
+		m_renderer.Commit();
 	}
 
 	// ********************************************************************* //

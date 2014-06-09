@@ -37,7 +37,10 @@ namespace Marker {
 		///		more the smoother.
 		void AddCircle( const Math::Vec3& _center, const Math::Vec3& _periphery, int _numPoints );
 
-		/// \brief Draw all the lines with the glowing wireframe effect.
+		/// \brief Upload changes.
+		void Commit();
+
+		/// \brief Draw all the lines with the glowing wire frame effect.
 		void Draw( const Math::Mat4x4& _worldViewProjection );
 
 		void SetLineWidth( float _width )	{ m_lineWidth = _width; }

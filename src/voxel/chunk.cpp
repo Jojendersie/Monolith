@@ -261,6 +261,8 @@ namespace Voxel {
 	// ********************************************************************* //
 	void ChunkBuilder::RecomputeVertexBuffer( Chunk& _chunk )
 	{
+		VoxelVertex* vertexBuffer = (VoxelVertex*)malloc(32*32*32*sizeof(VoxelVertex));
+
 		// If it is dirty update the subtree
 		Model::ModelData::SVON* node = _chunk.m_modelData->Get( IVec3(_chunk.m_root), _chunk.m_root[3] );
 		if( node->Data().IsDirty() )
@@ -333,18 +335,18 @@ namespace Voxel {
 
 		// Newest method O(k): run over surface only
 		FillBuffer FillP;
-		FillP.appendBuffer = m_vertexBuffer;
+		FillP.appendBuffer = vertexBuffer;
 		FillP.level = _chunk.m_root[3] - _chunk.m_depth;
 		FillP.pmin = (IVec3(_chunk.m_root) << (_chunk.m_root[3] - FillP.level));
 		// Using all neighbors == none creates at least the voxels at the chunk boundary.
 		// These extra voxels solve a problem when deleting things in a neighbor chunk.
 		// Without there would be noticeable holes due to not updating this chunk.
 		node->Traverse( _chunk.m_root, FillP );
-		int numVoxels = FillP.appendBuffer - m_vertexBuffer;
+		int numVoxels = FillP.appendBuffer - vertexBuffer;
 		//*/
 
 		if( numVoxels )
-			_chunk.m_voxels.Commit(m_vertexBuffer, numVoxels * sizeof(VoxelVertex));
+			_chunk.m_voxels.Commit((void*&)vertexBuffer, numVoxels * sizeof(VoxelVertex));
 	}
 
 };
