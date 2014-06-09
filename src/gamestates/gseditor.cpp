@@ -92,13 +92,39 @@ void GSEditor::OnEnd()
 }
 
 // ************************************************************************* //
-void GSEditor::Update( double _time, double _deltaTime )
+void GSEditor::Simulate( double _time, double _deltaTime )
 {
+	// Find out the position where the cursor points to.
+	WorldRay ray = m_modelCamera->GetRay( Input::Manager::GetCursorPosScreenSpace() );
+	Voxel::Model::ModelData::HitResult hit;
+	m_rayHits = m_model->RayCast( ray, 0, hit );
+	if( m_rayHits )
+	{
+		m_lvl0Position = hit.position;
+		m_deletionMode = Input::Manager::IsVirtualKeyPressed(Input::VirtualKey::EDITOR_DELETIONMODE);
+		if(!m_deletionMode)
+		{
+			// Use offsetting in direction of the hit side when adding voxels.
+			switch( hit.side )
+			{
+			case Intersect::Side::LEFT: m_lvl0Position[0] -= 1; break;
+			case Intersect::Side::RIGHT: m_lvl0Position[0] += 1; break;
+			case Intersect::Side::BOTTOM: m_lvl0Position[1] -= 1; break;
+			case Intersect::Side::TOP: m_lvl0Position[1] += 1; break;
+			case Intersect::Side::FRONT: m_lvl0Position[2] -= 1; break;
+			case Intersect::Side::BACK: m_lvl0Position[2] += 1; break;
+			}
+		}
+
+		ValidatePosition();
+	}
 }
 
 // ************************************************************************* //
 void GSEditor::Render( double _time, double _deltaTime )
 {
+	m_modelCamera->UpdateMatrices();
+
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 
 	// Draw the model which is edited
@@ -131,36 +157,6 @@ void GSEditor::Render( double _time, double _deltaTime )
 	}*/
 }
 
-// ************************************************************************* //
-void GSEditor::UpdateInput()
-{
-	m_modelCamera->UpdateMatrices();
-
-	// Find out the position where the cursor points to.
-	WorldRay ray = m_modelCamera->GetRay( Input::Manager::GetCursorPosScreenSpace() );
-	Voxel::Model::ModelData::HitResult hit;
-	m_rayHits = m_model->RayCast( ray, 0, hit );
-	if( m_rayHits )
-	{
-		m_lvl0Position = hit.position;
-		m_deletionMode = Input::Manager::IsVirtualKeyPressed(Input::VirtualKey::EDITOR_DELETIONMODE);
-		if(!m_deletionMode)
-		{
-			// Use offsetting in direction of the hit side when adding voxels.
-			switch( hit.side )
-			{
-			case Intersect::Side::LEFT: m_lvl0Position[0] -= 1; break;
-			case Intersect::Side::RIGHT: m_lvl0Position[0] += 1; break;
-			case Intersect::Side::BOTTOM: m_lvl0Position[1] -= 1; break;
-			case Intersect::Side::TOP: m_lvl0Position[1] += 1; break;
-			case Intersect::Side::FRONT: m_lvl0Position[2] -= 1; break;
-			case Intersect::Side::BACK: m_lvl0Position[2] += 1; break;
-			}
-		}
-
-		ValidatePosition();
-	}
-}
 
 // ************************************************************************* //
 void GSEditor::MouseMove( double _dx, double _dy )

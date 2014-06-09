@@ -39,7 +39,7 @@ void GSGameplayOpt::OnEnd()
 }
 
 // ************************************************************************* //
-void GSGameplayOpt::Update( double _time, double _deltaTime )
+void GSGameplayOpt::Simulate( double _time, double _deltaTime )
 {
 }
 
@@ -49,10 +49,6 @@ void GSGameplayOpt::Render( double _time, double _deltaTime )
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 }
 
-// ************************************************************************* //
-void GSGameplayOpt::UpdateInput()
-{
-}
 
 // ************************************************************************* //
 void GSGameplayOpt::MouseMove( double _dx, double _dy )

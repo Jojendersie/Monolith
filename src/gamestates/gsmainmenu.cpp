@@ -49,7 +49,7 @@ void GSMainMenu::OnEnd()
 
 
 // ************************************************************************* //
-void GSMainMenu::Update( double _time, double _deltaTime )
+void GSMainMenu::Simulate( double _time, double _deltaTime )
 {
 }
 
@@ -62,10 +62,6 @@ void GSMainMenu::Render( double _time, double _deltaTime )
 	m_hud->Draw(  _time, _deltaTime );
 }
 
-// ************************************************************************* //
-void GSMainMenu::UpdateInput()
-{
-}
 
 // ************************************************************************* //
 void GSMainMenu::MouseMove( double _dx, double _dy )

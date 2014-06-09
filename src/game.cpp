@@ -30,6 +30,8 @@
 // ************************************************************************* //
 void RenderLoop::Step( double _deltaTime )
 {
+	(*Graphic::Resources::GetUBO(Graphic::UniformBuffers::GLOBAL))["Time"] = (float)m_game.m_time;
+
 	// Render to scene frame buffer.
 	Graphic::Device::BindFramebuffer( m_game.m_sceneFramebuffer );
 
@@ -50,9 +52,7 @@ void RenderLoop::Step( double _deltaTime )
 void SimulationLoop::Step( double _deltaTime )
 {
 	// Perform updates
-	Input::Manager::Update();
-	(*Graphic::Resources::GetUBO(Graphic::UniformBuffers::GLOBAL))["Time"] = (float)m_game.m_time;
-	m_game.GetState()->Update(m_game.Time(), _deltaTime);
+	m_game.GetState()->Simulate(m_game.Time(), _deltaTime);
 
 	glfwPollEvents();
 

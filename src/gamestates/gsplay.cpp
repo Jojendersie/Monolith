@@ -72,7 +72,7 @@ void GSPlay::OnEnd()
 }
 
 // ************************************************************************* //
-void GSPlay::Update( double _time, double _deltaTime )
+void GSPlay::Simulate( double _time, double _deltaTime )
 {
 	/*static Generators::Random Rnd(1435461);
 	for( int i = 0; i < 100; ++i )
@@ -82,6 +82,8 @@ void GSPlay::Update( double _time, double _deltaTime )
 // ************************************************************************* //
 void GSPlay::Render( double _time, double _deltaTime )
 {
+	m_camera->UpdateMatrices();
+
 	RenderStat::g_numVoxels = 0;
 	RenderStat::g_numChunks = 0;
 	m_camera->Set( *Resources::GetUBO(UniformBuffers::CAMERA) );
@@ -98,12 +100,6 @@ void GSPlay::Render( double _time, double _deltaTime )
 	
 	m_hud->m_dbgLabel->SetText("<s 024>" + std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(RenderStat::g_numVoxels) + "\n#Chunks: " + std::to_string(RenderStat::g_numChunks)+"</s>");
 	m_hud->Draw(  _time, _deltaTime );
-}
-
-// ************************************************************************* //
-void GSPlay::UpdateInput()
-{
-	m_camera->UpdateMatrices();
 }
 
 // ************************************************************************* //

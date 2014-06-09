@@ -52,12 +52,6 @@ namespace Input {
 		InputManagerInstance.m_gameState = _gameState;
 	}
 
-	// ********************************************************************* //
-	void Manager::Update()
-	{
-		if( InputManagerInstance.m_gameState )
-			InputManagerInstance.m_gameState->UpdateInput();
-	}
 
 	// ********************************************************************* //
 	bool Manager::IsVirtualKeyPressed( VirtualKey _key )

@@ -39,7 +39,7 @@ void GSEditorChoice::OnEnd()
 }
 
 // ************************************************************************* //
-void GSEditorChoice::Update( double _time, double _deltaTime )
+void GSEditorChoice::Simulate( double _time, double _deltaTime )
 {
 }
 
@@ -47,11 +47,6 @@ void GSEditorChoice::Update( double _time, double _deltaTime )
 void GSEditorChoice::Render( double _time, double _deltaTime )
 {
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
-}
-
-// ************************************************************************* //
-void GSEditorChoice::UpdateInput()
-{
 }
 
 // ************************************************************************* //

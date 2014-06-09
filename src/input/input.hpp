@@ -26,9 +26,6 @@ namespace Input {
 		///		game state which should receive the input events.
 		static void SetGameState( IGameState* _gameState );
 
-		/// \brief Do a synchronized update of things like the camera.
-		static void Update();
-
 		/// \brief Test if a  GLFW key or button is currently pressed.
 		static bool IsKeyPressed( int _key );
 

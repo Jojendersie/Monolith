@@ -13,9 +13,8 @@ public:
 	void OnBegin();
 	virtual void OnEnd() override;
 
-	virtual void Update( double _time, double _deltaTime ) override;
+	virtual void Simulate( double _time, double _deltaTime ) override;
 	virtual void Render( double _time, double _deltaTime ) override;
-	virtual void UpdateInput() override;
 	virtual void MouseMove( double _dx, double _dy ) override;
 	virtual void Scroll( double _dx, double _dy ) override;
 	virtual void KeyDown( int _key, int _modifiers ) override;
