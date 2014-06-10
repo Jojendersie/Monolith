@@ -144,7 +144,7 @@ namespace Graphic {
 		virtual void SetSize(Math::Vec2 _size) override;
 		
 		/// \brief Positions and draws the model 
-		void Draw(const Input::Camera& _cam, double _time);
+		void Draw(const Input::Camera& _cam);
 	private:
 		/// \brief Centers the modell in the current rectangle
 		void Center();

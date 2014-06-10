@@ -76,7 +76,7 @@ namespace Graphic
 	};
 
 	// ************************************************************************* //
-	void Hud::Draw(double _time, double _deltaTime)
+	void Hud::Draw(double _deltaTime)
 	{
 		ScissorRect scissor(m_pos[0], -m_pos[1], m_size[0], m_size[1]);
 		RenewBuffer();
@@ -98,7 +98,7 @@ namespace Graphic
 		{
 			Hud* hud = dynamic_cast<Hud*> (m_screenOverlays[i]);
 			if(hud != NULL && hud->GetState() && hud->GetVisibility())
-				hud->Draw(_time, _deltaTime);
+				hud->Draw(_deltaTime);
 		}
 
 		//activate voxel rendering
@@ -106,7 +106,7 @@ namespace Graphic
 		//draw every screenModel
 		for(int i = m_screenModels.size(); i-- > 0; )
 		{
-			m_screenModels[i]->Draw(*m_camera, _time);
+			m_screenModels[i]->Draw(*m_camera);
 		}
 
 		//draw cursor last

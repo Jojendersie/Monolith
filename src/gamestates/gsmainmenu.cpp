@@ -49,17 +49,17 @@ void GSMainMenu::OnEnd()
 
 
 // ************************************************************************* //
-void GSMainMenu::Simulate( double _time, double _deltaTime )
+void GSMainMenu::Simulate( double _deltaTime )
 {
 }
 
 // ************************************************************************* //
-void GSMainMenu::Render( double _time, double _deltaTime )
+void GSMainMenu::Render( double _deltaTime )
 {
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 	
 	m_hud->m_dbgLabel->SetText("<t 026> <s 024>" + std::to_string(_deltaTime * 1000.0) + " ms</s></t>");
-	m_hud->Draw(  _time, _deltaTime );
+	m_hud->Draw( _deltaTime );
 }
 
 

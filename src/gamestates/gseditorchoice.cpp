@@ -39,12 +39,12 @@ void GSEditorChoice::OnEnd()
 }
 
 // ************************************************************************* //
-void GSEditorChoice::Simulate( double _time, double _deltaTime )
+void GSEditorChoice::Simulate( double _deltaTime )
 {
 }
 
 // ************************************************************************* //
-void GSEditorChoice::Render( double _time, double _deltaTime )
+void GSEditorChoice::Render( double _deltaTime )
 {
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 }

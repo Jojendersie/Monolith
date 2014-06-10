@@ -27,14 +27,12 @@ public:
 	virtual void OnEnd() = 0;
 
 	/// \brief Update the movement, damages... of all objects
-	/// \param [in] _time Total time since game start in seconds.
 	/// \param [in] _deltaTime Time since last Update call.
-	virtual void Simulate( double _time, double _deltaTime ) = 0;
+	virtual void Simulate( double _deltaTime ) = 0;
 
 	/// \brief Render one frame.
-	/// \param [in] _time Total time since game start in seconds.
 	/// \param [in] _deltaTime Time since last Render call.
-	virtual void Render( double _time, double _deltaTime ) = 0;
+	virtual void Render( double _deltaTime ) = 0;
 
 	/// \brief React to mouse move input.
 	/// \details Do not update anything accessed by the renderer. Try to

@@ -39,12 +39,12 @@ void GSGameplayOpt::OnEnd()
 }
 
 // ************************************************************************* //
-void GSGameplayOpt::Simulate( double _time, double _deltaTime )
+void GSGameplayOpt::Simulate( double _deltaTime )
 {
 }
 
 // ************************************************************************* //
-void GSGameplayOpt::Render( double _time, double _deltaTime )
+void GSGameplayOpt::Render( double _deltaTime )
 {
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 }

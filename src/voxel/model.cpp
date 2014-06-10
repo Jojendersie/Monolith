@@ -36,18 +36,15 @@ namespace Voxel {
 		std::unordered_map<Math::IVec4, Chunk>* chunks;	// Create or find chunks here.
 		const Math::Mat4x4& modelView;
 		ChunkBuilder* builder;
-		double gameTime;
 
 		DecideToDraw(const Input::Camera& _camera,
 				Model::ModelData* _model,
 				std::unordered_map<Math::IVec4, Chunk>* _chunks,
 				const Math::Mat4x4& _modelView,
-				ChunkBuilder* _builder,
-				double _gameTime) :
+				ChunkBuilder* _builder) :
 			camera(_camera), model(_model), chunks(_chunks),
 			modelView(_modelView),
-			builder(_builder),
-			gameTime(_gameTime)
+			builder(_builder)
 		{}
 
 		bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
@@ -88,14 +85,14 @@ namespace Voxel {
 						std::make_pair(position, std::move(Chunk(model, _position, levels)))
 						).first;
 					builder->RecomputeVertexBuffer(chunk->second);
-				};// else Assert( !_node->Data().IsDirty(), "Node-data was not changed."); //if( _node->Data().IsDirty() )
+				}// else Assert( !_node->Data().IsDirty(), "Node-data was not changed."); //if( _node->Data().IsDirty() )
 					//builder->RecomputeVertexBuffer(chunk->second);
 				// There are empty inner chunks
 				if( chunk->second.NumVoxels() > 0 )
 				{
 					RenderStat::g_numVoxels += chunk->second.NumVoxels();
 					RenderStat::g_numChunks++;
-					chunk->second.Draw( modelView, camera.GetProjection(), gameTime );
+					chunk->second.Draw( modelView, camera.GetProjection() );
 				}
 				return false;
 			}
@@ -104,10 +101,10 @@ namespace Voxel {
 	};
 
 	// ********************************************************************* //
-	void Model::Draw( const Input::Camera& _camera, double _gameTime )
+	void Model::Draw( const Input::Camera& _camera )
 	{
 		// Delete all invalid and old chunks
-		ClearChunkCache( _gameTime );
+		ClearChunkCache();
 
 		// Create a new model space transformation
 		Math::Mat4x4 modelView;
@@ -115,7 +112,7 @@ namespace Voxel {
 
 		// Iterate through the octree and render chunks depending on the lod.
 		ChunkBuilder* builder = new ChunkBuilder(); // TEMP -> in job verschieben
-		DecideToDraw param( _camera, &this->m_voxelTree, &this->m_chunks, modelView, builder, _gameTime );
+		DecideToDraw param( _camera, &this->m_voxelTree, &this->m_chunks, modelView, builder );
 		m_voxelTree.Traverse( param );
 		delete builder;
 	}
@@ -187,13 +184,14 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	void Model::ClearChunkCache( double _gameTime )
+	void Model::ClearChunkCache()
 	{
 		for( auto it = m_chunks.begin(); it != m_chunks.end(); )
 		{
 			// Delete a chunk if it is not used in the last time
 			Chunk& chunk = it->second;
-			if( chunk.IsNotUsedLately(_gameTime) ) it = m_chunks.erase( it );
+			if( chunk.IsNotUsedLately() )
+				it = m_chunks.erase( it );
 			else {
 				// Get the node to check if it is dirty
 				Model::ModelData::SVON* node = m_voxelTree.Get( IVec3(chunk.m_root), chunk.m_root[3] );

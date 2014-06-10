@@ -72,7 +72,7 @@ namespace Voxel {
 		///	\param [in] _projection The projection matrix to precompute the
 		///		corner vectors.
 		/// \param [in] _time Current game time.
-		void Draw( const Math::Mat4x4& _modelView, const Math::Mat4x4& _projection, double _time );
+		void Draw( const Math::Mat4x4& _modelView, const Math::Mat4x4& _projection );
 
 		/// \brief Set position relative to the model.
 		//void SetPosition( const Math::Vec3& _position )	{ m_position = _position; }
@@ -84,7 +84,7 @@ namespace Voxel {
 
 		/// \brief Test if this chunk was used in the last x seconds.
 		/// \param [in] _time Current game time.
-		bool IsNotUsedLately( double _time ) const	{ return _time - m_lastRendered > 15.0; }
+		bool IsNotUsedLately() const;
 	private:
 		/// \brief Reference to the parent model used to access data.
 		Model::ModelData* m_modelData;
@@ -100,7 +100,7 @@ namespace Voxel {
 		double m_lastRendered;			///< Point in time where this chunk was rendered the last time.
 
 		friend class ChunkBuilder;
-		friend void Model::ClearChunkCache( double _gameTime );
+		friend void Model::ClearChunkCache();
 
 		/// \brief Compute the initial visible voxel set vertex buffer.
 		/// \details TODO: This can be done parallel to the render thread because it

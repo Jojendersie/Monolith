@@ -27,6 +27,8 @@
 #include "voxel/voxel.hpp"
 #include "resources.hpp"
 
+double Monolith::m_time = 0.0;
+
 // ************************************************************************* //
 void RenderLoop::Step( double _deltaTime )
 {
@@ -35,7 +37,7 @@ void RenderLoop::Step( double _deltaTime )
 	// Render to scene frame buffer.
 	Graphic::Device::BindFramebuffer( m_game.m_sceneFramebuffer );
 
-	m_game.GetState()->Render( m_game.Time(), _deltaTime );
+	m_game.GetState()->Render( _deltaTime );
 
 	// Post processing and draw to back buffer.
 	m_game.m_postProcessing->PerformPostProcessing(*m_game.m_sceneColorTexture, *m_game.m_sceneDepthTexture);
@@ -52,7 +54,7 @@ void RenderLoop::Step( double _deltaTime )
 void SimulationLoop::Step( double _deltaTime )
 {
 	// Perform updates
-	m_game.GetState()->Simulate(m_game.Time(), _deltaTime);
+	m_game.GetState()->Simulate(_deltaTime);
 
 	glfwPollEvents();
 
@@ -89,7 +91,6 @@ Monolith::Monolith( bool _singleThreaded ) :
 	m_renderLoop( *this ),
 	m_simulationLoop( *this ),
 	m_singleThreaded( _singleThreaded ),
-	m_time( 0.0 ),
 	m_stateStack( nullptr )
 {
 	// Load configuration
@@ -219,8 +220,6 @@ void Monolith::_PushState( IGameStateP _state )
 	_state->m_previous = m_stateStack;
 	_state->m_finished = false;
 	m_stateStack = _state;
-
-	ContinueAllLoops();
 }
 
 // ************************************************************************* //

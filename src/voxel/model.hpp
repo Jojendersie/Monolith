@@ -33,7 +33,7 @@ namespace Voxel {
 		/// \param [in] _camera The actual camera for transformation, culling
 		///		and LOD computations.
 		///	\param [in] _gameTime A time which is used for chunk updates.
-		void Draw( const Input::Camera& _camera, double _gameTime );
+		void Draw( const Input::Camera& _camera );
 
 		/// \brief Set a voxel in the model and update mass properties.
 		/// \see SparseVoxelOctree::Set.
@@ -76,7 +76,7 @@ namespace Voxel {
 		bool RayCast( const Math::WorldRay& _ray, int _targetLevel, ModelData::HitResult& _hit ) const;
 
 		/// \brief Remove all chunks which were not used or dirty.
-		void ClearChunkCache( double _gameTime );
+		void ClearChunkCache();
 	protected:
 		std::unordered_map<Math::IVec4, Chunk> m_chunks;
 		int m_numVoxels;				///< Count the number of voxels for statistical issues

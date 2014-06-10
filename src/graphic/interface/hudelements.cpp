@@ -150,12 +150,12 @@ namespace Graphic
 		m_center[1] = m_pos[1] + m_size[1] * 0.5f;
 	}
 	
-	void ScreenModel::Draw(const Input::Camera& _cam, double _time)
+	void ScreenModel::Draw(const Input::Camera& _cam)
 	{
 		Math::WorldRay ray = _cam.GetRay(m_center);
 	//	Math::FixVec3 pos = ray.origin+35.f*ray.direction;
 		m_model->SetPosition(ray.origin+(Math::FixVec3)(42.f*ray.direction));
-		m_model->Draw( _cam, _time );
+		m_model->Draw( _cam );
 	}
 
 	// ************************************************************** //

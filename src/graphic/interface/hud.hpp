@@ -25,7 +25,7 @@ namespace Graphic {
 		void CreateModel(Math::Vec2 _pos , Math::Vec2 _size, Voxel::Model* _model);
 
 		/// \brief Last call in every frame drawcall
-		void Draw(double _time, double _deltaTime);
+		void Draw(double _deltaTime);
 
 		/// \brief Adds an ScreenOverlay to the managegement and takes ownership
 		void AddScreenOverlay(ScreenOverlay* _screenOverlay);

@@ -74,17 +74,17 @@ public:
 	///		Every state should be on the stack at most once. Do not design
 	///		cyclic state changes. Just finish states to go back as long as needed.
 	template<class TS>
-	void PushState( TS* _state )											{ _PushState(_state); _state->OnBegin(); }
+	void PushState( TS* _state )											{ _PushState(_state); _state->OnBegin(); ContinueAllLoops(); }
 	template<class TS, typename T1>
-	void PushState( TS* _state, T1 _p1 )									{ _PushState(_state); _state->OnBegin(_p1); }
+	void PushState( TS* _state, T1 _p1 )									{ _PushState(_state); _state->OnBegin(_p1); ContinueAllLoops(); }
 	template<class TS, typename T1, typename T2>
-	void PushState( TS* _state, T1 _p1, T2 _p2 )							{ _PushState(_state); _state->OnBegin(_p1, _p2); }
+	void PushState( TS* _state, T1 _p1, T2 _p2 )							{ _PushState(_state); _state->OnBegin(_p1, _p2); ContinueAllLoops(); }
 	template<class TS, typename T1, typename T2, typename T3>
-	void PushState( TS* _state, T1 _p1, T2 _p2, T3 _p3 )					{ _PushState(_state); _state->OnBegin(_p1, _p2, _p3); }
+	void PushState( TS* _state, T1 _p1, T2 _p2, T3 _p3 )					{ _PushState(_state); _state->OnBegin(_p1, _p2, _p3); ContinueAllLoops(); }
 	template<class TS, typename T1, typename T2, typename T3, typename T4>
-	void PushState( TS* _state, T1 _p1, T2 _p2, T3 _p3, T4 _p4 )			{ _PushState(_state); _state->OnBegin(_p1, _p2, _p3, p4); }
+	void PushState( TS* _state, T1 _p1, T2 _p2, T3 _p3, T4 _p4 )			{ _PushState(_state); _state->OnBegin(_p1, _p2, _p3, p4); ContinueAllLoops(); }
 	template<class TS, typename T1, typename T2, typename T3, typename T4, typename T5>
-	void PushState( TS* _state, T1 _p1, T2 _p2, T3 _p3, T4 _p4, T5 _p5 )	{ _PushState(_state); _state->OnBegin(_p1, _p2, _p3, p4, _p5); }
+	void PushState( TS* _state, T1 _p1, T2 _p2, T3 _p3, T4 _p4, T5 _p5 )	{ _PushState(_state); _state->OnBegin(_p1, _p2, _p3, p4, _p5); ContinueAllLoops(); }
 
 	GSMainMenu* GetMainMenuState();
 	GSPlay* GetPlayState();
@@ -99,7 +99,7 @@ public:
 
 	Jo::Files::MetaFileWrapper Config;
 
-	float Time() const { return (float)m_time; }
+	static float Time() { return (float)m_time; }
 private:
 	friend class RenderLoop;
 	friend class CompositeLoop;
@@ -111,7 +111,7 @@ private:
 	IGameStateP m_stateStack;		///< The head of a stack of game states
 	bool m_singleThreaded;
 
-	double m_time;					///< Total time since run in seconds
+	static double m_time;					///< Total time since run in seconds
 
 	Graphic::Texture* m_sceneDepthTexture; ///< Main depth target for the 3D scene.
 	Graphic::Texture* m_sceneColorTexture; ///< Main color target for the 3D scene.

@@ -39,12 +39,12 @@ void GSInputOpt::OnEnd()
 }
 
 // ************************************************************************* //
-void GSInputOpt::Simulate( double _time, double _deltaTime )
+void GSInputOpt::Simulate( double _deltaTime )
 {
 }
 
 // ************************************************************************* //
-void GSInputOpt::Render( double _time, double _deltaTime )
+void GSInputOpt::Render( double _deltaTime )
 {
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 }

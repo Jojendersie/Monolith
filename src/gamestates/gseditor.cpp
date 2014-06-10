@@ -92,7 +92,7 @@ void GSEditor::OnEnd()
 }
 
 // ************************************************************************* //
-void GSEditor::Simulate( double _time, double _deltaTime )
+void GSEditor::Simulate( double _deltaTime )
 {
 	// Find out the position where the cursor points to.
 	WorldRay ray = m_modelCamera->GetRay( Input::Manager::GetCursorPosScreenSpace() );
@@ -121,7 +121,7 @@ void GSEditor::Simulate( double _time, double _deltaTime )
 }
 
 // ************************************************************************* //
-void GSEditor::Render( double _time, double _deltaTime )
+void GSEditor::Render( double _deltaTime )
 {
 	m_modelCamera->UpdateMatrices();
 
@@ -130,7 +130,7 @@ void GSEditor::Render( double _time, double _deltaTime )
 	// Draw the model which is edited
 	m_modelCamera->Set( *Graphic::Resources::GetUBO(Graphic::UniformBuffers::CAMERA) );
 	Graphic::Device::SetEffect(	*Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
-	m_model->Draw( *m_modelCamera, _time );
+	m_model->Draw( *m_modelCamera );
 	// Draw the marker in the same view
 	if( m_rayHits )
 	{
@@ -146,7 +146,7 @@ void GSEditor::Render( double _time, double _deltaTime )
 	}
 
 	// Draw hud and components in another view
-	m_hud->Draw(  _time, _deltaTime );
+	m_hud->Draw( _deltaTime );
 
 /*	Graphic::Device::SetEffect(	*Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
 	for(int i = 0; i < Voxel::TypeInfo::GetNumVoxels()-1; i++)

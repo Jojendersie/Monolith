@@ -39,12 +39,12 @@ void GSSoundOpt::OnEnd()
 }
 
 // ************************************************************************* //
-void GSSoundOpt::Simulate( double _time, double _deltaTime )
+void GSSoundOpt::Simulate( double _deltaTime )
 {
 }
 
 // ************************************************************************* //
-void GSSoundOpt::Render( double _time, double _deltaTime )
+void GSSoundOpt::Render( double _deltaTime )
 {
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 }

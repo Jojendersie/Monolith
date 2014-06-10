@@ -72,7 +72,7 @@ void GSPlay::OnEnd()
 }
 
 // ************************************************************************* //
-void GSPlay::Simulate( double _time, double _deltaTime )
+void GSPlay::Simulate( double _deltaTime )
 {
 	/*static Generators::Random Rnd(1435461);
 	for( int i = 0; i < 100; ++i )
@@ -80,7 +80,7 @@ void GSPlay::Simulate( double _time, double _deltaTime )
 }
 
 // ************************************************************************* //
-void GSPlay::Render( double _time, double _deltaTime )
+void GSPlay::Render( double _deltaTime )
 {
 	m_camera->UpdateMatrices();
 
@@ -91,7 +91,7 @@ void GSPlay::Render( double _time, double _deltaTime )
 	Graphic::Device::Clear( 0.05f, 0.05f, 0.06f );
 
 	Graphic::Device::SetEffect(	*Resources::GetEffect(Effects::VOXEL_RENDER) );
-	m_astTest->Draw( *m_camera, _time );
+	m_astTest->Draw( *m_camera );
 
 	Mat4x4 modelView;
 	m_astTest->GetModelMatrix( modelView, *m_camera );
@@ -99,7 +99,7 @@ void GSPlay::Render( double _time, double _deltaTime )
 	m_objectPlane->Draw( modelView * m_camera->GetProjection() );
 	
 	m_hud->m_dbgLabel->SetText("<s 024>" + std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(RenderStat::g_numVoxels) + "\n#Chunks: " + std::to_string(RenderStat::g_numChunks)+"</s>");
-	m_hud->Draw(  _time, _deltaTime );
+	m_hud->Draw( _deltaTime );
 }
 
 // ************************************************************************* //

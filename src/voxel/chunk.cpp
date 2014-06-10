@@ -1,11 +1,12 @@
 #include "chunk.hpp"
 #include "model.hpp"
-#include "../graphic/core/device.hpp"
-#include "../graphic/core/uniformbuffer.hpp"
-#include "../input/camera.hpp"
+#include "graphic/core/device.hpp"
+#include "graphic/core/uniformbuffer.hpp"
+#include "graphic/content.hpp"
+#include "input/camera.hpp"
+#include "game.hpp"
 #include <cstdlib>
 #include <cstring>
-#include "../graphic/content.hpp"
 
 using namespace Math;
 
@@ -23,6 +24,8 @@ namespace Voxel {
 		m_voxels( "uu", nullptr, 0, Graphic::VertexBuffer::PrimitiveType::POINT ),
 		m_position( float(_nodePostion[0]<<_depth), float(_nodePostion[1]<<_depth), float(_nodePostion[2]<<_depth) )
 	{
+		// Use an initialization point in the future such that it does not get deleted too fast.
+		m_lastRendered = Monolith::Time() + 1.0f;
 	}
 
 	Chunk::Chunk( Chunk&& _chunk ) :
@@ -31,7 +34,8 @@ namespace Voxel {
 		m_depth( _chunk.m_depth ),
 		m_root( _chunk.m_root ),
 		m_voxels( std::move(_chunk.m_voxels) ),
-		m_position( _chunk.m_position )
+		m_position( _chunk.m_position ),
+		m_lastRendered( _chunk.m_lastRendered )
 	{
 	}
 
@@ -41,7 +45,7 @@ namespace Voxel {
 	}
 
 
-	void Chunk::Draw( const Math::Mat4x4& _modelView, const Math::Mat4x4& _projection, double _time )
+	void Chunk::Draw( const Math::Mat4x4& _modelView, const Math::Mat4x4& _projection )
 	{
 		Graphic::UniformBuffer& objectConstants = *Graphic::Resources::GetUBO(Graphic::UniformBuffers::OBJECT_VOXEL);
 		// Translation to center the chunks
@@ -67,10 +71,15 @@ namespace Voxel {
 		Graphic::Device::DrawVertices( m_voxels, 0, m_voxels.GetNumVertices() );
 
 		// Set the time stamp for the garbage collection
-		m_lastRendered = _time;
+		m_lastRendered = Monolith::Time();
 	}
 
 
+	// ********************************************************************* //
+	bool Chunk::IsNotUsedLately() const
+	{
+		return Monolith::Time() - m_lastRendered > 15.0;
+	}
 
 	// ********************************************************************* //
 	/// \brief Current dirty region update - just reuse a child voxel.
@@ -347,6 +356,7 @@ namespace Voxel {
 
 		if( numVoxels )
 			_chunk.m_voxels.Commit((void*&)vertexBuffer, numVoxels * sizeof(VoxelVertex));
+		else free(vertexBuffer);
 	}
 
 };
