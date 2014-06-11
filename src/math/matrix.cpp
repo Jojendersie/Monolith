@@ -140,9 +140,9 @@ namespace Math {
 	// Setup an axis matrix - a vector base
 	Mat4x4 Mat4x4::Axis(const Vec3& _xAxis, const Vec3& _yAxis, const Vec3& _zAxis)
 	{
-		return Mat4x4(_xAxis[0], _xAxis[1], _xAxis[2], 0.0f,
-					  _yAxis[0], _yAxis[1], _yAxis[2], 0.0f,
-					  _zAxis[0], _zAxis[1], _zAxis[2], 0.0f,
+		return Mat4x4(_xAxis[0], _yAxis[0], _zAxis[0], 0.0f,
+					  _xAxis[1], _yAxis[1], _zAxis[1], 0.0f,
+					  _xAxis[2], _yAxis[2], _zAxis[2], 0.0f,
 					  0.0f,     0.0f,     0.0f,     1.0f);
 	}
 
@@ -549,9 +549,9 @@ namespace Math {
 	// Setup an axis matrix - a vector base
 	Mat3x3 Mat3x3::Axis(const Vec3& _xAxis, const Vec3& _yAxis, const Vec3& _zAxis)
 	{
-		return Mat3x3(_xAxis[0], _xAxis[1], _xAxis[2],
-					  _yAxis[0], _yAxis[1], _yAxis[2],
-					  _zAxis[0], _zAxis[1], _zAxis[2]);
+		return Mat3x3(_xAxis[0], _yAxis[0], _zAxis[0],
+					  _xAxis[1], _yAxis[1], _zAxis[1],
+					  _xAxis[2], _yAxis[2], _zAxis[2]);
 	}
 
 	// Creates an orthogonal base for a direction vector

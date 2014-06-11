@@ -9,7 +9,8 @@ namespace Input {
 	// ********************************************************************* //
 	Camera::Camera( const Math::FixVec3& _position, const Math::Quaternion& _rotation,
 				float _fov, float _aspect ) :
-		Transformation( _position, _rotation ),
+		m_renderTransformation( _position, _rotation ),
+		m_latestTransformation( _position, _rotation ),
 		m_fov( _fov ),
 		m_aspect( _aspect ),
 		m_hardAttached( false ),
@@ -17,6 +18,7 @@ namespace Input {
 		m_nearPlane(5.0f),
 		m_farPlane(50000.0f)
 	{
+		m_rotationMatrix = Mat3x3::Rotation(m_latestTransformation.GetRotation());
 		UpdateMatrices();
 	}
 
@@ -33,8 +35,8 @@ namespace Input {
 	void Camera::UpdateMatrices()
 	{
 		m_mutex.lock();
-		m_rotationMatrix = Mat4x4::Rotation(m_rotation);
 		if( m_hardAttached ) NormalizeReference();
+		m_renderTransformation = m_latestTransformation;
 		m_projection = Math::Mat4x4::Projection( m_fov, m_aspect, m_nearPlane, m_farPlane );
 		m_mutex.unlock();
 		// construct explicit invert-vector
@@ -59,11 +61,14 @@ namespace Input {
 			// Do an object relative rotation.
 			// In soft case the reference point is recomputed since we don't
 			// want to jump back but center movement at the object
-			if( !m_hardAttached ) m_referencePos = Transform( m_attachedTo->GetPosition() );
-			m_rotation = m_rotation * Math::Quaternion( -_theta, _phi, 0.0f );
+			if( !m_hardAttached ) m_referencePos = m_latestTransformation.Transform( m_attachedTo->GetPosition() );
+			m_latestTransformation.Rotate( Math::Quaternion( -_theta, _phi, 0.0f ) );
+			m_rotationMatrix = Mat3x3::Rotation(m_latestTransformation.GetRotation());
 			NormalizeReference();
-		} else
-			m_rotation = m_rotation * Math::Quaternion( _theta, -_phi, 0.0f );
+		} else {
+			m_latestTransformation.Rotate( ~Math::Quaternion( _theta, _phi, 0.0f ) );
+			m_rotationMatrix = Mat3x3::Rotation(m_latestTransformation.GetRotation());
+		}
 		m_mutex.unlock();
 	}
 
@@ -77,7 +82,7 @@ namespace Input {
 			_dy *= m_referencePos[2] * m_fov;
 		}
 		// Compute actual xy directions in camera space
-		Translate( m_rotation.YAxis() * _dy - m_rotation.XAxis() * _dx );
+		m_latestTransformation.Translate( m_rotationMatrix.YAxis() * _dy - m_rotationMatrix.XAxis() * _dx );
 		// Make soft attachment
 		m_hardAttached = false;
 	}
@@ -93,7 +98,7 @@ namespace Input {
 			_dz = Math::min( _dz, -m_attachedTo->GetRadius() * 0.75f + m_referencePos[2] );
 		} // Linear movement otherwise
 
-		Translate( m_rotation.ZAxis() * _dz );
+		m_latestTransformation.Translate( m_rotationMatrix.ZAxis() * _dz );
 		m_referencePos[2] -= _dz;
 	}
 
@@ -117,7 +122,7 @@ namespace Input {
 	{
 		m_attachedTo = _model;
 		// Compute actual reference frame.
-		m_referencePos = Transform( _model->GetPosition() );
+		m_referencePos = m_latestTransformation.Transform( _model->GetPosition() );
 	}
 
 	// ********************************************************************* //
@@ -127,7 +132,7 @@ namespace Input {
 		//{
 			// Transform by rotation inverse (which is multiplying from left for
 			// rotations)
-			m_position = m_attachedTo->GetPosition() - FixVec3(GetRotation() * m_referencePos);
+			m_latestTransformation.SetPosition( m_attachedTo->GetPosition() - FixVec3(m_rotationMatrix * m_referencePos) );
 		//} else
 		//	LOG_LVL1("Camera is not attached and cannot be set to a reference position.");
 	}
@@ -157,8 +162,8 @@ namespace Input {
 							   m_inverseProjection[1] * _screenSpaceCoordinate[1],
 							   1.0f );	// 1.0 result of inverse project of any coordinate
 										// Division by 
-		ray.origin = TransformInverse(nearPoint);
-		ray.direction = normalize(Mat3x3::Rotation(m_rotation) * nearPoint);
+		ray.origin = m_latestTransformation.TransformInverse(nearPoint);
+		ray.direction = normalize(m_rotationMatrix * nearPoint);
 		return ray;
 	}
 

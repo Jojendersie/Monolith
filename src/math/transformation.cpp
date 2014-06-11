@@ -17,16 +17,7 @@ namespace Math {
 	{
 		return Mat4x4::Rotation(m_rotation)
 			* Mat4x4::Translation(float(m_position[0]-_reference.m_position[0]), float(m_position[1]-_reference.m_position[1]), float(m_position[2]-_reference.m_position[2]))
-			* Mat4x4::Rotation(~_reference.m_rotation);
-	}
-
-	// ********************************************************************* //
-	// Get a transformation matrix for this object in the reference camera system.
-	Mat4x4 Transformation::GetTransformation(const Input::Camera& _reference) const
-	{
-		return Mat4x4::Rotation(m_rotation)
-			* Mat4x4::Translation(float(m_position[0]-_reference.m_position[0]), float(m_position[1]-_reference.m_position[1]), float(m_position[2]-_reference.m_position[2]))
-			*_reference.GetRotation();
+			* Mat4x4::Rotation(_reference.m_rotation);
 	}
 
 	// ********************************************************************* //

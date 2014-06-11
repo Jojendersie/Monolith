@@ -17,7 +17,7 @@ namespace Math {
 		Transformation(const FixVec3& _position, const Quaternion& _rotation) : m_position(_position), m_rotation(_rotation)	{}
 
 		/// \brief Set a total new position.
-		void SetPosition( const Math::FixVec3& _position );
+		void SetPosition( const Math::FixVec3& _position )	{ m_position = _position; }
 		/// \brief Read position
 		const Math::FixVec3& GetPosition() const	{ return m_position; }
 		/// \brief Read rotation
@@ -36,12 +36,6 @@ namespace Math {
 		/// \brief Get a transformation matrix for this object in the
 		///		reference system.
 		Mat4x4 GetTransformation( const Transformation& _reference ) const;
-
-		/// \brief Get a transformation matrix for this object in the
-		///		reference camera system.
-		///	\details A camera provides some precomputed values to speed up
-		///		this operation.
-		Mat4x4 GetTransformation( const Input::Camera& _reference ) const;
 
 		/// \brief Transform a position into the space of this transformation
 		///		approximated.

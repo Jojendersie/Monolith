@@ -10,7 +10,7 @@ namespace Voxel { class Model; }
 namespace Input {
 
 	/// \brief A free camera in 3D space.
-	class Camera: public Math::Transformation
+	class Camera
 	{
 	public:
 
@@ -63,9 +63,10 @@ namespace Input {
 		///		(multi threading). This is the only function which will change
 		///		them.
 		void UpdateMatrices();
+		const Math::Transformation& RenderState() const { return m_renderTransformation; }
 
 		const Math::Mat4x4& GetProjection() const			{ return m_projection; }			///< Return projection matrix
-		const Math::Mat4x4& GetRotation() const				{ return m_rotationMatrix; }		///< Return inverse (view * projection) matrix
+		//const Math::Mat4x4& GetRotation() const				{ return m_rotationMatrix; }		///< Return inverse (view * projection) matrix
 
 		/// \brief Checks a sphere against the frustum and returns true if any
 		///		point of the sphere is inside.
@@ -76,8 +77,10 @@ namespace Input {
 	private:
 		// Computed matrices used in rendering
 		Math::Mat4x4 m_projection;
+		Math::Transformation m_latestTransformation;
+		Math::Transformation m_renderTransformation;
 		Math::Vec4 m_inverseProjection;		///< A vector to invert projection calculations: (1/p(0,0), 1/p(1,1), 1/p(2,2), -p(3,2)/p(2,2); Usage: pos.xyz * invProj.xyz + vec3(0,0,invProj.w)
-		Math::Mat4x4 m_rotationMatrix;		///< Precomputed matrix from quaternion which only changes once per frame
+		Math::Mat3x3 m_rotationMatrix;		///< Precomputed matrix from quaternion
 		Math::Plane m_frustum[6];			///< Left, Right, Bottom, Top, Near, Far all showing inwards in view space
 
 		std::mutex m_mutex;					///< mutex between all update methods

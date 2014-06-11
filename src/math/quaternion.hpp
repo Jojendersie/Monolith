@@ -62,9 +62,9 @@ public:
 	inline Vec3                                        ZAxis() const { return Vec3( 2.0f*i*k+2.0f*j*r, 2.0f*j*k-2.0f*i*r, 1.0f-2.0f*i*i-2.0f*j*j ); }
 
 	// Casting-operators
-	operator float* ()                                        {return (float*)(&i);}
-	operator const float* () const                {return (const float*)(&i);}
-	operator Vec4 () const                                {return *this;}
+	operator float* ()					{return (float*)(&i);}
+	operator const float* () const		{return (const float*)(&i);}
+	operator Vec4 () const				{return *this;}
 	operator Mat4x4 () const;
 
 	// Comparison operators
@@ -84,6 +84,7 @@ public:
 		r = nr;
 		i = ni;
 		j = nj;
+		Normalize();
 		return *this;
 	}
 	Quaternion& operator /= (float f) { f = 1/f; i*=f; j*=f; k*=f; return *this; }
@@ -107,9 +108,9 @@ public:
 // Arithmetic operators
 inline Quaternion operator + (const Quaternion& a, const Quaternion& b)        {return Quaternion(a.r+b.r, a.i+b.i, a.j+b.j, a.k+b.k);}
 inline Quaternion operator - (const Quaternion& a, const Quaternion& b)        {return Quaternion(a.r-b.r, a.i-b.i, a.j-b.j, a.k-b.k);}
-inline Quaternion operator - (const Quaternion& a)                                                        {Quaternion b; b.r=-a.r; b.i=-a.i; b.j=-a.j; b.k=-a.k; return b;}        // Avoiding the normalize - no use of component constructor
+inline Quaternion operator - (const Quaternion& a)                             {Quaternion b; b.r=-a.r; b.i=-a.i; b.j=-a.j; b.k=-a.k; return b;}        // Avoiding the normalize - no use of component constructor
 // Conjugation / inversion of a
-inline Quaternion operator ~ (const Quaternion& a)                                                        {Quaternion b; b.r=a.r; b.i=-a.i; b.j=-a.j; b.k=-a.k; return b;}        // Avoiding the normalize - no use of component constructor
+inline Quaternion operator ~ (const Quaternion& a)                             {Quaternion b; b.r=a.r; b.i=-a.i; b.j=-a.j; b.k=-a.k; return b;}        // Avoiding the normalize - no use of component constructor
 // Quaternion multiplication - non commutative (a*b != a*b)
 inline Quaternion operator * (const Quaternion& a, const Quaternion& b)
 {

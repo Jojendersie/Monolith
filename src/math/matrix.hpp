@@ -331,7 +331,7 @@ namespace Math {
 		static Mat4x4 Rotation(const Vec3& _axis, float _angle);		///< Rotate around an arbitrary axis
 		static Mat4x4 Rotation(const Quaternion& _rotation);			///< Matrix from quaternion
 
-		static Mat4x4 Axis(const Vec3& _xAxis, const Vec3& _yAxis, const Vec3& _zAxis);		///< Setup an axis matrix - a vector base
+		static Mat4x4 Axis(const Vec3& _xAxis, const Vec3& _yAxis, const Vec3& _zAxis);		///< Setup an axis matrix - a vector base (columnwise)
 
 		static Mat4x4 Projection(float _FOV, float _aspect, float _near, float _far);			///< OpenGL perspective projection matrix
 		static Mat4x4 ParallelProjection(float _width, float _heigh, float _near, float _far);	///< OpenGL orthogonal projection matrix
@@ -416,7 +416,10 @@ namespace Math {
 		static Mat3x3 Rotation(const Vec3& _axis, float _angle);		///< Rotate around an arbitrary axis
 		static Mat3x3 Rotation(const Quaternion& _rotation);			///< Matrix from quaternion
 
-		static Mat3x3 Axis(const Vec3& _xAxis, const Vec3& _yAxis, const Vec3& _zAxis);		///< Setup an axis matrix - a vector base
+		static Mat3x3 Axis(const Vec3& _xAxis, const Vec3& _yAxis, const Vec3& _zAxis);		///< Setup an axis matrix - a vector base (columnwise)
+		const Vec3& XAxis() const { return *(Vec3*)(m_data+0); }
+		const Vec3& YAxis() const { return *(Vec3*)(m_data+3); }
+		const Vec3& ZAxis() const { return *(Vec3*)(m_data+6); }
 
 		static Mat3x3 Orthonormal(const Vec3& _normal);					///< Creates an orthonormal base for a direction vector
 

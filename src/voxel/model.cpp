@@ -35,16 +35,13 @@ namespace Voxel {
 		Model::ModelData* model;						// Operate on this data.
 		std::unordered_map<Math::IVec4, Chunk>* chunks;	// Create or find chunks here.
 		const Math::Mat4x4& modelView;
-		ChunkBuilder* builder;
 
 		DecideToDraw(const Input::Camera& _camera,
 				Model::ModelData* _model,
 				std::unordered_map<Math::IVec4, Chunk>* _chunks,
-				const Math::Mat4x4& _modelView,
-				ChunkBuilder* _builder) :
+				const Math::Mat4x4& _modelView) :
 			camera(_camera), model(_model), chunks(_chunks),
-			modelView(_modelView),
-			builder(_builder)
+			modelView(_modelView)
 		{}
 
 		bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
@@ -81,10 +78,11 @@ namespace Voxel {
 				if( chunk == chunks->end() )
 				{
 					// Chunk does not exist -> create
+					ChunkBuilder builder; // TEMP -> in job verschieben
 					chunk = chunks->insert(
 						std::make_pair(position, std::move(Chunk(model, _position, levels)))
 						).first;
-					builder->RecomputeVertexBuffer(chunk->second);
+					builder.RecomputeVertexBuffer(chunk->second);
 				}// else Assert( !_node->Data().IsDirty(), "Node-data was not changed."); //if( _node->Data().IsDirty() )
 					//builder->RecomputeVertexBuffer(chunk->second);
 				// There are empty inner chunks
@@ -111,10 +109,8 @@ namespace Voxel {
 		GetModelMatrix( modelView, _camera );
 
 		// Iterate through the octree and render chunks depending on the lod.
-		ChunkBuilder* builder = new ChunkBuilder(); // TEMP -> in job verschieben
-		DecideToDraw param( _camera, &this->m_voxelTree, &this->m_chunks, modelView, builder );
+		DecideToDraw param( _camera, &this->m_voxelTree, &this->m_chunks, modelView );
 		m_voxelTree.Traverse( param );
-		delete builder;
 	}
 
 	// ********************************************************************* //
@@ -137,7 +133,7 @@ namespace Voxel {
 
 	Math::Mat4x4& Model::GetModelMatrix( Math::Mat4x4& _out, const Input::Camera& _reference ) const
 	{
-		_out = Mat4x4::Translation(-m_center) * GetTransformation(_reference);
+		_out = Mat4x4::Translation(-m_center) * GetTransformation(_reference.RenderState());
 		return _out;
 	}
 
