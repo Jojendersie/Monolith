@@ -204,9 +204,7 @@ void Monolith::Run()
 		m_simulationLoop.Run();
 
 		thread1.join();
-		LOG_ERROR("ASDF3");
 		glfwMakeContextCurrent( Graphic::Device::GetWindow() );
-		LOG_ERROR("ASDF4");
 	}
 	LOG_LVL1("Returned from game loops.");
 }

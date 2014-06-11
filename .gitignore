@@ -32,3 +32,5 @@ html/
 *.pdb
 *.obj
 *.db
+
+config.json

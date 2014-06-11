@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <cstdint>
 
 namespace Jo {
 
@@ -31,6 +32,9 @@ namespace Jo {
 		/// \brief Create a dynamic array with preallocated space. Probably
 		///		this disables the advantage of 'hybrid' but allows to replace
 		///		std::vector in more cases.
+		///	\param [in] _capacity Minimum capacity which should be allocated.
+		///		The allocated capacity must be ´max(_capacity, n)´. So there is
+		///		never less than the already existing internal memory block.
 		HybridArray(uint32_t _capacity);
 
 		/// \brief Copy construction (deep).
@@ -39,6 +43,7 @@ namespace Jo {
 		/// \brief Move construction (deep only for arrays smaller n).
 		HybridArray(HybridArray<T,n>&& _other);
 
+		/// \brief Calls destructor for all contained elements.
 		~HybridArray();
 
 		/// \brief Deep copying assignment
@@ -55,7 +60,8 @@ namespace Jo {
 		///		
 		///		A value of 0 causes a prune: capacity = Size();
 		///		
-		///		The size changes if _capacity is below the current size (prune)
+		///		The size changes if _capacity is below the current size and
+		///		unequal 0 (prune). The omitted elements are deleted.
 		void Resize(uint32_t _capacity = 0);
 
 		/// \brief Insert an element copy at the end of the array.
@@ -78,7 +84,7 @@ namespace Jo {
 		ElemType& Insert(uint32_t _where, ElemType&& _element);
 
 		/// \brief Delete an element in O(1). This operation changes the
-		///		element order by replacing the first with the last element.
+		///		element order by replacing the deleted with the last element.
 		void Delete(unsigned _index);
 
 		/// \brief Delete an element in O(n). This operation keeps the
@@ -100,7 +106,7 @@ namespace Jo {
 		uint32_t m_size;		///< Current number of elements
 		ElemType* m_data;		///< Pointer to array memory block. Might be on stack or heap.
 
-		T m_localStorage[n];	///< The local storage on stack or in object heap space.
+		uint8_t m_localStorage[sizeof(ElemType)*n];	///< The local storage on stack or in object heap space.
 	};
 
 
@@ -115,7 +121,7 @@ namespace Jo {
 	HybridArray<T,n>::HybridArray() :
 		m_capacity(n),
 		m_size(0),
-		m_data(m_localStorage)
+		m_data(reinterpret_cast<ElemType*>(m_localStorage))
 	{
 	}
 
@@ -128,22 +134,22 @@ namespace Jo {
 	{
 		if( m_capacity > n )
 			// Too large for local space
-			m_data = (ElemType*)malloc(sizeof(ElemType) * n);
+			m_data = (ElemType*)malloc(sizeof(ElemType) * m_capacity);
 		else {
-			m_data = m_localStorage;
+			m_data = reinterpret_cast<ElemType*>(m_localStorage);
 		}
 	}
 
 	// ********************************************************************* //
 	template<typename T, unsigned n>
 	HybridArray<T,n>::HybridArray(const HybridArray<T,n>& _other) :
-		m_capacity(_other.m_size),	// prune memory
+		m_capacity(_other.m_size < n ? n : _other.m_size),	// prune memory
 		m_size(_other.m_size)
 		// TODO: wanna have delegating constructor HybridArray(_capacity)
 	{
 		// Local or global copy?
 		if( m_capacity <= n )
-			m_data = m_localStorage;
+			m_data = reinterpret_cast<ElemType*>(m_localStorage);
 		else
 			m_data = (ElemType*)malloc(sizeof(T) * m_capacity);
 		// Deep copy now
@@ -233,7 +239,7 @@ namespace Jo {
 			ElemType* oldData = m_data;
 
 			// Determine target memory
-			if( m_capacity <= n ) m_data = m_localStorage;
+			if( m_capacity <= n ) m_data = reinterpret_cast<ElemType*>(m_localStorage);
 			else m_data = (ElemType*)malloc( m_capacity * sizeof(ElemType) );
 
 			// Now keep the old data
