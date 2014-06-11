@@ -136,8 +136,6 @@ VertexBuffer::VertexBuffer( const char* _vertexDeclaration, void* _data, int _si
 		GL_CALL(glBufferData, GL_ARRAY_BUFFER, _size, _data, GL_STATIC_DRAW);
 		GL_CALL(glBindBuffer,  GL_ARRAY_BUFFER, 0 );
 
-		m_firstDirtyIndex = std::numeric_limits<int>::max();
-		m_lastDirtyIndex = -1;
 		m_cursor = m_maxNumVertices = _size / m_vertexSize;
 
 		// Resolve thread-waiting
@@ -183,11 +181,13 @@ VertexBuffer::VertexBuffer( VertexBuffer&& _buffer ) :
 	m_tangentOffset( _buffer.m_tangentOffset ),
 	m_VAO( _buffer.m_VAO ),
 	m_VBO( _buffer.m_VBO ),
-	m_vertexSize( _buffer.m_vertexSize )
+	m_vertexSize( _buffer.m_vertexSize ),
+	m_isStatic( _buffer.m_isStatic )
 {
 	_buffer.m_VAO = 0;
 	_buffer.m_VBO = 0;
 	_buffer.m_data = nullptr;
+	m_state.store( _buffer.m_state );
 }
 
 // ************************************************************************* //
@@ -214,7 +214,7 @@ VertexBuffer::~VertexBuffer()
 void VertexBuffer::Resize(unsigned _numVertices)
 {
 	// Private method should never be called for static buffers!
-	Assert(!IsStatic(), "Static vertex buffers can not be resized!");
+	Assert(!IsStatic(), "Static vertex buffers cannot be resized!");
 
 	m_maxNumVertices = _numVertices;
 
@@ -251,6 +251,7 @@ void VertexBuffer::StartWorking()
 		"Thread state not clear!");
 }
 
+
 // ******************************************************************************** //
 void VertexBuffer::Commit()
 {
@@ -274,7 +275,6 @@ void VertexBuffer::Commit()
 
 		m_firstDirtyIndex = std::numeric_limits<int>::max();
 		m_lastDirtyIndex = -1;
-		//GL_CALL(glBindBuffer,  GL_ARRAY_BUFFER, 0 );
 
 		// Resolve thread-waiting
 		m_state = State::WORKING;
@@ -284,6 +284,8 @@ void VertexBuffer::Commit()
 void VertexBuffer::Commit(void*& _data, int _size)
 {
 	Assert(_data, "No data to commit!");
+	Assert(_size > m_vertexSize, "Empty data should not be committed!");
+	Assert(_size % m_vertexSize == 0, "Size is not a multiple of the vertex size!");
 
 	StartWorking();
 
@@ -294,6 +296,8 @@ void VertexBuffer::Commit(void*& _data, int _size)
 
 	// Derive the statistic data
 	m_cursor = m_maxNumVertices = _size / m_vertexSize;
+	m_firstDirtyIndex = 0;
+	m_lastDirtyIndex = m_cursor-1;
 
 	SetDirty();
 }

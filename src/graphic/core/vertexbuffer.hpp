@@ -115,7 +115,7 @@ namespace Graphic {
 		unsigned GetNumVertices() const			{ return m_cursor; }
 		int GetVertexSize() const				{ return m_vertexSize; }
 		PrimitiveType GetPrimitiveType() const	{ return m_primitiveType; }
-		void SetDirty()							{ m_state = State::UPLOAD_READY;}
+		void SetDirty()							{ if(m_lastDirtyIndex != -1) m_state = State::UPLOAD_READY;}
 		bool IsStatic() const					{ return m_isStatic; }
 		bool IsDirty() const					{ return m_state == State::UPLOAD_READY; }
 		bool IsRenderable() const				{ return m_state != State::INITIALIZING; }

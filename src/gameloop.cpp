@@ -60,7 +60,7 @@ void GameLoop::Run()
 		}
 	}
 
-	LOG_LVL2( "Exiting game loop " + m_name );
+	LOG_LVL2( "Exited game loop " + m_name );
 }
 
 // ************************************************************************* //
