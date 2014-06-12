@@ -27,7 +27,7 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 	Graphic::Hud* voxelContainer = m_hud->CreateContainer(Math::Vec2(-0.98f,-1.0f), Math::Vec2(0.6f,1.8f));//Math::Vec2(0.6f,1.75f));
 	voxelContainer->SetScrollable(true);
 
-	//add every (aviable) voxel to the list wich fits the createria
+	//add every (available) voxel to the list which fits the criteria
 	for(int i = 0; i < Voxel::TypeInfo::GetNumVoxels()-1; i++)
 	{
 		Voxel::VoxelType type = (Voxel::VoxelType)(i+1);
@@ -48,7 +48,7 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 	//box holding informations about the current model
 	Graphic::Hud* modelInfoContainer = m_hud->CreateContainer(Math::Vec2(-0.0f,-0.9f), Math::Vec2(1.f,0.8f));
 
-	// TODO: viewport for this camera in the upper right corner
+	// TODO: view port for this camera in the upper right corner
 	m_modelCamera = new Input::Camera( FixVec3( Fix(0.0), Fix(0.0), Fix(0.0) ),
 		Quaternion( 0.0f, 0.0f, 0.0f ),
 		0.3f,
@@ -87,7 +87,6 @@ void GSEditor::OnBegin()
 void GSEditor::OnEnd()
 {
 	// TODO: User store request
-	delete m_model;
 	m_model = nullptr;
 
 	LOG_LVL2("Left game state Editor");
@@ -130,21 +129,26 @@ void GSEditor::Render( double _deltaTime )
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 
 	// Draw the model which is edited
-	m_modelCamera->Set( *Graphic::Resources::GetUBO(Graphic::UniformBuffers::CAMERA) );
-	Graphic::Device::SetEffect(	*Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
-	m_model->Draw( *m_modelCamera );
-	// Draw the marker in the same view
-	if( m_rayHits )
+	if( m_criticalModelWork.try_lock() )
 	{
-		// Use model coordinate system
-		Math::Mat4x4 modelTransform;
-		m_model->GetModelMatrix(modelTransform, *m_modelCamera);
-		// Compute position of edited voxel.
-		Math::Vec3 voxelPos = m_lvl0Position + 0.50001f;
-		if( m_deletionMode || !m_validPosition )
-			m_redBox->Draw( Math::Mat4x4::Translation( voxelPos ) * Math::Mat4x4::Scaling( 1.0f, 1.0f, 1.0f ) * modelTransform * m_modelCamera->GetProjection() );
-		else 
-			m_greenBox->Draw( Math::Mat4x4::Translation( voxelPos ) * Math::Mat4x4::Scaling( 1.0f, 1.0f, 1.0f ) * modelTransform * m_modelCamera->GetProjection() );
+		m_modelCamera->Set( *Graphic::Resources::GetUBO(Graphic::UniformBuffers::CAMERA) );
+		Graphic::Device::SetEffect(	*Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
+		m_model->Draw( *m_modelCamera );
+		// Draw the marker in the same view
+		if( m_rayHits )
+		{
+			// Use model coordinate system
+			Math::Mat4x4 modelTransform;
+			m_model->GetModelMatrix(modelTransform, *m_modelCamera);
+			// Compute position of edited voxel.
+			Math::Vec3 voxelPos = m_lvl0Position + 0.50001f;
+			if( m_deletionMode || !m_validPosition )
+				m_redBox->Draw( Math::Mat4x4::Translation( voxelPos ) * Math::Mat4x4::Scaling( 1.0f, 1.0f, 1.0f ) * modelTransform * m_modelCamera->GetProjection() );
+			else 
+				m_greenBox->Draw( Math::Mat4x4::Translation( voxelPos ) * Math::Mat4x4::Scaling( 1.0f, 1.0f, 1.0f ) * modelTransform * m_modelCamera->GetProjection() );
+		}
+		m_deleteList.Clear();
+		m_criticalModelWork.unlock();
 	}
 
 	// Draw hud and components in another view
@@ -191,6 +195,18 @@ void GSEditor::KeyDown( int _key, int _modifiers )
 
 	if( Input::Manager::IsVirtualKey(_key, Input::VirtualKey::QUICK_SAVE) )
 		m_model->Save( Jo::Files::HDDFile( "savegames/test.vmo", Jo::Files::HDDFile::CREATE_FILE ) );
+	if( Input::Manager::IsVirtualKey(_key, Input::VirtualKey::QUICK_LOAD) )
+	{
+		Voxel::Model* model = new Voxel::Model;
+		model->Load( Jo::Files::HDDFile( "savegames/test.vmo" ) );
+		{
+			std::unique_lock<std::mutex> lock(m_criticalModelWork);
+			// TODO: REquest for the old model
+			m_deleteList.PushBack( std::move(m_model) );
+			m_model = model;
+			m_modelCamera->ZoomAt( *m_model );
+		}
+	}
 
 	// DEBUG CODE TO TEST EDITING WITHOUT THE HUD
 	if( _key >= GLFW_KEY_0 && _key <= GLFW_KEY_9 )
@@ -230,7 +246,7 @@ void GSEditor::KeyDoubleClick( int _key )
 void GSEditor::CreateNewModel( const Voxel::Model* _copyFrom )
 {
 	// Currently undefined situation: Delete/store model with a request.
-	Assert( !m_model, "Need model before creating a new one" );
+	Assert( !m_model, "Need to save model before creating a new one!" );
 
 	if( _copyFrom )
 	{

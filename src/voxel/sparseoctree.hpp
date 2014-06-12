@@ -49,6 +49,9 @@ namespace Voxel {
 		const SVON* Get( const Math::IVec3& _position, int _level ) const;
 		SVON* Get( const Math::IVec3& _position, int _level );
 
+		int GetRootSize() const { return m_rootSize; }
+		const Math::IVec3& GetRootPosition() const { return m_rootPosition; }
+
 		/// \brief Traverse through the whole tree.
 		/// \param [in] _processor An arbitrary implementation of the
 		///		SVOProcessor concept. The processor object can hold any amount

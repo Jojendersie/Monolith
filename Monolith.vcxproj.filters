@@ -663,6 +663,9 @@
     <ClInclude Include="src\exceptions.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\utilities\scopedpointer.hpp">
+      <Filter>Source Files\utilities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\voxel.ps">

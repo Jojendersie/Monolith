@@ -91,6 +91,9 @@ namespace Jo {
 		///		element order.
 		void ArrayDelete(unsigned _index);
 
+		/// \brief Delete all elements.
+		void Clear();
+
 		uint32_t Size() const		{ return m_size; }
 		uint32_t Capacity() const	{ return m_capacity; }
 
@@ -274,7 +277,7 @@ namespace Jo {
 		// Exponential growth if necessary
 		if( m_size == m_capacity ) Resize(m_capacity * 2);
 		// Take over
-		return *(new (m_data + m_size++) ElemType( _element ));
+		return *(new (m_data + m_size++) ElemType( std::move(_element) ));
 	}
 
 	template<typename T, unsigned n>
@@ -343,5 +346,19 @@ namespace Jo {
 		for( unsigned i=_index; i<m_size; ++i )
 			new (m_data+i) ElemType(std::move(m_data[i+1]));
 	}
+
+
+	// ********************************************************************* //
+	template<typename T, unsigned n>
+	void HybridArray<T,n>::Clear()
+	{
+		for( unsigned i=0; i<m_size; ++i )
+			m_data[i].~T();
+		if( m_capacity > n ) free(m_data);
+		m_size = 0;
+		m_capacity = n;
+		m_data = reinterpret_cast<ElemType*>(m_localStorage);
+	}
+
 
 } // namespace Jo

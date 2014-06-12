@@ -20,7 +20,8 @@ namespace Voxel {
 		m_mass(0.0f),
 		m_center(0.0f),
 		m_boundingSphereRadius(0.0f),
-		m_voxelTree(this)
+		m_voxelTree(this),
+		m_chunks()
 	{
 		auto x = IVec3(3) * 0.5f;
 	}
@@ -249,6 +250,8 @@ namespace Voxel {
 			_file.Write( &m_rotation, sizeof(Quaternion) );
 
 		_file.WriteU8( (uint8_t)ModelChunkTypes::COMPONENT_TREE );
+			_file.Write( &m_voxelTree.GetRootPosition(), sizeof(IVec3) );
+			_file.WriteI32( m_voxelTree.GetRootSize() );
 			StoreModelTree proc( _file );
 			m_voxelTree.Traverse( proc );
 
@@ -256,6 +259,28 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
+	void recursiveLoad( Model* _model, const Jo::Files::IFile& _file, const IVec3& _position, int _level )
+	{
+		uint8_t mask;
+		_file.Read( 1, &mask );
+		if( mask )
+		{
+			// There are children
+			for( int i = 0; i < 8; ++i )
+			{
+				if( mask & (1 << i) )
+				{
+					recursiveLoad( _model, _file, _position * 2 + IVec3(CHILD_OFFSETS[i]), _level-1 );
+				}
+			}
+		} else {
+			// Now data comes
+			VoxelType type;
+			_file.Read( sizeof(VoxelType), &type );
+			_model->Set( _position, _level, type );
+		}
+	}
+
 	void Model::Load( const Jo::Files::IFile& _file )
 	{
 		Assert(m_numVoxels == 0, "Cannot load into a partially filled model!");
@@ -271,6 +296,10 @@ namespace Voxel {
 				_file.Read( sizeof(Quaternion), &m_rotation );
 				break;
 			case ModelChunkTypes::COMPONENT_TREE:
+				IVec3 root; int level;
+				_file.Read( sizeof(IVec3), &root[0] );
+				_file.Read( sizeof(int), &level );
+				recursiveLoad( this, _file, root, level );
 				break;
 			}
 			_file.Read( 1, &chunkType );
