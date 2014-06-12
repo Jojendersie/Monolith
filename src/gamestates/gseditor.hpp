@@ -1,7 +1,9 @@
 #pragma once
 
 #include "gamestatebase.hpp"
-#include "../math/vector.hpp"
+#include "math/vector.hpp"
+#include "utilities/scopedpointer.hpp"
+#include <hybridarray.hpp>
 
 /// \brief Game state to edit voxel models.
 class GSEditor: public IGameState
@@ -28,7 +30,9 @@ private:
 	Graphic::Marker::Box* m_redBox;		///< Marker for regions that can be deleted, or for invalid positions
 	Graphic::Marker::Box* m_greenBox;	///< Marker where the new voxel would be added
 
-	Voxel::Model* m_model;				///< The model which is currently edited
+	ScopedPtr<Voxel::Model> m_model;	///< The model which is currently edited
+	std::mutex m_criticalModelWork;		///< Locked if a model is replaced or similar
+	Jo::HybridArray<ScopedPtr<Voxel::Model>> m_deleteList;	///< Deletion must be done by the one who has the context
 
 	Voxel::VoxelType m_currentType;		///< The type of the voxel which is painted
 	bool m_rayHits;						///< The hit information is up to date and filled

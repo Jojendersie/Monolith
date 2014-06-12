@@ -4,6 +4,7 @@
 #include "input/camera.hpp"
 #include "graphic/core/uniformbuffer.hpp"
 #include "graphic/content.hpp"
+#include "exceptions.hpp"
 
 using namespace Math;
 
@@ -19,7 +20,8 @@ namespace Voxel {
 		m_mass(0.0f),
 		m_center(0.0f),
 		m_boundingSphereRadius(0.0f),
-		m_voxelTree(this)
+		m_voxelTree(this),
+		m_chunks()
 	{
 		auto x = IVec3(3) * 0.5f;
 	}
@@ -200,4 +202,107 @@ namespace Voxel {
 		}
 	}
 
+
+	// ********************************************************************* //
+	struct StoreModelTree: public Model::ModelData::SVOProcessor
+	{
+		Jo::Files::IFile& file;
+
+		StoreModelTree(Jo::Files::IFile& _file) :
+			file(_file)
+		{}
+
+		bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
+		{
+			if( _node->Children() )
+			{
+				// Store in a mask which children are defined
+				uint8_t mask = 0;
+				for( int i = 0; i < 8; ++i )
+					if( _node->GetChild(i) )
+						mask |= 1 << i;
+				file.WriteU8( mask );
+
+				// Then iterate over whatever comes
+			} else {
+				// This is a leaf and contains a component
+				// First store the mask byte with all 0 (no children)
+				file.WriteU8( 0 );
+				file.WriteU8( (uint8_t)_node->Data().type );
+			}
+			return true;
+		}
+	};
+
+	enum struct ModelChunkTypes: uint8_t {
+		END_MODEL,
+		WORLD_LOCATION,
+		COMPONENT_TREE
+	};
+
+	// ********************************************************************* //
+	void Model::Save( Jo::Files::IFile& _file )
+	{
+		if(!_file.CanWrite()) throw InvalidSaveGame( _file, "To save a model the file must be opened for writing!" );
+
+		_file.WriteU8( (uint8_t)ModelChunkTypes::WORLD_LOCATION );
+			_file.Write( &m_position, sizeof(FixVec3) );
+			_file.Write( &m_rotation, sizeof(Quaternion) );
+
+		_file.WriteU8( (uint8_t)ModelChunkTypes::COMPONENT_TREE );
+			_file.Write( &m_voxelTree.GetRootPosition(), sizeof(IVec3) );
+			_file.WriteI32( m_voxelTree.GetRootSize() );
+			StoreModelTree proc( _file );
+			m_voxelTree.Traverse( proc );
+
+		_file.WriteU8( (uint8_t)ModelChunkTypes::END_MODEL );
+	}
+
+	// ********************************************************************* //
+	void recursiveLoad( Model* _model, const Jo::Files::IFile& _file, const IVec3& _position, int _level )
+	{
+		uint8_t mask;
+		_file.Read( 1, &mask );
+		if( mask )
+		{
+			// There are children
+			for( int i = 0; i < 8; ++i )
+			{
+				if( mask & (1 << i) )
+				{
+					recursiveLoad( _model, _file, _position * 2 + IVec3(CHILD_OFFSETS[i]), _level-1 );
+				}
+			}
+		} else {
+			// Now data comes
+			VoxelType type;
+			_file.Read( sizeof(VoxelType), &type );
+			_model->Set( _position, _level, type );
+		}
+	}
+
+	void Model::Load( const Jo::Files::IFile& _file )
+	{
+		Assert(m_numVoxels == 0, "Cannot load into a partially filled model!");
+
+		ModelChunkTypes chunkType;
+		_file.Read( 1, &chunkType );
+		while(chunkType != ModelChunkTypes::END_MODEL)
+		{
+			switch( chunkType )
+			{
+			case ModelChunkTypes::WORLD_LOCATION:
+				_file.Read( sizeof(FixVec3), &m_position );
+				_file.Read( sizeof(Quaternion), &m_rotation );
+				break;
+			case ModelChunkTypes::COMPONENT_TREE:
+				IVec3 root; int level;
+				_file.Read( sizeof(IVec3), &root[0] );
+				_file.Read( sizeof(int), &level );
+				recursiveLoad( this, _file, root, level );
+				break;
+			}
+			_file.Read( 1, &chunkType );
+		}
+	}
 };

@@ -65,6 +65,9 @@ namespace Files {
 		///		access. Reading at such a location will fail.
 		virtual void Seek( uint64_t _numBytes, SeekMode _mode = SeekMode::SET ) const override;
 
+		/// \brief The name is the address of the internal pointer
+		virtual std::string Name() const override;
+
 		//void* GetBuffer()				{ return m_buffer; }
 		const void* GetBuffer() const	{ return m_buffer; }
 

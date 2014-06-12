@@ -30,7 +30,7 @@ GSPlay::GSPlay(Monolith* _game) : IGameState(_game), m_astTest(nullptr)
 
 	m_hud = new Graphic::Hud(_game);
 
-	m_camera = new Input::Camera( FixVec3( Fix(0ll), Fix(0ll), Fix(0ll) ),
+	m_camera = new Input::Camera( FixVec3( Fix(0.0), Fix(0.0), Fix(0.0) ),
 		Quaternion( 0.0f, 0.0f, 0.0f ),
 		0.3f,
 		Graphic::Device::GetAspectRatio() );

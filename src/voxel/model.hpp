@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <jofilelib.hpp>
 #include "predeclarations.hpp"
 #include "sparseoctree.hpp"
 #include "component.hpp"
@@ -46,6 +47,8 @@ namespace Voxel {
 		///		approximating LOD (majority) of the children.
 		VoxelType Get( const Math::IVec3& _position, int _level ) const;
 
+		int GetNumVoxels() const { return m_numVoxels; }
+
 		/// \brief Get the position of the center in world space
 		const Math::FixVec3& GetPosition() const			{ return m_position; }
 		/// \brief Set the position of the model based on its current center of gravity
@@ -77,6 +80,15 @@ namespace Voxel {
 
 		/// \brief Remove all chunks which were not used or dirty.
 		void ClearChunkCache();
+
+		/// \brief Save to an opened file.
+		/// \details The model format is binary and compressed. The size is not
+		///		known in advance.
+		void Save( Jo::Files::IFile& _file );
+
+		/// \brief Load a model from an opened file
+		/// \throws 
+		void Load( const Jo::Files::IFile& _file );
 	protected:
 		std::unordered_map<Math::IVec4, Chunk> m_chunks;
 		int m_numVoxels;				///< Count the number of voxels for statistical issues
