@@ -12,7 +12,7 @@ namespace Math {
 	class Transformation
 	{
 	public:
-		Transformation() : m_position(Fix(0ll)), m_rotation(0.0f, 0.0f, 0.0f) {}
+		Transformation() : m_position(Fix(0.0)), m_rotation(0.0f, 0.0f, 0.0f) {}
 		Transformation(Fix _x, Fix _y, Fix _z, const Quaternion& _rotation) : m_position(_x, _y, _z), m_rotation(_rotation)	{}
 		Transformation(const FixVec3& _position, const Quaternion& _rotation) : m_position(_position), m_rotation(_rotation)	{}
 

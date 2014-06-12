@@ -33,11 +33,13 @@ namespace Input {
 		InputManagerInstance.m_window = _window;
 
 		// Read key mapping
-		InputManagerInstance.m_keyMap = new Jo::Files::MetaFileWrapper::Node*[4];
+		InputManagerInstance.m_keyMap = new Jo::Files::MetaFileWrapper::Node*[6];
 		InputManagerInstance.m_keyMap[(int)VirtualKey::MOVE_CAMERA] = &_keyConfig[string("MoveCamera")];
 		InputManagerInstance.m_keyMap[(int)VirtualKey::ROTATE_CAMERA] = &_keyConfig[string("RotateCamera")];
 		InputManagerInstance.m_keyMap[(int)VirtualKey::ZOOM] = &_keyConfig[string("Zoom")];
 		InputManagerInstance.m_keyMap[(int)VirtualKey::EDITOR_DELETIONMODE] = &_keyConfig[string("EditorDeletionMode")];
+		InputManagerInstance.m_keyMap[(int)VirtualKey::QUICK_SAVE] = &_keyConfig[string("QuickSave")];
+		InputManagerInstance.m_keyMap[(int)VirtualKey::QUICK_LOAD] = &_keyConfig[string("QuickLoad")];
 	}
 
 	// ********************************************************************* //
@@ -66,6 +68,16 @@ namespace Input {
 				isPressed = GLFW_PRESS == glfwGetKey( InputManagerInstance.m_window, key );
 			// Stop if any of the buttons from the list is pressed
 			if( isPressed ) return true;
+		}
+		return false;
+	}
+
+	// ********************************************************************* //
+	bool Manager::IsVirtualKey( int _key, VirtualKey _vkey )
+	{
+		Jo::Files::MetaFileWrapper::Node& currentKeys = *InputManagerInstance.m_keyMap[(int)_vkey];
+		for( int i=0; i<currentKeys.Size(); ++i ) {
+			if( _key == (int)currentKeys[i] ) return true;
 		}
 		return false;
 	}

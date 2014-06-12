@@ -177,6 +177,7 @@ Monolith::~Monolith()
 	delete m_sceneDepthTexture;
 }
 
+
 // ************************************************************************* //
 void Monolith::Run()
 {
@@ -197,7 +198,8 @@ void Monolith::Run()
 				glfwMakeContextCurrent( Graphic::Device::GetWindow() );
 				_loop->Run();
 				glfwMakeContextCurrent( nullptr );
-			}, &m_renderLoop
+			},
+			&m_renderLoop
 		);
 
 		// The last one execute in this thread
@@ -250,11 +252,13 @@ void Monolith::BuildDefaultConfig()
 	auto& cinput = Config[std::string("Input")];
 	cinput[std::string("MoveCamera")][0] = 1;
 	cinput[std::string("RotateCamera")][0] = 2;
-	cinput[std::string("Zoom")][0] = 90;
+	cinput[std::string("Zoom")][0] = GLFW_KEY_Z;
 	cinput[std::string("CameraRotationSpeed")] = 0.005;
 	cinput[std::string("CameraMovementSpeed")] = 0.0025;
 	cinput[std::string("CameraScrollSpeed")] = 5.0;
 	cinput[std::string("EditorDeletionMode")][0] = 340;
+	cinput[std::string("QuickSave")][0] = GLFW_KEY_S;
+	cinput[std::string("QuickLoad")][0] = GLFW_KEY_L;
 
 	auto& cgame = Config[std::string("Game")];
 	cgame[std::string("Language")] = "english.json";

@@ -83,6 +83,7 @@
     <ClCompile Include="dependencies\FileWatcher\FileWatcherLinux.cpp" />
     <ClCompile Include="dependencies\FileWatcher\FileWatcherOSX.cpp" />
     <ClCompile Include="dependencies\FileWatcher\FileWatcherWin32.cpp" />
+    <ClCompile Include="src\exceptions.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\gameloop.cpp" />
     <ClCompile Include="src\gameplay\drive.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="dependencies\JoFileLib\include\poolallocator.hpp" />
     <ClInclude Include="dependencies\JoFileLib\include\streamreader.hpp" />
     <ClInclude Include="src\algorithm\smallsort.hpp" />
+    <ClInclude Include="src\exceptions.hpp" />
     <ClInclude Include="src\game.hpp" />
     <ClInclude Include="src\gameloop.hpp" />
     <ClInclude Include="src\gameplay\drive.hpp" />

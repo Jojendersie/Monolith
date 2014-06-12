@@ -16,7 +16,7 @@ namespace Math {
 		/// \brief Create uninitialized
 		TFix() {}
 		/// \brief Copy construction
-		explicit TFix( int64_t _fixed ) : m_data(_fixed) {}
+		//explicit TFix( int64_t _fixed ) : m_data(_fixed) {}
 		/// \brief Implicit generation too dangerous.
 		explicit TFix( double _float );
 		/// \brief Implicit generation too dangerous.
@@ -38,6 +38,8 @@ namespace Math {
 
 		operator double() const;
 		//operator float() const;
+		//operator int64_t() const;
+		//int64_t data() const { return m_data; }
 
 	private:
 		typename int64_t m_data;
@@ -175,6 +177,13 @@ namespace Math {
 	{
 		// Might be less precise than possible, but is fast and easy.
 		return float(m_data / double(1 << FracDigits));
+	}*/
+
+	// ************************************************************************* //
+	/*template<int FracDigits>
+	TFix<FracDigits>::operator int64_t() const
+	{
+		return m_data;
 	}*/
 
 

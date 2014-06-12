@@ -52,6 +52,8 @@ namespace Files {
 		/// \details Seek can only jump within the existing file.
 		virtual void Seek( uint64_t _numBytes, SeekMode _mode = SeekMode::SET ) const override;
 
+		virtual std::string Name() const override { return m_name; }
+
 		/// \brief Write the buffer to disk if there are written bytes pending.
 		void Flush();
 
@@ -59,6 +61,8 @@ namespace Files {
 		// Copying files not allowed.
 		void operator = (const HDDFile&);
 		HDDFile(const HDDFile&);
+
+		std::string m_name;
 	};
 	
 } // namespace Files

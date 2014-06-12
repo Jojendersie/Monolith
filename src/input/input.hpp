@@ -32,6 +32,9 @@ namespace Input {
 		/// \brief Test if a mapped key or button is currently pressed.
 		static bool IsVirtualKeyPressed( VirtualKey _key );
 
+		/// \brief Check if a physical key maps to a certain virtual key.
+		static bool IsVirtualKey( int _key, VirtualKey _vkey );
+
 		/// \brief The cursors position in pixels inside the window.
 		static Math::Vec2 GetCursorPos();
 
@@ -68,7 +71,9 @@ namespace Input {
 		MOVE_CAMERA,
 		ROTATE_CAMERA,
 		ZOOM,
-		EDITOR_DELETIONMODE
+		EDITOR_DELETIONMODE,
+		QUICK_SAVE,
+		QUICK_LOAD
 	};
 
 	/// \brief Takes the glfw input and converts it to a printable character

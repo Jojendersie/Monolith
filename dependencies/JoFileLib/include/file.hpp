@@ -42,6 +42,9 @@ namespace Files {
 		virtual void Write( const void* _from, uint64_t _numBytes ) = 0;
 		virtual void Seek( uint64_t _numBytes, SeekMode _mode = SeekMode::SET ) const = 0;
 
+		/// \brief Return something to identify the file
+		virtual std::string Name() const = 0;
+
 		/// \brief Returns the cursor position within the file.
 		/// \return A cursor position with large file support.
 		uint64_t GetCursor() const		{ return m_cursor; }

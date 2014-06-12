@@ -9,6 +9,8 @@
 #include "../../dependencies/glfw-3.0.3/include/GLFW/glfw3.h"
 #include "utilities/assert.hpp"
 
+#include <jofilelib.hpp>
+
 using namespace Math;
 
 // ************************************************************************* //
@@ -47,7 +49,7 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 	Graphic::Hud* modelInfoContainer = m_hud->CreateContainer(Math::Vec2(-0.0f,-0.9f), Math::Vec2(1.f,0.8f));
 
 	// TODO: viewport for this camera in the upper right corner
-	m_modelCamera = new Input::Camera( FixVec3( Fix(0ll), Fix(0ll), Fix(0ll) ),
+	m_modelCamera = new Input::Camera( FixVec3( Fix(0.0), Fix(0.0), Fix(0.0) ),
 		Quaternion( 0.0f, 0.0f, 0.0f ),
 		0.3f,
 		Graphic::Device::GetAspectRatio() );
@@ -187,6 +189,9 @@ void GSEditor::KeyDown( int _key, int _modifiers )
 	if( _key == GLFW_KEY_ESCAPE )
 		m_finished = true;
 
+	if( Input::Manager::IsVirtualKey(_key, Input::VirtualKey::QUICK_SAVE) )
+		m_model->Save( Jo::Files::HDDFile( "savegames/test.vmo", Jo::Files::HDDFile::CREATE_FILE ) );
+
 	// DEBUG CODE TO TEST EDITING WITHOUT THE HUD
 	if( _key >= GLFW_KEY_0 && _key <= GLFW_KEY_9 )
 	{
@@ -203,7 +208,7 @@ void GSEditor::KeyRelease( int _key )
 // ************************************************************************* //
 void GSEditor::KeyClick( int _key )
 {
-	if( _key == GLFW_MOUSE_BUTTON_1 && m_validPosition )
+	if( _key == GLFW_MOUSE_BUTTON_1 && m_validPosition && m_rayHits )
 	{
 		if( m_deletionMode )
 		{
@@ -253,5 +258,7 @@ void GSEditor::ValidatePosition()
 	if( m_lvl0Position[0] >= 4096 || m_lvl0Position[1] >= 4096 || m_lvl0Position[2] >= 4096 )
 		m_validPosition = false;
 
-	// TODO: Do not delete the last computer
+	// Do not delete the last computer
+	if( m_model->GetNumVoxels() == 1 && m_model->Get(m_lvl0Position, 0) != Voxel::VoxelType::UNDEFINED )
+		m_validPosition = false;
 }
