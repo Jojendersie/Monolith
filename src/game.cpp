@@ -32,7 +32,7 @@ double Monolith::m_time = 0.0;
 // ************************************************************************* //
 void RenderLoop::Step( double _deltaTime )
 {
-	(*Graphic::Resources::GetUBO(Graphic::UniformBuffers::GLOBAL))["Time"] = (float)m_game.m_time;
+	Graphic::Resources::GetUBO(Graphic::UniformBuffers::GLOBAL)["Time"] = (float)m_game.m_time;
 
 	// Render to scene frame buffer.
 	Graphic::Device::BindFramebuffer( m_game.m_sceneFramebuffer );

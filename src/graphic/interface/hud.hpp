@@ -15,7 +15,7 @@ namespace Graphic {
 		// functions intended do be used in gamestates to create a button with the specefied params
 		void CreateBtn(std::string _texName, std::string _desc, Math::Vec2 _position, Math::Vec2 _size,
 			RealDimension _rDim = no, std::function<void()> _OnMouseUp = [] () {return;},
-			Font* _font = Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT));
+			Font* _font = &Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT));
 
 		/// \brief Creates an container in the current Hud and returns it as Hud* to fill it with elements 
 		Hud* CreateContainer(Math::Vec2 _pos=Math::Vec2(-1.f,-1.f) , Math::Vec2 _size=Math::Vec2(2.f,2.f));

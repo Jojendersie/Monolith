@@ -113,6 +113,9 @@ namespace Utils {
 		/// \brief From main color class
 		Color8U(const Color32F& _color)							{ m_color = 0; for(int i=0; i<4; ++i) { m_color<<=8; m_color |= uint8_t(Math::saturate(_color[3-i]) * 255); } }
 
+		/// \brief From main vector class
+		Color8U(const Math::Vec4& _color)						{ m_color = 0; for(int i=0; i<4; ++i) { m_color<<=8; m_color |= uint8_t(Math::saturate(_color[3-i]) * 255); } }
+
 		/// \brief From single RGBA 32 bit integer
 		Color8U(const uint32_t& _color) : m_color(_color)		{}
 

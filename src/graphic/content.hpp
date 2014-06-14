@@ -15,6 +15,8 @@ namespace Graphic {
 		TEXTURE_2DQUAD = 1,	///< Draw a screen space quad. Bound UBOs: {}
 		WIRE = 2,			///< Draw a set of lines. Bound UBOs: {OBJECT_WIRE}
 		BEAM = 3,			///< Draw beams for a set of lines Bound: {OBJECT_WIRE}
+		ALPHA_BACK = 4,		///< Draw a mesh's back faces with ab. enabled. Bound UBOs: {SIMPLE_OBJECT}
+		ALPHA_FRONT = 5,	///< Draw a mesh's front faces with ab. enabled. Bound UBOs: {SIMPLE_OBJECT}
 		COUNT				///< Number of effects - this must be the last enumeration member
 	};
 
@@ -25,6 +27,7 @@ namespace Graphic {
 		CAMERA = 1,
 		OBJECT_VOXEL = 2,
 		OBJECT_WIRE = 3,
+		SIMPLE_OBJECT = 4,
 		COUNT			///< Number of effects - this must be the last enumeration member
 	};
 
@@ -41,7 +44,7 @@ namespace Graphic {
 	{
 		POINT = 0,
 		LINEAR = 1,
-		LINEAR_NOMIPMAP = 2, ///< Performs no filter on mipmaps. Useful for lineraly sampling textures without mipmaps.
+		LINEAR_NOMIPMAP = 2, ///< Performs no filter on mipmaps. Useful for linearly sampling textures without mipmaps.
 		COUNT			///< Number of effects - this must be the last enumeration member
 	};
 
@@ -54,19 +57,19 @@ namespace Graphic {
 	public:
 		/// \brief Get one of the predefined effects.
 		/// \details The first time this is called for an effect it is loaded.
-		static Graphic::Effect* GetEffect(Effects _effect);
+		static Graphic::Effect& GetEffect(Effects _effect);
 
 		/// \brief Get one of the predefined uniform buffers.
 		/// \details The first time this is called for a buffer it is created.
-		static Graphic::UniformBuffer* GetUBO(UniformBuffers _ubo);
+		static Graphic::UniformBuffer& GetUBO(UniformBuffers _ubo);
 
 		/// \brief Get one of the predefined fonts.
 		/// \details The first time this is called the font is loaded.
-		static Graphic::Font* GetFont(Fonts _font);
+		static Graphic::Font& GetFont(Fonts _font);
 
 		/// \brief Get one of the predefined sampler states.
 		/// \details The first time this is called the state is created.
-		static Graphic::SamplerState* GetSamplerState(SamplerStates _state);
+		static Graphic::SamplerState& GetSamplerState(SamplerStates _state);
 
 		/// \brief Delete all the loaded resources
 		static void Unload();

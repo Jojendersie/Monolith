@@ -12,8 +12,8 @@ namespace Graphic
 		m_effect.SetRasterizerState(RasterizerState(RasterizerState::CULL_MODE::NONE, RasterizerState::FILL_MODE::SOLID));
 		m_effect.SetBlendState(BlendState(BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::SRC_ALPHA, BlendState::BLEND::INV_SRC_ALPHA));
 		m_effect.SetDepthStencilState(DepthStencilState(DepthStencilState::COMPARISON_FUNC::ALWAYS, false));
-		m_effect.BindTexture( "u_characterTex", 7, *Graphic::Resources::GetSamplerState(SamplerStates::LINEAR) );
-		m_effect.BindUniformBuffer( *Graphic::Resources::GetUBO(UniformBuffers::GLOBAL) );
+		m_effect.BindTexture( "u_characterTex", 7, Graphic::Resources::GetSamplerState(SamplerStates::LINEAR) );
+		m_effect.BindUniformBuffer( Graphic::Resources::GetUBO(UniformBuffers::GLOBAL) );
 
 		Jo::Files::HDDFile file("texture/"+_fontName+".sraw");
 		Jo::Files::MetaFileWrapper Wrap( file, Jo::Files::Format::SRAW );

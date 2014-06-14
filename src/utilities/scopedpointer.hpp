@@ -7,7 +7,10 @@ template<typename T>
 class ScopedPtr
 {
 public:
-	/// \brief Only construction from typed pointer (implicit too).
+	/// \brief Clean defaul ctor
+	ScopedPtr() : m_ptr(nullptr)	{}
+
+	/// \brief Construction from typed pointer (implicit too).
 	ScopedPtr(T* _ptr) : m_ptr(_ptr) {}
 
 	/// \brief Delete the resource!
@@ -19,6 +22,14 @@ public:
 		T* tmp = _lhs.m_ptr;
 		_lhs.m_ptr = _rhs.m_ptr;
 		_rhs.m_ptr = tmp;
+	}
+
+	/// \brief Assigning will delete the old object
+	T* operator = (T* _rhs)
+	{
+		delete m_ptr;
+		m_ptr = _rhs;
+		return _rhs;
 	}
 
 	/// \brief Moving allowed

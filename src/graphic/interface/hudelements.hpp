@@ -109,7 +109,7 @@ namespace Graphic {
 	public:
 		/// \brief creates a button
 		Button(Jo::Files::MetaFileWrapper* _posMap, std::string _name, Math::Vec2 _position, Math::Vec2 _size, 
-			RealDimension _rDim = no, Font* _font = Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT),
+			RealDimension _rDim = no, Font* _font = &Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT),
 			std::function<void()> _OnMouseUp = [] () {return;} );
 
 		ScreenTexture m_btnDefault;

@@ -41,6 +41,7 @@ namespace Graphic {
 	namespace Marker {
 		class Grid;
 		class Box;
+		class SphericalFunction;
 	}
 } // namespace Graphic
 

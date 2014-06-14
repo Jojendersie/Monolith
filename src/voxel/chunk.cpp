@@ -47,7 +47,7 @@ namespace Voxel {
 
 	void Chunk::Draw( const Math::Mat4x4& _modelView, const Math::Mat4x4& _projection )
 	{
-		Graphic::UniformBuffer& objectConstants = *Graphic::Resources::GetUBO(Graphic::UniformBuffers::OBJECT_VOXEL);
+		Graphic::UniformBuffer& objectConstants = Graphic::Resources::GetUBO(Graphic::UniformBuffers::OBJECT_VOXEL);
 		// Translation to center the chunks
 		Math::Mat4x4 modelView = Mat4x4::Translation(m_position) * Mat4x4::Scaling(m_scale) * _modelView;
 		objectConstants["WorldView"] = modelView;

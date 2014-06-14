@@ -12,47 +12,60 @@ namespace Graphic {
 
 	// ********************************************************************* //
 	// Get one of the predefined effects.
-	Graphic::Effect* Resources::GetEffect(Effects _effect)
+	Graphic::Effect& Resources::GetEffect(Effects _effect)
 	{
-		if( s_effects[(int)_effect] ) return s_effects[(int)_effect];
+		if( s_effects[(int)_effect] ) return *s_effects[(int)_effect];
 		
 		// Not loaded yet
 		switch( _effect )
 		{
 		case Effects::VOXEL_RENDER:
 			s_effects[(int)_effect] = new Effect("shader/voxel.vs", "shader/voxel.ps", "shader/voxel.gs");
-			s_effects[(int)_effect]->BindUniformBuffer( *GetUBO(UniformBuffers::OBJECT_VOXEL) );
-			s_effects[(int)_effect]->BindUniformBuffer( *GetUBO(UniformBuffers::CAMERA) );
-			s_effects[(int)_effect]->BindUniformBuffer( *GetUBO(UniformBuffers::GLOBAL) );
-			s_effects[(int)_effect]->BindTexture( "u_diffuseTex", 0, *GetSamplerState(SamplerStates::POINT) );
+			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::OBJECT_VOXEL) );
+			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::CAMERA) );
+			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::GLOBAL) );
+			s_effects[(int)_effect]->BindTexture( "u_diffuseTex", 0, GetSamplerState(SamplerStates::POINT) );
 			break;
 		case Effects::TEXTURE_2DQUAD:
 			s_effects[(int)_effect] = new Effect("shader/screentex.vs", "shader/screentex.ps", "shader/screentex.gs");
 			s_effects[(int)_effect]->SetBlendState(BlendState(Graphic::BlendState::BLEND_OPERATION::ADD, Graphic::BlendState::BLEND::SRC_ALPHA, Graphic::BlendState::BLEND::INV_SRC_ALPHA));
 			s_effects[(int)_effect]->SetDepthStencilState(DepthStencilState(Graphic::DepthStencilState::COMPARISON_FUNC::ALWAYS, false));
-			s_effects[(int)_effect]->BindTexture( "u_screenTex", 7, *GetSamplerState(SamplerStates::LINEAR) );
+			s_effects[(int)_effect]->BindTexture( "u_screenTex", 7, GetSamplerState(SamplerStates::LINEAR) );
 			break;
 		case Effects::WIRE:
 			s_effects[(int)_effect] = new Effect( "shader/wire.vs", "shader/wire.ps");
 			s_effects[(int)_effect]->SetBlendState(BlendState(BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::SRC_ALPHA, BlendState::BLEND::ONE));
 			s_effects[(int)_effect]->SetDepthStencilState(DepthStencilState(Graphic::DepthStencilState::COMPARISON_FUNC::LESS, false));
-			s_effects[(int)_effect]->BindUniformBuffer( *GetUBO(UniformBuffers::OBJECT_WIRE) );
+			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::OBJECT_WIRE) );
 			break;
 		case Effects::BEAM:
 			s_effects[(int)_effect] = new Effect( "shader/beam.vs", "shader/beam.ps", "shader/beam.gs");
-			s_effects[(int)_effect]->SetBlendState(BlendState(BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::SRC_ALPHA, BlendState::BLEND::ONE));
-			s_effects[(int)_effect]->SetDepthStencilState(DepthStencilState(Graphic::DepthStencilState::COMPARISON_FUNC::LESS, false));
-			s_effects[(int)_effect]->BindUniformBuffer( *GetUBO(UniformBuffers::OBJECT_WIRE) );
+			s_effects[(int)_effect]->SetBlendState( BlendState(BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::SRC_ALPHA, BlendState::BLEND::ONE) );
+			s_effects[(int)_effect]->SetDepthStencilState( DepthStencilState(Graphic::DepthStencilState::COMPARISON_FUNC::LESS, false) );
+			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::OBJECT_WIRE) );
+			break;
+		case Effects::ALPHA_BACK:
+			s_effects[(int)_effect] = new Effect( "shader/alpha.vs", "shader/alpha.ps");
+			s_effects[(int)_effect]->SetBlendState( BlendState(BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::SRC_ALPHA, BlendState::BLEND::INV_SRC_ALPHA) );
+			s_effects[(int)_effect]->SetDepthStencilState( DepthStencilState(Graphic::DepthStencilState::COMPARISON_FUNC::LESS, false) );
+			s_effects[(int)_effect]->SetRasterizerState( RasterizerState(RasterizerState::CULL_MODE::FRONT, RasterizerState::FILL_MODE::SOLID) );
+			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::SIMPLE_OBJECT) );
+			break;
+		case Effects::ALPHA_FRONT:
+			s_effects[(int)_effect] = new Effect( "shader/alpha.vs", "shader/alpha.ps");
+			s_effects[(int)_effect]->SetBlendState( BlendState(BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::SRC_ALPHA, BlendState::BLEND::INV_SRC_ALPHA) );
+			s_effects[(int)_effect]->SetDepthStencilState( DepthStencilState(Graphic::DepthStencilState::COMPARISON_FUNC::LESS, false) );
+			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::SIMPLE_OBJECT) );
 			break;
 		}
-		return s_effects[(int)_effect];
+		return *s_effects[(int)_effect];
 	}
 
 	// ********************************************************************* //
 	// Get one of the predefined uniform buffers.
-	Graphic::UniformBuffer* Resources::GetUBO(UniformBuffers _ubo)
+	Graphic::UniformBuffer& Resources::GetUBO(UniformBuffers _ubo)
 	{
-		if( s_ubos[(int)_ubo] ) return s_ubos[(int)_ubo];
+		if( s_ubos[(int)_ubo] ) return *s_ubos[(int)_ubo];
 
 		// Not loaded yet
 		switch( _ubo )
@@ -114,16 +127,20 @@ namespace Graphic {
 			s_ubos[(int)_ubo]->AddAttribute( "BlendSlope", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 			s_ubos[(int)_ubo]->AddAttribute( "BlendOffset", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 			break;
+		case UniformBuffers::SIMPLE_OBJECT:
+			s_ubos[(int)_ubo] = new UniformBuffer( "Object" );
+			s_ubos[(int)_ubo]->AddAttribute( "WorldViewProjection", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
+			break;
 		}
 
-		return s_ubos[(int)_ubo];
+		return *s_ubos[(int)_ubo];
 	}
 
 	// ********************************************************************* //
 	// Get one of the predefined fonts.
-	Graphic::Font* Resources::GetFont(Fonts _font)
+	Graphic::Font& Resources::GetFont(Fonts _font)
 	{
-		if( s_fonts[(int)_font] ) return s_fonts[(int)_font];
+		if( s_fonts[(int)_font] ) return *s_fonts[(int)_font];
 
 		// Not loaded yet
 		switch( _font )
@@ -136,14 +153,14 @@ namespace Graphic {
 			break;
 		}
 
-		return s_fonts[(int)_font];
+		return *s_fonts[(int)_font];
 	}
 
 	// ********************************************************************* //
 	// Get one of the predefined sampler states.
-	Graphic::SamplerState* Resources::GetSamplerState(SamplerStates _state)
+	Graphic::SamplerState& Resources::GetSamplerState(SamplerStates _state)
 	{
-		if( s_samplers[(int)_state] ) return s_samplers[(int)_state];
+		if( s_samplers[(int)_state] ) return *s_samplers[(int)_state];
 
 		// Not loaded yet
 		switch( _state )
@@ -162,7 +179,7 @@ namespace Graphic {
 				break;	
 		}
 
-		return s_samplers[(int)_state];
+		return *s_samplers[(int)_state];
 	}
 
 	// ********************************************************************* //

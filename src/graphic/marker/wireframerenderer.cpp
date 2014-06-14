@@ -67,11 +67,11 @@ namespace Marker {
 	void WireframeRenderer::Draw( const Math::Mat4x4& _worldViewProjection )
 	{
 		// Setup pipeline
-		Device::SetEffect( *Resources::GetEffect(Effects::BEAM) );
-		(*Resources::GetUBO(UniformBuffers::OBJECT_WIRE))["WorldViewProjection"] = _worldViewProjection;
-		(*Resources::GetUBO(UniformBuffers::OBJECT_WIRE))["LineWidth"] = m_lineWidth;
-		(*Resources::GetUBO(UniformBuffers::OBJECT_WIRE))["BlendSlope"] = 1.0f / m_fading;
-		(*Resources::GetUBO(UniformBuffers::OBJECT_WIRE))["BlendOffset"] = (1.0f-m_fading) / m_fading;
+		Device::SetEffect( Resources::GetEffect(Effects::BEAM) );
+		Resources::GetUBO(UniformBuffers::OBJECT_WIRE)["WorldViewProjection"] = _worldViewProjection;
+		Resources::GetUBO(UniformBuffers::OBJECT_WIRE)["LineWidth"] = m_lineWidth;
+		Resources::GetUBO(UniformBuffers::OBJECT_WIRE)["BlendSlope"] = 1.0f / m_fading;
+		Resources::GetUBO(UniformBuffers::OBJECT_WIRE)["BlendOffset"] = (1.0f-m_fading) / m_fading;
 
 		Device::DrawVertices( m_mesh, 0, m_mesh.GetNumVertices() );
 	}

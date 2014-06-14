@@ -5,13 +5,18 @@
 #include "input/input.hpp"
 #include "graphic/interface/hud.hpp"
 #include "graphic/marker/box.hpp"
+#include "graphic/marker/sphericalfunciton.hpp"
 #include "graphic/content.hpp"
 #include "../../dependencies/glfw-3.0.3/include/GLFW/glfw3.h"
 #include "utilities/assert.hpp"
+#include "math/sphericalfunction.hpp"
 
 #include <jofilelib.hpp>
 
 using namespace Math;
+
+// THIS IS A TEST FUNCTION
+static SphericalFunction g_superFunc( [](const Math::Vec3& _dir){ return abs(_dir[1]); } );
 
 // ************************************************************************* //
 GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
@@ -128,27 +133,36 @@ void GSEditor::Render( double _deltaTime )
 
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 
+	// The model's transformation matrix to render additional information
+	Mat4x4 modelViewProjection;
+
 	// Draw the model which is edited
 	if( m_criticalModelWork.try_lock() )
 	{
-		m_modelCamera->Set( *Graphic::Resources::GetUBO(Graphic::UniformBuffers::CAMERA) );
-		Graphic::Device::SetEffect(	*Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
+		m_modelCamera->Set( Graphic::Resources::GetUBO(Graphic::UniformBuffers::CAMERA) );
+		Graphic::Device::SetEffect(	Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
 		m_model->Draw( *m_modelCamera );
-		// Draw the marker in the same view
-		if( m_rayHits )
-		{
-			// Use model coordinate system
-			Math::Mat4x4 modelTransform;
-			m_model->GetModelMatrix(modelTransform, *m_modelCamera);
-			// Compute position of edited voxel.
-			Math::Vec3 voxelPos = m_lvl0Position + 0.50001f;
-			if( m_deletionMode || !m_validPosition )
-				m_redBox->Draw( Math::Mat4x4::Translation( voxelPos ) * Math::Mat4x4::Scaling( 1.0f, 1.0f, 1.0f ) * modelTransform * m_modelCamera->GetProjection() );
-			else 
-				m_greenBox->Draw( Math::Mat4x4::Translation( voxelPos ) * Math::Mat4x4::Scaling( 1.0f, 1.0f, 1.0f ) * modelTransform * m_modelCamera->GetProjection() );
-		}
+		m_model->GetModelMatrix( modelViewProjection, *m_modelCamera );
+		//modelViewProjection = Mat4x4::Translation(m_model->GetCenter()) * modelViewProjection;
+		modelViewProjection *= m_modelCamera->GetProjection();
+
+		// Draw the thrust function
+		//m_thrustFunction->Draw( modelViewProjection );
+
 		m_deleteList.Clear();
 		m_criticalModelWork.unlock();
+	}
+
+	// Draw the marker in the same view
+	if( m_rayHits )
+	{
+		// Use model coordinate system
+		// Compute position of edited voxel.
+		Math::Vec3 voxelPos = m_lvl0Position + 0.50001f;
+		if( m_deletionMode || !m_validPosition )
+			m_redBox->Draw( Math::Mat4x4::Translation( voxelPos ) * Math::Mat4x4::Scaling( 1.0f, 1.0f, 1.0f ) * modelViewProjection );
+		else 
+			m_greenBox->Draw( Math::Mat4x4::Translation( voxelPos ) * Math::Mat4x4::Scaling( 1.0f, 1.0f, 1.0f ) * modelViewProjection );
 	}
 
 	// Draw hud and components in another view
@@ -205,6 +219,7 @@ void GSEditor::KeyDown( int _key, int _modifiers )
 			m_deleteList.PushBack( std::move(m_model) );
 			m_model = std::move(model);
 			m_modelCamera->ZoomAt( *m_model );
+			//m_thrustFunction = new Graphic::Marker::SphericalFunction( g_superFunc );
 		}
 	}
 
@@ -234,6 +249,7 @@ void GSEditor::KeyClick( int _key )
 			// Add a voxel of the chosen type
 			m_model->Set( m_lvl0Position, 0, m_currentType );
 		}
+		//m_thrustFunction = new Graphic::Marker::SphericalFunction( g_superFunc );
 	}
 }
 
@@ -258,6 +274,8 @@ void GSEditor::CreateNewModel( const Voxel::Model* _copyFrom )
 
 		// Insert the computer
 		m_model->Set(IVec3(2048,2048,2048), 0, Voxel::VoxelType::ROCK_1 );
+
+		//m_thrustFunction = new Graphic::Marker::SphericalFunction( g_superFunc );
 	}
 
 	m_modelCamera->ZoomAt( *m_model );

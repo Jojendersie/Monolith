@@ -19,7 +19,7 @@ namespace Graphic
 	//	for( int i = 0; i < MAX_SCREENTEX; i++ )
 	//		m_screenTextures[i] = nullptr;
 
-		m_dbgLabel = new TextRender(Graphic::Resources::GetFont(Graphic::Fonts::DEFAULT));//DEFAULT
+		m_dbgLabel = new TextRender(&Graphic::Resources::GetFont(Graphic::Fonts::DEFAULT));//DEFAULT
 		m_dbgLabel->SetPos(Math::Vec2(0.7f,0.8f));
 		AddTextRender(m_dbgLabel);
 
@@ -53,7 +53,7 @@ namespace Graphic
 	void Hud::CreateBtn(std::string _texName, std::string _desc, Math::Vec2 _position, Math::Vec2 _size, RealDimension _rDim, 
 		std::function<void()> _OnMouseUp, Font* _font)
 	{
-		Button* btn = new Button(m_texContainerMap, _texName, _position, _size, no, Resources::GetFont(Fonts::GAME_FONT), _OnMouseUp);
+		Button* btn = new Button(m_texContainerMap, _texName, _position, _size, no, &Resources::GetFont(Fonts::GAME_FONT), _OnMouseUp);
 		btn->SetCaption(_desc);
 		AddButton(btn);
 	}
@@ -81,7 +81,7 @@ namespace Graphic
 		ScissorRect scissor(m_pos[0], -m_pos[1], m_size[0], m_size[1]);
 		RenewBuffer();
 
-		Device::SetEffect( *Resources::GetEffect(Effects::TEXTURE_2DQUAD) );
+		Device::SetEffect( Resources::GetEffect(Effects::TEXTURE_2DQUAD) );
 		Device::SetTexture( m_texContainer, 7 );
 		//ignore cursor
 		Device::DrawVertices( m_characters, 0, m_characters.GetNumVertices()-1 );
@@ -102,7 +102,7 @@ namespace Graphic
 		}
 
 		//activate voxel rendering
-		Graphic::Device::SetEffect(	*Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
+		Graphic::Device::SetEffect(	Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
 		//draw every screenModel
 		for(int i = m_screenModels.size(); i-- > 0; )
 		{
@@ -112,7 +112,7 @@ namespace Graphic
 		//draw cursor last
 		if(m_showCursor)
 		{
-			Device::SetEffect( *Resources::GetEffect(Effects::TEXTURE_2DQUAD) );
+			Device::SetEffect( Resources::GetEffect(Effects::TEXTURE_2DQUAD) );
 			Device::SetTexture( m_texContainer, 7 );
 			Device::DrawVertices( m_characters, m_characters.GetNumVertices()-1, 1 );
 		}

@@ -60,9 +60,9 @@ namespace Graphic {
 											m_ambientOcclusionConfig != AmbientOcclusionConfig::OFF ? "#define AMBIENT_OCCULSION" : "");
 		m_screenOutputEffect->SetRasterizerState(noCull);
 		m_screenOutputEffect->SetDepthStencilState(noDepthTest);
-		m_screenOutputEffect->BindUniformBuffer(*Resources::GetUBO(UniformBuffers::GLOBAL));
-		m_screenOutputEffect->BindTexture("screenTex", 0, *Resources::GetSamplerState(SamplerStates::POINT));
-		m_screenOutputEffect->BindTexture("ambientOcclusionMap", 1, *Resources::GetSamplerState(SamplerStates::LINEAR_NOMIPMAP));
+		m_screenOutputEffect->BindUniformBuffer(Resources::GetUBO(UniformBuffers::GLOBAL));
+		m_screenOutputEffect->BindTexture("screenTex", 0, Resources::GetSamplerState(SamplerStates::POINT));
+		m_screenOutputEffect->BindTexture("ambientOcclusionMap", 1, Resources::GetSamplerState(SamplerStates::LINEAR_NOMIPMAP));
 		
 		delete m_ambientOcclusionEffect;
 		m_ambientOcclusionEffect = nullptr;
@@ -79,24 +79,24 @@ namespace Graphic {
 			m_ambientOcclusionEffect = new Effect("shader/postprocessing/screentri.vs", "shader/postprocessing/ambientocclusion.ps", "", curQualityDefine);
 			m_ambientOcclusionEffect->SetRasterizerState(noCull);
 			m_ambientOcclusionEffect->SetDepthStencilState(noDepthTest);
-			m_ambientOcclusionEffect->BindTexture("depthTex", 0, *Resources::GetSamplerState(SamplerStates::POINT));
-			m_ambientOcclusionEffect->BindUniformBuffer(*Resources::GetUBO(UniformBuffers::CAMERA));
+			m_ambientOcclusionEffect->BindTexture("depthTex", 0, Resources::GetSamplerState(SamplerStates::POINT));
+			m_ambientOcclusionEffect->BindUniformBuffer(Resources::GetUBO(UniformBuffers::CAMERA));
 
 			m_ambientOcclusionBlurXEffect = new Effect("shader/postprocessing/screentri.vs", "shader/postprocessing/ambientocclusionblur.ps", "", curQualityDefine);
 			m_ambientOcclusionBlurXEffect->SetRasterizerState(noCull);
 			m_ambientOcclusionBlurXEffect->SetDepthStencilState(noDepthTest);
-			m_ambientOcclusionBlurXEffect->BindUniformBuffer(*Resources::GetUBO(UniformBuffers::GLOBAL));
-			m_ambientOcclusionBlurXEffect->BindUniformBuffer(*Resources::GetUBO(UniformBuffers::CAMERA));
-			m_ambientOcclusionBlurXEffect->BindTexture("depthTex", 0, *Resources::GetSamplerState(SamplerStates::POINT));
-			m_ambientOcclusionBlurXEffect->BindTexture("ambientOcclusionMap", 1, *Resources::GetSamplerState(SamplerStates::POINT));
+			m_ambientOcclusionBlurXEffect->BindUniformBuffer(Resources::GetUBO(UniformBuffers::GLOBAL));
+			m_ambientOcclusionBlurXEffect->BindUniformBuffer(Resources::GetUBO(UniformBuffers::CAMERA));
+			m_ambientOcclusionBlurXEffect->BindTexture("depthTex", 0, Resources::GetSamplerState(SamplerStates::POINT));
+			m_ambientOcclusionBlurXEffect->BindTexture("ambientOcclusionMap", 1, Resources::GetSamplerState(SamplerStates::POINT));
 
 			m_ambientOcclusionBlurYEffect = new Effect("shader/postprocessing/screentri.vs", "shader/postprocessing/ambientocclusionblur.ps", "", "#define BLUR_Y_FIN\n" + curQualityDefine);
 			m_ambientOcclusionBlurYEffect->SetRasterizerState(noCull);
 			m_ambientOcclusionBlurYEffect->SetDepthStencilState(noDepthTest);
-			m_ambientOcclusionBlurYEffect->BindUniformBuffer(*Resources::GetUBO(UniformBuffers::GLOBAL));
-			m_ambientOcclusionBlurYEffect->BindUniformBuffer(*Resources::GetUBO(UniformBuffers::CAMERA));
-			m_ambientOcclusionBlurYEffect->BindTexture("depthTex", 0, *Resources::GetSamplerState(SamplerStates::POINT));
-			m_ambientOcclusionBlurYEffect->BindTexture("ambientOcclusionMap", 1, *Resources::GetSamplerState(SamplerStates::POINT));
+			m_ambientOcclusionBlurYEffect->BindUniformBuffer(Resources::GetUBO(UniformBuffers::GLOBAL));
+			m_ambientOcclusionBlurYEffect->BindUniformBuffer(Resources::GetUBO(UniformBuffers::CAMERA));
+			m_ambientOcclusionBlurYEffect->BindTexture("depthTex", 0, Resources::GetSamplerState(SamplerStates::POINT));
+			m_ambientOcclusionBlurYEffect->BindTexture("ambientOcclusionMap", 1, Resources::GetSamplerState(SamplerStates::POINT));
 		}
 	}
 

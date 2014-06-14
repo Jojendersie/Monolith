@@ -29,6 +29,7 @@ private:
 	Input::Camera* m_modelCamera;		///< Standard camera for the model view
 	Graphic::Marker::Box* m_redBox;		///< Marker for regions that can be deleted, or for invalid positions
 	Graphic::Marker::Box* m_greenBox;	///< Marker where the new voxel would be added
+	//ScopedPtr<Graphic::Marker::SphericalFunction> m_thrustFunction;	///< Visualization for the maximum engine thrust
 
 	ScopedPtr<Voxel::Model> m_model;	///< The model which is currently edited
 	std::mutex m_criticalModelWork;		///< Locked if a model is replaced or similar

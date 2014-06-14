@@ -2,6 +2,7 @@
 
 #include "math/vector.hpp"
 #include "utilities/assert.hpp"
+#include <cmath>
 
 namespace Math {
 
@@ -30,8 +31,8 @@ namespace Math {
 		{
 			// Go over the whole cube and skip the inner parts
 			Math::IVec3 voxel;
-			auto end = end();
-			for( auto it = begin(); begin() != end; ++it )
+			auto endit = end();
+			for( auto it = begin(); it != endit; ++it )
 			{
 				// Create a sampling direction +
 				// evaluate and save sample
@@ -40,7 +41,7 @@ namespace Math {
 		}
 
 		/// \brief Do a bilinear sample of the cube map
-		float sample( const Math::Vec3& _direction ) const
+		float operator () ( const Math::Vec3& _direction ) const
 		{
 			// Find the principal direction
 			Math::Vec3 absDir = abs(_direction);
@@ -52,17 +53,17 @@ namespace Math {
 			// Project ray to the cube faces.
 			Math::Vec3 projDir = _direction / absDir[pdir];
 			// Transform [-1,1] to [0, N-1)
-			projDir = (projDir * 0.5f + 0.5f) * std::nexttoward(N-1, 0.0);	// TODO: constexpr vs1xx
+			projDir = (projDir * 0.5f + 0.5f) * (N-1);// ((N-1) * 0.99999f);// * std::nexttoward(N-1, 0.0);	// TODO: constexpr vs1xx
 			Assert( projDir[0] <= N && projDir[0] >= 0.0f
 				&& projDir[1] <= N && projDir[1] >= 0.0f
 				&& projDir[2] <= N && projDir[2] >= 0.0f,
 				"Cube map sampling out of range"
 			);
 			// Get Integer coordinate [0,N-2]
-			Math::IVec3 voxel = projDir;
+			Math::IVec3 voxel = Math::IVec3(projDir);
 
 			// Get 4 point samples and interpolate 
-			Math::Vec3 samplePos = voxel;
+			Math::IVec3 samplePos = voxel;
 			float s00 = m_data[indexOf(samplePos)];
 			++samplePos[udir];
 			float s10 = m_data[indexOf(samplePos)];
@@ -76,7 +77,7 @@ namespace Math {
 			// Cosine interpolation for much smoother function representations
 			fu = cos(fu * PI) * 0.5f + 0.5f;
 			fv = cos(fv * PI) * 0.5f + 0.5f;
-			return lerp(lerp(s00, s10, fu), lerp(s01, s11, fu), fv)
+			return lerp(lerp(s00, s10, fu), lerp(s01, s11, fu), fv);
 		}
 
 		// TODO: derivative
@@ -133,12 +134,13 @@ namespace Math {
 					}
 				}
 				// Advance if inside the box
-				if( voxel[0] > 0 && voxel[0] < (N-1)
-					&& voxel[1] > 0 && voxel[1] < (N-1)
-					&& voxel[2] > 0 && voxel[2] < (N-1) )
+				if( m_position[0] > 0 && m_position[0] < (N-1)
+					&& m_position[1] > 0 && m_position[1] < (N-1)
+					&& m_position[2] > 0 && m_position[2] < (N-1) )
 				{
 					m_position[2] += N - 2;
 				}
+				return *this;
 			}
 
 			/// \brief Returns a normalized direction of the sample.
@@ -146,7 +148,7 @@ namespace Math {
 			///		function. Store the result of you need it multiple times.
 			Vec3 direction()
 			{
-				Vec3 dir = voxel - ((N-1) * 0.5f);
+				Vec3 dir = m_position - ((N-1) * 0.5f);
 				return normalize(dir);
 			}
 
@@ -154,21 +156,22 @@ namespace Math {
 			/// \details The index is recomputed each time.
 			float& value()
 			{
-				return m_map->m_data[indexOf(m_position)];
+				return m_map->m_data[m_map->indexOf(m_position)];
 			}
 			float value() const
 			{
-				return m_map->m_data[indexOf(m_position)];
+				return m_map->m_data[m_map->indexOf(m_position)];
 			}
 
 			bool operator == (const Iterator& _rhs) const { return m_position == _rhs.m_position; }
 			bool operator != (const Iterator& _rhs) const { return m_position != _rhs.m_position; }
 		private:
 			IVec3 m_position;
-			const CubeMap* m_map;
+			CubeMap* m_map;
+			friend class CubeMap;
 
 			Iterator(CubeMap* _map) : m_position(0,0,0), m_map(_map) {}
-			Iterator() : m_position(N,N,N), m_map(nullptr) {}
+			Iterator() : m_position(N,0,0), m_map(nullptr) {}
 		};
 
 		Iterator begin() { return Iterator(this); }
@@ -179,7 +182,7 @@ namespace Math {
 		float m_data[SAMPLE_COUNT];
 
 		/// \brief Compute the index of an voxel on the surface.
-		int indexOf( const Math::IVec3& _voxel )
+		int indexOf( const Math::IVec3& _voxel ) const
 		{
 			if( _voxel[0] == 0 ) {							// N*N sides
 				return _voxel[1] + N * _voxel[2];

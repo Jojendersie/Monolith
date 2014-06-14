@@ -230,6 +230,9 @@
     <ClCompile Include="src\exceptions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\graphic\marker\sphericalfunction.cpp">
+      <Filter>Source Files\graphic\markers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
@@ -665,6 +668,9 @@
     </ClInclude>
     <ClInclude Include="src\utilities\scopedpointer.hpp">
       <Filter>Source Files\utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\marker\sphericalfunciton.hpp">
+      <Filter>Source Files\graphic\markers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
