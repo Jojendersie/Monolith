@@ -197,13 +197,13 @@ void GSEditor::KeyDown( int _key, int _modifiers )
 		m_model->Save( Jo::Files::HDDFile( "savegames/test.vmo", Jo::Files::HDDFile::CREATE_FILE ) );
 	if( Input::Manager::IsVirtualKey(_key, Input::VirtualKey::QUICK_LOAD) )
 	{
-		Voxel::Model* model = new Voxel::Model;
+		ScopedPtr<Voxel::Model> model = new Voxel::Model;
 		model->Load( Jo::Files::HDDFile( "savegames/test.vmo" ) );
 		{
 			std::unique_lock<std::mutex> lock(m_criticalModelWork);
 			// TODO: REquest for the old model
 			m_deleteList.PushBack( std::move(m_model) );
-			m_model = model;
+			m_model = std::move(model);
 			m_modelCamera->ZoomAt( *m_model );
 		}
 	}
