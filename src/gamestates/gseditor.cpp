@@ -16,7 +16,7 @@
 using namespace Math;
 
 // THIS IS A TEST FUNCTION
-static SphericalFunction g_superFunc( [](const Math::Vec3& _dir){ return abs(_dir[1]); } );
+static SphericalFunction g_superFunc( [](const Math::Vec3& _dir){ return abs(_dir[1]) * 3; } );
 
 // ************************************************************************* //
 GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
@@ -24,7 +24,8 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 	m_rayHits( false ),
 	m_deletionMode( false ),
 	m_lvl0Position( 0 ),
-	m_currentType( Voxel::VoxelType::WATER )
+	m_currentType( Voxel::VoxelType::WATER ),
+	m_recreateThrustVis( false )
 {
 	LOG_LVL2("Starting to create game state Editor");
 
@@ -147,7 +148,8 @@ void GSEditor::Render( double _deltaTime )
 		modelViewProjection *= m_modelCamera->GetProjection();
 
 		// Draw the thrust function
-		//m_thrustFunction->Draw( modelViewProjection );
+		if( m_recreateThrustVis ) { m_thrustFunction = new Graphic::Marker::SphericalFunction( g_superFunc ); m_recreateThrustVis = false; }
+		m_thrustFunction->Draw( Mat4x4::Translation(m_model->GetCenter()) * modelViewProjection );
 
 		m_deleteList.Clear();
 		m_criticalModelWork.unlock();
@@ -219,7 +221,7 @@ void GSEditor::KeyDown( int _key, int _modifiers )
 			m_deleteList.PushBack( std::move(m_model) );
 			m_model = std::move(model);
 			m_modelCamera->ZoomAt( *m_model );
-			//m_thrustFunction = new Graphic::Marker::SphericalFunction( g_superFunc );
+			m_recreateThrustVis = true;
 		}
 	}
 
@@ -249,7 +251,7 @@ void GSEditor::KeyClick( int _key )
 			// Add a voxel of the chosen type
 			m_model->Set( m_lvl0Position, 0, m_currentType );
 		}
-		//m_thrustFunction = new Graphic::Marker::SphericalFunction( g_superFunc );
+		m_recreateThrustVis = true;
 	}
 }
 
@@ -275,7 +277,7 @@ void GSEditor::CreateNewModel( const Voxel::Model* _copyFrom )
 		// Insert the computer
 		m_model->Set(IVec3(2048,2048,2048), 0, Voxel::VoxelType::ROCK_1 );
 
-		//m_thrustFunction = new Graphic::Marker::SphericalFunction( g_superFunc );
+		m_recreateThrustVis = true;
 	}
 
 	m_modelCamera->ZoomAt( *m_model );

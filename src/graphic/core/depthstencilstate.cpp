@@ -4,7 +4,10 @@
 namespace Graphic {
 
 	DepthStencilState::DepthStencilState( COMPARISON_FUNC _zTest, bool _zWrite ) :
-		m_zWrite(_zWrite), m_stencilRef(false), m_zTest(_zTest)
+		m_zWrite(_zWrite), m_useStencil(false), m_zTest(_zTest),
+		m_SFTest(COMPARISON_FUNC::ALWAYS), m_SFFail(unsigned(STENCIL_OP::KEEP)), m_SFFailZ(unsigned(STENCIL_OP::KEEP)), m_SFPass(unsigned(STENCIL_OP::KEEP)),
+		m_SBTest(COMPARISON_FUNC::ALWAYS), m_SBFail(unsigned(STENCIL_OP::KEEP)), m_SBFailZ(unsigned(STENCIL_OP::KEEP)), m_SBPass(unsigned(STENCIL_OP::KEEP)),
+		m_stencilRef(0)
 	{
 		ComputeHash();
 	}
@@ -12,9 +15,10 @@ namespace Graphic {
 	DepthStencilState::DepthStencilState( COMPARISON_FUNC _zTest, bool _zWrite, 
 						   COMPARISON_FUNC _SFTest, STENCIL_OP _SFFail, STENCIL_OP _SFFailZ, STENCIL_OP _SFPass,
 						   COMPARISON_FUNC _SBTest, STENCIL_OP _SBFail, STENCIL_OP _SBFailZ, STENCIL_OP _SBPass) :
-		m_zWrite(_zWrite), m_stencilRef(true), m_zTest(_zTest),
+		m_zWrite(_zWrite), m_useStencil(true), m_zTest(_zTest),
 		m_SFTest(_SFTest), m_SFFail(unsigned(_SFFail)), m_SFFailZ(unsigned(_SFFailZ)), m_SFPass(unsigned(_SFPass)),
-		m_SBTest(_SBTest), m_SBFail(unsigned(_SBFail)), m_SBFailZ(unsigned(_SBFailZ)), m_SBPass(unsigned(_SBPass))
+		m_SBTest(_SBTest), m_SBFail(unsigned(_SBFail)), m_SBFailZ(unsigned(_SBFailZ)), m_SBPass(unsigned(_SBPass)),
+		m_stencilRef(0)
 	{
 		ComputeHash();
 	}
@@ -24,7 +28,7 @@ namespace Graphic {
 	void DepthStencilState::ComputeHash()
 	{
 		m_hash = (int(m_zTest) & 0x7) | (m_zWrite << 3);
-		if( m_stencilRef )
+		if( m_useStencil )
 		{
 			m_hash = (m_hash << 6) | (int(m_SFTest) & 0xf) | ((int(m_SBTest) & 0xf)<<3);
 			m_hash = (m_hash << 3) | (m_SFFail & 0xf);
@@ -49,7 +53,7 @@ namespace Graphic {
 		GL_CALL(glDepthMask, m_zWrite);
 
 		// Stencil Test
-		if( m_stencilRef )
+		if( m_useStencil )
 		{
 			GL_CALL(glEnable, GL_STENCIL_TEST);
 			GL_CALL(glStencilFuncSeparate, unsigned(m_SFTest), unsigned(m_SBTest), m_stencilRef, 0xffffffff);

@@ -284,7 +284,7 @@ void VertexBuffer::Commit()
 void VertexBuffer::Commit(void*& _data, int _size)
 {
 	Assert(_data, "No data to commit!");
-	Assert(_size > m_vertexSize, "Empty data should not be committed!");
+	Assert(_size >= m_vertexSize, "Empty data should not be committed!");
 	Assert(_size % m_vertexSize == 0, "Size is not a multiple of the vertex size!");
 
 	StartWorking();

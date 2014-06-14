@@ -73,7 +73,7 @@ namespace Math {
 	class Transformation;
 	template<int N> class CubeMap;
 	/// A typedef to have global control about the tessellation refinement
-	typedef CubeMap<3> SphericalFunction;
+	typedef CubeMap<5> SphericalFunction;
 } // namespace Math
 
 namespace Utils {

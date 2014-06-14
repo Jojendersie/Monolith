@@ -54,9 +54,9 @@ namespace Math {
 			Math::Vec3 projDir = _direction / absDir[pdir];
 			// Transform [-1,1] to [0, N-1)
 			projDir = (projDir * 0.5f + 0.5f) * (N-1);// ((N-1) * 0.99999f);// * std::nexttoward(N-1, 0.0);	// TODO: constexpr vs1xx
-			Assert( projDir[0] <= N && projDir[0] >= 0.0f
-				&& projDir[1] <= N && projDir[1] >= 0.0f
-				&& projDir[2] <= N && projDir[2] >= 0.0f,
+			Assert( projDir[0] <= N-1 && projDir[0] >= 0.0f
+				&& projDir[1] <= N-1 && projDir[1] >= 0.0f
+				&& projDir[2] <= N-1 && projDir[2] >= 0.0f,
 				"Cube map sampling out of range"
 			);
 			// Get Integer coordinate [0,N-2]
@@ -74,9 +74,8 @@ namespace Math {
 
 			float fu = projDir[udir]-voxel[udir];
 			float fv = projDir[vdir]-voxel[vdir];
-			// Cosine interpolation for much smoother function representations
-			fu = cos(fu * PI) * 0.5f + 0.5f;
-			fv = cos(fv * PI) * 0.5f + 0.5f;
+			Assert( fu >= 0.0f && fu <= 1.0f, "Interpolation coordinate wrong" );
+			Assert( fv >= 0.0f && fv <= 1.0f, "Interpolation coordinate wrong" );
 			return lerp(lerp(s00, s10, fu), lerp(s01, s11, fu), fv);
 		}
 
@@ -185,18 +184,18 @@ namespace Math {
 		int indexOf( const Math::IVec3& _voxel ) const
 		{
 			if( _voxel[0] == 0 ) {							// N*N sides
-				return _voxel[1] + N * _voxel[2];
+				return N * _voxel[1] + _voxel[2];
 			} else if( _voxel[0] == (N-1) ) {
-				return _voxel[1] + N * _voxel[2] + N*N;
+				return N * _voxel[1] + _voxel[2] + N*N;
 			} else if( _voxel[1] == 0 ) {					// (N-2)*N sides
-				return _voxel[0] + N * _voxel[2] + 2*N*N;
+				return N * (_voxel[0]-1) + _voxel[2] + 2*N*N;
 			} else if( _voxel[1] == (N-1) ) {
-				return _voxel[0] + N * _voxel[2] + 2*N*N+N*(N-2);
+				return N * (_voxel[0]-1) + _voxel[2] + 2*N*N+N*(N-2);
 			} else if( _voxel[2] == 0 ) {					// (N-2)*(N-2) sides
-				return _voxel[0] + (N-2) * _voxel[1] + 2*N*N+2*N*(N-2);
+				return (N-2) * (_voxel[0]-1) + _voxel[1]-1 + 2*N*N+2*N*(N-2);
 			} else {
 				Assert( _voxel[2] == (N-1), "Cube map sample was not projected to the surface. Impossible!" );
-				return _voxel[0] + (N-2) * _voxel[1] + 2*N*N+2*N*(N-2)+(N-2)*(N-2);
+				return (N-2) * (_voxel[0]-1) + _voxel[1]-1 + 2*N*N+2*N*(N-2)+(N-2)*(N-2);
 			}
 		}
 	};

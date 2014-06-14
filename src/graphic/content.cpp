@@ -20,22 +20,22 @@ namespace Graphic {
 		switch( _effect )
 		{
 		case Effects::VOXEL_RENDER:
-			s_effects[(int)_effect] = new Effect("shader/voxel.vs", "shader/voxel.ps", "shader/voxel.gs");
+			s_effects[(int)_effect] = new Effect( "shader/voxel.vs", "shader/voxel.ps", "shader/voxel.gs" );
 			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::OBJECT_VOXEL) );
 			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::CAMERA) );
 			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::GLOBAL) );
 			s_effects[(int)_effect]->BindTexture( "u_diffuseTex", 0, GetSamplerState(SamplerStates::POINT) );
 			break;
 		case Effects::TEXTURE_2DQUAD:
-			s_effects[(int)_effect] = new Effect("shader/screentex.vs", "shader/screentex.ps", "shader/screentex.gs");
-			s_effects[(int)_effect]->SetBlendState(BlendState(Graphic::BlendState::BLEND_OPERATION::ADD, Graphic::BlendState::BLEND::SRC_ALPHA, Graphic::BlendState::BLEND::INV_SRC_ALPHA));
-			s_effects[(int)_effect]->SetDepthStencilState(DepthStencilState(Graphic::DepthStencilState::COMPARISON_FUNC::ALWAYS, false));
+			s_effects[(int)_effect] = new Effect( "shader/screentex.vs", "shader/screentex.ps", "shader/screentex.gs" );
+			s_effects[(int)_effect]->SetBlendState( BlendState(Graphic::BlendState::BLEND_OPERATION::ADD, Graphic::BlendState::BLEND::SRC_ALPHA, Graphic::BlendState::BLEND::INV_SRC_ALPHA) );
+			s_effects[(int)_effect]->SetDepthStencilState( DepthStencilState(Graphic::DepthStencilState::COMPARISON_FUNC::ALWAYS, false) );
 			s_effects[(int)_effect]->BindTexture( "u_screenTex", 7, GetSamplerState(SamplerStates::LINEAR) );
 			break;
 		case Effects::WIRE:
 			s_effects[(int)_effect] = new Effect( "shader/wire.vs", "shader/wire.ps");
-			s_effects[(int)_effect]->SetBlendState(BlendState(BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::SRC_ALPHA, BlendState::BLEND::ONE));
-			s_effects[(int)_effect]->SetDepthStencilState(DepthStencilState(Graphic::DepthStencilState::COMPARISON_FUNC::LESS, false));
+			s_effects[(int)_effect]->SetBlendState( BlendState(BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::SRC_ALPHA, BlendState::BLEND::ONE) );
+			s_effects[(int)_effect]->SetDepthStencilState( DepthStencilState(Graphic::DepthStencilState::COMPARISON_FUNC::LESS, false) );
 			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::OBJECT_WIRE) );
 			break;
 		case Effects::BEAM:
@@ -45,14 +45,14 @@ namespace Graphic {
 			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::OBJECT_WIRE) );
 			break;
 		case Effects::ALPHA_BACK:
-			s_effects[(int)_effect] = new Effect( "shader/alpha.vs", "shader/alpha.ps");
+			s_effects[(int)_effect] = new Effect( "shader/alpha.vs", "shader/alpha.ps" );
 			s_effects[(int)_effect]->SetBlendState( BlendState(BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::SRC_ALPHA, BlendState::BLEND::INV_SRC_ALPHA) );
 			s_effects[(int)_effect]->SetDepthStencilState( DepthStencilState(Graphic::DepthStencilState::COMPARISON_FUNC::LESS, false) );
 			s_effects[(int)_effect]->SetRasterizerState( RasterizerState(RasterizerState::CULL_MODE::FRONT, RasterizerState::FILL_MODE::SOLID) );
 			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::SIMPLE_OBJECT) );
 			break;
 		case Effects::ALPHA_FRONT:
-			s_effects[(int)_effect] = new Effect( "shader/alpha.vs", "shader/alpha.ps");
+			s_effects[(int)_effect] = new Effect( "shader/alpha.vs", "shader/alpha.ps" );
 			s_effects[(int)_effect]->SetBlendState( BlendState(BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::SRC_ALPHA, BlendState::BLEND::INV_SRC_ALPHA) );
 			s_effects[(int)_effect]->SetDepthStencilState( DepthStencilState(Graphic::DepthStencilState::COMPARISON_FUNC::LESS, false) );
 			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::SIMPLE_OBJECT) );

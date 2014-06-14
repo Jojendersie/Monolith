@@ -58,7 +58,7 @@ namespace Logger {
 //		message.width(4);
 		message << _codeLine << "]      ";
 		message << _message << '\n';//*/
-		m_policy->Write( message.str() );
+		if( m_policy ) m_policy->Write( message.str() );
 	}
 
 	// ********************************************************************* //

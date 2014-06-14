@@ -45,14 +45,17 @@ namespace Marker {
 			sfVertex vertex;
 			// Add triangle now
 			// Pos, Normal, Skip Tex
-			vertex.position = _v1; //vertex.normal = normalize(vertex.position);
-			vertex.color = ValueToColor( length(_v1) );
+			float f = _function(_v1);
+			vertex.position = _v1 * f; //vertex.normal = normalize(vertex.position);
+			vertex.color = ValueToColor( f );
 			_out.Add( vertex );
-			vertex.position = _v3; //vertex.normal = normalize(vertex.position);
-			vertex.color = ValueToColor( length(_v3) );
+			f = _function(_v3);
+			vertex.position = _v3 * f; //vertex.normal = normalize(vertex.position);
+			vertex.color = ValueToColor( f );
 			_out.Add( vertex );
-			vertex.position = _v2; //vertex.normal = normalize(vertex.position);
-			vertex.color = ValueToColor( length(_v2) );
+			f = _function(_v2);
+			vertex.position = _v2 * f; //vertex.normal = normalize(vertex.position);
+			vertex.color = ValueToColor( f );
 			_out.Add( vertex );
 		} else {
 			// Subdivision scheme:
@@ -66,9 +69,6 @@ namespace Marker {
 			Vec3 v4 = normalize( Vec3( (_v1 + _v2) * 0.5f ) );
 			Vec3 v5 = normalize( Vec3( (_v3 + _v2) * 0.5f ) );
 			Vec3 v6 = normalize( Vec3( (_v3 + _v1) * 0.5f ) );
-			v4 *= _function( v4 );
-			v5 *= _function( v5 );
-			v6 *= _function( v6 );
 
 			// Recursion for the 4 new triangles
 			--_div;
@@ -82,27 +82,21 @@ namespace Marker {
 	// ********************************************************************* //
 	// Create a visualization of a spherical function
 	SphericalFunction::SphericalFunction( const Math::SphericalFunction& _function ) :
-		m_mesh( "pnc", VertexBuffer::PrimitiveType::TRIANGLE_LIST )
+		m_mesh( "pc", VertexBuffer::PrimitiveType::TRIANGLE_LIST )
 	{
 		// Create a tessellated sphere and project the vertices to the function
 		// value.
 		// Subdivide a tetrahedron
-		SubDivide( _function,
-			Vec3( 0.943f, 0.000f, -0.333f),
-			Vec3( -0.471f, 0.816f, -0.333f),
-			Vec3( 0.000f, 0.000f,  1.000f), 5, m_mesh );
-		SubDivide( _function,
-			Vec3( 0.943f, 0.000f, -0.333f),
-			Vec3( -0.471f,-0.816f, -0.333f),
-			Vec3( -0.471f, 0.816f, -0.333f), 5, m_mesh );
-		SubDivide( _function,
-			Vec3( -0.471f,-0.816f, -0.333f),
-			Vec3( 0.943f, 0.000f, -0.333f),
-			Vec3( 0.000f, 0.000f,  1.000f), 5, m_mesh );
-		SubDivide( _function,
-			Vec3( 0.000f, 0.000f,  1.000f),
-			Vec3( -0.471f, 0.816f, -0.333f),
-			Vec3( -0.471f,-0.816f, -0.333f), 5, m_mesh );
+		Vec3 v1 = normalize( Vec3( 0.943f, 0.000f, -0.333f ) );
+		Vec3 v2 = normalize( Vec3( -0.471f, 0.816f, -0.333f ) );
+		Vec3 v3 = normalize( Vec3( 0.000f, 0.000f,  1.000f ) );
+		Vec3 v4 = normalize( Vec3( -0.471f,-0.816f, -0.333f ) );
+		SubDivide( _function, v1, v2, v3, 5, m_mesh );
+		SubDivide( _function, v1, v4, v2, 5, m_mesh );
+		SubDivide( _function, v4, v1, v3, 5, m_mesh );
+		SubDivide( _function, v3, v2, v4, 5, m_mesh );
+
+		m_mesh.SetDirty();
 	}
 
 	// ********************************************************************* //
