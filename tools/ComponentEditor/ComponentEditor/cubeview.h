@@ -1,0 +1,68 @@
+#ifndef CUBEVIEW_H
+#define CUBEVIEW_H
+
+#include <Qt3D/qglview>
+#include <Qt3D/qgltexture2d>
+#include "cube.h"
+#include "voxel.h"
+#include <vector>
+
+#include "SceneManager.h"
+
+class QGLSceneNode;
+class QGLAbstractScene;
+class QComboBox;
+
+const int COMPSIZE = 3; 
+
+using namespace std;
+
+class CubeView : public QGLView
+{
+    Q_OBJECT
+public:
+	//_colorBox for direct coloracess
+	CubeView(QComboBox* _colorBox, int _res, QWidget *parent = 0);
+    ~CubeView();
+
+	//sets the modell up to reflect a specific texture
+	void setTex( unsigned int* _tex );
+
+	//returns the color of the cube as YCbCr
+	unsigned int getCol(int _x, int _y, int _z) {return m_cubeData[_x][_y][_z]->m_colorOrg;};
+	bool getState(int _x, int _y, int _z) {return m_cubeData[_x][_y][_z]->getState();};
+
+protected:
+    void paintGL(QGLPainter *painter);
+	void mouseMoveEvent ( QMouseEvent * e );
+	void mousePressEvent ( QMouseEvent * e );
+
+private:
+	Cube* getMouseFocus(bool _real = false);
+
+	//offset so that the center of the voxel is in the cam center
+	float m_offset;
+
+	QPoint m_mPos;
+	QGLSceneNode* m_object;
+	//grafical representation
+    vector<vector<vector<QGLSceneNode*> > > m_cube;
+	//data for single cubes
+	vector<vector<vector<Cube*> > > m_cubeData;
+	//the currently displayed voxel
+	Voxel* m_voxel;
+	//tex resolution of the current voxel
+	int m_res;
+	//requiered to allow picking
+	SceneManager  m_pickScene;
+    
+	//color selected in the combobox
+	unsigned int m_color;
+	QComboBox* m_colorBox;
+
+public slots:
+	void objectPicked();
+	void colorChanged(QString& _s);
+};
+
+#endif

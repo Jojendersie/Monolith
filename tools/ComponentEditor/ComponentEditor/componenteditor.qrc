@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/ComponentEditor">
+        <file>Resources/x.txt</file>
+    </qresource>
+</RCC>
