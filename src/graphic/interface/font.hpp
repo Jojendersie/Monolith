@@ -62,11 +62,15 @@ namespace Graphic {
 		/// \brief Sets the Position on the screen.
 		void SetPos(Math::Vec2 _screenPos);
 
+		/// \brief Sets the default size of the Textrender which gets used while no control char overrides it
+		void SetDefaultSize(float _size);
+		float GetDefaultSize() {return m_sizeD;};
+
 		/// \brief returns the real dimensions the string is drawn in
-		Math::Vec2 GetDim() {return Math::Vec2(m_font->m_sizeTable[0][0],m_font->m_sizeTable[0][1]*m_font->m_texture.Height() / m_font->m_texture.Width());};
+		Math::Vec2 GetDim();
 
 		/// \brief returns the largest size the string contains(set per <s>)
-		float GetMaxSize(){return m_sizeMax;}; 
+		float GetMaxSize(){return m_sizeMax;};
 
 		bool m_active;
 
@@ -78,6 +82,8 @@ namespace Graphic {
 		Font* m_font;	///< Reference to the used font.
 		std::string m_text;
 		Math::Vec2 m_screenPos;
+
+
 		VertexBuffer m_characters;
 		Utils::Color8U m_color, m_colorD;
 		float m_size, m_sizeD;

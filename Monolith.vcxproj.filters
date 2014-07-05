@@ -531,9 +531,6 @@
     <ClInclude Include="src\graphic\core\vertexbuffer.hpp">
       <Filter>Source Files\graphic\core</Filter>
     </ClInclude>
-    <ClInclude Include="src\graphic\interface\font.hpp">
-      <Filter>Source Files\graphic\interface</Filter>
-    </ClInclude>
     <ClInclude Include="src\graphic\interface\hud.hpp">
       <Filter>Source Files\graphic\interface</Filter>
     </ClInclude>
@@ -671,6 +668,9 @@
     </ClInclude>
     <ClInclude Include="src\graphic\marker\sphericalfunciton.hpp">
       <Filter>Source Files\graphic\markers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\interface\font.hpp">
+      <Filter>Source Files\graphic\interface</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

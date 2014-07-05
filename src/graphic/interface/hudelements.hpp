@@ -122,12 +122,16 @@ namespace Graphic {
 		virtual void SetPos(Math::Vec2 _pos) override;
 		virtual void SetSize(Math::Vec2 _size) override;
 
+		void SetAutoCenterX(bool _autoCenter) {m_autoCenter[0] = _autoCenter;};
+		void SetAutoCenterY(bool _autoCenter) {m_autoCenter[1] = _autoCenter;};
+
 		virtual void MouseEnter() override;
 		virtual void MouseLeave() override;
 		virtual bool KeyDown(int _key, int _modifiers, Math::Vec2 _pos) override;
 		virtual bool KeyUp(int _key, int _modifiers, Math::Vec2 _pos) override;
 
 	private:
+		Math::Vector<2,bool> m_autoCenter;
 		int m_btnState; // 0 - default; 1 - mouseover; 2 - down
 	};
 

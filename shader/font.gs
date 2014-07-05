@@ -24,7 +24,7 @@ void main(void)
 {
 	ivec2 texSize = textureSize(u_characterTex, 0);
 	float w = vs_out_Size[0].x * vs_out_Scale[0];
-	float h = vs_out_Size[0].y * vs_out_Scale[0] * texSize.y / texSize.x;
+	float h = vs_out_Size[0].y * vs_out_Scale[0] * texSize.y / texSize.x * c_fAspect;
 
 	// Pass through
 	gs_thickness = vs_out_Thickness[0];

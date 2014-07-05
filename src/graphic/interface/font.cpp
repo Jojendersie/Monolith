@@ -65,6 +65,18 @@ namespace Graphic
 //			CharVertex[i].position += CharVertex[i].position - _screenPos; 
 	}
 
+	void TextRender::SetDefaultSize(float _size)
+	{
+		m_sizeD = _size;
+		//only happens on control char endings, thus refresh now
+		m_size = m_sizeD; 
+	}
+
+	Math::Vec2 TextRender::GetDim()
+	{
+		return Math::Vec2(m_font->m_sizeTable[0][0],m_font->m_sizeTable[0][1] *	(m_font->m_texture.Height() / (float)m_font->m_texture.Width()) * Device::GetAspectRatio());
+	}
+
 	void TextRender::Draw()
 	{
 		Graphic::Device::SetEffect( m_font->m_effect );
@@ -110,23 +122,28 @@ namespace Graphic
 
 	void TextRender::RenewBuffer()
 	{
+		//reset the previous build
 		m_characters.Clear();
+		m_sizeMax = 0.f;
 		Math::Vec2 currentPos = m_screenPos;
 		for(size_t i = 0; i<m_text.length(); i++)
 		{
 			CharacterVertex CV;
-			if(m_size > m_sizeMax) m_sizeMax = m_size;
-			CV.scale = m_size;//1.f 
+			CV.scale = m_size; 
 			CV.size = m_font->m_sizeTable[(unsigned char)m_text[i]];
 			CV.texCoord = m_font->m_coordTable[(unsigned char)m_text[i]];
 			CV.position = Math::Vec2(currentPos[0],currentPos[1]); //(m_size-1.f) * CV.size[1]) 
 			CV.thickness = m_thickness;
 			CV.color = m_color.RGBA(); 
 			//line break
-			if(m_text[i] == '\n'){currentPos[0] = m_screenPos[0]; currentPos[1] -= GetDim()[1];}//offset to lower line space; requieres additional testing; m_font->m_sizeTable[m_text[i]][1]*m_size*0.666f
+			if(m_text[i] == '\n')
+			{currentPos[0] = m_screenPos[0]; currentPos[1]	-= GetDim()[1] * m_sizeMax;}//offset to lower line space
 			else if(m_text[i] == '<'){ i += CntrlChr(i)-1; continue;} 
 			else currentPos[0] += m_font->m_sizeTable[(unsigned char)m_text[i]][0]*m_size;  
  			m_characters.Add(CV);
+			//save the greatest size that gets used in the text
+			//after checking for cntrl chars
+			if(m_size > m_sizeMax && m_text[i] != ' ') m_sizeMax = m_size;
 		}
 		m_characters.SetDirty();
 	}

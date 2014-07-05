@@ -50,10 +50,12 @@ namespace Graphic
 	}
 
 	// ************************************************************************* //
-	void Hud::CreateBtn(std::string _texName, std::string _desc, Math::Vec2 _position, Math::Vec2 _size, RealDimension _rDim, 
-		std::function<void()> _OnMouseUp, Font* _font)
+	 void Hud::CreateBtn(std::string _texName, std::string _desc, Math::Vec2 _position, Math::Vec2 _size, RealDimension _rDim, 
+		std::function<void()> _OnMouseUp, bool _autoX, bool _autoY, Font* _font)
 	{
 		Button* btn = new Button(m_texContainerMap, _texName, _position, _size, no, &Resources::GetFont(Fonts::GAME_FONT), _OnMouseUp);
+		btn->SetAutoCenterX(_autoX);
+		btn->SetAutoCenterY(_autoY);
 		btn->SetCaption(_desc);
 		AddButton(btn);
 	}

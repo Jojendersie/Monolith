@@ -40,12 +40,12 @@ namespace Graphic
 		m_btnDefault(_posMap, _name+"Default", _position, _size, _rDim),
 		m_btnOver(_posMap, _name+"Over", _position, _size, _rDim),
 		m_btnDown(_posMap, _name+"Down", _position, _size, _rDim),
-		m_caption(_font)
+		m_caption(_font),
+		m_autoCenter(true)
 	{
 		SetVisibility(false); 
 		SetState(true);
-		//scan for linebreaks to adjust the line height
-		m_caption.SetPos(_position+Math::Vec2(0.02f,-_size[1] * 0.5f - m_caption.GetDim()[1] * m_caption.GetMaxSize() * 0.5f));//-0.75f*_size[1]
+		
 		m_caption.SetText(_name);
 		m_btnDefault.SetVisibility(true);
 		m_btnOver.SetVisibility(false);
@@ -77,10 +77,39 @@ namespace Graphic
 	{
 		int len = _caption.length();
 		int lineCount = 1;
+		int charCount = 0;
+		int charCountMax = 0;
 		for(int i = 0; i < len; i++)
-			if(_caption[i] == '\n') lineCount++;
-		m_caption.SetPos(m_pos+Math::Vec2(0.02f,-m_size[1]/lineCount * 0.5f - m_caption.GetDim()[1] * 0.7f));//*0.5f
+		{
+			charCount++;
+			if(_caption[i] == '\n')
+			{
+				if(charCountMax < charCount)
+					charCountMax = charCount;
+				charCount = 0;
+				lineCount++;
+			}
+		}
+
+		//if the text contains no linebreaks
+		if(!charCountMax) charCountMax = charCount;
+
+		Math::Vec2 captionDim = m_caption.GetDim();
+
+		// in case that the text is to large in any direction scale it down
+		if(captionDim[0] * charCountMax * m_caption.GetDefaultSize() >= m_size[0] || captionDim[1] * lineCount >= m_size[1])
+		{
+			m_caption.SetDefaultSize(Math::min( (float)(m_size[0] / (captionDim[0] * charCountMax)),
+												(float)(m_size[1] / (captionDim[1] * lineCount))) );
+		}
+
+		//set the (new) caption first to rebuild the buffer
 		m_caption.SetText(_caption);
+
+		// center in both directions
+		m_caption.SetPos(m_pos+Math::Vec2(!m_autoCenter[0] ? 0.f : ((m_size[0] - captionDim[0] * charCountMax * m_caption.GetDefaultSize()) / 2.f),
+							!m_autoCenter[1] ? 0.f : (- m_size[1] / (float)lineCount * 0.5f	- captionDim[1] * m_caption.GetMaxSize() * 0.45f )));//0.5f
+
 	}
 
 	void Button::MouseEnter()
