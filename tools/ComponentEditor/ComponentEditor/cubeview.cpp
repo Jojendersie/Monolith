@@ -94,7 +94,8 @@ void CubeView::setTex( unsigned int* _tex )
 
 void CubeView::paintGL(QGLPainter *painter)
 {
-    painter->setStandardEffect(QGL::LitDecalTexture2D);//LitDecalTexture2D);
+	painter->setStandardEffect(QGL::StandardEffect::FlatColor);//LitDecalTexture2D);
+//  painter->setStandardEffect(QGL::LitDecalTexture2D);//LitDecalTexture2D);
 //	QGLLightParameters* mainLightParam = new QGLLightParameters(this);
 //	const QGLLightParameters* orgLightParam = painter->mainLight();
 //	mainLightParam->setPosition(orgLightParam->position());
@@ -110,10 +111,23 @@ void CubeView::paintGL(QGLPainter *painter)
 	{
 	//	QGLMaterial material;
 	//	material.setColor
-		painter->setFaceColor(QGL::AllFaces, m_cubeData[x][y][z]->m_color);
-			m_cube[x][y][z]->draw(painter);
-	}
+		
+		painter->setColor(m_cubeData[x][y][z]->m_color);
+	//	painter->setFaceColor(QGL::AllFaces, m_cubeData[x][y][z]->m_color);
+		m_cube[x][y][z]->draw(painter);
 
+		painter->setColor(QColor(255,255,255));
+		//geometry is stored in the child nodes
+		foreach (QGLSceneNode *node, m_cube[x][y][z]->allChildren())
+		{
+			node->setDrawingMode(QGL::LineStrip);//LineStrip
+			node->setDrawingWidth(2);
+			//drawing still happens through the root node
+			m_cube[x][y][z]->draw(painter);
+			//turn back to normal
+			node->setDrawingMode(QGL::Triangles);
+		}
+	}
 }
 
 Cube* CubeView::getMouseFocus(bool _real)

@@ -39,6 +39,8 @@ private:
 	//!caution! does no savety tests
 	void saveModelChanges();
 
+	void closeEvent(QCloseEvent *event);
+
 	bool m_mode;
 
 	QPushButton *ui_pushButton;

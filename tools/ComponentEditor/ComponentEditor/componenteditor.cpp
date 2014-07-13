@@ -27,25 +27,38 @@ ComponentEditor::~ComponentEditor()
 
 }
 
+void ComponentEditor::closeEvent(QCloseEvent *event)
+{
+	//qts parent modell does not work for QGLView
+	if(m_view) m_view->close();
+	QMainWindow::closeEvent(event);
+}
+
+// add color
 void ComponentEditor::on_pushButton_clicked()
 {
 	QString s = ui_lineEdit->text();
 	bool ok;
 	unsigned int color = s.toUInt(&ok,16);
 	m_voxel->colors.push_back(color);
-	//after the first color gets add one block of it, so that blocks can be placed in the view
-	if(m_voxel->colors.size() == 2)
+	//after the first color gets added create one block of it, so that blocks can be placed in the view
+	//some voxels need no zero(e. g. computer)
+	if(m_voxel->colors.size() <= int(ui_comboBox->findText("0") != -1) + 1)
 	{
 		m_voxel->texture[0] = color;
 		m_view->setTex(m_voxel->texture);
+		m_view->update();
 	}
 	//add to combobox
 	QPixmap pixmap(8,8);
 	pixmap.fill(Cube::yCbCrToRGB(color));
 	ui_comboBox->addItem(QIcon(pixmap),s);
+	//set added color as active
+	ui_comboBox->setCurrentIndex(ui_comboBox->count() - 1);
 	ui_lineEdit->setText(QString(""));
 }
 
+//add voxel
 void ComponentEditor::on_pushButtonSwap_clicked()
 {
 	saveModelChanges();
