@@ -25,6 +25,11 @@ public:
 	QColor m_color;
 	unsigned int m_colorOrg;
 
+	//the position in the raster = pos in Cubeview::m_cubeData array
+	int locX;
+	int locY;
+	int locZ;
+
 	//transoforms a YCbrCr uint to a rgb color
 	static 	QColor yCbCrToRGB(unsigned int _code); 
 private:

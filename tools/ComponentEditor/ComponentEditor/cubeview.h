@@ -36,13 +36,21 @@ protected:
     void paintGL(QGLPainter *painter);
 	void mouseMoveEvent ( QMouseEvent * e );
 	void mousePressEvent ( QMouseEvent * e );
+	void mouseReleaseEvent ( QMouseEvent * e );
 
 private:
+	//retrieves the cube focused by the mouse when _real == true
+	//otherwise returns the block in the direction of the face under the cursor
+	//when the face is a border of the voxel-cube that cube is returned instead
 	Cube* getMouseFocus(bool _real = false);
 
 	//offset so that the center of the voxel is in the cam center
 	float m_offset;
 
+	//choosen cube for volume selection
+	Cube* m_selected;
+
+	//mouse pos of an event happening
 	QPoint m_mPos;
 	QGLSceneNode* m_object;
 	//grafical representation

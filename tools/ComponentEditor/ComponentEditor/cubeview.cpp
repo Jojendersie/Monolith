@@ -9,14 +9,16 @@
 #include <QGLAbstractScene>
 
 #include <algorithm>
+#include <functional>
 
-
+//makro to iterate throught the voxel
 #define FOREACH for(int x = 0; x < m_res; x++) for(int y = 0; y < m_res; y++) for(int z = 0; z < m_res; z++)
 
 CubeView::CubeView(QComboBox* _colorBox, int _res, QWidget *parent)
     : QGLView(),
 	m_object(nullptr),
-	m_colorBox(_colorBox)
+	m_colorBox(_colorBox),
+	m_selected(nullptr)
 {
 //	connect(_colorBox, SIGNAL(currentIndexChanged(QString &)),this, SLOT(colorChanged(QString &)));
 	//setup options
@@ -62,6 +64,9 @@ CubeView::CubeView(QComboBox* _colorBox, int _res, QWidget *parent)
 		m_cube[x][y][z]->setPosition(QVector3D(m_offset+x*0.5, m_offset+y*0.5, m_offset+z*0.5));
 
 		m_cubeData[x][y][z]->setNode(m_cube[x][y][z]);
+		m_cubeData[x][y][z]->locX = x;
+		m_cubeData[x][y][z]->locY = y;
+		m_cubeData[x][y][z]->locZ = z;
 	}
 	m_pickScene.setPickable(true);
 	QList<QGLPickNode *>nodes = m_pickScene.pickNodes();
@@ -185,10 +190,51 @@ void CubeView::mouseMoveEvent( QMouseEvent* _e )
 void CubeView::mousePressEvent( QMouseEvent* _e )
 {
 	QGLView::mousePressEvent(_e);
+
 	m_mPos = _e->pos();
+	//save currently selected voxel
+	m_selected = getMouseFocus((_e->button() == Qt::LeftButton));
+}
+
+void CubeView::mouseReleaseEvent( QMouseEvent* _e )
+{
+	QGLView::mouseReleaseEvent(_e);
+	m_mPos = _e->pos();
+
+	std::function<void(Cube&)> processCube;
+
+	Cube* focus = getMouseFocus(_e->button() == Qt::LeftButton);
+
+	if(!focus) return;
+
 	if(_e->button() == Qt::LeftButton)
 	{
-		if(Cube* focus = getMouseFocus(true)) 
+		processCube = [](Cube& _cube){_cube.setState(false);};
+	}
+	else
+	{
+		processCube = [&](Cube& _cube){
+			colorChanged(m_colorBox->currentText());
+			_cube.setColor(m_color);
+			_cube.setState(true);
+		};
+	}
+	//if no cube was previously selected use the current one to prevent acsess violation
+	if(!m_selected) m_selected = focus;
+	//get directions for the iteration
+	int dx = focus->locX - m_selected->locX > 0 ? 1 : -1;
+	int dy = focus->locY - m_selected->locY > 0 ? 1 : -1;
+	int dz = focus->locZ - m_selected->locZ > 0 ? 1 : -1;
+	//iterate througth the volume
+	for(int ix = m_selected->locX; ix != focus->locX + dx; ix += dx)
+		for(int iy = m_selected->locY; iy != focus->locY + dy; iy += dy)
+			for(int iz = m_selected->locZ; iz != focus->locZ + dz; iz += dz)
+				processCube(*m_cubeData[ix][iy][iz]);
+/*	if(_e->button() == Qt::LeftButton)
+	{
+		
+		if(Cube* focus = getMouseFocus(true))
+			if(!m_selected)
 			focus->setState(false);//remove
 	}
 	else
@@ -199,9 +245,10 @@ void CubeView::mousePressEvent( QMouseEvent* _e )
 			focus->setColor(m_color);
 			focus->setState(true);//add
 		}
-	}
+	}*/
 	update();
 }
+
 
 //not in use
 void CubeView::objectPicked()

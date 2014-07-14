@@ -8,3 +8,7 @@ Any visual represenations show only the RGB parts, yet the full information is p
 
 After creating a Voxel atleast one color has to be added. 
 Then one cube of this color is spawned in a edge.
+
+Cubes can be added with rightclick and removed with leftclick. 
+When the mouse gets released focusing another cube the operation is applied on the volume
+defined by the first and last selected cube.
