@@ -20,7 +20,7 @@ namespace Jo {
 	*			must be replaced by 'local object memory'. This is still faster
 	*			because of cache usage and less reallocations for small arrays.
 	*****************************************************************************/
-	template<typename T, unsigned n = 8>
+	template<typename T, unsigned N = 8>
 	class HybridArray
 	{
 	public:
@@ -38,16 +38,16 @@ namespace Jo {
 		HybridArray(uint32_t _capacity);
 
 		/// \brief Copy construction (deep).
-		HybridArray(const HybridArray<T,n>& _other);
+		HybridArray(const HybridArray<T,N>& _other);
 
 		/// \brief Move construction (deep only for arrays smaller n).
-		HybridArray(HybridArray<T,n>&& _other);
+		HybridArray(HybridArray<T,N>&& _other);
 
 		/// \brief Calls destructor for all contained elements.
 		~HybridArray();
 
 		/// \brief Deep copying assignment
-		HybridArray<ElemType,n>& operator = (const HybridArray<T,n>& _other);
+		HybridArray<ElemType,N>& operator = (const HybridArray<T,N>& _other);
 
 		/// \brief Write-array access.
 		T& operator [] (uint32_t _index);
@@ -109,7 +109,7 @@ namespace Jo {
 		uint32_t m_size;		///< Current number of elements
 		ElemType* m_data;		///< Pointer to array memory block. Might be on stack or heap.
 
-		uint8_t m_localStorage[sizeof(ElemType)*n];	///< The local storage on stack or in object heap space.
+		uint8_t m_localStorage[sizeof(ElemType)*N];	///< The local storage on stack or in object heap space.
 	};
 
 
@@ -120,9 +120,9 @@ namespace Jo {
 	// ********************************************************************* //
 	//  HybridArray Implementation											 //
 	// ********************************************************************* //
-	template<typename T, unsigned n>
-	HybridArray<T,n>::HybridArray() :
-		m_capacity(n),
+	template<typename T, unsigned N>
+	HybridArray<T,N>::HybridArray() :
+		m_capacity(N),
 		m_size(0),
 		m_data(reinterpret_cast<ElemType*>(m_localStorage))
 	{
@@ -130,12 +130,12 @@ namespace Jo {
 
 
 	// ********************************************************************* //
-	template<typename T, unsigned n>
-	HybridArray<T,n>::HybridArray(uint32_t _capacity) :
-		m_capacity(_capacity < n ? n : _capacity),
+	template<typename T, unsigned N>
+	HybridArray<T,N>::HybridArray(uint32_t _capacity) :
+		m_capacity(_capacity < N ? N : _capacity),
 		m_size(0)
 	{
-		if( m_capacity > n )
+		if( m_capacity > N )
 			// Too large for local space
 			m_data = (ElemType*)malloc(sizeof(ElemType) * m_capacity);
 		else {
@@ -144,14 +144,14 @@ namespace Jo {
 	}
 
 	// ********************************************************************* //
-	template<typename T, unsigned n>
-	HybridArray<T,n>::HybridArray(const HybridArray<T,n>& _other) :
-		m_capacity(_other.m_size < n ? n : _other.m_size),	// prune memory
+	template<typename T, unsigned N>
+	HybridArray<T,N>::HybridArray(const HybridArray<T,N>& _other) :
+		m_capacity(_other.m_size < N ? N : _other.m_size),	// prune memory
 		m_size(_other.m_size)
 		// TODO: wanna have delegating constructor HybridArray(_capacity)
 	{
 		// Local or global copy?
-		if( m_capacity <= n )
+		if( m_capacity <= N )
 			m_data = reinterpret_cast<ElemType*>(m_localStorage);
 		else
 			m_data = (ElemType*)malloc(sizeof(T) * m_capacity);
@@ -161,14 +161,14 @@ namespace Jo {
 	}
 
 	// ********************************************************************* //
-	template<typename T, unsigned n>
-	HybridArray<T,n>::HybridArray(HybridArray<T,n>&& _other) :
+	template<typename T, unsigned N>
+	HybridArray<T,N>::HybridArray(HybridArray<T,N>&& _other) :
 		m_capacity(_other.m_capacity),
 		m_size(_other.m_size)
 	{
-		if( m_capacity <= n ) {
+		if( m_capacity <= N ) {
 			// Local memory must be copied.
-			m_data = m_localStorage;
+			m_data = reinterpret_cast<ElemType*>(m_localStorage);
 			// Use flat copy if possible
 			for( unsigned i=0; i<m_size; ++i )
 				new (m_data+i) T( std::move(_other.m_data[i]) );
@@ -182,30 +182,30 @@ namespace Jo {
 	}
 
 	// ********************************************************************* //
-	template<typename T, unsigned n>
-	HybridArray<T,n>::~HybridArray()
+	template<typename T, unsigned N>
+	HybridArray<T,N>::~HybridArray()
 	{
 		for( unsigned i=0; i<m_size; ++i )
 			m_data[i].~T();
-		if( m_capacity > n ) free(m_data);
+		if( m_capacity > N ) free(m_data);
 	}
 
 	// ********************************************************************* //
-	template<typename T, unsigned n>
-	HybridArray<T,n>& HybridArray<T,n>::operator = (const HybridArray<T,n>& _other)
+	template<typename T, unsigned N>
+	HybridArray<T,N>& HybridArray<T,N>::operator = (const HybridArray<T,N>& _other)
 	{
 		// Clear old data
 		this->~HybridArray();
 
 		// Deep copy
-		new (this) HybridArray<T,n>(_other);
+		new (this) HybridArray<T,N>(_other);
 
 		return *this;
 	}
 
 	// ********************************************************************* //
-	template<typename T, unsigned n>
-	typename HybridArray<T,n>::ElemType& HybridArray<T,n>::operator [] (uint32_t _index)
+	template<typename T, unsigned N>
+	typename HybridArray<T,N>::ElemType& HybridArray<T,N>::operator [] (uint32_t _index)
 	{
 		// TODO: logging system
 		assert(m_size > _index);
@@ -213,8 +213,8 @@ namespace Jo {
 		return m_data[_index];
 	}
 
-	template<typename T, unsigned n>
-	const typename HybridArray<T,n>::ElemType& HybridArray<T,n>::operator [] (uint32_t _index) const
+	template<typename T, unsigned N>
+	const typename HybridArray<T,N>::ElemType& HybridArray<T,N>::operator [] (uint32_t _index) const
 	{
 		// TODO: logging system
 		assert(m_size > _index);
@@ -223,8 +223,8 @@ namespace Jo {
 	}
 
 	// ********************************************************************* //
-	template<typename T, unsigned n>
-	void HybridArray<T,n>::Resize(uint32_t _capacity)
+	template<typename T, unsigned N>
+	void HybridArray<T,N>::Resize(uint32_t _capacity)
 	{
 		// Resizing without change. Bad Performance!
 		// TODO: logging system
@@ -234,15 +234,15 @@ namespace Jo {
 		if( _capacity == 0 ) _capacity = m_size;
 
 		uint32_t oldCapacity = m_capacity;
-		m_capacity = _capacity < n ? n : _capacity;
-		// If both old and new capacity are <= n nothing happens otherwise
+		m_capacity = _capacity < N ? N : _capacity;
+		// If both old and new capacity are <= N nothing happens otherwise
 		// a realloc or copy is necessary
-		if( m_capacity > n || oldCapacity > n )
+		if( m_capacity > N || oldCapacity > N )
 		{
 			ElemType* oldData = m_data;
 
 			// Determine target memory
-			if( m_capacity <= n ) m_data = reinterpret_cast<ElemType*>(m_localStorage);
+			if( m_capacity <= N ) m_data = reinterpret_cast<ElemType*>(m_localStorage);
 			else m_data = (ElemType*)malloc( m_capacity * sizeof(ElemType) );
 
 			// Now keep the old data
@@ -257,13 +257,13 @@ namespace Jo {
 					m_data[i].~ElemType();
 				m_size = _capacity;
 			}
-			if( oldCapacity > n ) free(oldData);
+			if( oldCapacity > N ) free(oldData);
 		}
 	}
 
 	// ********************************************************************* //
-	template<typename T, unsigned n>
-	const T& HybridArray<T,n>::PushBack(const ElemType& _element)
+	template<typename T, unsigned N>
+	const T& HybridArray<T,N>::PushBack(const ElemType& _element)
 	{
 		// Exponential growth if necessary
 		if( m_size == m_capacity ) Resize(m_capacity * 2);
@@ -271,8 +271,8 @@ namespace Jo {
 		return *(new (m_data + m_size++) ElemType( _element ));
 	}
 
-	template<typename T, unsigned n>
-	T& HybridArray<T,n>::PushBack(ElemType&& _element)
+	template<typename T, unsigned N>
+	T& HybridArray<T,N>::PushBack(ElemType&& _element)
 	{
 		// Exponential growth if necessary
 		if( m_size == m_capacity ) Resize(m_capacity * 2);
@@ -280,8 +280,8 @@ namespace Jo {
 		return *(new (m_data + m_size++) ElemType( std::move(_element) ));
 	}
 
-	template<typename T, unsigned n>
-	void HybridArray<T,n>::PopBack()
+	template<typename T, unsigned N>
+	void HybridArray<T,N>::PopBack()
 	{
 		// TODO: logging system
 		assert(m_size > 0);
@@ -291,8 +291,8 @@ namespace Jo {
 	}
 
 	// ********************************************************************* //
-	template<typename T, unsigned n>
-	const T& HybridArray<T,n>::Insert(uint32_t _where, const ElemType& _element)
+	template<typename T, unsigned N>
+	const T& HybridArray<T,N>::Insert(uint32_t _where, const ElemType& _element)
 	{
 		// Exponential growth if necessary
 		if( m_size == m_capacity ) Resize(m_capacity * 2);
@@ -304,8 +304,8 @@ namespace Jo {
 		return *(new (m_data + _where) ElemType( _element ));
 	}
 
-	template<typename T, unsigned n>
-	T& HybridArray<T,n>::Insert(uint32_t _where, ElemType&& _element)
+	template<typename T, unsigned N>
+	T& HybridArray<T,N>::Insert(uint32_t _where, ElemType&& _element)
 	{
 		// Exponential growth if necessary
 		if( m_size == m_capacity ) Resize(m_capacity * 2);
@@ -319,8 +319,8 @@ namespace Jo {
 
 
 	// ********************************************************************* //
-	template<typename T, unsigned n>
-	void HybridArray<T,n>::Delete(unsigned _index)
+	template<typename T, unsigned N>
+	void HybridArray<T,N>::Delete(unsigned _index)
 	{
 		// TODO: logging system
 		assert(m_size > _index);
@@ -333,8 +333,8 @@ namespace Jo {
 			new (m_data+_index) ElemType(std::move(m_data[m_size]));
 	}
 
-	template<typename T, unsigned n>
-	void HybridArray<T,n>::ArrayDelete(unsigned _index)
+	template<typename T, unsigned N>
+	void HybridArray<T,N>::ArrayDelete(unsigned _index)
 	{
 		// TODO: logging system
 		assert(m_size > _index);
@@ -346,19 +346,17 @@ namespace Jo {
 		for( unsigned i=_index; i<m_size; ++i )
 			new (m_data+i) ElemType(std::move(m_data[i+1]));
 	}
-
-
+	
 	// ********************************************************************* //
-	template<typename T, unsigned n>
-	void HybridArray<T,n>::Clear()
+	template<typename T, unsigned N>
+	void HybridArray<T,N>::Clear()
 	{
 		for( unsigned i=0; i<m_size; ++i )
 			m_data[i].~T();
-		if( m_capacity > n ) free(m_data);
+		if( m_capacity > N ) free(m_data);
 		m_size = 0;
-		m_capacity = n;
+		m_capacity = N;
 		m_data = reinterpret_cast<ElemType*>(m_localStorage);
 	}
-
 
 } // namespace Jo

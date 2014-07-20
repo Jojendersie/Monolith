@@ -75,7 +75,7 @@ namespace Graphic
 	// ************************************************************************ //
 	void Button::SetCaption(const std::string& _caption)
 	{
-		int len = _caption.length();
+		int len = (int)_caption.length();
 		int lineCount = 1;
 		int charCount = 0;
 		int charCountMax = 0;
@@ -205,7 +205,7 @@ namespace Graphic
 
 	void Editfield::AddLine(int _preLine)
 	{
-		int size = m_lines.size();
+		int size = (int)m_lines.size();
 		if(size >= m_linesMax) return;
 		//create new line on right pos
 		m_lines.insert(m_lines.begin()+_preLine, std::unique_ptr<TextRender>(new TextRender(m_font)));

@@ -53,4 +53,11 @@ namespace Jo {
 	/// \details The type is deduced automatically.
 	template<typename T> T ConvertEndian( T i )	{ return EndianConverter<T,sizeof(T)>::Convert(i); }
 
+	/// \brief Make sure the endianness of an arbitrary type with 2,4 or 8 bytes is little.
+	/// \details The type is deduced automatically.
+	template<typename T> T AsLittleEndian( T i )	{ if(IsLittleEndian()) return i; else return EndianConverter<T,sizeof(T)>::Convert(i); }
+
+	/// \brief Make sure the endianness of an arbitrary type with 2,4 or 8 bytes is big.
+	/// \details The type is deduced automatically.
+	template<typename T> T AsBigEndian( T i )	{ if(IsLittleEndian()) return EndianConverter<T,sizeof(T)>::Convert(i); else return i; }
 } // namespace Jo

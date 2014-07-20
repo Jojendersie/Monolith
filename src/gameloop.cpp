@@ -1,6 +1,9 @@
 #include "gameloop.hpp"
 #include "utilities/logger.hpp"
+#include "math/mathbase.hpp"
 #include <thread>
+
+using namespace Math;
 
 static bool g_stopLoops = false;
 
@@ -50,7 +53,7 @@ void GameLoop::Run()
 		double deltaFrameTime = TimeQuery( frameTimer );
 		// Smooth frame time
 //		deltaTime = deltaTime * 0.8 + deltaFrameTime * 0.2;
-		deltaTime = std::max( deltaFrameTime, m_targetFrameDuration );
+		deltaTime = max( deltaFrameTime, m_targetFrameDuration );
 
 		// Limiting to target fps
 		double timeDifference = m_targetFrameDuration - deltaFrameTime;

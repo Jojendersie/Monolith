@@ -138,7 +138,7 @@ namespace Graphic
 			//line break
 			if(m_text[i] == '\n')
 			{currentPos[0] = m_screenPos[0]; currentPos[1]	-= GetDim()[1] * m_sizeMax;}//offset to lower line space
-			else if(m_text[i] == '<'){ i += CntrlChr(i)-1; continue;} 
+			else if(m_text[i] == '<') { i += CntrlChr((int)i)-1; continue;} 
 			else currentPos[0] += m_font->m_sizeTable[(unsigned char)m_text[i]][0]*m_size;  
  			m_characters.Add(CV);
 			//save the greatest size that gets used in the text

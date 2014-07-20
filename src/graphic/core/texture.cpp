@@ -168,7 +168,7 @@ Texture::Texture( const std::vector<std::string>& _fileNames ) :
 	do {
         width = Math::max(1, (width / 2));
         height = Math::max(1, (height / 2));
-		GL_CALL(glTexImage3D, m_bindingPoint, level, format.internalFormat, width, height, _fileNames.size(),
+		GL_CALL(glTexImage3D, m_bindingPoint, level, format.internalFormat, width, height, (int)_fileNames.size(),
 							  0, format.format, format.type, nullptr);
 		++level;
 	} while (width * height > 1);
@@ -177,7 +177,7 @@ Texture::Texture( const std::vector<std::string>& _fileNames ) :
 							format.format, format.type, firstImage.GetBuffer());
 
 	// Load all images from file.
-	for( size_t i=1; i<_fileNames.size(); ++i )
+	for( int i=1; i<(int)_fileNames.size(); ++i )
 	{
 		try
 		{

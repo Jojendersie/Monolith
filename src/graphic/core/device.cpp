@@ -237,18 +237,19 @@ namespace Graphic {
 		GL_CALL(glBindTexture, _texture.m_bindingPoint, _texture.m_textureID);
 	}
 
+
 	void Device::BindFramebuffer(const Framebuffer* _framebuffer, bool _autoViewportSet)
 	{
 		unsigned int previousColorTargetCount = 1;
 		if (g_Device.m_BoundFrameBuffer != nullptr)
-			previousColorTargetCount = g_Device.m_BoundFrameBuffer->m_colorAttachments.size();
+			previousColorTargetCount = (unsigned)g_Device.m_BoundFrameBuffer->m_colorAttachments.size();
 		unsigned int currentColorTargetCount = previousColorTargetCount;
 
 		if (_framebuffer)
 		{
 			if (g_Device.m_BoundFrameBuffer != _framebuffer)
 			{
-				currentColorTargetCount = _framebuffer->m_colorAttachments.size();
+				currentColorTargetCount = (unsigned)_framebuffer->m_colorAttachments.size();
 
 				GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, _framebuffer->m_framebuffer);
 				g_Device.m_BoundFrameBuffer = _framebuffer;

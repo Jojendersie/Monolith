@@ -351,7 +351,7 @@ namespace Voxel {
 		// These extra voxels solve a problem when deleting things in a neighbor chunk.
 		// Without there would be noticeable holes due to not updating this chunk.
 		node->Traverse( _chunk.m_root, FillP );
-		int numVoxels = FillP.appendBuffer - vertexBuffer;
+		int numVoxels = int(FillP.appendBuffer - vertexBuffer);
 		//*/
 
 		if( numVoxels )

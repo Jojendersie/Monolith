@@ -144,6 +144,6 @@ namespace Math {
 
 	Sphere MinimalBoundingSphere( std::list<Vec3>& _pointSet )
 	{
-		return MinimalBoundingSphere( _pointSet, _pointSet.size(), 0 );
+		return MinimalBoundingSphere( _pointSet, (int)_pointSet.size(), 0 );
 	}
 } // namespace Math

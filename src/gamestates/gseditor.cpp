@@ -7,7 +7,7 @@
 #include "graphic/marker/box.hpp"
 #include "graphic/marker/sphericalfunciton.hpp"
 #include "graphic/content.hpp"
-#include "../../dependencies/glfw-3.0.3/include/GLFW/glfw3.h"
+#include "GLFW/glfw3.h"
 #include "utilities/assert.hpp"
 #include "math/sphericalfunction.hpp"
 
@@ -210,7 +210,7 @@ void GSEditor::KeyDown( int _key, int _modifiers )
 		m_finished = true;
 
 	if( Input::Manager::IsVirtualKey(_key, Input::VirtualKey::QUICK_SAVE) )
-		m_model->Save( Jo::Files::HDDFile( "savegames/test.vmo", Jo::Files::HDDFile::CREATE_FILE ) );
+		m_model->Save( Jo::Files::HDDFile( "savegames/test.vmo", Jo::Files::HDDFile::OVERWRITE ) );
 	if( Input::Manager::IsVirtualKey(_key, Input::VirtualKey::QUICK_LOAD) )
 	{
 		ScopedPtr<Voxel::Model> model = new Voxel::Model;

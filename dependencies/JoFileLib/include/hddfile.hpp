@@ -22,9 +22,8 @@ namespace Files {
 		/// \brief Determine how a file should be opened.
 		/// \details The mode flags can be used in any combination.
 		typedef int ModeFlags;
-		static const int CREATE_FILE = 1;	///< Create the file if not existent. This includes the path.
+		static const int OVERWRITE = 1;		///< Clear the file on opening. Create the file inclusive its path if not existent.
 		static const int APPEND = 2;		///< Set cursor to the end of file (standard is at the beginning)
-		static const int OVERWRITE = 4;		///< Clear the file on opening
 
 		/// \brief Open a file on hard disk.
 		/// \details If the file/directory does not exist it will be created or

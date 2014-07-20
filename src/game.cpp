@@ -102,7 +102,7 @@ Monolith::Monolith( bool _singleThreaded ) :
 		BuildDefaultConfig();
 
 		try {
-			Jo::Files::HDDFile file("config.json", Jo::Files::HDDFile::CREATE_FILE);
+			Jo::Files::HDDFile file("config.json", Jo::Files::HDDFile::OVERWRITE);
 			Config.Write(file, Jo::Files::Format::JSON);
 		} catch (std::string _message) {
 			LOG_ERROR("Failed to write config file with message:\n" + _message + '\n' + "\n");

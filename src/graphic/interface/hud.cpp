@@ -1,8 +1,8 @@
 #include "hud.hpp"
-#include "..\..\input\input.hpp"
-#include "..\core\scissor.hpp"
+#include "../../input/input.hpp"
+#include "../core/scissor.hpp"
 #include "graphic/content.hpp"
-#include "../../../dependencies/glfw-3.0.3/include/GLFW/glfw3.h"
+#include "GLFW/glfw3.h"
 
 
 namespace Graphic
@@ -92,11 +92,11 @@ namespace Graphic
 			bla += (i%10 == 0)?(std::to_string(i)+":"+(char)i+"\n"):(std::to_string(i)+":"+(char)i+"  ");
 		m_dbgLabel->SetText(bla);
 		m_dbgLabel->SetPos(Math::Vec2(-0.9f,0.9f));*/
-		for(int i = m_textRenders.size(); i-- > 0; )
+		for(int i = (int)m_textRenders.size(); i-- > 0; )
 			if(m_textRenders[i]->m_active) m_textRenders[i]->Draw();
 
 		//draw every subhud(container)
-		for(int i = m_screenOverlays.size(); i-- > 0; )
+		for (int i = (int)m_screenOverlays.size(); i-- > 0;)
 		{
 			Hud* hud = dynamic_cast<Hud*> (m_screenOverlays[i]);
 			if(hud != NULL && hud->GetState() && hud->GetVisibility())
@@ -106,7 +106,7 @@ namespace Graphic
 		//activate voxel rendering
 		Graphic::Device::SetEffect(	Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
 		//draw every screenModel
-		for(int i = m_screenModels.size(); i-- > 0; )
+		for (int i = (int)m_screenModels.size(); i-- > 0;)
 		{
 			m_screenModels[i]->Draw(*m_camera);
 		}
@@ -125,7 +125,7 @@ namespace Graphic
 	{
 		m_characters.Clear();
 	
-		for( unsigned i = m_screenOverlays.size(); i-- > 0; )
+		for( size_t i = m_screenOverlays.size(); i-- > 0; )
 		{
 			ScreenTexture* screenTex = dynamic_cast<ScreenTexture*> (m_screenOverlays[i]);
 			if(screenTex != NULL && screenTex->GetState() && screenTex->GetVisibility()) 
@@ -148,7 +148,7 @@ namespace Graphic
 		//todo: include mousespeed in config  
 
 		//collision with hud elements 
-		for(int i = m_screenOverlays.size(); i-- > 0; )
+		for(size_t i = m_screenOverlays.size(); i-- > 0; )
 		{
 			ScreenOverlay* screenOverlay = m_screenOverlays[i]; 
 			Math::Vec2 loc2;
@@ -202,7 +202,7 @@ namespace Graphic
 		//The Hud moves all elements up/down
 		if(m_scrollable)
 		{
-			for(int i = m_screenOverlays.size(); i-- > 0; )
+			for(size_t i = m_screenOverlays.size(); i-- > 0; )
 			{
 				m_screenOverlays[i]->SetPos(Math::Vec2(m_screenOverlays[i]->m_pos[0]+(float)_dx * 0.1f, m_screenOverlays[i]->m_pos[1]+(float)_dy * 0.1f));
 			}

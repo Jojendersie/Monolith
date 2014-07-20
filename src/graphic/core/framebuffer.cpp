@@ -60,7 +60,7 @@ void Framebuffer::Initialize(const std::vector<Attachment>& _colorAttachments, b
 	for (auto it = _colorAttachments.begin(); it != _colorAttachments.end(); ++it)
 	{
 		Assert(it->pTexture, "FBO Color attachment texture is NULL!");
-		GLint attachment = GL_COLOR_ATTACHMENT0 + m_colorAttachments.size();
+		GLint attachment = GL_COLOR_ATTACHMENT0 + (GLint)m_colorAttachments.size();
 		if (it->layer > 0)
 			GL_CALL(glFramebufferTextureLayer, GL_FRAMEBUFFER, attachment, it->pTexture->m_textureID, it->mipLevel, it->layer);
 		else
