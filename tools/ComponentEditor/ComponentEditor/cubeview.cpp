@@ -205,7 +205,8 @@ void CubeView::mouseReleaseEvent( QMouseEvent* _e )
 
 	Cube* focus = getMouseFocus(_e->button() == Qt::LeftButton);
 
-	if(!focus) return;
+	//when their are not two selected do nothing
+	if(!focus || !m_selected) return;
 
 	if(_e->button() == Qt::LeftButton)
 	{
@@ -219,8 +220,7 @@ void CubeView::mouseReleaseEvent( QMouseEvent* _e )
 			_cube.setState(true);
 		};
 	}
-	//if no cube was previously selected use the current one to prevent acsess violation
-	if(!m_selected) m_selected = focus;
+
 	//get directions for the iteration
 	int dx = focus->locX - m_selected->locX > 0 ? 1 : -1;
 	int dy = focus->locY - m_selected->locY > 0 ? 1 : -1;
