@@ -7,10 +7,11 @@
 #include "input/camera.hpp"
 #include "input/input.hpp"
 #include "graphic/interface/hud.hpp"
+#include "utilities/assert.hpp"
 #include "resources.hpp"
 #include "GLFW/glfw3.h"
+
 using namespace Math;
-#include "utilities/assert.hpp"
 
 // ************************************************************************* //
 GSMainMenu::GSMainMenu(Monolith* _game) : IGameState(_game)
