@@ -66,6 +66,9 @@
     <Filter Include="Source Files\dependencies\JoFileLib">
       <UniqueIdentifier>{aad1fd60-67da-4a84-85fc-0450a7ce9308}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\physics">
+      <UniqueIdentifier>{31224e0a-a742-4332-8b97-d2d0345e7061}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
@@ -232,6 +235,9 @@
     </ClCompile>
     <ClCompile Include="src\graphic\marker\sphericalfunction.cpp">
       <Filter>Source Files\graphic\markers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\physics\universe.cpp">
+      <Filter>Source Files\physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -671,6 +677,9 @@
     </ClInclude>
     <ClInclude Include="src\graphic\interface\font.hpp">
       <Filter>Source Files\graphic\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physics\universe.hpp">
+      <Filter>Source Files\physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
