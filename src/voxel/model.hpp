@@ -56,10 +56,18 @@ namespace Voxel {
 		/// \brief Get the center of gravity (mass center) in object space
 		const Math::Vec3& GetCenter() const					{ return m_center; }
 
+		/// \brief Get the velocity
+		const Math::Vec3& GetVelocity() const			{ return m_velocity; }
+		/// \brief Set the velocity
+		void SetVelocity(const Math::Vec3& _velocity)	{ m_velocity = _velocity; }
+
+
 		/// \brief Get the bounding radius of the sphere centered at the center
 		///		of gravity.
 		float GetRadius() const { return m_boundingSphereRadius; }
 
+		/// \brief Returns the Mass of the Model
+		float GetMass() const { return m_mass; }
 		/// \brief Get the model transformation matrix
 		/// \param [out] _out A space where the matrix can be stored.
 		/// \return The reference to _out

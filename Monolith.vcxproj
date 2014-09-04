@@ -135,6 +135,7 @@
     <ClCompile Include="src\math\ray.cpp" />
     <ClCompile Include="src\math\sphere.cpp" />
     <ClCompile Include="src\math\transformation.cpp" />
+    <ClCompile Include="src\physics\universe.cpp" />
     <ClCompile Include="src\resources.cpp" />
     <ClCompile Include="src\timer.cpp" />
     <ClCompile Include="src\utilities\assert.cpp" />
@@ -221,6 +222,7 @@
     <ClInclude Include="src\math\sphericalfunction.hpp" />
     <ClInclude Include="src\math\transformation.hpp" />
     <ClInclude Include="src\math\vector.hpp" />
+    <ClInclude Include="src\physics\universe.hpp" />
     <ClInclude Include="src\predeclarations.hpp" />
     <ClInclude Include="src\resources.hpp" />
     <ClInclude Include="src\timer.hpp" />
