@@ -14,6 +14,7 @@ using namespace Graphic;
 // TODO: remove after test
 #include "../physics/universe.hpp"
 #include <vector>
+#include <sstream>
 
 #include "../generators/asteroid.hpp"
 #include "../graphic/core/texture.hpp"
@@ -62,11 +63,12 @@ void GSPlay::OnBegin()
 	{
 		m_universe = new Physics::Universe();
 		m_center = new Generators::Asteroid(70, 80, 90, 0);
+		m_universe->AddCelestial(m_center);
 		//center->SetPosition(FixVec3());
-		for (int i = 1; i < 10; i++){
-			Voxel::Model asteroid= Generators::Asteroid(100+i * 10, 100+i * 12, 100+i * 8, i);
-			asteroid.SetPosition(FixVec3(Fix (200. * i)));
-			asteroid.SetVelocity(Vec3(10.f-5*i,10.f*i,-50.f+20*i));
+		for (int i = 0; i < 10; i++){
+			Voxel::Model *asteroid= new Generators::Asteroid(30, 30, 30, i);
+			asteroid->SetPosition(FixVec3(Fix (50+50. * i)));
+			asteroid->SetVelocity(Vec3(0,i*10.f,(10-i)*10.f));
 			m_universe->AddModel(asteroid);
 		}
 	}
@@ -84,6 +86,7 @@ void GSPlay::OnEnd()
 // ************************************************************************* //
 void GSPlay::Simulate( double _deltaTime )
 {
+	m_universe->Update(_deltaTime);
 	/*static Generators::Random Rnd(1435461);
 	for( int i = 0; i < 100; ++i )
 		m_astTest->Set( IVec3(Rnd.Uniform(0,79), Rnd.Uniform(0,49), Rnd.Uniform(0,29)), 0, Voxel::VoxelType::UNDEFINED );//*/
@@ -102,9 +105,9 @@ void GSPlay::Render( double _deltaTime )
 
 	Graphic::Device::SetEffect(	Resources::GetEffect(Effects::VOXEL_RENDER) );
 	
-	std::vector<Voxel::Model> models=m_universe->getModels();
-	for (std::vector<Voxel::Model>::iterator mIter = models.begin(); mIter != models.end(); ++mIter){
-		mIter->Draw(*m_camera);
+	std::vector<Voxel::Model*> models=m_universe->getModels();
+	for (std::vector<Voxel::Model*>::iterator mIter = models.begin(); mIter != models.end(); ++mIter){
+		(*mIter)->Draw(*m_camera);
 	}
 	//m_astTest->Draw( *m_camera );
 
@@ -140,7 +143,19 @@ void GSPlay::Scroll( double _dx, double _dy )
 // ************************************************************************* //
 void GSPlay::KeyDown( int _key, int _modifiers )
 {
-	if( _key == GLFW_KEY_ESCAPE )
+	if (_key == GLFW_KEY_A){
+		m_universe->m_GravConst = m_universe->m_GravConst * 2;
+		std::ostringstream ss;
+		ss << "\n Gravity set to " << m_universe->m_GravConst;
+		LOG_LVL2(ss.str());
+	}
+	if (_key == GLFW_KEY_Y){
+		m_universe->m_GravConst = m_universe->m_GravConst / 2;
+		std::ostringstream ss;
+		ss << "\n Gravity set to " << m_universe->m_GravConst;
+		LOG_LVL2(ss.str());
+	}
+	if (_key == GLFW_KEY_ESCAPE)
 		m_finished = true;
 }
 
