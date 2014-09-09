@@ -5,10 +5,12 @@
 #include <utility>
 
 namespace Math {
+
+	class VectorType {};
 	
 	/// \brief class for vectors
 	template<int n, class Data>
-	class Vector
+	class Vector: public VectorType
 	{
 	public:
 		/// \brief Standard constructor creates an uninitialized Vector
@@ -64,7 +66,12 @@ namespace Math {
 
 		// A standard conform way to find the resulting type without the need
 		// of a constructor.
-#		define RESULT_TYPE(Op) decltype(std::declval<Data>() Op std::declval<Data2>())
+//#		define RESULT_TYPE(Op) decltype(std::declval<Data>() Op std::declval<Data2>())
+#		define RESULT_TYPE(op) typename std::enable_if<					\
+			!std::is_base_of<VectorType, Data>::value &&				\
+			!std::is_base_of<VectorType, Data2>::value,					\
+			decltype(std::declval<Data>() op std::declval<Data2>())     \
+		>::type
 
 		// Arithmetic operators
 		template<class Data2>
