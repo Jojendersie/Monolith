@@ -133,4 +133,11 @@ namespace Physics{
 		std::vector<Voxel::Model*> Universe::getModels(){
 			return m_models;
 		}
+		///brief placeholder Collision Check by linear Interpolation and bounding spheres only
+		CollisionInformation collisionCheck(Voxel::Model* _model1, Voxel::Model* _model2,FixVec3 _start1,FixVec3 _start2,FixVec3 _end1,FixVec3 _end2){
+			FixVec3 normalizedStart = _start2 - _start1;
+			FixVec3 normalizedMove = _end2 - _end1 - normalizedStart;
+			
+		}
+		
 };
