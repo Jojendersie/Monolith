@@ -22,4 +22,10 @@ namespace Physics{
 		std::vector<Voxel::Model *> m_models;
 		std::vector<Voxel::Model *> m_celestials;
 	};
+	class CollisionInformation{
+	public:
+		CollisionInformation(float _time, FixVec3 _position){ m_time = _time; m_position = _position; }
+		float m_time;
+		FixVec3 m_position;
+	};
 };
