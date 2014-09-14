@@ -1,0 +1,487 @@
+
+<!-- saved from url=(0053)http://www.hakenberg.de/diffgeo/elastischer_stoss.htm -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Elastischer Stoß</title>
+<meta name="author" content="Jan Philipp Hakenberg">
+<meta name="description" content="Wir formulieren das Verhalten zweier starrer Koerper bei einem elastischen Stoss mathematisch.">
+<meta name="keywords" content="hakenberg, elastischer Stoss, Physik, Mathematik, starrer Koerper">
+<link rel="stylesheet" href="./Elastischer Stoß_files/kiruna.css" type="text/css">
+<style type="text/css"></style></head>
+
+<body>
+
+<h1>
+  <img src="./Elastischer Stoß_files/icon.brg.png" align="left">  
+  <a href="http://www.hakenberg.de/diffgeo/animation.htm"><img src="./Elastischer Stoß_files/icon.red.gif" align="right"></a>
+  Elastischer Stoß
+</h1>
+
+<div id="thumbs">
+  <img src="./Elastischer Stoß_files/stuntmen.gif"><br>
+  elastischer Stoß
+</div>
+
+<p>
+  Wir formulieren das Verhalten zweier starrer Körper bei einem elastischen Stoß mathematisch.
+  Auf die Fragestellung wurde ich bei einer
+  <a href="http://www.hakenberg.de/graphics/interactive_world.htm">Spielentwicklung</a>
+  aufmerksam.
+  Über drei Jahre lang ließ sich keine zufriedenstellende Lösung weder in Büchern noch im Internet finden.
+  Während eines Semesters in Kiruna hatte ich endlich die Möglichkeit, das Problem selber zu untersuchen.
+</p>
+
+<p>
+  Die Eingabe zu dem Problem sind:
+</p>
+
+<ul>
+<li>Position und Geschwindigkeit (Zustände 0. und 1. Ordnung) der Körper vor dem Moment des Kontakts,
+</li><li>Punkt und Oberflächennormale des Kontakts.
+</li></ul>
+
+<p>
+  Ohne Beschränkung der Allgemeinheit nehmen wir an:
+</p>
+
+<ul>
+<li>Der totale Masseschwerpunkt ist im Punkt 0, und
+</li><li>der totale lineare Impuls ist der Nullvektor.
+</li></ul>
+
+<p>
+  Wir möchten
+</p>
+
+<ul>
+<li>den Stoß in einem einzigen Zeitmoment auflösen, und
+</li><li>die Geschwindigkeit und die Drehgeschwindigkeit der Körper nach dem Kontakt kennen.
+</li></ul>
+
+<p>
+  Schritt für Schritt leiten wir eine Lösung des Problems her.
+  Das Computerprogramm, das die Stöße simuliert und darstellt, steht zum Download zur Verfügung.
+  Für die Differentialgleichungen der Rotation genügt einfache Euler-Integration.
+</p>
+
+<div id="download">
+
+<table>
+<tbody><tr>
+<td>
+  Rigid Body Collision Resolution (C++) *
+</td>
+<td class="item">
+  <a href="http://www.hakenberg.de/diffgeo/collision/ribocore.zip">
+  <img src="./Elastischer Stoß_files/icon.zip.gif" align="left">
+  ribocore.zip
+  </a>
+</td>
+<td class="size">
+  230 kB
+</td>
+</tr>
+</tbody></table>
+
+<em>
+  * Das Program überprüft die mathematischen Formeln, und produziert die Grafiken dieser Webseite.
+</em>
+
+</div>
+
+<blockquote>
+  It might be the warriors who get the glory,<br>
+  but it's the engineers who build societies.<br>
+  <acronym title="Character from Startrek Voyager"><i>B'Elanna Torres</i></acronym>
+</blockquote>
+
+
+<h3>
+  <img src="./Elastischer Stoß_files/icon.cla.png" align="left">
+  Einer mathematischen Lösung entgegen
+</h3>
+
+<p>
+  Einleitend werden wir in diesem Abschnitt Kraft und Drehmoment vorschlagen, die wärend einer Kollision anliegen sollen.
+  Dabei müssen natürlich der totale lineare Impuls als auch der totale Drehimpuls erhalten bleiben.
+  Innerhalb dieses vorläufigen Modells gestatten wir, daß die Körper sich für eine kurze Zeit überschneiden.
+  Kraft und Drehmoment, die während der Kollision anliegen, sorgen für die Trennung der Körper.
+</p>
+
+<p>
+  In den Illustrationen stellt ein Ellipsoid den Trägheitsmoment eines Körpers dar.
+  Der Ellipsoid ist nicht identisch mit dem Äußeren des Körpers.
+</p>
+
+<ul id="tiling">
+<li><div><img src="./Elastischer Stoß_files/spheres_soft.gif"><br>billiard balls</div></li>
+<li><div><img src="./Elastischer Stoß_files/baseball_soft.gif"><br>baseball</div></li>
+<li><div><img src="./Elastischer Stoß_files/stuntmen_soft.gif"><br>stuntmen</div></li>
+</ul>
+
+<hr>
+
+<p>
+  Wahrscheinlich sind dem Leser die folgenden Ausdrücke bekannt.
+</p>
+
+<div id="mimetex">
+
+<p>
+  Wir nummerieren die starren Körper mit
+  <img src="./Elastischer Stoß_files/mimetex_022.gif">.
+  Jeder Körper hat
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_010d.gif">
+
+<!--
+<img class="inline" src="http://82.130.15.70/cgi-bin/mimetex.exe?\begin{array}{lll}
+\text{Masse}&m_i\in\mathbb{R}^+&\\
+\text{Traegheitsmoment}&I_i\in\mathbb{R}^{3\times 3}&\\
+\text{Position}&p_i\in\mathbb{R}^3&\text{des Masseschwerpunkts in Weltkoordinaten} \\
+\text{Orientierung}&R_i\in\text{SO}(3)&\text{von Objekt- nach Weltkoordinaten} \\
+\text{Geschwindigkeit}&v_i\in\mathbb{R}^3&\text{in Weltkoordinaten} \\
+\text{Drehgeschw.}&\omega_i\in\mathbb{R}^3&\text{in Objektkoordinaten} \\
+\end{array}">
+-->
+<p>
+  Wir vergegenwärtigen uns noch einmal die Annahmen.
+  Den Masseschwerpunkt haben wir in den Nullpunkt gelegt, 
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_027.gif">
+
+<p>
+  und der total lineare Impuls ist der Nullvektor
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_029.gif">
+
+</div>
+
+<p>
+  Wir behandeln die Menge der Körper als ein geschlossenes System.
+  Innerhalb dieses Systems bleiben der totale lineare Impuls und der totale Drehimpuls erhalten.
+  Diese Größen sind also zu jeder Zeit konstante Vektoren.
+</p>
+
+<div id="mimetex">
+
+<p>  
+  Der totale lineare Impuls ist die Summe der linearen Impulse der einzelnen Körper
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_007.gif">
+
+<p>
+  Der totale Drehimpuls ist die Summe der Drehimpulse der einzelnen Körper mit Bezug auf den totalen Masseschwerpunkt  
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_012.gif">
+
+<p>
+  Da in unserer Welt die totalen Impulse konstant sind, ist ihre zeitliche Ableitung der Nullvektor. Die Gleichungen, die das formulieren, sind
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_019.gif">
+<br>
+<img class="inline" src="./Elastischer Stoß_files/mimetex_013.gif">
+
+<p>
+  In dieser Herleitung nehmen wir an, daß alle Größen zeitabhängig sind, außer Masse und das Trägheitsmoment.
+  Die eingeführten Variablen bedeuten:
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_016d.gif">
+
+<!--
+<img class="inline" src="http://82.130.15.70/cgi-bin/mimetex.exe?\begin{array}{lll}
+\text{Beschleunigung}&a_i=d_t v_i&\text{in Weltkoordinaten} \\
+\text{Drehbeschl.}&\tau_i=d_t \omega_i&\text{in Objektkoordinaten} \\
+\end{array}">
+-->
+
+<p>
+  während
+  <img src="./Elastischer Stoß_files/mimetex_009.gif">
+  die Drehgeschwindigkeit in Matrixform darstellt.
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_005.gif">
+
+</div>
+
+<p>
+  Wir interessieren uns für Kraft und Drehmoment, die während der Überschneidung an den Körpern anliegen.
+  Dafür spezialisieren wir die Formeln auf zwei Körper.
+</p>
+
+<div id="mimetex">
+
+<p>
+  Es gelte <img src="./Elastischer Stoß_files/mimetex_032.gif">.
+  Wir führen nun Symbole ein, die den Kontakt zwischen den beiden Körpern charakterisieren:
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_014d.gif">
+
+<!--
+<img class="inline" src="http://82.130.15.70/cgi-bin/mimetex.exe?\begin{array}{lll}
+\text{Mass der Ueberschneidung}&\mu\in\mathbb{R}_0^+&\\
+\text{Oberfl.normale im Kontaktp.}&n\in\mathbb{R}^3&\text{in Weltkoordinaten weg von Koerper 1} \\
+\text{Kontaktpunkt}&r_i\in\mathbb{R}^3&\text{in Weltkoordinaten relativ zu }p_i \\
+\end{array}">
+-->
+
+<p>
+  Wenn wir uns vorstellen, daß sich die Körper für eine kurze Zeit überschneiden, dann sei
+  <img src="./Elastischer Stoß_files/mimetex_004.gif">
+  proportional zu der gegenwärtigen Eindringtiefe.
+  Während die Körper sich nicht berühren, soll 
+  <img src="./Elastischer Stoß_files/mimetex_023.gif"> gelten.
+  Wir schlagen vor, die folgenden Kräfte und Drehmomente anzulegen
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_008.gif">
+
+<p>
+  Wir zeigen, daß unter diesen Bedingungen sowohl der totale lineare Impuls als auch der totale Drehimpuls unverändert bleiben.
+  Erhalt des totalen linearen Impulses folgt weil
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_018.gif">
+
+<p>
+  Der totale Drehimpuls ändert sich nicht weil
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_015.gif">
+
+</div>
+
+<p>
+  Diese Formeln führen zu den oben gezeigten Animationen.
+</p>
+
+<blockquote>
+  Man muss wissen, bis wohin man zu weit gehen kann.<br>
+  <acronym title="July 5, 1889 - October 11, 1963">Jean Cocteau</acronym>
+</blockquote>
+
+
+<h3>
+  <img src="./Elastischer Stoß_files/icon.hgd.png" align="left">
+  Die Sache duldet keinen Aufschub.
+</h3>
+
+<p>
+  Wir erinnern an das in der Einleitung formulierte Ziel:
+  Gegeben seien die Geschwindigkeiten und Drehgeschwindigkeiten kurz vor dem Kontakt.
+  Wir möchten eine Formel, die die Geschwindigkeiten kurz nach dem Kontakt berechnet.
+  In diesem Abschnitt geben wir einen Lösungsvorschlag, der natürlich mit den vorherigen Definitionen und Herleitungen in Einklang ist.
+</p>
+
+<p>
+  In den Illustrationen stellt ein Ellipsoid den Trägheitsmoment eines Körpers dar.
+  Der Ellipsoid ist nicht identisch mit dem Äußeren des Körpers.
+</p>
+
+<ul id="tiling">
+<li><div><img src="./Elastischer Stoß_files/spheres.gif"><br>billiard balls</div></li>
+<li><div><img src="./Elastischer Stoß_files/baseball.gif"><br>baseball</div></li>
+<li><div><img src="./Elastischer Stoß_files/stuntmen.gif"><br>stuntmen</div></li>
+</ul>
+
+<hr>
+
+<p>
+  Ich hoffe, daß dem Leser die anstehenden Formeln genauso gefallen wie mir.
+</p>
+
+<div id="mimetex">
+
+<p>
+  Wir führen noch einige Symbole ein
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_020d.gif">
+
+<!--
+<img class="inline" src="http://82.130.15.70/cgi-bin/mimetex.exe?\begin{array}{lll}
+\text{Geschwindigkeit nach Stoss}&\tilde v_i\in\mathbb{R}^3&\text{in Weltkoordinaten}\\
+\text{Drehgeschw. nach Stoss}&\tilde \omega_i\in\mathbb{R}^3&\text{in Objektkoordinaten} \\
+\text{Konstante}&\lambda\in\mathbb{R}^+_0&\\
+\end{array}">
+-->
+
+<p>
+  Wir schlagen vor, die Geschwindigkeiten kurz vor dem Kontakt in folgender Weise in die Geschwindigkeiten kurz nach dem Kontakt übergehen zu lassen
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_006.gif">
+
+<p>
+  Dabei bleiben der totale lineare Impuls als auch der totale Drehimpuls unverändert: 
+  Der Erhalt des gesamt linearen Impulses folgt aus 
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_024.gif">
+
+<p>
+  Der totale Drehimpuls nach der Kollision ist
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_030.gif">
+
+<p>
+  Davon subtrahieren wir den totalen Drehimpuls vor der Kollision
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_003.gif">
+
+<p>
+  und erhalten eine Differenz von
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_011.gif">
+
+</div>
+
+<p>
+  An diesem Punkt verbleibt
+  <img src="./Elastischer Stoß_files/mimetex_025.gif">
+  als einzige Unbekannte.
+  Wir zeigen, daß die Zahl 
+  <img src="./Elastischer Stoß_files/mimetex_025.gif">
+  eindeutig festgelegt ist unter der Annahme, daß der Stoß elastisch ist.
+</p>
+
+<div id="mimetex">
+
+<p>
+  In einer elastischen Kollision, ist die Bewegungsenergie vor und nach dem Stoß gleich, d.h.
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_028.gif">
+
+<p>
+  Oben haben wir die folgenden Relationen vorgeschlagen
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_033.gif">
+
+<p>
+  wobei
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_017.gif">
+
+<p>
+  Die Zahl <img src="./Elastischer Stoß_files/mimetex_025.gif">
+  festzulegen, so daß die gesamt Bewegungsenergie erhalten bleibt, bedeutet ein quadratisches Polynom zu lösen. Offensichtlich ist 
+  <img src="./Elastischer Stoß_files/mimetex_021.gif">
+  eine Möglichkeit die totale Bewegungsenergie zu erhalten, allerdings bedeutet das, daß gar keine Kollision stattfindet.
+  Stattdessen interessieren wir uns für
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_001.gif">
+
+<p>
+  Man beachte, daß der Zähler des Quotienten das Skalarprodukt von der Berührungsgeschwindigkeit im Kontaktpunkt und der Oberflächennormale <img src="./Elastischer Stoß_files/mimetex_026.gif"> ist, wobei
+</p>
+
+<img class="inline" src="./Elastischer Stoß_files/mimetex_002.gif">
+
+</div>
+
+<p>
+  An dieser Stelle sind wir fertig.
+  Die angegebene Formel für
+  <img src="./Elastischer Stoß_files/mimetex_025.gif">
+  wurde in den Animationen verwendet.
+  Wir schließen mit einigen Bemerkungen:
+</p>
+
+<div id="thumbs">
+    <object width="320" height="205"><param name="movie" value="http://www.youtube.com/v/yD7kKPrur-Y&amp;hl=en_US&amp;fs=1&amp;rel=0"><param name="allowFullScreen" value="true"><param name="allowscriptaccess" value="always"><embed src="http://www.youtube.com/v/yD7kKPrur-Y&amp;hl=en_US&amp;fs=1&amp;rel=0" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="320" height="205"></object>
+  <br>
+  die weißen Punkte markieren den letzten Kontaktpunkt
+</div>
+
+<ul>
+<li>Die Kräfte und Drehmomente aus dem ersten Abschnitt führen zu demselben Ergebnis, wenn der Stoß hinreichend starr modelliert wird.
+</li><li>Den Wert <img src="./Elastischer Stoß_files/mimetex_025.gif"> ein wenig zu verkleinern, ist eine komfortable Möglichkeit um den Verlust von Bewegungsenergie zu simulieren.
+  Der totale lineare Impuls als auch der totale Drehimpuls bleiben trotzdem erhalten.
+</li><li>Die Impulse bleiben sogar erhalten für jeden <u>beliebigen</u> Vektor
+  <img src="./Elastischer Stoß_files/mimetex_031.gif">, was eine bequeme Methode ist, inelastische Stöße zu modellieren.
+</li></ul>
+
+<p>
+  Für eine abschließende Demonstration bedienen wir uns
+  <a href="http://www.cs.unc.edu/~geom/OBB/OBBT.html" target="_top">RAPID</a>, 
+  einer C-Bibliothek zur Kollisionsdetektion.
+</p>
+
+<blockquote>
+  Wenn du Zeit gewinnen willst,<br>
+  musst du Zeit verlieren.<br>
+  <acronym title="June 28, 1712 - July 2, 1778">Jean-Jacques Rousseau</acronym>
+</blockquote>
+
+
+<h3>
+  <img src="./Elastischer Stoß_files/icon.dcu.gif" align="left">
+  Zum Weiterlesen
+</h3>
+
+<p>
+  Eine open-source Physics-Engine, die ich selber ausprobiert habe, ist die
+  <a href="http://newtondynamics.com/" target="_top">Newton Game Dynamics</a>
+  von Julio Jerez und Alain Suero.
+  Die Software stellt eine Demo bereit, die einen das breite Anwendungsspektrum erahnen laesst.
+  Mir erscheinen die Ergebnisse effizient, stabil, and realistisch.
+  Darüberhinaus ist ihr C++ Stil einfach perfekt.
+</p>
+
+<p>
+  Die
+  <a href="http://www.ode.org/" target="_top">Open Dynamics Engine (ODE)</a>
+  initiiert von Russell Smith scheint eine populäre C/C++ library für Spielentwickler zu sein, wird aber auch in der Robotik eingesetzt.
+  Die Bibliothek eigne sich besonders zur Simulation von <i>articulated rigid body structures</i>.
+  Allerdings setzt ODE den Schwerpunkt eher auf Geschwindigkeit als auf physikalische Genauigkeit.
+</p>
+
+<p>
+  Vor kurzem haben sich Forscher an der Stanford University eine Strategie ausgedacht, um unzählige starre Körper zu animieren und kollidieren zu lassen.
+  Die Veröffentlichung 
+  <a href="http://graphics.stanford.edu/papers/rigid_bodies-sig03/" target="_top">Nonconvex Rigid Bodies with Stacking</a>
+  beschreibt wie sich die atemberaubenden Ergebnisse erzielen lassen.
+  Eine open source Implementation ihrer Methode wurde von 
+  <a href="http://www.rowlhouse.co.uk/jiglib/" target="_top">Danny Chapman</a> entwickelt und bereitgestellt.
+  Allerdings wird wiederum der Ansatz der physikalischen Theorie nicht gerecht.
+</p>
+
+<iframe src="./Elastischer Stoß_files/feedback.htm" width="100%" height="320" frameborder="0"></iframe>
+
+<hr class="lule">
+
+<!-- Start of StatCounter Code -->
+<script type="text/javascript">
+var sc_project=4740711; 
+var sc_invisible=1; 
+var sc_partition=54; 
+var sc_click_stat=1; 
+var sc_security="0f652dbf"; 
+</script>
+
+<script type="text/javascript" src="./Elastischer Stoß_files/counter.js"></script><noscript>&lt;div
+class="statcounter"&gt;&lt;a title="free web stats"
+href="http://www.statcounter.com/" target="_blank"&gt;&lt;img
+class="statcounter"
+src="http://c.statcounter.com/4740711/0/0f652dbf/1/"
+alt="free web stats" &gt;&lt;/a&gt;&lt;/div&gt;</noscript>
+<!-- End of StatCounter Code -->
+
+
+
+</body></html>
