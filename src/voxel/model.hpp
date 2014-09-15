@@ -103,10 +103,10 @@ namespace Voxel {
 
 		Math::Vec3 m_center;			///< The center of gravity (relative to the model).
 
-		Math::Quaternion m_rotatoryVelocity;	///< Current change of rotation per second
+		Math::Quaternion m_angularVelocity;	///< Current change of rotation per second
 		Math::Vec3 m_velocity;			///< Velocity in m/s (vector length)
 		float m_mass;					///< Mass (inertia) of the full model
-		float m_rotatoryMomentum;		///< Inertia of rotation for the full model.
+		Math::Mat3x3 m_InertiaMoment;		///< Inertia of rotation for the full model.
 
 		float m_boundingSphereRadius;	///< Bounding sphere radius (to the center of gravity) for culling etc.
 
