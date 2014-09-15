@@ -109,7 +109,7 @@ namespace Physics{
 							pos1[2] * fMass1 + pos2[2] * fMass2);
 						// in the local system the sum of linear momentum is zero
 						float m1 = model1->GetMass(), m2 = model2->GetMass();
-						Vec3 v1 = model1->GetVelocity, v2 = model1->GetVelocity,n=collisionNormal;
+						Vec3 v1 = model1->GetVelocity(), v2 = model2->GetVelocity(),n=collisionNormal;
 						//workaround
 						float f1, f2 = 1 / (m1 + m2);
 						f1 = m1 * f2;
@@ -123,17 +123,31 @@ namespace Physics{
 						Mat3x3 I1 = model1->GetInertiaMoment(), I2=model2->GetInertiaMoment();
 						Quaternion R1 = model1->GetRotation();
 						Quaternion R2 = model1->GetRotation();
-						Vec3 q1 = /*invert(I1) * */ ((Mat3x3)(~R1)) * cross(p1, n);
-						Vec3 q2 = /*invert(I2) * */ ((Mat3x3)(~R2)) * cross(p2, n);
+						Vec3 q1 = /*invert(I1) * */ ((Mat3x3)~R1) *cross(p1, n);
+						Vec3 q2 = /*invert(I2) * */ ((Mat3x3)~R2) * cross(p2, n);
 						// rotational Velocity in model[i] coordinates, w is actually small omega ^^.
 						Vec3 w1 =(Vec3)((~R1)*model1->GetAngularVelocity()*R1), w2 =(Vec3)((~R2)*model2->GetAngularVelocity()*R2);
 
-						float l = 2 * (dot(v1, n) - dot(v2, n) + dot(w1, I1*q1) - dot(w2, I2*q2));
-						l /= (1 / m1 + 1 / m2)*lengthSq(n) + dot(q1, I1*q1)+dot(q2,I2*q2);
+						float l = 2 * (dot(v1, n) - dot(v2, n) );// +dot(w1, I1*q1) - dot(w2, I2*q2));
+						l /= (1 / m1 + 1 / m2)*lengthSq(n) ;// +dot(q1, I1*q1) + dot(q2, I2*q2);
 						v1 -= l / m1*n;
-						v2 += l / m1*n;
+						v2 += l / m2*n;
 						w1 -= l*q1;
 						w2 += l*q2;
+						std::ostringstream ss;
+						float foo = 2 * (dot(v1, n) - dot(v2, n) + dot(w1, I1*q1) - dot(w2, I2*q2));
+						v1 += systemVelocity;
+						v2 += systemVelocity;
+						ss << "\n model 1: " << model1->GetVelocity()[0] << " " << model1->GetVelocity()[1] << " " << model1->GetVelocity()[2];
+						ss << "///" << v1[0] << " " << v1[1] << " " << v1[2];
+						ss << "\n model 2: " << model2->GetVelocity()[0] << " " << model2->GetVelocity()[1] << " " << model2->GetVelocity()[2];
+						ss << "///" << v2[0] << " " << v2[1] << " " << v2[2];
+						model1->SetVelocity(v1);
+						model2->SetVelocity(v2);
+						*newPoss[i] = model1->GetPosition();
+						*newPoss[j] = model2->GetPosition();
+						LOG_LVL2(ss.str());
+
 					}
 				}
 			}

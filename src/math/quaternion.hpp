@@ -5,6 +5,8 @@
 namespace Math {
 
 class Mat4x4;
+class Mat3x3;
+
 
 // ******************************************************************************** //
 // Union quaternions (4D - complex numbers) for rotation in 3D space

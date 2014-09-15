@@ -22,7 +22,11 @@ namespace Voxel {
 		m_boundingSphereRadius(0.0f),
 		m_voxelTree(this),
 		m_chunks(),
-		m_InertiaMoment(1, 0, 0, 0, 1, 0, 0, 0, 1)
+		m_InertiaMoment(
+		1.f, 0.f, 0.f,
+		0.f, 1.f, 0.f,
+		0.f, 0.f, 1.f),
+		m_angularVelocity(1,0,0,0)
 	{
 		auto x = IVec3(3) * 0.5f;
 	}
