@@ -58,8 +58,12 @@ namespace Voxel {
 
 		/// \brief Get the velocity
 		const Math::Vec3& GetVelocity() const			{ return m_velocity; }
-		/// \brief Set the velocity
+		/// \brief Set the Velocity
 		void SetVelocity(const Math::Vec3& _velocity)	{ m_velocity = _velocity; }
+		/// \brief Get the Angular Velocity
+		const Math::Quaternion& GetAngularVelocity() const			{ return m_angularVelocity; }
+		/// \brief Set the Angular Velocity
+		void SetAngularVelocity(const Math::Quaternion& _angularVelocity)	{ m_angularVelocity = _angularVelocity; }
 
 
 		/// \brief Get the bounding radius of the sphere centered at the center
@@ -68,6 +72,8 @@ namespace Voxel {
 
 		/// \brief Returns the Mass of the Model
 		float GetMass() const { return m_mass; }
+		/// \brief Returns the Moment of Inertia of the Model
+		Math::Mat3x3 GetInertiaMoment() const { return m_InertiaMoment; }
 		/// \brief Get the model transformation matrix
 		/// \param [out] _out A space where the matrix can be stored.
 		/// \return The reference to _out
@@ -106,7 +112,7 @@ namespace Voxel {
 		Math::Quaternion m_angularVelocity;	///< Current change of rotation per second
 		Math::Vec3 m_velocity;			///< Velocity in m/s (vector length)
 		float m_mass;					///< Mass (inertia) of the full model
-		Math::Mat3x3 m_InertiaMoment;		///< Inertia of rotation for the full model.
+		Math::Mat3x3 m_InertiaMoment;		///< Moment of Inertia for the full model.
 
 		float m_boundingSphereRadius;	///< Bounding sphere radius (to the center of gravity) for culling etc.
 

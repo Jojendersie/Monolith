@@ -39,6 +39,18 @@ public:
 		j = _axis[1] * fSin;
 		k = _axis[1] * fSin;
 	}
+	// arbitrary axis with |axis| = Angle.
+	Quaternion(const Vec3& _axis)
+	{
+		// Using -sin to get the same result as for the matrix.
+		// TODO: Matrix wrong? - the conjugated = inverse rotation
+		float l = length(_axis);
+		float factor = float(-sin(l * 0.5))/l;
+		r = float(cos(l * 0.5));
+		i = _axis[0] * factor;
+		j = _axis[1] * factor;
+		k = _axis[1] * factor;
+	}
 
 	// From Matrix
 	Quaternion(const Mat4x4& _m);
@@ -66,6 +78,8 @@ public:
 	operator const float* () const		{return (const float*)(&i);}
 	operator Vec4 () const				{return *this;}
 	operator Mat4x4 () const;
+	operator Vec3 () const;
+	operator Mat3x3 () const;
 
 	// Comparison operators
 	inline bool operator == (const Quaternion& b) { if(abs(r-b.r) > EPSILON) return false; if(abs(i-b.i) > EPSILON) return false; if(abs(j-b.j) > EPSILON) return false; return abs(k-b.k) < EPSILON; }

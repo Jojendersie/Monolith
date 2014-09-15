@@ -21,7 +21,8 @@ namespace Voxel {
 		m_center(0.0f),
 		m_boundingSphereRadius(0.0f),
 		m_voxelTree(this),
-		m_chunks()
+		m_chunks(),
+		m_InertiaMoment(1, 0, 0, 0, 1, 0, 0, 0, 1)
 	{
 		auto x = IVec3(3) * 0.5f;
 	}

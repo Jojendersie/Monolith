@@ -119,12 +119,14 @@ namespace Physics{
 						v1 -= systemVelocity;
 						v2 -= systemVelocity;
 						Vec3 p1 = model1->Transform(collisionPoint);
-						Vec3 p2 = model1->Transform(collisionPoint);
+						Vec3 p2 = model2->Transform(collisionPoint);
 						Mat3x3 I1 = model1->GetInertiaMoment(), I2=model2->GetInertiaMoment();
-						Vec3 q1 = invert(I1)*invert(R1)*cross(p1, n);
-						Vec3 q2 = invert(I2)*invert(R2)*cross(p2, n);
+						Quaternion R1 = model1->GetRotation();
+						Quaternion R2 = model1->GetRotation();
+						Vec3 q1 = /*invert(I1) * */ ((Mat3x3)(~R1)) * cross(p1, n);
+						Vec3 q2 = /*invert(I2) * */ ((Mat3x3)(~R2)) * cross(p2, n);
 						// rotational Velocity in model[i] coordinates, w is actually small omega ^^.
-						Vec3 w1 = model1->GetAngularVelocity(), w2 = model2->GetAngularVelocity();
+						Vec3 w1 =(Vec3)((~R1)*model1->GetAngularVelocity()*R1), w2 =(Vec3)((~R2)*model2->GetAngularVelocity()*R2);
 
 						float l = 2 * (dot(v1, n) - dot(v2, n) + dot(w1, I1*q1) - dot(w2, I2*q2));
 						l /= (1 / m1 + 1 / m2)*lengthSq(n) + dot(q1, I1*q1)+dot(q2,I2*q2);

@@ -88,7 +88,46 @@ Quaternion::operator Mat4x4 () const
 		0.0f, 0.0f, 0.0f, 1.0f
 		);
 }
+// ******************************************************************************** //
+Quaternion::operator Mat3x3 () const
+{
+	// Rotation composition from quaternion (remaining rest direct in matrix)
+	// See http://de.wikipedia.org/wiki/Quaternion#Bezug_zu_orthogonalen_Matrizen for
+	// details.
+	// basically Mat 4x4 without padding
+	float f2i = 2.0f * i;
+	float f2j = 2.0f * j;
+	float f2k = 2.0f * k;
+	float f2ri = f2i * r;
+	float f2rj = f2j * r;
+	float f2rk = f2k * r;
+	float f2ii = f2i * i;
+	float f2ij = f2j * i;
+	float f2ik = f2k * i;
+	float f2jj = f2j * j;
+	float f2jk = f2k * j;
+	float f2kk = f2k * k;
 
+	return Mat3x3(
+		1.0f - (f2jj + f2kk), f2ij - f2rk, f2ik + f2rj,
+		f2ij + f2rk, 1.0f - (f2ii + f2kk), f2jk - f2ri,
+		f2ik - f2rj, f2jk + f2ri, 1.0f - (f2ii + f2jj)
+		);
+}
+// ******************************************************************************** //
+Quaternion::operator Vec3 () const
+{
+	//axis representation with |Axis|=angle
+	//<=> tangential velocity is crossproduct with representation
+	double sina = sqrt(i*i + j*j + k*k);
+	float factor=2*float(atan2(sina,r)/sina) ;
+
+	return Vec3(
+		i*factor,
+		j*factor,
+		k*factor
+		);
+}
 // ******************************************************************************** //
 // The spherical interpolation for union quaternions
 Quaternion slerp(const Quaternion& a, const Quaternion& b, const float t)
