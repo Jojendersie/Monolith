@@ -106,9 +106,9 @@ void GSPlay::Render( double _deltaTime )
 
 	Graphic::Device::SetEffect(	Resources::GetEffect(Effects::VOXEL_RENDER) );
 	
-	std::vector<Voxel::Model*> models=m_universe->getModels();
-	for (std::vector<Voxel::Model*>::iterator mIter = models.begin(); mIter != models.end(); ++mIter){
-		(*mIter)->Draw(*m_camera);
+	std::vector<Physics::IntersectionIdentifier> models=m_universe->getModels();
+	for (auto mIter = models.begin(); mIter != models.end(); ++mIter){
+		mIter->Model()->Draw(*m_camera);
 	}
 	//m_astTest->Draw( *m_camera );
 

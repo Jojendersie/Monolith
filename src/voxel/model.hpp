@@ -51,6 +51,8 @@ namespace Voxel {
 
 		/// \brief Get the position of the center in world space
 		const Math::FixVec3& GetPosition() const			{ return m_position; }
+		/// \brief Get the position of the last simulation step
+		const Math::FixVec3& GetOldPosition() const			{ return m_oldTransformation.GetPosition(); }
 		/// \brief Set the position of the model based on its current center of gravity
 		void SetPosition(const Math::FixVec3& _position)	{ m_position = _position; }
 		/// \brief Get the center of gravity (mass center) in object space
@@ -64,6 +66,9 @@ namespace Voxel {
 		const Math::Quaternion& GetAngularVelocity() const			{ return m_angularVelocity; }
 		/// \brief Set the Angular Velocity
 		void SetAngularVelocity(const Math::Quaternion& _angularVelocity)	{ m_angularVelocity = _angularVelocity; }
+
+		/// \brief Set the current transformation as old time step.
+		void AgeTransformation()						{ m_oldTransformation = *this; }
 
 
 		/// \brief Get the bounding radius of the sphere centered at the center
@@ -108,6 +113,7 @@ namespace Voxel {
 		int m_numVoxels;				///< Count the number of voxels for statistical issues
 
 		Math::Vec3 m_center;			///< The center of gravity (relative to the model).
+        Math::Transformation m_oldTransformation;   ///< Transformation from last physics time step
 
 		Math::Quaternion m_angularVelocity;	///< Current change of rotation per second
 		Math::Vec3 m_velocity;			///< Velocity in m/s (vector length)
@@ -128,4 +134,4 @@ namespace Voxel {
 		friend class Chunk;
 		friend struct DecideToDraw;
 	};
-};
+}
