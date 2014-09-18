@@ -135,6 +135,8 @@
     <ClCompile Include="src\math\ray.cpp" />
     <ClCompile Include="src\math\sphere.cpp" />
     <ClCompile Include="src\math\transformation.cpp" />
+    <ClCompile Include="src\physics\clientphysics.cpp" />
+    <ClCompile Include="src\physics\serverphysics.cpp" />
     <ClCompile Include="src\physics\universe.cpp" />
     <ClCompile Include="src\resources.cpp" />
     <ClCompile Include="src\timer.cpp" />

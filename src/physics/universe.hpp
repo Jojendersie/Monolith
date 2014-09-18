@@ -79,6 +79,7 @@ namespace Physics {
     
 		/// \brief Recompute the interval structure for intersection detection for
 		///		all models.
+		/// \details This method is called from FindAllPossiblePairs.
 		void RecomputeIntersectionIndices();
 
 		/// \brief Recompute the intervals for the linked model.
@@ -86,10 +87,23 @@ namespace Physics {
 
 		/// \brief Check if two projections intersect on a certain axis.
 		/// \details Also returns true if the intervals touch only.
+		///		This operation takes constant time O(1).
 		/// \param _axis [in] Index for the axis: x=0, y=1, z=2
 		bool IntersectIn(const IntersectionIdentifier* _i0,
 			             const IntersectionIdentifier* _i1,
 						 int _axis);
+
+		/// \brief Do something for two possibly colliding objects.
+		/// \details Currently detecting a pair does not test for a real
+		///		collision or the time when this will happen. If this
+		///		is desired change the code in this callback.
+		void HandlePossibleIntersection(Voxel::Model* first,
+										Voxel::Model* second);
+
+		/// \brief Finds all pairs of models which may intersect and calls
+		///		HandlePossibleIntersection for each.
+		/// \details Call this only once per frame.
+		void FindAllPossiblePairs();
 	};
 /*	class CollisionInformation{
 	public:
