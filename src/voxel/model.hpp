@@ -62,6 +62,13 @@ namespace Voxel {
 		const Math::Vec3& GetVelocity() const			{ return m_velocity; }
 		/// \brief Set the Velocity
 		void SetVelocity(const Math::Vec3& _velocity)	{ m_velocity = _velocity; }
+
+		/// \brief Get the Acceleration
+		const Math::Vec3& GetAcceleration() const			{ return m_acceleration; }
+		/// \brief Set the Acceleration
+		void SetAcceleration(const Math::Vec3& _acceleration)	{ m_acceleration = _acceleration; }
+
+
 		/// \brief Get the Angular Velocity
 		const Math::Quaternion& GetAngularVelocity() const			{ return m_angularVelocity; }
 		/// \brief Set the Angular Velocity
@@ -117,6 +124,7 @@ namespace Voxel {
 
 		Math::Quaternion m_angularVelocity;	///< Current change of rotation per second
 		Math::Vec3 m_velocity;			///< Velocity in m/s (vector length)
+		Math::Vec3 m_acceleration;		///< acceleration in m/s^2 (vector length)
 		float m_mass;					///< Mass (inertia) of the full model
 		Math::Mat3x3 m_InertiaMoment;		///< Moment of Inertia for the full model.
 

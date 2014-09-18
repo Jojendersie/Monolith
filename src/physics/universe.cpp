@@ -31,75 +31,54 @@ namespace Physics{
 	}
 
 	void Universe::Update(double _deltaTime) {
-		float fDT = (float)_deltaTime;
-		/* leapfrog  integration
-		*/
-		std::vector<FixVec3 *> newPoss;
-		//std::ostringstream ss;
+		/* leapfrog  integration*/
+		float fDeltaTime = (float)_deltaTime;
 		for (auto mIter = m_models.begin(); mIter != m_models.end(); ++mIter){
-			Vec3 acc1(0.f,0.f,0.f);
+			mIter->Model()->AgeTransformation();
+		}
+		/*movement via normal formula for uniform accelerated movement */
+		for (auto mIter = m_models.begin(); mIter != m_models.end(); ++mIter){
 			Voxel::Model *model = mIter->Model();
-			for (auto cIter = m_celestials.begin(); cIter != m_celestials.end(); ++cIter){
+			FixVec3 newPos(
+				model->GetOldPosition()[0] + Fix(((model->GetVelocity())[0] + model->GetAcceleration()[0] * _deltaTime / 2)*_deltaTime) , 
+				model->GetOldPosition()[1] + Fix(((model->GetVelocity())[1] + model->GetAcceleration()[1] * _deltaTime / 2)*_deltaTime) ,
+				model->GetOldPosition()[2] + Fix(((model->GetVelocity())[2] + model->GetAcceleration()[2] * _deltaTime / 2)*_deltaTime));
+			model->SetPosition(newPos);
+		}
+		/*calaculate new speed with the mean of new and old acceleration*/
+		for (auto mIter = m_models.begin(); mIter != m_models.end(); ++mIter){
+			Voxel::Model *model = mIter->Model();
+			Vec3 newAcceleration(0.f, 0.f, 0.f);
+			for (std::vector<Voxel::Model *>::iterator cIter = m_celestials.begin(); cIter != m_celestials.end(); ++cIter){
 				Voxel::Model *celestial = *cIter;
 				if (celestial == model)
 					continue;
-				Vec3 direction = Vec3(celestial->GetPosition()[0] - model->GetPosition()[0],
-					celestial->GetPosition()[1] - model->GetPosition()[1],
-					celestial->GetPosition()[2] - model->GetPosition()[2]);
-				//ss << "\n direction:" << direction[0] << "/" << direction[1] << "/" << direction[2];
-				float mFactor = length(direction);
-				if (mFactor < 1)
-					mFactor = 1;
-				mFactor = m_GravConst*(celestial->GetMass())*(model->GetMass()) /
-					(mFactor*mFactor*mFactor);
-				//ss << "\n mFactor " << mFactor << " direction " << length(direction);
-				acc1 += mFactor*direction;
-			}
-			//ss << "\n acc1 " << acc1[0] << " / " << acc1[1] << " / " << acc1[2];
-
-			FixVec3 *newPos = new FixVec3(model->GetPosition());
-			(*newPos)[0] += Fix(((model->GetVelocity())[0] + acc1[0] * fDT / 2)*fDT);
-			(*newPos)[1] += Fix(((model->GetVelocity())[1] + acc1[1] * fDT / 2)*fDT);
-			(*newPos)[2] += Fix(((model->GetVelocity())[2] + acc1[2] * fDT / 2)*fDT);
-			newPoss.push_back(newPos);
-			//ss << "\n" << ((model->GetVelocity())[0] + acc1[0] * fDT / 2)*fDT;
-			//ss << " / " << ((model->GetVelocity())[1] + acc1[2] * fDT / 2)*fDT;
-			//ss << " / " << ((model->GetVelocity())[1] + acc1[2] * fDT / 2)*fDT;
-			Vec3 acc2(0.f, 0.f, 0.f);
-			for (std::vector<Voxel::Model *>::iterator cIter = m_celestials.begin(); cIter != m_celestials.end(); ++cIter){
-				Voxel::Model *celestial = *cIter;
-				Vec3 direction = Vec3(celestial->GetPosition()[0] - *newPos[0],
-					celestial->GetPosition()[1] - *newPos[1],
-					celestial->GetPosition()[2] - *newPos[2]);
+				Vec3 direction = Vec3(celestial->GetPosition() - model->GetPosition());
 				float mFactor = length(direction);
 				mFactor = m_GravConst*(celestial->GetMass())*(model->GetMass()) /
 					(mFactor*mFactor*mFactor);
-				acc2 += mFactor*direction;
+				newAcceleration += mFactor*direction;
 			}
-			Vec3 vel = model->GetVelocity();
-			//vel += (acc1 + acc2)*fDT / 2;
-			vel[0] += (acc1[0] + acc2[0])*fDT / 2;
-			vel[1] += (acc1[1] + acc2[1])*fDT / 2;
-			vel[2] += (acc1[2] + acc2[2])*fDT / 2;
-			model->SetVelocity(vel);
-			//ss << "\n acc1 " << acc1[0] << " / " << acc1[1] << " / " << acc1[2];
-			//ss << " | acc1 " << length(acc1) << " vel " << length(model->GetVelocity());
+			Vec3 newVelocity = model->GetVelocity() + (model->GetAcceleration() + newAcceleration)*fDeltaTime / 2.f;
+			model->SetVelocity(newVelocity);
+			model->SetAcceleration(newAcceleration);
 		}
 
+		// <- refactored up to this point
 		/*quick and dirty collision detection*/
 		for (int i = 0; i < m_models.size(); i++){
 			for (int j = i+1; j < m_models.size(); j++){
 				Voxel::Model* model1 = m_models[i].Model();
 				Voxel::Model* model2 = m_models[j].Model();
-				FixVec3 start1 = model1->GetPosition();
-				FixVec3 start2 = model2->GetPosition();
-				FixVec3 end1 = *newPoss[i];
-				FixVec3 end2 = *newPoss[j];
-				float t = collisionCheck(model1, model2, start1, start2, end1, end2);
-				if (t>0){
+				float collisionTime = 0;
+				if (collisionCheck(model1, model2, 0, collisionTime)){
 					/*placeholder calculation for collision Point and normal*/
+					FixVec3 start1 = model1->GetOldPosition();
+					FixVec3 start2 = model2->GetOldPosition();
+					FixVec3 end1 = model1->GetPosition();
+					FixVec3 end2 = model2->GetPosition();
 					float r1 = model1->GetRadius(), r2 = model2->GetRadius();
-					Fix fixT = Fix(t), fixR = Fix(1.) - fixT;
+					Fix fixT = Fix(collisionTime), fixR = Fix(1.) - fixT;
 					FixVec3 pos1 = FixVec3(fixT*start1[0] + fixR*end1[0],
 						fixT*start1[1] + fixR*end1[1],
 						fixT*start1[2] + fixR*end1[2]);
@@ -156,97 +135,58 @@ namespace Physics{
 					ss << "///" << v2[0] << " " << v2[1] << " " << v2[2];
 					model1->SetVelocity(v1);
 					model2->SetVelocity(v2);
-					*newPoss[i] = model1->GetPosition();
-					*newPoss[j] = model2->GetPosition();
+					model1->SetPosition(model1->GetOldPosition());
+					model2->SetPosition(model2->GetOldPosition());
 					LOG_LVL2(ss.str());
 
 				}
 			}
 		}
-
-		for (int i = 0; i < m_models.size(); i++){
-			//ss << "\n old Pos" << m_models[i]->GetPosition()[0] << " " << m_models[i]->GetPosition()[1] << " " << m_models[i]->GetPosition()[2];
-			//ss << "\n new Pos" << (*(newPoss[i]))[0] << " " << (*(newPoss[i]))[1] << " " << (*(newPoss[i]))[2];
-			m_models[i].Model()->SetPosition(*(newPoss[i]));
-		}
-		//LOG_LVL2(ss.str());
-
-
-
-
-		//		Vec3 direction = Vec3(model1->GetPosition()[0] - model2->GetPosition()[0],
-		//			model1->GetPosition()[1] - model2->GetPosition()[1],
-		//			model1->GetPosition()[2] - model2->GetPosition()[2]);
-		//		if (length(direction) < model1->GetRadius() + model2->GetRadius()){
-		//			float factor = (model1->GetRadius() + model2->GetRadius()) / length(direction)-1;
-		//			std::ostringstream ss;
-		//			ss << "\n collision:" << factor;
-		//			LOG_LVL2(ss.str());
-
-
-		//			FixVec3 newPosition = model1->GetPosition();
-		//			newPosition[0] += Fix(direction[0] * factor);
-		//			newPosition[1] += Fix(direction[1] * factor);
-		//			newPosition[2] += Fix(direction[2] * factor);
-		//			model1->SetPosition(newPosition);
-
-		//			Vec3 newVel = model1->GetVelocity();
-		//			newVel[0] += direction[0] * factor / 100;
-		//			newVel[1] += direction[1] * factor / 100;
-		//			newVel[2] += direction[2] * factor / 100;
-		//			model1->SetVelocity(newVel);
-
-		//			newPosition = model2->GetPosition();
-		//			newPosition[0] -= Fix(direction[0] * factor);
-		//			newPosition[1] -= Fix(direction[1] * factor);
-		//			newPosition[2] -= Fix(direction[2] * factor);
-		//			model2->SetPosition(newPosition);
-
-		//			newVel = model2->GetVelocity();
-		//			newVel[0] -= direction[0] * factor / 100;
-		//			newVel[1] -= direction[1] * factor / 100;
-		//			newVel[2] -= direction[2] * factor / 100;
-		//			model2->SetVelocity(newVel);
-
-		//		}
-		//	}
-		//}
 	}
 
 	const std::vector<IntersectionIdentifier>& Universe::getModels() {
 		return m_models;
 	}
 
-	///brief placeholder Collision Check by linear Interpolation and bounding spheres only
-	float Universe::collisionCheck(Voxel::Model* _model1, Voxel::Model* _model2, FixVec3 _start1, FixVec3 _start2, FixVec3 _end1, FixVec3 _end2){
-		Vec3 normalizedStart = Vec3(_start2[0] - _start1[0],
-			_start2[1] - _start1[1],
-			_start2[2] - _start1[2]);
-		Vec3 normalizedMove = Vec3((_end2[0] - _end1[0]) - normalizedStart[0],
-			(_end2[1] - _end1[1]) - normalizedStart[1],
-			(_end2[2] - _end1[2]) - normalizedStart[2]);
+	/// placeholder Collision Check by linear Interpolation and bounding spheres only
+	bool Universe::collisionCheck(const Voxel::Model* _model1,  const Voxel::Model* _model2, const float& _frameTime, float& _out){
+		//erroneous frameTime
+		if (_frameTime < 0.f || _frameTime >= 1.f)
+			return false;
+		Vec3 normalizedStart = Vec3(_model2->GetOldPosition() - _model1->GetOldPosition());
+		Vec3 normalizedMove = Vec3(_model2->GetPosition() - _model1->GetPosition());
+		if (_frameTime > 0)
+			normalizedStart = (1 - _frameTime)*normalizedStart + _frameTime*normalizedMove;
+		normalizedMove -= normalizedStart;
+
 		float r1 = _model1->GetRadius(), r2 = _model2->GetRadius();
 		float moveLengthSq = lengthSq(normalizedMove);
+		
+		//p-q formula with d being the discriminant
 		float p = -dot(normalizedStart, normalizedMove) / moveLengthSq;
 		float d = p*p - (lengthSq(normalizedStart) - (r1 + r2)*(r1 + r2)) / moveLengthSq;
-		// no collision
+		// no collision at all
 		if (d < 0){
-			return -1.f;
+			return false;
 		}
 		d = sqrt(d);
-		// moving away
+		// moving away from earlier (hypothetical) collision
 		if (p + d < 0)
-			return -1.f;
+			return false;
 		// is inside
 		if (p-d < 0 && p+d>=0){
-			return 0.f;
+			_out=_frameTime;
+			return true;
 		}
 		// collision in this frame
 		if (p - d >= 0 && p - d < 1){
-			return p - d;
+			if (_frameTime>0)
+				_out = _frameTime + (1 - _frameTime)*(p - d);
+			else
+				_out = p - d;
+			return true;
 		}
-		return 0.f;
-		//LOG_LVL2("collision");
+		return false;
 	}
 		
 

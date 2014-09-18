@@ -47,7 +47,15 @@ namespace Physics {
 		const std::vector<IntersectionIdentifier>& getModels();
 		float m_GravConst = 1.e-4f;		//real: m_GravConst=6.67384e-11;
 	private:
-		float collisionCheck(Voxel::Model* _model1, Voxel::Model* _model2, FixVec3 _start1, FixVec3 _start2, FixVec3 _end1, FixVec3 _end2);
+		/// \brief checks if two objects collide in the frame
+		/// \details This mehtod uses the oldPosition and Position of the models
+		///		to calculate the time of a collision in a frame
+		///	\returns true if a collision happens after _frameTime and before 1
+		/// \param[in] _frameTime relativ portion of time allready passed in the frame
+		///		is measured in a factor between 0 and 1
+		/// \param[out] _out the time of collision
+		///		as a relativ factor between _frameTime and 1
+		bool collisionCheck(const Voxel::Model* _model1, const Voxel::Model* _model2,const float& _frameTime, float& _out);
 		std::vector<IntersectionIdentifier> m_models;
 		std::vector<Voxel::Model *> m_celestials;
 

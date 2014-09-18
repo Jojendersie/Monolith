@@ -26,7 +26,8 @@ namespace Voxel {
 		1.f, 0.f, 0.f,
 		0.f, 1.f, 0.f,
 		0.f, 0.f, 1.f),
-		m_angularVelocity(1,0,0,0)
+		m_angularVelocity(1.f, 0.f, 0.f, 0.f),
+		m_acceleration(0.f, 0.f, 0.f)
 	{
 		auto x = IVec3(3) * 0.5f;
 	}
