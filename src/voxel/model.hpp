@@ -85,7 +85,7 @@ namespace Voxel {
 		/// \brief Returns the Mass of the Model
 		float GetMass() const { return m_mass; }
 		/// \brief Returns the Moment of Inertia of the Model
-		Math::Mat3x3 GetInertiaMoment() const { return m_InertiaMoment; }
+		Math::Mat3x3 GetInertiaMoment() const { return m_inertiaMoment; }
 		/// \brief Get the model transformation matrix
 		/// \param [out] _out A space where the matrix can be stored.
 		/// \return The reference to _out
@@ -112,9 +112,6 @@ namespace Voxel {
 		/// \brief Remove all chunks which were not used or dirty.
 		void ClearChunkCache();
 
-		/// \brief Calculate Moment of Inertia
-		void CalculateInertia();
-
 		/// \brief Save to an opened file.
 		/// \details The model format is binary and compressed. The size is not
 		///		known in advance.
@@ -134,7 +131,20 @@ namespace Voxel {
 		Math::Vec3 m_velocity;			///< Velocity in m/s (vector length)
 		Math::Vec3 m_acceleration;		///< acceleration in m/s^2 (vector length)
 		float m_mass;					///< Mass (inertia) of the full model
-		Math::Mat3x3 m_InertiaMoment;		///< Moment of Inertia for the full model.
+		
+		Math::Mat3x3 m_inertiaMoment;		///< Moment of Inertia for the full model.
+		/// helper variables for iterative updates of inertia
+		/// each a weighted sum of voxelmasses
+		/// see "momentOfInertia.tex" for more information
+		float m_inertiaX;
+		float m_inertiaY;
+		float m_inertiaZ;
+		float m_inertiaXY;
+		float m_inertiaXZ;
+		float m_inertiaYZ;
+		float m_inertiaYZR;
+		float m_inertiaXZR;
+		float m_inertiaXYR;
 
 		float m_boundingSphereRadius;	///< Bounding sphere radius (to the center of gravity) for culling etc.
 

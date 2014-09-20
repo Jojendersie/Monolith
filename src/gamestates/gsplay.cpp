@@ -64,12 +64,15 @@ void GSPlay::OnBegin()
 		m_universe = new Physics::Universe();
 		m_center = new Generators::Asteroid(70, 80, 90, 0);
 		m_center->SetPosition(FixVec3(Fix(0.)));
+		m_center->SetAngularVelocity(Quaternion(Vec3(0.f, 1.f, 0.f), 0.1f));
 		m_universe->AddCelestial(m_center);
 		//center->SetPosition(FixVec3());
-		for (int i = 1; i < 2; ++i){
+		for (int i = 0; i < 3; ++i){
 			Voxel::Model *asteroid= new Generators::Asteroid(30, 30, 30, i);
 			asteroid->SetPosition(FixVec3(Fix(50 + 40. * i), Fix(10.*i), Fix(0.)));
 			asteroid->SetVelocity(Vec3(10.f-i));
+			Vec3 axis = Vec3(0.f, 1.f, i*1.f);
+			asteroid->SetAngularVelocity(Quaternion(axis / length(axis), 0.1f));
 			m_universe->AddModel(asteroid);
 		}
 	}

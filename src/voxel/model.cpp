@@ -23,10 +23,19 @@ namespace Voxel {
 		m_boundingSphereRadius(0.0f),
 		m_voxelTree(this),
 		m_chunks(),
-		m_InertiaMoment(
+		m_inertiaMoment(
 		1.f, 0.f, 0.f,
 		0.f, 1.f, 0.f,
 		0.f, 0.f, 1.f),
+		m_inertiaX(0.0f),
+		m_inertiaY(0.0f),
+		m_inertiaZ(0.0f),
+		m_inertiaXY(0.0f),
+		m_inertiaXZ(0.0f),
+		m_inertiaYZ(0.0f),
+		m_inertiaYZR(0.0f),
+		m_inertiaXZR(0.0f),
+		m_inertiaXYR(0.0f),
 		m_angularVelocity(1.f, 0.f, 0.f, 0.f),
 		m_acceleration(0.f, 0.f, 0.f)
 	{
@@ -152,27 +161,84 @@ namespace Voxel {
 	{
 		// Compute real volume from logarithmic size
 		int size = 1 << _position[3];
-		Vec3 center = Math::IVec3(_position) + size * 0.5f;
+		Vec3 voxelCenter = Math::IVec3(_position) + size * 0.5f;
+		float voxelSize = size;
 		size = size * size * size;
 
 		// Remove the old voxel
 		if( TypeInfo::GetMass(_oldType.type) > 0.0f )
 		{
 			float oldMass = TypeInfo::GetMass(_oldType.type) * size;
-			m_center = (m_center * m_mass - center * oldMass) / (m_mass - oldMass);
+			m_center = (m_center * m_mass - voxelCenter * oldMass) / (m_mass - oldMass);
 			m_mass -= oldMass;
 			m_numVoxels -= size;
+
+			//update inertia helper variables
+			m_inertiaX -= oldMass*voxelCenter[0];
+			m_inertiaY -= oldMass*voxelCenter[1];
+			m_inertiaZ -= oldMass*voxelCenter[2];
+			m_inertiaXY -= oldMass*voxelCenter[0] * voxelCenter[1];
+			m_inertiaXZ -= oldMass*voxelCenter[0] * voxelCenter[2];
+			m_inertiaYZ -= oldMass*voxelCenter[1] * voxelCenter[2];
+			float xSq = voxelCenter[0] * voxelCenter[0];
+			float ySq = voxelCenter[1] * voxelCenter[1];
+			float zSq = voxelCenter[2] * voxelCenter[2];
+			float rSq = voxelSize*voxelSize / 6.f;
+			m_inertiaXYR -= oldMass*(xSq + ySq + rSq);
+			m_inertiaXZR -= oldMass*(xSq + zSq + rSq);
+			m_inertiaYZR -= oldMass*(ySq + zSq + rSq);
+
 		}
 
 		// Add new voxel
 		if( TypeInfo::GetMass(_newType.type) )
 		{
 			float newMass = TypeInfo::GetMass(_newType.type) * size;
-			m_center = (m_center * m_mass + center * newMass) / (m_mass + newMass);
+			m_center = (m_center * m_mass + voxelCenter * newMass) / (m_mass + newMass);
 			m_mass += newMass;
 			m_numVoxels += size;
+
+			//update inertia helper variables
+			m_inertiaX += newMass*voxelCenter[0];
+			m_inertiaY += newMass*voxelCenter[1];
+			m_inertiaZ += newMass*voxelCenter[2];
+			m_inertiaXY += newMass*voxelCenter[0] * voxelCenter[1];
+			m_inertiaXZ += newMass*voxelCenter[0] * voxelCenter[2];
+			m_inertiaYZ += newMass*voxelCenter[1] * voxelCenter[2];
+			float xSq = voxelCenter[0] * voxelCenter[0];
+			float ySq = voxelCenter[1] * voxelCenter[1];
+			float zSq = voxelCenter[2] * voxelCenter[2];
+			float rSq = voxelSize*voxelSize / 6.f;
+			m_inertiaXYR += newMass*(xSq + ySq + rSq);
+			m_inertiaXZR += newMass*(xSq + zSq + rSq);
+			m_inertiaYZR += newMass*(ySq + zSq + rSq);
 		}
 
+		// calculate new moment of inertia
+		{
+			float x0 = m_center[0];
+			float y0 = m_center[1];
+			float z0 = m_center[2];
+			float xSq = x0 * x0 * m_mass;
+			float ySq = y0 * y0 * m_mass;
+			float zSq = z0 * z0 * m_mass;
+			float xy = x0 * y0 * m_mass;
+			float xz = x0 * z0 * m_mass;
+			float yz = y0 * z0 * m_mass;
+			float xxi = 2 * x0 * m_inertiaX;
+			float yyi = 2 * y0 * m_inertiaY;
+			float zzi = 2 * z0 * m_inertiaZ;
+
+			float I11 = ySq + zSq - yyi - zzi + m_inertiaYZR;
+			float I22 = xSq + zSq - xxi - zzi + m_inertiaXZR;
+			float I33 = xSq + ySq - xxi - yyi + m_inertiaXYR;
+
+			float I12 = -xy + x0*m_inertiaY + y0*m_inertiaX - m_inertiaXY;
+			float I13 = -xz + x0*m_inertiaZ + z0*m_inertiaX - m_inertiaXZ;
+			float I23 = -yz + y0*m_inertiaZ + z0*m_inertiaY - m_inertiaYZ;
+
+			m_inertiaMoment=Mat3x3(I11,I12,I13,I12,I22,I23,I13,I23,I33);
+		}
 		// TEMP: approximate a sphere; TODO Grow and shrink a real bounding volume
 		m_boundingSphereRadius = Math::max(m_boundingSphereRadius, Math::length(Math::Vector<3,float>(m_center) - Math::Vector<3,int>(_position)) );
 	}
@@ -206,13 +272,15 @@ namespace Voxel {
 				if( !_node->Children() )
 				{
 					// Compute the position in relation to the mass center
-					float x = _position[0] - model->GetCenter()[0];
-					float y = _position[1] - model->GetCenter()[1];
-					float z = _position[2] - model->GetCenter()[2];
-					model->m_InertiaMoment += Voxel::TypeInfo::GetMass(_node->Data().type)
-						* Mat3x3(y*y + z*z, -x*y,      -x*z,
-						         -x*y,      x*x + z*z, -y*z,
-								 -x*z,      -y*z,      x*x + y*y);
+					float r = 1 << _position[3];
+					float x = _position[0] - model->GetCenter()[0] + r * 0.5f;
+					float y = _position[1] - model->GetCenter()[1] + r * 0.5f;
+					float z = _position[2] - model->GetCenter()[2] + r * 0.5f;
+					r *= r / 6.f;
+					model->m_inertiaMoment += Voxel::TypeInfo::GetMass(_node->Data().type)
+						* Mat3x3(y*y + z*z+r, -x*y,      -x*z,
+						         -x*y,      x*x + z*z+r, -y*z,
+								 -x*z,      -y*z,      x*x + y*y+r);
 				}
 
 				_node->Data().dirtyPhysics = 0;
@@ -221,7 +289,7 @@ namespace Voxel {
 		};
 
 		// Reset the inertia tensor
-		m_InertiaMoment = Mat3x3(0.0f);
+		m_inertiaMoment = Mat3x3(0.0f);
 		m_voxelTree.Traverse( CheckAndUpdatePhysics(this) );
 
 		double end = TimeQuery(timer);
