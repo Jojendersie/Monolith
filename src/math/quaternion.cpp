@@ -119,7 +119,7 @@ Quaternion::operator Vec3 () const
 {
 	//axis representation with |Axis|=angle
 	//<=> tangential velocity is crossproduct with representation
-	if (r == 1.f)
+	if (i == 0.f && j ==0.f && k == 0.f)
 		return Vec3(0.f);
 	double sina = sqrt(i*i + j*j + k*k);
 	float factor=2*float(atan2(sina,r)/sina) ;

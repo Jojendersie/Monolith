@@ -35,11 +35,12 @@ public:
 	{
 		// Using -sin to get the same result as for the matrix.
 		// TODO: Matrix wrong? - the conjugated = inverse rotation
-		float fSin = float( - sin( _a * 0.5 ) );
+		// edit using +sin to satisfy right hand rule
+		float fSin = float(sin( _a * 0.5 ) );
 		r = float( cos( _a * 0.5 ) );
 		i = _axis[0] * fSin;
 		j = _axis[1] * fSin;
-		k = _axis[1] * fSin;
+		k = _axis[2] * fSin;
 	}
 	// arbitrary axis with |axis| = Angle.
 	Quaternion(const Vec3& _axis)
@@ -47,11 +48,19 @@ public:
 		// Using -sin to get the same result as for the matrix.
 		// TODO: Matrix wrong? - the conjugated = inverse rotation
 		float l = length(_axis);
-		float factor = float(-sin(l * 0.5))/l;
-		r = float(cos(l * 0.5));
-		i = _axis[0] * factor;
-		j = _axis[1] * factor;
-		k = _axis[1] * factor;
+		if (l == 0){
+			r = 1;
+			i = 0;
+			j = 0;
+			k = 0;
+		}
+		else{
+			float factor = float(sin(l * 0.5)) / l;
+			r = float(cos(l * 0.5));
+			i = _axis[0] * factor;
+			j = _axis[1] * factor;
+			k = _axis[2] * factor;
+		}
 	}
 
 	// From Matrix

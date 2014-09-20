@@ -62,7 +62,10 @@ namespace Physics{
 			Vec3 newVelocity = model->GetVelocity() + (model->GetAcceleration() + newAcceleration)*fDeltaTime / 2.f;
 			model->SetVelocity(newVelocity);
 			model->SetAcceleration(newAcceleration);
+
+			model->Rotate(Quaternion(fDeltaTime*(Vec3)model->GetAngularVelocity()));
 		}
+
 
 		// <- refactored up to this point
 		/*quick and dirty collision detection*/

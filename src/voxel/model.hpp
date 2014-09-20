@@ -107,6 +107,9 @@ namespace Voxel {
 		/// \brief Remove all chunks which were not used or dirty.
 		void ClearChunkCache();
 
+		/// \brief Calculate Moment of Inertia
+		void CalculateInertia();
+
 		/// \brief Save to an opened file.
 		/// \details The model format is binary and compressed. The size is not
 		///		known in advance.
