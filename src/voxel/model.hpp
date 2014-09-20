@@ -92,7 +92,7 @@ namespace Voxel {
 		Math::Mat4x4& GetModelMatrix( Math::Mat4x4& _out, const Math::Transformation& _reference ) const;
 		Math::Mat4x4& GetModelMatrix( Math::Mat4x4& _out, const Input::Camera& _reference ) const;
 
-		/// \brief Do an update of physical properties.
+		/// \brief Do an update of the mass center.
 		/// \details If a voxel is deleted _newType is NONE. If a new voxel
 		///		is created _oldType is NONE. Overwrite operations define both
 		///		(deletion and creation).
@@ -100,7 +100,12 @@ namespace Voxel {
 		///		component is the size with logarithmic scale of the voxel.
 		///		0 denotes the highest detail 2^0.
 		///	\param [in] _oldType The type of the voxel which was before.
-		void Update( const Math::IVec4& _position, const Component& _oldType, const Component& _newType );
+		void UpdateMass( const Math::IVec4& _position, const Component& _oldType, const Component& _newType );
+
+        /// \brief Do an update of physical properties.
+        /// \details If the model did not change since last time this method
+        ///     does nothing (in O(1)).
+        void UpdatePhysics();
 
 		bool RayCast( const Math::WorldRay& _ray, int _targetLevel, ModelData::HitResult& _hit ) const;
 

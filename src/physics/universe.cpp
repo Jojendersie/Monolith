@@ -35,6 +35,7 @@ namespace Physics{
 		float fDeltaTime = (float)_deltaTime;
 		for (auto mIter = m_models.begin(); mIter != m_models.end(); ++mIter){
 			mIter->Model()->AgeTransformation();
+			mIter->Model()->UpdatePhysics();
 		}
 		/*movement via normal formula for uniform accelerated movement */
 		for (auto mIter = m_models.begin(); mIter != m_models.end(); ++mIter){
