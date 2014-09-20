@@ -86,9 +86,9 @@ namespace Math {
 	template<int n, class D> template<class D2>
 	D& Matrix<n,D>::operator += (const Matrix<n,D2>& _m)
 	{
-		for(int c<0; c<n; ++c)
-			for(int r<0; r<n; ++r)
-				m_data[r+c*n] += _m.m_data[r+c*m];
+		for(int c=0; c<n; ++c)
+			for(int r=0; r<n; ++r)
+				m_data[r+c*n] += _m.m_data[r+c*n];
 		return *this;
 	}
 
@@ -97,8 +97,8 @@ namespace Math {
 	template<int n, class D> template<class D2>
 	D& Matrix<n,D>::operator -= (const Matrix<n,D2>& _m)
 	{
-		for(int c<0; c<n; ++c)
-			for(int r<0; r<n; ++r)
+		for(int c=0; c<n; ++c)
+			for(int r=0; r<n; ++r)
 				m_data[r+c*n] -= _m.m_data[r+c*n];
 		return *this;
 	}

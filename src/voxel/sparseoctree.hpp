@@ -49,7 +49,7 @@ namespace Voxel {
 		const SVON* Get( const Math::IVec3& _position, int _level ) const;
 		SVON* Get( const Math::IVec3& _position, int _level );
 
-		int GetRootSize() const { return m_rootSize; }
+		int GetRootLevel() const { return m_rootLevel; }
 		const Math::IVec3& GetRootPosition() const { return m_rootPosition; }
 
 		/// \brief Traverse through the whole tree.
@@ -233,7 +233,7 @@ namespace Voxel {
 		///	\details Each pointer points to a set of 8 children. So on root level there
 		///		are always 8 nodes.		
 		Math::IVec3 m_rootPosition;	///< Position of the root node in grid space of the node which covers all 8 roots.
-		int m_rootSize;				///< Level of the node which contains the 8 roots where 0 is the highest possible resolution.
+		int m_rootLevel;				///< Level of the node which contains the 8 roots where 0 is the highest possible resolution.
 		SVON m_root;				///< The single top level root node
 
 		/// \brief Touch all nodes on a path
@@ -273,7 +273,7 @@ namespace Voxel {
 		m_listener(_listener),
 		m_SVONAllocator(sizeof(SVON)*8),
 		m_root(),
-		m_rootSize(-1),
+		m_rootLevel(-1),
 		m_rootPosition(0)
 	{
 	}
@@ -293,13 +293,13 @@ namespace Voxel {
 	void SparseVoxelOctree<T,Listener>::Set( const Math::IVec3& _position, int _level, T _type )
 	{
 		// Compute if the position is inside the current tree
-		if(m_rootSize == -1)
+		if(m_rootLevel == -1)
 		{
 			// First set at all
-			m_rootSize = _level;
+			m_rootLevel = _level;
 			m_rootPosition = _position;
 		}
-		int scale = m_rootSize-_level;
+		int scale = m_rootLevel-_level;
 		Math::IVec3 position = _position>>scale;
 		while( (scale < 0)
 			|| ((position-m_rootPosition) != Math::IVec3(0)) )
@@ -317,14 +317,14 @@ namespace Voxel {
 			m_rootPosition >>= 1;
 			m_root.m_children = pNew;
 			m_root.m_data = T::UNDEFINED;
-			++m_rootSize;
+			++m_rootLevel;
 			// Still to small?
 			++scale;
 			position >>= 1;
 		}
 
 		// One of the eight children must contain the target position.
-		SVON::Set(&m_root, m_rootSize, Math::IVec4(_position, _level), _type, this);
+		SVON::Set(&m_root, m_rootLevel, Math::IVec4(_position, _level), _type, this);
 
 		// Make all 6 neighbors dirty - their neighborhood changed
 		SetDirty( Math::IVec3(_position[0]+1, _position[1], _position[2]), _level );
@@ -341,10 +341,10 @@ namespace Voxel {
 	{
 		// Get on an empty model? Would be better if this never happens ->
 		// better performance because no 'if' on m_rootSize required.
-		Assert(m_rootSize != -1, "Octree not yet initialized!");
+		Assert(m_rootLevel != -1, "Octree not yet initialized!");
 
 		// Special cases: not inside octree
-		int scale = m_rootSize-_level;
+		int scale = m_rootLevel-_level;
 		if( scale < 0 ) return;
 		Math::IVec3 position = _position >> scale;
 		if((position-m_rootPosition) != Math::IVec3(0))
@@ -369,10 +369,10 @@ namespace Voxel {
 	{
 		// Get on an empty model? Would be better if this never happens ->
 		// better performance because no 'if' on m_rootSize required.
-		Assert(m_rootSize != -1, "Get on an empty model? Would be better if this never happens -> better performance because no 'if' on m_rootSize required.");
+		Assert(m_rootLevel != -1, "Get on an empty model? Would be better if this never happens -> better performance because no 'if' on m_rootSize required.");
 
 		// Special cases: not inside octree
-		int scale = m_rootSize-_level;
+		int scale = m_rootLevel-_level;
 		if( scale < 0 ) return nullptr;
 		Math::IVec3 position = _position >> scale;
 		if((position-m_rootPosition) != Math::IVec3(0))
@@ -404,18 +404,18 @@ namespace Voxel {
 	template<typename T, typename Listener> template<typename Processor>
 	void SparseVoxelOctree<T,Listener>::Traverse( Processor& _processor )
 	{
-		Assert(m_rootSize != -1, "Octree not yet initialized!");
+		Assert(m_rootLevel != -1, "Octree not yet initialized!");
 
-		m_root.Traverse(IVec4(m_rootPosition, m_rootSize), _processor);
+		m_root.Traverse(IVec4(m_rootPosition, m_rootLevel), _processor);
 	}
 
 	// ********************************************************************* //
 	template<typename T, typename Listener> template<typename Processor>
 	void SparseVoxelOctree<T,Listener>::TraverseEx( Processor& _processor )
 	{
-		Assert(m_rootSize != -1, "Octree not yet initialized!");
+		Assert(m_rootLevel != -1, "Octree not yet initialized!");
 
-		m_root.TraverseEx(IVec4(m_rootPosition, m_rootSize), _processor,
+		m_root.TraverseEx(IVec4(m_rootPosition, m_rootLevel), _processor,
 			nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
 	}
 
@@ -423,12 +423,12 @@ namespace Voxel {
 	template<typename T, typename Listener>
 	bool SparseVoxelOctree<T,Listener>::RayCast( const Math::Ray& _ray, int _targetLevel, HitResult& _hit ) const
 	{
-		Assert(m_rootSize != -1, "Octree not yet initialized!");
+		Assert(m_rootLevel != -1, "Octree not yet initialized!");
 
 		// if root to small scale it up and test against a single box
-		if( m_rootSize < _targetLevel )
+		if( m_rootLevel < _targetLevel )
 		{
-			IVec3 position = m_rootPosition << (_targetLevel - m_rootSize);
+			IVec3 position = m_rootPosition << (_targetLevel - m_rootLevel);
 			if( Math::Intersect::RayAACube( _ray, position, (1<<_targetLevel), _hit.side ) )
 			{
 				_hit.position = position;
@@ -438,7 +438,7 @@ namespace Voxel {
 				return false;
 		} else 
 			// Use recursive algorithm.
-			return m_root.RayCast( _ray, Math::IVec3(m_rootPosition), m_rootSize, _targetLevel, _hit );
+			return m_root.RayCast( _ray, Math::IVec3(m_rootPosition), m_rootLevel, _targetLevel, _hit );
 	}
 
 	// ********************************************************************* //
@@ -489,7 +489,7 @@ namespace Voxel {
 		// This is the target voxel. Delete everything below.
 		if( currentElement->m_children ) currentElement->RemoveSubTree(_position, _parent, true);
 		// Physical update of this voxel
-		_parent->m_listener->Update(_position, currentElement->m_data, _data);
+		_parent->m_listener->UpdateMass(_position, currentElement->m_data, _data);
 		currentElement->m_data = _data;
 
 		// Unroll stack as long as the voxel type in hierarchy changes.
@@ -531,7 +531,7 @@ namespace Voxel {
 			if( m_children[i].m_children )
 				m_children[i].RemoveSubTree(_position+CHILD_OFFSETS[i], _parent, _removePhysically);
 			else if(_removePhysically)
-				_parent->m_listener->Update(_position+CHILD_OFFSETS[i], m_data, T::UNDEFINED);
+				_parent->m_listener->UpdateMass(_position+CHILD_OFFSETS[i], m_data, T::UNDEFINED);
 		}
 		// Delete
 		_parent->m_SVONAllocator.Free(m_children);

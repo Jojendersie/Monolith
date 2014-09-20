@@ -35,6 +35,7 @@ namespace Physics{
 		float fDeltaTime = (float)_deltaTime;
 		for (auto mIter = m_models.begin(); mIter != m_models.end(); ++mIter){
 			mIter->Model()->AgeTransformation();
+			mIter->Model()->UpdatePhysics();
 		}
 		/*movement via normal formula for uniform accelerated movement */
 		for (auto mIter = m_models.begin(); mIter != m_models.end(); ++mIter){
@@ -256,5 +257,35 @@ namespace Physics{
 		if(_i0->Begin(_axis) >= _i1->Begin(_axis))
 			return _i0->Begin(_axis) <= _i1->End(_axis);
 		else return _i1->Begin(_axis) <= _i0->End(_axis);
+	}
+
+	// ********************************************************************* //
+	void Universe::FindAllPossiblePairs()
+	{
+		RecomputeIntersectionIndices();
+
+		// Now go through one of the axis, test candidates on the other axis
+		// and call the handler.
+		Jo::HybridArray<IntersectionIdentifier*> identbuf;
+		for(auto it = m_xAxis.begin(); it != m_xAxis.end(); ++it)
+		{
+			if(it->isBegin) // This interval intersects with all in the buffer
+			{
+				for(uint32_t i = 0; i < identbuf.Size(); ++i)
+				{
+					if( IntersectIn(it->ident, identbuf[i], 1)
+						&& IntersectIn(it->ident, identbuf[i], 2) )
+						HandlePossibleIntersection(it->ident->Model(), identbuf[i]->Model());
+				}
+			} else {
+				// Find begin and remove
+				for(uint32_t i = 0; i < identbuf.Size(); ++i)
+					if(identbuf[i]->Model() == it->ident->Model())
+					{
+						identbuf.Delete(i);
+						break;
+					}
+			}
+		}
 	}
 }

@@ -5,6 +5,7 @@
 #include "graphic/core/uniformbuffer.hpp"
 #include "graphic/content.hpp"
 #include "exceptions.hpp"
+#include "timer.hpp"
 
 using namespace Math;
 
@@ -147,7 +148,7 @@ namespace Voxel {
 
 
 	// ********************************************************************* //
-	void Model::Update( const Math::IVec4& _position, const Component& _oldType, const Component& _newType )
+	void Model::UpdateMass( const Math::IVec4& _position, const Component& _oldType, const Component& _newType )
 	{
 		// Compute real volume from logarithmic size
 		int size = 1 << _position[3];
@@ -173,9 +174,60 @@ namespace Voxel {
 		}
 
 		// TEMP: approximate a sphere; TODO Grow and shrink a real bounding volume
-		// TODO remove Math::Vector if replaced by template
 		m_boundingSphereRadius = Math::max(m_boundingSphereRadius, Math::length(Math::Vector<3,float>(m_center) - Math::Vector<3,int>(_position)) );
 	}
+
+	// ********************************************************************* //
+    void Model::UpdatePhysics()
+	{
+		// Do nothing if nothing changed
+		if(!m_voxelTree.Get(IVec3(0,0,0), m_voxelTree.GetRootLevel())->Data().IsPhysicsDirty())
+			return;
+
+		TimeQuerySlot timer;
+		TimeQuery(timer);
+
+		struct CheckAndUpdatePhysics: public Model::ModelData::SVOProcessor
+		{
+			Model* model;						// Operate on this data.
+
+			CheckAndUpdatePhysics(Model* _model) :
+				model(_model)
+			{}
+
+			bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
+			{
+				if( _node->Data().IsPhysicsDirty() )
+				{
+					// Do things which can be updated locally
+				}
+
+				// Update tensor for each real element.
+				if( !_node->Children() )
+				{
+					// Compute the position in relation to the mass center
+					float x = _position[0] - model->GetCenter()[0];
+					float y = _position[1] - model->GetCenter()[1];
+					float z = _position[2] - model->GetCenter()[2];
+					model->m_InertiaMoment += Voxel::TypeInfo::GetMass(_node->Data().type)
+						* Mat3x3(y*y + z*z, -x*y,      -x*z,
+						         -x*y,      x*x + z*z, -y*z,
+								 -x*z,      -y*z,      x*x + y*y);
+				}
+
+				_node->Data().dirtyPhysics = 0;
+				return true;
+			}
+		};
+
+		// Reset the inertia tensor
+		m_InertiaMoment = Mat3x3(0.0f);
+		m_voxelTree.Traverse( CheckAndUpdatePhysics(this) );
+
+		double end = TimeQuery(timer);
+		LOG_LVL1("Time for UpdatePhysics: " + std::to_string((end) * 1000.0));
+	}
+
 
 	// ********************************************************************* //
 	bool Model::RayCast( const Math::WorldRay& _ray, int _targetLevel, ModelData::HitResult& _hit ) const
@@ -257,7 +309,7 @@ namespace Voxel {
 
 		_file.WriteU8( (uint8_t)ModelChunkTypes::COMPONENT_TREE );
 			_file.Write( &m_voxelTree.GetRootPosition(), sizeof(IVec3) );
-			_file.WriteI32( m_voxelTree.GetRootSize() );
+			_file.WriteI32( m_voxelTree.GetRootLevel() );
 			StoreModelTree proc( _file );
 			m_voxelTree.Traverse( proc );
 
