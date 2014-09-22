@@ -198,9 +198,13 @@ void ComponentEditor::save()
 		voxelNode[string("Texture Resolution")] = m_voxels[i]->textureResolution;
 		int s = voxelInfo.textureResolution;
 		s = s * s * s;
+
+		//make shure to update it
+		voxelInfo.colCount = voxelInfo.colors.size();
 		auto& colorNode = voxelNode.Add(string("Colors"), Jo::Files::MetaFileWrapper::ElementType::UINT32, voxelInfo.colCount );
 		for(int c = 0; c < voxelInfo.colCount; c++)
 				colorNode[c] = voxelInfo.colors[c];
+
 		//texture
 		auto& texNode = voxelNode.Add(string("Texture"), Jo::Files::MetaFileWrapper::ElementType::INT32, s);
 		for(int c = 0; c < s; c++)
@@ -210,6 +214,7 @@ void ComponentEditor::save()
 					texNode[c] = v;
 					break;
 				}
+
 		//bordertexture, only in case of existens
 		if(voxelInfo.borderTexture)
 		{
