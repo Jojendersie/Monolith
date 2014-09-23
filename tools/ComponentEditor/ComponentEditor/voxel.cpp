@@ -10,6 +10,6 @@ Voxel::Voxel(void):
 Voxel::~Voxel(void)
 {
 	if(texture) delete[] texture;
-	if(borderTexture )delete[] borderTexture;
+	if(borderTexture) delete[] borderTexture;
 }
 

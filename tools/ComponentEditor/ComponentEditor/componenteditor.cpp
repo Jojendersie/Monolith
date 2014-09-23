@@ -99,7 +99,7 @@ void ComponentEditor::open()
 	if(m_voxelCount)
 	{
 		int i = -1;
-		while(i++ < m_voxelCount)
+		while(i++ < m_voxelCount - 1)
 			delete m_voxels[i];
 	}
 	m_voxelCount = 0;
@@ -255,7 +255,11 @@ void ComponentEditor::voxelChosen(const QString & _text)
 		//the existens of a selected voxel implies the exsistens of the view
 		saveModelChanges();
 	}
-	if(m_view) delete m_view;
+	if(m_view)
+	{
+		delete m_view;
+		m_view = nullptr;
+	}
 	ui.comboBox->clear();
 	//perform linear search til name matches
 	for(int i = 0; i < m_voxelCount; i++)
