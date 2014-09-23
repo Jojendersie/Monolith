@@ -58,6 +58,17 @@ void ComponentEditor::on_pushButton_clicked()
 	ui_lineEdit->setText(QString(""));
 }
 
+//remove color
+void ComponentEditor::on_BtnColorRemove_clicked()
+{
+	QString s = ui_lineEdit->text();
+	bool ok;
+	unsigned int color = ui_comboBox->currentText().toUInt(&ok,16);
+	m_view->changeCubes(color);
+	m_voxel->colors.erase(m_voxel->colors.begin() + ui_comboBox->currentIndex());
+	ui_comboBox->removeItem(ui_comboBox->currentIndex());
+}
+
 //add voxel
 void ComponentEditor::on_pushButtonSwap_clicked()
 {

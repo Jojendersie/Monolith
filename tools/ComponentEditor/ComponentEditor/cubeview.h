@@ -32,6 +32,8 @@ public:
 	unsigned int getCol(int _x, int _y, int _z) {return m_cubeData[_x][_y][_z]->m_colorOrg;};
 	bool getState(int _x, int _y, int _z) {return m_cubeData[_x][_y][_z]->getState();};
 
+	//changes the state and color of all cubes with the color _color
+	void changeCubes(unsigned int _color, unsigned int _newColor = 0, bool _state = false);
 protected:
     void paintGL(QGLPainter *painter);
 	void mouseMoveEvent ( QMouseEvent * e );

@@ -40,6 +40,7 @@ public:
     QLineEdit *lineEdit;
     QPushButton *pushButton;
     QComboBox *comboBox;
+    QPushButton *BtnColorRemove;
     QGroupBox *generalInfos;
     QLineEdit *editMass;
     QLabel *label_3;
@@ -102,7 +103,10 @@ public:
         pushButton->setGeometry(QRect(170, 20, 31, 23));
         comboBox = new QComboBox(groupBox);
         comboBox->setObjectName(QStringLiteral("comboBox"));
-        comboBox->setGeometry(QRect(20, 50, 181, 22));
+        comboBox->setGeometry(QRect(20, 50, 141, 22));
+        BtnColorRemove = new QPushButton(groupBox);
+        BtnColorRemove->setObjectName(QStringLiteral("BtnColorRemove"));
+        BtnColorRemove->setGeometry(QRect(170, 50, 31, 23));
         generalInfos = new QGroupBox(centralWidget);
         generalInfos->setObjectName(QStringLiteral("generalInfos"));
         generalInfos->setGeometry(QRect(10, 190, 211, 271));
@@ -243,6 +247,7 @@ public:
         actionAbout->setText(QApplication::translate("ComponentEditorClass", "about", 0));
         groupBox->setTitle(QApplication::translate("ComponentEditorClass", "ColorOptions", 0));
         pushButton->setText(QApplication::translate("ComponentEditorClass", "+", 0));
+        BtnColorRemove->setText(QApplication::translate("ComponentEditorClass", "x", 0));
         generalInfos->setTitle(QApplication::translate("ComponentEditorClass", "general Informations", 0));
         label_3->setText(QApplication::translate("ComponentEditorClass", "Mass:", 0));
         editTreshHoldE->setText(QString());

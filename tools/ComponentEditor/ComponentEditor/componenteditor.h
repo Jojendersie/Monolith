@@ -23,6 +23,9 @@ public:
 private slots:
 	//new color
     void on_pushButton_clicked();
+	//remove currently selected color
+    void on_BtnColorRemove_clicked();
+
 	//swap normal<>border mode
 	void on_pushButtonSwap_clicked();
 	//new voxel

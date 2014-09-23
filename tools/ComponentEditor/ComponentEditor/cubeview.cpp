@@ -276,3 +276,17 @@ void CubeView::colorChanged(QString& _s)
 	QString s = "0x"+_s;
 	m_color = s.toUInt(&ok,0);
 }
+
+void CubeView::changeCubes(unsigned int _color, unsigned int _newColor, bool _state)
+{
+	FOREACH
+	{
+		if(m_cubeData[x][y][z]->m_colorOrg == _color)
+		{
+			m_cubeData[x][y][z]->setColor(_newColor);
+			m_cubeData[x][y][z]->setState(_state);
+		}
+	}
+	//show changes
+	update();
+}
