@@ -145,6 +145,7 @@ namespace Voxel {
 	{
 		// Compute real volume from logarithmic size
 		int size = 1 << _position[3];
+		float voxelSurface = size * size / 6.0f;
 		Vec3 center = Math::IVec3(_position) * size + size * 0.5f;
 		size = size * size * size;
 

@@ -29,4 +29,7 @@ private:
 
 	SOHandle m_selectedObject;
 	Voxel::Model* m_selectedObjectModPtr;
+
+	/// \brief Subroutine of the rendering: Showing the navigation grid.
+	void DrawReferenceGrid(const Voxel::Model* _model) const;
 };

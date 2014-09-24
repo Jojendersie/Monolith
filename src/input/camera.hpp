@@ -58,6 +58,12 @@ namespace Input {
 		///		and rotations around the camera position.
 		void Attach( const Voxel::Model* _model );
 
+		/// \brief Get the current movement reference model.
+		const Voxel::Model* GetAttachedModel() const	{ return m_attachedTo; }
+
+		/// \brief What is the position of the attached model in the camera system.
+		Math::Vec3 GetReferencePosition() const;
+
 		/// \brief Recompute all the matrices.
 		/// \details Standard input does not change one of the matrices
 		///		(multi threading). This is the only function which will change

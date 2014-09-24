@@ -74,12 +74,12 @@ void GSPlay::OnBegin()
 			m_scene.AddObject(model);
 			if(i==0) m_camera->ZoomAt( *model );
 		}
-		Generators::Random rnd(484);
+		/*Generators::Random rnd(484);
 		auto model = new Generators::Asteroid( 300, 300, 300, 846 );
 		model->SetPosition( FixVec3(Vec3(0.0f)) );
 		model->Rotate(rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI));
 		m_scene.AddObject(model);
-		m_camera->ZoomAt( *model );
+		m_camera->ZoomAt( *model );*/
 	}
 
 	LOG_LVL2("Entered game state Play");
@@ -124,13 +124,15 @@ void GSPlay::Render( double _deltaTime )
 		if(model) model->Draw( *m_camera );
 	}
 
-	if( m_selectedObject )
+	/*if( m_selectedObject )
 	{
 		Mat4x4 modelView;
 		m_selectedObjectModPtr->GetModelMatrix( modelView, *m_camera );
 		modelView = Mat4x4::Translation(m_selectedObjectModPtr->GetCenter()) * modelView;
 		m_objectPlane->Draw( modelView * m_camera->GetProjection() );
-	}
+	}*/
+	if( m_selectedObject )
+		DrawReferenceGrid( m_selectedObjectModPtr );
 	
 	m_hud->m_dbgLabel->SetText("<s 024>" + std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(RenderStat::g_numVoxels) + "\n#Chunks: " + std::to_string(RenderStat::g_numChunks)+"</s>");
 	m_hud->Draw( _deltaTime );
@@ -179,4 +181,32 @@ void GSPlay::KeyClick( int _key )
 			m_selectedObjectModPtr->Set( hit.position, 0, Voxel::VoxelType::UNDEFINED );
 		}
 	}
+}
+
+// ************************************************************************* //
+void GSPlay::DrawReferenceGrid(const Voxel::Model* _model) const
+{
+	Mat4x4 modelView;
+	Vec3 position;
+	if( _model )
+	{
+		if( _model == m_camera->GetAttachedModel() )
+		{
+			// Compute relative to the model position
+			position = m_camera->GetReferencePosition();
+			modelView =  Mat4x4::Rotation(_model->GetRotation()) * Mat4x4::Translation(position) * Mat4x4(m_camera->RenderState().GetRotation());
+			//_model->GetModelMatrix( modelView, *m_camera );
+		} else {
+			position = _model->GetCenter();
+			_model->GetModelMatrix( modelView, *m_camera );
+			modelView = Mat4x4::Translation(position) * modelView;
+		}
+	} else {
+		// Compute relative to the camera
+		position[0] = position[2] = 0.0;
+		position[1] = float(m_camera->RenderState().GetPosition()[1]);
+		modelView = Mat4x4::Translation(position) * Mat4x4(m_camera->RenderState().GetRotation());
+		// TODO: toggle the plane one on and off
+	}
+	m_objectPlane->Draw( modelView * m_camera->GetProjection() );
 }

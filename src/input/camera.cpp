@@ -1,6 +1,6 @@
 #include "camera.hpp"
-#include "../voxel/model.hpp"
-#include "../graphic/core/uniformbuffer.hpp"
+#include "voxel/model.hpp"
+#include "graphic/core/uniformbuffer.hpp"
 
 using namespace Math;
 
@@ -29,6 +29,13 @@ namespace Input {
 		_cameraUBO["ProjectionInverse"] = m_inverseProjection;
 		_cameraUBO["NearPlane"] = m_nearPlane;
 		_cameraUBO["FarPlane"] = m_farPlane;
+	}
+
+	// ********************************************************************* //
+	Vec3 Camera::GetReferencePosition() const
+	{
+		if( m_hardAttached ) return Mat3x3::Rotation(m_renderTransformation.GetRotation()) * m_referencePos;
+		return Vec3(m_attachedTo->GetPosition() - m_renderTransformation.GetPosition());
 	}
 
 	// ********************************************************************* //
