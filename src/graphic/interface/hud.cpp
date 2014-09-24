@@ -20,7 +20,7 @@ namespace Graphic
 	//		m_screenTextures[i] = nullptr;
 
 		m_dbgLabel = new TextRender(&Graphic::Resources::GetFont(Graphic::Fonts::DEFAULT));//DEFAULT
-		m_dbgLabel->SetPos(Math::Vec2(0.7f,0.8f));
+		m_dbgLabel->SetPos(Math::Vec2(0.6f,0.8f));
 		AddTextRender(m_dbgLabel);
 
 		//m_globalPipelineData->texture2DEffect.BindTexture( "u_screenTex", 7, _globalPipelineData->linearSampler );

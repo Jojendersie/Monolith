@@ -115,10 +115,7 @@ void GSPlay::Render( double _deltaTime )
 	}
 	//m_astTest->Draw( *m_camera );
 
-	Mat4x4 modelView;
-	m_center->GetModelMatrix( modelView, *m_camera );
-	modelView = Mat4x4::Translation(m_center->GetCenter()) * modelView;
-	m_objectPlane->Draw( modelView * m_camera->GetProjection() );
+	DrawReferenceGrid();
 	
 	m_hud->m_dbgLabel->SetText("<s 024>" + std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(RenderStat::g_numVoxels) + "\n#Chunks: " + std::to_string(RenderStat::g_numChunks)+"</s>");
 	m_hud->Draw( _deltaTime );
@@ -174,4 +171,24 @@ void GSPlay::KeyClick( int _key )
 		if( m_center->RayCast(ray, 0, hit) )
 			m_center->Set( hit.position, 0, Voxel::VoxelType::UNDEFINED );
 	}
+}
+
+// ************************************************************************* //
+void GSPlay::DrawReferenceGrid() const
+{
+	Mat4x4 modelView;
+	Vec3 position;
+	auto model = m_camera->GetAttachedModel();
+	if( model )
+	{
+		// Compute relative to the model position
+		position = m_camera->GetReferencePosition();
+	} else {
+		// Compute relative to the camera
+		position[0] = position[2] = 0.0;
+		position[1] = float(m_camera->RenderState().GetPosition()[1]);
+		// TODO: toggle the plane one on and off
+	}
+	modelView = Mat4x4::Translation(position) * Mat4x4(m_camera->RenderState().GetRotation());
+	m_objectPlane->Draw( modelView * m_camera->GetProjection() );
 }

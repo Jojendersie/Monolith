@@ -27,4 +27,7 @@ private:
 	Graphic::Marker::Grid* m_objectPlane;
 	Graphic::Hud* m_hud;
 	Input::Camera* m_camera;
+
+	/// \brief Subroutine of the rendering: Showing the navigation grid.
+	void DrawReferenceGrid() const;
 };

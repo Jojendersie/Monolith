@@ -32,6 +32,13 @@ namespace Input {
 	}
 
 	// ********************************************************************* //
+	const Vec3& Camera::GetReferencePosition() const
+	{
+		if( m_hardAttached ) return Mat3x3(m_renderTransformation.GetRotation()) * m_referencePos;
+		return Vec3(m_attachedTo->GetPosition() - m_renderTransformation.GetPosition());
+	}
+
+	// ********************************************************************* //
 	void Camera::UpdateMatrices()
 	{
 		m_mutex.lock();

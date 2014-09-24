@@ -162,7 +162,7 @@ namespace Voxel {
 		// Compute real volume from logarithmic size
 		int size = 1 << _position[3];
 		Vec3 voxelCenter = Math::IVec3(_position) + size * 0.5f;
-		float voxelSize = size;
+		float voxelSurface = size * size / 6.0f;
 		size = size * size * size;
 
 		// Remove the old voxel
@@ -183,7 +183,7 @@ namespace Voxel {
 			float xSq = voxelCenter[0] * voxelCenter[0];
 			float ySq = voxelCenter[1] * voxelCenter[1];
 			float zSq = voxelCenter[2] * voxelCenter[2];
-			float rSq = voxelSize*voxelSize / 6.f;
+			float rSq = voxelSurface;
 			m_inertiaXYR -= oldMass*(xSq + ySq + rSq);
 			m_inertiaXZR -= oldMass*(xSq + zSq + rSq);
 			m_inertiaYZR -= oldMass*(ySq + zSq + rSq);
@@ -208,7 +208,7 @@ namespace Voxel {
 			float xSq = voxelCenter[0] * voxelCenter[0];
 			float ySq = voxelCenter[1] * voxelCenter[1];
 			float zSq = voxelCenter[2] * voxelCenter[2];
-			float rSq = voxelSize*voxelSize / 6.f;
+			float rSq = voxelSurface;
 			m_inertiaXYR += newMass*(xSq + ySq + rSq);
 			m_inertiaXZR += newMass*(xSq + zSq + rSq);
 			m_inertiaYZR += newMass*(ySq + zSq + rSq);
@@ -272,7 +272,7 @@ namespace Voxel {
 				if( !_node->Children() )
 				{
 					// Compute the position in relation to the mass center
-					float r = 1 << _position[3];
+					float r = float(1 << _position[3]);
 					float x = _position[0] - model->GetCenter()[0] + r * 0.5f;
 					float y = _position[1] - model->GetCenter()[1] + r * 0.5f;
 					float z = _position[2] - model->GetCenter()[2] + r * 0.5f;
