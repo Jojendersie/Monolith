@@ -232,7 +232,7 @@ void ComponentEditor::save()
 			auto& borderTexNode = voxelNode.Add(string("Border Texture"), Jo::Files::MetaFileWrapper::ElementType::INT32, s);
 			for(int c = 0; c < s; c++)
 				for(int v = 0; v < voxelInfo.colCount; v++)
-					if(voxelInfo.colors[v] == voxelInfo.texture[c])//look up in colortable to only write the index in the file 
+					if(voxelInfo.colors[v] == voxelInfo.borderTexture[c])//look up in colortable to only write the index in the file 
 					{
 						borderTexNode[c] = v;
 						break;
