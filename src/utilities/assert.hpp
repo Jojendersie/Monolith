@@ -19,7 +19,7 @@ namespace Details
 	/// Default assert macro for all our needs. Use this instead of <cassert>
 	#define Assert(condition, errorMessage) do { \
 		if((condition) == false) \
-		{   Details::AssertHandler(__FILE__, __LINE__, __FUNCTION__, #condition, (errorMessage)); \
+		{   ::Details::AssertHandler(__FILE__, __LINE__, __FUNCTION__, #condition, (errorMessage)); \
 			DEBUG_BREAK; } \
 		} while(false)
 #else
