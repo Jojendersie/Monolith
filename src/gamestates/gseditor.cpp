@@ -30,6 +30,9 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 	LOG_LVL2("Starting to create game state Editor");
 
 	m_hud = new Graphic::Hud(_game);
+
+	m_hud->CreateEditField(Vec2(-0.98f, 0.94f), Vec2(0.66f, 0.1f), 1, 0.f);
+
 	Graphic::Hud* voxelContainer = m_hud->CreateContainer(Math::Vec2(-0.98f,-1.0f), Math::Vec2(0.66f,1.8f));//Math::Vec2(0.6f,1.75f));
 	voxelContainer->SetScrollable(true);
 
