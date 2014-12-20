@@ -10,7 +10,7 @@ using namespace Math;
 namespace Graphic
 {
 	Hud::Hud(Monolith* _game, Math::Vec2 _pos, Math::Vec2 _size, bool _showCursor):
-		ScreenOverlay(Math::Vec2(_pos[0],-_pos[1]), _size),
+		ScreenOverlay(Math::Vec2(_pos[0],_pos[1] + _size[1]), _size),
 		m_game(_game),
 		m_characters( "2222", VertexBuffer::PrimitiveType::POINT ),
 		m_texContainer("texture/combined.png"),
@@ -91,7 +91,7 @@ namespace Graphic
 	// ************************************************************************* //
 	void Hud::Draw(double _deltaTime)
 	{
-		ScissorRect scissor(m_pos[0], -m_pos[1], m_size[0], m_size[1]);
+		ScissorRect scissor(m_pos[0], m_pos[1]-m_size[1], m_size[0], m_size[1]);
 		RenewBuffer();
 
 		Device::SetEffect( Resources::GetEffect(Effects::TEXTURE_2DQUAD) );
@@ -193,8 +193,7 @@ namespace Graphic
 		//clicking on a screenOverlay
 		if(_key == GLFW_MOUSE_BUTTON_LEFT && m_preElem != nullptr)
 		{
-			m_preElem->KeyDown(_key, _modifiers);
-			return true;
+			return m_preElem->KeyDown(_key, _modifiers);
 		}
 
 		//focused object recieves input
@@ -210,8 +209,8 @@ namespace Graphic
 	{
 		if(_key == GLFW_MOUSE_BUTTON_LEFT && m_preElem != nullptr)
 		{
-		//	m_preElem->KeyUp(_key, _modifiers);
-			m_focus = m_preElem;
+			m_focus = dynamic_cast<EditField*>(m_preElem);
+			return	m_preElem->KeyUp(_key, _modifiers);
 		}
 
 		//focused object recieves input

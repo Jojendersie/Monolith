@@ -258,7 +258,8 @@ namespace Graphic
 			m_cursor--;
 		}
 		//printable chars
-		else if (_key >= 32 && _key <= 162 && m_textRender.GetExpanse()[0] + m_textRender.GetDim()[0] * m_fontSize < m_size[0])
+		//check whether an added char would overflow the rectangle; 1.5 to take into account the start offset
+		else if (_key >= 32 && _key <= 162 && m_textRender.GetExpanse()[0] + m_textRender.GetDim()[0] * m_fontSize * 1.5f < m_size[0])
 		{
 			//letter A - Z without shift -> lower case
 			if (_key >= 65 && _key <= 90 && !(_modifiers & GLFW_MOD_SHIFT))
@@ -267,6 +268,7 @@ namespace Graphic
 			m_content.insert(m_cursor, 1, _key);
 			m_cursor++;
 		}
+		else return false;
 
 		//update textRender
 		m_textRender.SetText(m_content);
