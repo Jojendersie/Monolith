@@ -2,13 +2,16 @@
 #include "..\..\math\ray.hpp"
 #include "..\..\input\camera.hpp"
 #include "../../voxel/model.hpp"
+#include "GLFW/glfw3.h"
+
+using namespace Math;
 
 namespace Graphic
 {
 	ScreenTexture::ScreenTexture(Jo::Files::MetaFileWrapper* _posMap, std::string _name, Math::Vec2 _position, Math::Vec2 _size,
 		RealDimension _rDim, std::function<void()> _OnMouseUp):
 		ScreenOverlay(_position, _size, _OnMouseUp),
-		m_realDimension(_rDim),
+		m_realDimension(_rDim), //sizes are calculated when added to a hud
 		m_posDef(_position),
 		m_sizeDef(_size)
 	{
@@ -190,32 +193,83 @@ namespace Graphic
 	// ************************************************************** //
 
 
-	Editfield::Editfield(Jo::Files::MetaFileWrapper* _posMap, Font* _font, Math::Vec2 _position, Math::Vec2 _size, int _lines, float _fontSize):
-		ScreenTexture(_posMap, "EditField", _position, _size),
+	EditField::EditField(Jo::Files::MetaFileWrapper* _posMap, Font* _font, Math::Vec2 _position, Math::Vec2 _size, int _lines, float _fontSize) :
+		ScreenTexture(_posMap, "voxelBtnDefault", _position, _size, Graphic::no), //,"EditField,,"
 		m_linesMax(_lines),
 		m_font(_font),
-		m_fontSize(_fontSize)
+		m_fontSize(_fontSize),
+		m_textRender(m_font),
+		m_content("I"),//init with cursor indicator
+		m_cursor(0)
 	{
-		m_lines.push_back(std::unique_ptr<TextRender>(new TextRender(_font)));
-	//	SetVisibility(false); 
+	//	m_lines.emplace_back(new TextRender(_font));
+	//	SetVisibility(false);
 	//	SetState(true);
-		m_lines[0]->SetPos(_position+Math::Vec2(0.02f,-0.75f*_size[1]));
-	//	m_lines[0].SetText("insert text here");
+		m_textRender.SetText("");
+		Vec2 dim = m_textRender.GetDim();
+
+		//automatic rezising of the text to fit the field
+		if (!_fontSize)
+		{
+			m_fontSize = m_size[1] / dim[1];
+			m_textRender.SetDefaultSize( m_fontSize );
+		}
+
+		//offset of an half char in x direction ;center in y direction
+		m_textRender.SetPos(m_pos + Math::Vec2(m_fontSize * m_textRender.GetDim()[0] * 0.5f, -m_size[1] * 0.5f - m_textRender.GetExpanse()[1] * 0.5f));
 	}
 
-	void Editfield::AddLine(int _preLine)
+	void EditField::AddLine(int _preLine)
 	{
-		int size = (int)m_lines.size();
+	/*	int size = (int)m_lines.size();
 		if(size >= m_linesMax) return;
 		//create new line on right pos
 		m_lines.insert(m_lines.begin()+_preLine, std::unique_ptr<TextRender>(new TextRender(m_font)));
 		//erange texture and TextRenders
 		for(int i = 0; i < size; i++)
 			m_lines[i]->SetPos(m_vertex.position+Math::Vec2(0.02f,-0.75f*i));
+		*/
 	}
 
-	bool Editfield::KeyDown(int _key, int _modifiers, Math::Vec2 _pos)
+	bool EditField::KeyDown(int _key, int _modifiers, Math::Vec2 _pos)
 	{
+		//mouse click -> set cursor
+		if (_key == GLFW_MOUSE_BUTTON_LEFT)
+		{
+		//	m_cursor = 0;
+			return true; //nothing more happens
+		}
+		//right arrow key -> shift cursor 
+		else if (_key == GLFW_KEY_RIGHT && m_cursor + 1 < m_content.size())
+		{
+			std::swap(m_content[m_cursor], m_content[m_cursor + 1]);
+			m_cursor++;
+		}
+		//left arrow key 
+		else if (_key == GLFW_KEY_LEFT && m_cursor > 0)
+		{
+			std::swap(m_content[m_cursor], m_content[m_cursor - 1]);
+			m_cursor--;
+		}
+		//backspace
+		else if (_key == GLFW_KEY_BACKSPACE)
+		{
+			m_content.erase(m_cursor - 1, 1);
+			m_cursor--;
+		}
+		//printable chars
+		else if (_key >= 32 && _key <= 162 && m_textRender.GetExpanse()[0] + m_textRender.GetDim()[0] * m_fontSize < m_size[0])
+		{
+			//letter A - Z without shift -> lower case
+			if (_key >= 65 && _key <= 90 && !(_modifiers & GLFW_MOD_SHIFT))
+				_key += 32;
+			//insert happens in front of m_cursor
+			m_content.insert(m_cursor, 1, _key);
+			m_cursor++;
+		}
+
+		//update textRender
+		m_textRender.SetText(m_content);
 		//calc pursor pos
 		//take dimensions of the first char, as every 
 //		m_cursor[0] = _pos[0] / m_font->m_sizeTable[0][0];
@@ -223,7 +277,7 @@ namespace Graphic
 		return true;
 	}
 
-	bool Editfield::KeyUp(int _key, int _modifiers, Math::Vec2 _pos)
+	bool EditField::KeyUp(int _key, int _modifiers, Math::Vec2 _pos)
 	{
 		return true;
 	}

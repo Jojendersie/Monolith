@@ -5,6 +5,8 @@
 #include "GLFW/glfw3.h"
 
 
+using namespace Math;
+
 namespace Graphic
 {
 	Hud::Hud(Monolith* _game, Math::Vec2 _pos, Math::Vec2 _size, bool _showCursor):
@@ -14,7 +16,8 @@ namespace Graphic
 		m_texContainer("texture/combined.png"),
 		m_preElem(NULL),
 		m_showCursor(_showCursor),
-		m_scrollable(false)
+		m_scrollable(false),
+		m_focus(nullptr)
 	{
 	//	for( int i = 0; i < MAX_SCREENTEX; i++ )
 	//		m_screenTextures[i] = nullptr;
@@ -33,9 +36,8 @@ namespace Graphic
 	//	m_cursor->SetState(_showCursor);
 		AddTexture(m_cursor);
 
-	//	m_btnMenu = new Button(m_texContainerMap, m_globalPipelineData->defaultFont, "menuBtn", Math::Vec2(-0.9f,0.92f), Math::Vec2(0.16f,0.07f));
-	//	m_btnMenu->m_caption.SetText("<c 000 024 242 255> <s 032>Menue</s> </c>");
-	//	AddButton(m_btnMenu);
+		//editfield testing
+		//CreateEditField(Vec2(-1.f, 0.f), Vec2(0.4f, 0.1f), 1, 0.f);
 	}
 
 	// ************************************************************************* //
@@ -76,6 +78,15 @@ namespace Graphic
 		AddScreenOverlay(screenModel);
 		m_screenModels.push_back(std::unique_ptr<ScreenModel>(screenModel));
 	};
+
+	// ************************************************************************* //
+	void Hud::CreateEditField(Math::Vec2 _pos, Math::Vec2 _size, int _lines, float _fontSize)
+	{
+		m_editFields.emplace_back(new EditField(m_texContainerMap, &Resources::GetFont(Fonts::GAME_FONT), _pos, _size, _lines, _fontSize));
+//		m_editFields.push_back(EditField(m_texContainerMap, &Resources::GetFont(Fonts::GAME_FONT), _pos, _size));
+		AddTexture(m_editFields.back().get());
+		AddTextRender(m_editFields.back()->getTextRender());
+	}
 
 	// ************************************************************************* //
 	void Hud::Draw(double _deltaTime)
@@ -147,13 +158,15 @@ namespace Graphic
 
 		//todo: include mousespeed in config  
 
-		//collision with hud elements 
+		//collision with hud elements
+		//unsigned int sign (i >= 0) check does not work
 		for(size_t i = m_screenOverlays.size(); i-- > 0; )
 		{
 			ScreenOverlay* screenOverlay = m_screenOverlays[i]; 
 			Math::Vec2 loc2;
 			loc2[0] = screenOverlay->m_pos[0] + screenOverlay->m_size[0];
 			loc2[1] = screenOverlay->m_pos[1] - screenOverlay->m_size[1];
+
 			if((screenOverlay->GetState())
 			&&(screenOverlay->m_pos[0] < cursorPos[0]) && (screenOverlay->m_pos[1] > cursorPos[1])
 			&& (loc2[0] > cursorPos[0]) && (loc2[1] < cursorPos[1]))
@@ -177,11 +190,19 @@ namespace Graphic
 	// ************************************************************************* //
 	bool Hud::KeyDown( int _key, int _modifiers, Math::Vec2 _pos )
 	{
+		//clicking on a screenOverlay
 		if(_key == GLFW_MOUSE_BUTTON_LEFT && m_preElem != nullptr)
 		{
 			m_preElem->KeyDown(_key, _modifiers);
 			return true;
 		}
+
+		//focused object recieves input
+		if (m_focus)
+		{
+			return m_focus->KeyDown(_key, _modifiers);
+		}
+
 		return false;
 	}
 
@@ -189,9 +210,16 @@ namespace Graphic
 	{
 		if(_key == GLFW_MOUSE_BUTTON_LEFT && m_preElem != nullptr)
 		{
-			m_preElem->KeyUp(_key, _modifiers);
-			return true;
+		//	m_preElem->KeyUp(_key, _modifiers);
+			m_focus = m_preElem;
 		}
+
+		//focused object recieves input
+		if (m_focus)
+		{
+			return m_focus->KeyUp(_key, _modifiers);
+		}
+
 		return false;
 	}
 	
@@ -248,6 +276,9 @@ namespace Graphic
 	//	_tex->m_vertex.texCoord[1] += 0.5f/m_texContainer.Height();
 		switch (_tex->m_realDimension)
 		{
+		case no:
+			_tex->SetSize(_tex->m_sizeDef);
+			break;
 		case width:
 			_tex->SetSize(Math::Vec2(_tex->m_sizeDef[0], _tex->m_sizeDef[1] / Device::GetAspectRatio()));
 			break;

@@ -158,15 +158,18 @@ namespace Graphic {
 		Voxel::Model* m_model;
 	};
 
-	/// \brief A field wich allows text input
-	class Editfield : public ScreenTexture
+	/// \brief A panel wich allows text input
+	class EditField : public ScreenTexture
 	{
 	public:
 		/// \brief Create a useable EditField on the screen
-		/// \details param [in] informations needed for tex and Textrender
+		/// \details param [in] informations needed for texture and Textrender
 		/// _lines The amount of lines the field has; 0 means automatic
-		Editfield(Jo::Files::MetaFileWrapper* _posMap, Font* _font, Math::Vec2 _position, Math::Vec2 _size, int _lines = 1, float _fontSize = 1);
+		/// _fontSize used fontsize for the text; 0 means automatic
+		EditField(Jo::Files::MetaFileWrapper* _posMap, Font* _font, Math::Vec2 _position, Math::Vec2 _size, int _lines = 1, float _fontSize = 1);
 
+
+		TextRender* getTextRender() { return &m_textRender; };
 	private:
 
 		/// \brief Adds an line after the specified one when it does not violate m_linesMax 
@@ -175,8 +178,11 @@ namespace Graphic {
 		int m_linesMax;
 		Font* m_font;
 		float m_fontSize; ///< all lines have the same size
-		int m_cursor[2]; /// < [0] - char;  [1] - line
-		std::vector< std::unique_ptr< TextRender > > m_lines; 
+		int m_cursor; /// < index of the cursor char in m_content
+
+		std::string m_content;
+		TextRender m_textRender;
+		//std::vector< std::unique_ptr< TextRender > > m_lines; 
 
 		virtual bool KeyDown(int _key, int _modifiers, Math::Vec2 _pos) override;
 		virtual bool KeyUp(int _key, int _modifiers, Math::Vec2 _pos) override;

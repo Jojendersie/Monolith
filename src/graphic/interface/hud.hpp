@@ -22,8 +22,11 @@ namespace Graphic {
 		Hud* CreateContainer(Math::Vec2 _pos=Math::Vec2(-1.f,-1.f) , Math::Vec2 _size=Math::Vec2(2.f,2.f));
 
 		/// \brief Creates an screenModel
-		/// ScreenModels requier a camera to be set first per SetCamera()
+		/// ScreenModels requiere a camera to be set first per SetCamera()
 		void CreateModel(Math::Vec2 _pos , Math::Vec2 _size, Voxel::Model* _model);
+
+		/// \brief Creates an EditField
+		void CreateEditField(Math::Vec2 _pos, Math::Vec2 _size, int _lines = 1, float _fontSize = 1);
 
 		/// \brief Last call in every frame drawcall
 		void Draw(double _deltaTime);
@@ -65,7 +68,7 @@ namespace Graphic {
 
 	private:
 
-		ScreenTexture* m_focus;///< object wich currently takes the input
+		ScreenOverlay* m_focus;///< object wich currently takes the input
 
 		/// \brief rebuilds the vertex buffer for screen textures
 		void RenewBuffer(); 
@@ -82,18 +85,17 @@ namespace Graphic {
 		Jo::Files::MetaFileWrapper* m_texContainerMap; ///< the size and position informations of the elements in the container
 
 		//dynamic lists to hold and manage HUD elements
-		//todo use std::vector + RAII - Mememorymanagment for better performance and readability
 		//all elements of m_containers and m_screenModels are aswell in m_screenOverlays
 
-		std::vector<TextRender*> m_textRenders;
-
-		std::vector<ScreenOverlay*> m_screenOverlays;
-
+		//ownership
 		std::vector<Button*> m_buttons;
-
+		std::vector<std::unique_ptr <EditField> > m_editFields;
 		std::vector<std::unique_ptr <Hud> > m_containers;
-
 		std::vector<std::unique_ptr <ScreenModel> > m_screenModels;
+
+		//no ownership
+		std::vector<TextRender*> m_textRenders;
+		std::vector<ScreenOverlay*> m_screenOverlays;
 
 		ScreenOverlay* m_preElem;///< Handle to the screenTexture wich the cursor points to 
 		ScreenTexture* m_cursor;///< the ingame cursor
