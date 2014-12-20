@@ -66,8 +66,12 @@ namespace Graphic {
 		void SetDefaultSize(float _size);
 		float GetDefaultSize() {return m_sizeD;};
 
-		/// \brief returns the real dimensions the string is drawn in
+		/// \brief returns the real dimensions the chars are drawn in
+		/// \details chars are stretched to preserve the right view on the screen
 		Math::Vec2 GetDim();
+
+		/// \brief returns the size of the smallest rectangle in screen coords in wich the displayed text would fit in
+		Math::Vec2 GetExpanse();
 
 		/// \brief returns the largest size the string contains(set per <s>)
 		float GetMaxSize(){return m_sizeMax;};
@@ -90,5 +94,9 @@ namespace Graphic {
 		float m_thickness, m_thicknessD;
 
 		float m_sizeMax;
+
+		int m_lineCount; ///< Amount of linebreaks m_text contains
+		Math::Vec2 m_expanse; ///< size of the area the string posesses on the screen
+		Math::Vec2 m_charSize; //< real x/y size a char is drawn in; x is not reliable since most fonts have differing widths
 	};
 };

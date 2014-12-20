@@ -46,6 +46,9 @@ namespace Graphic
 		m_color = m_colorD;
 		m_thickness = m_thicknessD;
 		SetText("no input");
+
+		//calculates the screen ratio
+		GetDim();
 	}
 
 
@@ -69,12 +72,22 @@ namespace Graphic
 	{
 		m_sizeD = _size;
 		//only happens on control char endings, thus refresh now
-		m_size = m_sizeD; 
+		m_size = m_sizeD;
+		RenewBuffer();
 	}
 
 	Math::Vec2 TextRender::GetDim()
 	{
-		return Math::Vec2(m_font->m_sizeTable[0][0],m_font->m_sizeTable[0][1] *	(m_font->m_texture.Height() / (float)m_font->m_texture.Width()) * Device::GetAspectRatio());
+		m_charSize = Math::Vec2(m_font->m_sizeTable[0][0],
+								   m_font->m_sizeTable[0][1] * (m_font->m_texture.Height()
+								   / (float)m_font->m_texture.Width()) * Device::GetAspectRatio());
+		return m_charSize;
+	}
+
+
+	Math::Vec2 TextRender::GetExpanse()
+	{
+		return m_expanse;
 	}
 
 	void TextRender::Draw()
@@ -124,27 +137,43 @@ namespace Graphic
 	{
 		//reset the previous build
 		m_characters.Clear();
-		m_sizeMax = 0.f;
+		m_sizeMax = m_size;
 		Math::Vec2 currentPos = m_screenPos;
+
+		float maxExpanseX = currentPos[0];
+
 		for(size_t i = 0; i<m_text.length(); i++)
 		{
 			CharacterVertex CV;
 			CV.scale = m_size; 
 			CV.size = m_font->m_sizeTable[(unsigned char)m_text[i]];
 			CV.texCoord = m_font->m_coordTable[(unsigned char)m_text[i]];
-			CV.position = Math::Vec2(currentPos[0],currentPos[1]); //(m_size-1.f) * CV.size[1]) 
+			CV.position = currentPos;
 			CV.thickness = m_thickness;
-			CV.color = m_color.RGBA(); 
+			CV.color = m_color.RGBA();
+
 			//line break
 			if(m_text[i] == '\n')
-			{currentPos[0] = m_screenPos[0]; currentPos[1]	-= GetDim()[1] * m_sizeMax;}//offset to lower line space
+			{
+				if (currentPos[0] > maxExpanseX) maxExpanseX = currentPos[0];
+				currentPos[0] = m_screenPos[0]; 
+				//m_screenRatio already contains the chars y size because its constant for every char
+				currentPos[1] -= m_charSize[1] * m_sizeMax;//offset to lower line space
+			}
 			else if(m_text[i] == '<') { i += CntrlChr((int)i)-1; continue;} 
 			else currentPos[0] += m_font->m_sizeTable[(unsigned char)m_text[i]][0]*m_size;  
+
  			m_characters.Add(CV);
+
 			//save the greatest size that gets used in the text
 			//after checking for cntrl chars
 			if(m_size > m_sizeMax && m_text[i] != ' ') m_sizeMax = m_size;
 		}
 		m_characters.SetDirty();
+
+		//when no line break happened
+		if (currentPos[0] > maxExpanseX) maxExpanseX = currentPos[0];
+		//calculate size using the start and end point; the points are always the lower left of the char
+		m_expanse = Math::abs((m_screenPos + Math::Vec2(-maxExpanseX, m_charSize[1] * m_sizeMax - currentPos[1])));
 	}
 }; 
