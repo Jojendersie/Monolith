@@ -33,7 +33,7 @@ vec2 BlinnPhongFresnel(vec3 _normal, vec3 _view, vec3 _light, float _shininess, 
 	
 	ds.x = NdotL;
 	ds.y = (_power+1) * pow(NdotH, _power) / 120.0;
-	/*float fresnel = _shininess + (1-_shininess) * pow(1-HdotV, 5.0);
+	float fresnel = _shininess + (1-_shininess) * pow(1-HdotV, 5.0);
 	ds.y *= fresnel;//*/
 
 	return ds;

@@ -4,13 +4,15 @@
 
 in uint vs_out_VoxelCode[1];
 in uint vs_out_MaterialCode[1];
-out vec3 gs_color;
+out vec4 gs_color;		// RGB and Emissive
+out vec2 gs_specular;	// Shininess and exponent
+out vec3 gs_normal;
+out vec3 gs_viewDir;
 
 layout(points) in;
 layout(triangle_strip, max_vertices = OUT_VERTS) out;
 
 #include "globalubo.glsl"
-#include "material.glsl"
 
 layout(std140) uniform Object
 {
@@ -50,8 +52,6 @@ void main(void)
 		abs(vPos.y) > w )
 		return;
 
-	vec3 vViewDirection = normalize(-vViewPos);
-
 	// Decode transparency or color rotation
 	int code = int(vs_out_MaterialCode[0]);
 	float yvar = float((code >> 28) & 0xf) / 15.0;
@@ -71,12 +71,17 @@ void main(void)
 	float shininess = float((code >> 12) & 0xf) / 15.0;
 	// Use code as power of to and compute: (2^spec) * 3
 	float specular = (1 << ((code >> 8) & 0xf)) * 3.0;
-	float emissive = float((code >> 17) & 1);
+	float emissive = float((code >> 17) & 1);//*/
 	
 	/*float shininess = vPos.z;
 	float specular = vPos.y;
-	vec3 color = vViewDirection;
-	float emissive = vViewPos.x * vViewPos.z;*/
+	vec3 color = vViewPos;
+	float emissive = vViewPos.x * vViewPos.z;//*/
+	
+	gs_color.xyz = color;
+	gs_color.w = emissive;
+	gs_specular = vec2(shininess, specular);
+	gs_viewDir = normalize(-vViewPos);
 
 	// To determine the culling the projective position is inverse transformed
 	// back to view space (which is a single mad operation). This direction to
@@ -90,8 +95,7 @@ void main(void)
 	if( dot((c_vCorner000.xyz+c_vCorner110.xyz)*c_vInverseProjection.xyz, vZDir) < 0 ) {
 		if( (vs_out_VoxelCode[0] & uint(0x10)) != uint(0) )
 		{
-			vec3 normal = normalize((vec4(0,0,-1,0) * c_mWorldView).xyz);
-			gs_color = Lightning(normal, vViewDirection, shininess, specular, color, emissive);
+			gs_normal = normalize((vec4(0,0,-1,0) * c_mWorldView).xyz);
 			gl_Position = c_vCorner000 + vPos;
 			EmitVertex();
 			gl_Position = c_vCorner100 + vPos;
@@ -105,8 +109,7 @@ void main(void)
 	} else {
 		if( (vs_out_VoxelCode[0] & uint(0x20)) != uint(0) )
 		{
-			vec3 normal = normalize((vec4(0,0,1,0) * c_mWorldView).xyz);
-			gs_color = Lightning(normal, vViewDirection, shininess, specular, color, emissive);
+			gs_normal = normalize((vec4(0,0,1,0) * c_mWorldView).xyz);
 			gl_Position = c_vCorner011 + vPos;
 			EmitVertex();
 			gl_Position = c_vCorner111 + vPos;
@@ -122,8 +125,7 @@ void main(void)
 	if( dot((c_vCorner010.xyz+c_vCorner111.xyz)*c_vInverseProjection.xyz, vZDir) < 0 ) {
 		if( (vs_out_VoxelCode[0] & uint(0x08)) != uint(0) )
 		{
-			vec3 normal = normalize((vec4(0,1,0,0) * c_mWorldView).xyz);
-			gs_color = Lightning(normal, vViewDirection, shininess, specular, color, emissive);
+			gs_normal = normalize((vec4(0,1,0,0) * c_mWorldView).xyz);
 			gl_Position = c_vCorner010 + vPos;
 			EmitVertex();
 			gl_Position = c_vCorner110 + vPos;
@@ -137,8 +139,7 @@ void main(void)
 	} else {
 		if( (vs_out_VoxelCode[0] & uint(0x04)) != uint(0) )
 		{
-			vec3 normal = normalize((vec4(0,-1,0,0) * c_mWorldView).xyz);
-			gs_color = Lightning(normal, vViewDirection, shininess, specular, color, emissive);
+			gs_normal = normalize((vec4(0,-1,0,0) * c_mWorldView).xyz);
 			gl_Position = c_vCorner100 + vPos;
 			EmitVertex();
 			gl_Position = c_vCorner000 + vPos;
@@ -154,8 +155,7 @@ void main(void)
 	if( dot((c_vCorner000.xyz+c_vCorner011.xyz)*c_vInverseProjection.xyz, vZDir) < 0 ) {
 		if( (vs_out_VoxelCode[0] & uint(0x01)) != uint(0) )
 		{
-			vec3 normal = normalize((vec4(-1,0,0,0) * c_mWorldView).xyz);
-			gs_color = Lightning(normal, vViewDirection, shininess, specular, color, emissive);
+			gs_normal = normalize((vec4(-1,0,0,0) * c_mWorldView).xyz);
 			gl_Position = c_vCorner000 + vPos;
 			EmitVertex();
 			gl_Position = c_vCorner010 + vPos;
@@ -169,8 +169,7 @@ void main(void)
 	} else {
 		if( (vs_out_VoxelCode[0] & uint(0x02)) != uint(0) )
 		{
-			vec3 normal = normalize((vec4(1,0,0,0) * c_mWorldView).xyz);
-			gs_color = Lightning(normal, vViewDirection, shininess, specular, color, emissive);
+			gs_normal = normalize((vec4(1,0,0,0) * c_mWorldView).xyz);
 			gl_Position = c_vCorner110 + vPos;
 			EmitVertex();
 			gl_Position = c_vCorner100 + vPos;

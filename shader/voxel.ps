@@ -1,9 +1,16 @@
 #version 330
 
-in vec3 gs_color;
+in vec4 gs_color;		// RGB and Emissive
+in vec2 gs_specular;	// Shininess and exponent
+in vec3 gs_normal;
+in vec3 gs_viewDir;
 out vec4 fragColor;
+
+#include "material.glsl"
+
 
 void main()
 {
-	fragColor = vec4(gs_color,1);
+	fragColor.xyz = Lightning(gs_normal, gs_viewDir, gs_specular.x, gs_specular.y, gs_color.xyz, gs_color.w);
+	fragColor.a = 1;
 }
