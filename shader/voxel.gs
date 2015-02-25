@@ -4,10 +4,9 @@
 
 in uint vs_out_VoxelCode[1];
 in uint vs_out_MaterialCode[1];
-out vec4 gs_color;		// RGB and Emissive
-out vec2 gs_specular;	// Shininess and exponent
-out vec3 gs_normal;
-out vec3 gs_viewDir;
+flat out uint gs_materialCode;
+flat out vec3 gs_normal;
+flat out vec4 gs_viewDir_phase;
 
 layout(points) in;
 layout(triangle_strip, max_vertices = OUT_VERTS) out;
@@ -52,37 +51,10 @@ void main(void)
 		abs(vPos.y) > w )
 		return;
 
-	// Decode transparency or color rotation
-	int code = int(vs_out_MaterialCode[0]);
-	float yvar = float((code >> 28) & 0xf) / 15.0;
-
-	// Decode rgb color from material
-	float color_y  = float(code & 0xff) / 255.0;
-	float phase = mod(hash(vs_out_VoxelCode[0]), uint(6283)) * 0.001;
-	color_y *= (sin(c_fTime * 3.0 + phase) * 0.5 + 0.5) * yvar + 1 - yvar;
-	float color_pb = (float((code >> 18) & 0x1f) - 15.0) / 255.0;
-	float color_pr = (float((code >> 23) & 0x1f) - 15.0) / 255.0;
-	vec3 color = vec3(color_y + 0.22627 * color_pb + 11.472 * color_pr,
-					color_y - 3.0268 * color_pb - 5.8708 * color_pr,
-					color_y + 14.753 * color_pb + 0.0082212 * color_pr);
-	//color = min(vec3(1,1,1), max(vec3(0,0,0), color));
-
-	// Decode other material parameters
-	float shininess = float((code >> 12) & 0xf) / 15.0;
-	// Use code as power of to and compute: (2^spec) * 3
-	float specular = (1 << ((code >> 8) & 0xf)) * 3.0;
-	float emissive = float((code >> 17) & 1);//*/
+	gs_materialCode = vs_out_MaterialCode[0];
+	gs_viewDir_phase.xyz = normalize(-vViewPos);
+	gs_viewDir_phase.w = mod(hash(vs_out_VoxelCode[0]), uint(6283)) * 0.001;
 	
-	/*float shininess = vPos.z;
-	float specular = vPos.y;
-	vec3 color = vViewPos;
-	float emissive = vViewPos.x * vViewPos.z;//*/
-	
-	gs_color.xyz = color;
-	gs_color.w = emissive;
-	gs_specular = vec2(shininess, specular);
-	gs_viewDir = normalize(-vViewPos);
-
 	// To determine the culling the projective position is inverse transformed
 	// back to view space (which is a single mad operation). This direction to
 	// the voxel center is used to approximate the view direction to the faces
