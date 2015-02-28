@@ -57,9 +57,14 @@ namespace Generators {
 	Random::Random( uint32_t _seed )
 	{
 		m_state[0] = 0xaffeaffe ^ _seed;
-		m_state[1] = 0xf9b2a750 ^ (_seed + 1);
-		m_state[2] = 0x485eac66 ^ (_seed - 1);
-		m_state[3] = 0xcbd02714 ^ (_seed + 263083);
+		m_state[1] = 0xf9b2a750 ^ (_seed * 0x804c8a24 + 0x68f699be);
+		m_state[2] = 0x485eac66 ^ (_seed * 0x0fe56638 + 0xc917c8ce);
+		m_state[3] = 0xcbd02714 ^ (_seed * 0x57571dae + 0xce2b3bd1);
+		// Warmup
+		Xorshift128();
+		Xorshift128();
+		Xorshift128();
+		Xorshift128();
 	}
 
 	// ********************************************************************* //
