@@ -96,8 +96,10 @@ namespace Voxel {
 		///		find the first nonempty voxel on a higher level.
 		///	\param [out] _hit The first voxel on the target level which is non
 		///		empty. This is only defined if there is a collision.
+		/// \param [in,out] _distance Maximum allowed ray distance. Outputs the
+		///		new (smaller) distance on hit.
 		///	\return true if there is a collision.
-		bool RayCast( const Math::Ray& _ray, int _targetLevel, HitResult& _hit ) const;
+		bool RayCast( const Math::Ray& _ray, int _targetLevel, HitResult& _hit, float& _distance ) const;
 
 
 
@@ -127,7 +129,7 @@ namespace Voxel {
 
 			/// \copydoc SparseVoxelOctree::RayCast
 			bool RayCast( const Math::Ray& _ray, Math::IVec3& _position, int _level,
-				int _targetLevel, HitResult& _hit ) const;
+				int _targetLevel, HitResult& _hit, float& _distance ) const;
 
 			T& Data()						{ return m_data; }
 			const T& Data() const			{ return m_data; }
@@ -421,7 +423,7 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	template<typename T, typename Listener>
-	bool SparseVoxelOctree<T,Listener>::RayCast( const Math::Ray& _ray, int _targetLevel, HitResult& _hit ) const
+	bool SparseVoxelOctree<T,Listener>::RayCast( const Math::Ray& _ray, int _targetLevel, HitResult& _hit, float& _distance ) const
 	{
 		Assert(m_rootSize != -1, "Octree not yet initialized!");
 
@@ -429,7 +431,7 @@ namespace Voxel {
 		if( m_rootSize < _targetLevel )
 		{
 			IVec3 position = m_rootPosition << (_targetLevel - m_rootSize);
-			if( Math::Intersect::RayAACube( _ray, position, (1<<_targetLevel), _hit.side ) )
+			if( Math::Intersect::RayAACube( _ray, position, (1<<_targetLevel), _distance, _hit.side ) )
 			{
 				_hit.position = position;
 				_hit.voxel = T::UNDEFINED;
@@ -438,7 +440,7 @@ namespace Voxel {
 				return false;
 		} else 
 			// Use recursive algorithm.
-			return m_root.RayCast( _ray, Math::IVec3(m_rootPosition), m_rootSize, _targetLevel, _hit );
+			return m_root.RayCast( _ray, Math::IVec3(m_rootPosition), m_rootSize, _targetLevel, _hit, _distance );
 	}
 
 	// ********************************************************************* //
@@ -606,15 +608,15 @@ namespace Voxel {
 	// ********************************************************************* //
 	template<typename T, typename Listener>
 	bool SparseVoxelOctree<T,Listener>::SVON::RayCast( const Math::Ray& _ray, Math::IVec3& _position, int _level,
-		int _targetLevel, HitResult& _hit ) const
+		int _targetLevel, HitResult& _hit, float& _distance ) const
 	{
 		// Test the current cube
 		if( m_children && !(_targetLevel==_level))
 		{
 			// Recursion required. We can user fast test without side detection.
-			float t;
 			int edgeLength = 1<<_level;
-			if( Math::Intersect::RayAACube( _ray, _position * edgeLength, edgeLength, t ) )
+			float _maxRange = _distance;
+			if( Math::Intersect::RayAACube( _ray, _position * edgeLength, edgeLength, _maxRange ) )
 			{
 				// Ray passes the current node. Make a sphere test for each
 				// child.
@@ -632,7 +634,7 @@ namespace Voxel {
 						// Create spheres centered at the box centers
 						if( Math::Intersect::RaySphere( _ray,
 							Math::Sphere( (_position + Math::IVec3(CHILD_OFFSETS[i]))*edgeLength + centerOffset, r ),
-							list[num].value ) )
+							list[num].value ) && (list[num].value < _distance) )
 							list[num++].index = i;
 					}
 				}
@@ -642,7 +644,7 @@ namespace Voxel {
 
 				// Test them sequentially and stop immediately if something was hit.
 				for( int i=0; i<num; ++i )
-					if( m_children[list[i].index].RayCast( _ray, _position + Math::IVec3(CHILD_OFFSETS[list[i].index]), _level-1, _targetLevel, _hit ) )
+					if( m_children[list[i].index].RayCast( _ray, _position + Math::IVec3(CHILD_OFFSETS[list[i].index]), _level-1, _targetLevel, _hit, _distance ) )
 						return true;
 
 				// No child collides
@@ -651,7 +653,7 @@ namespace Voxel {
 		} else {
 			// This is a leaf - if we hit we wanna know the side.
 			int edgeLength = 1<<_level;
-			if( Math::Intersect::RayAACube( _ray, _position * edgeLength, edgeLength, _hit.side ) )
+			if( Math::Intersect::RayAACube( _ray, _position * edgeLength, edgeLength, _distance, _hit.side ) )
 			{
 				_hit.position = _position;
 				_hit.voxel = m_data;

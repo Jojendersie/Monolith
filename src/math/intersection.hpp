@@ -20,8 +20,9 @@ namespace Intersect {
 	/// \param [in] _ray The ray.
 	/// \param [in] _min Minimum corner of the cube.
 	/// \param [in] _edgeLength The edge length of the cube. Must be positive.
-	/// \param [out] _t First point of the ray which intersects with the box
-	///		if there was a collision.
+	/// \param [in,out] _t Threshold for maximal hit distance and output of
+	///		the first point of the ray which intersects with the box if there
+	///		is a collision.
 	///	\return true if the ray start inside the box hits it from outside.
 	///		false if ray and box have no point in common.
 	bool RayAACube( const Math::Ray& _ray, const Math::IVec3& _min, int _edgeLength, float& _t );
@@ -36,7 +37,7 @@ namespace Intersect {
 	///		direction of the ray, if it starts inside.
 	///	\return true if the ray start inside the box hits it from outside.
 	///		false if ray and box have no point in common.
-	bool RayAACube( const Math::Ray& _ray, const Math::IVec3& _min, int _edgeLength, Side&  _side );
+	bool RayAACube( const Math::Ray& _ray, const Math::IVec3& _min, int _edgeLength, float& _t, Side&  _side );
 
 	/// \brief Find the closest point on the ray to the sphere center.
 	/// \param [in] _ray The ray.

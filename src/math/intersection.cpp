@@ -46,14 +46,18 @@ namespace Intersect {
 		if(	(min > tmax) || (tmin > max) )
 			return false;
 
-		_t = Math::max(Math::max(min, tmin), 0.0f);
+		if( 0.0f > max || 0.0f > tmax ) return false;
 
-		return 0.0f < max && 0.0f < tmax;
+		float t = Math::max(Math::max(min, tmin), 0.0f);
+		if( t > _t ) return false;
+		_t = t;
+
+		return true;
 	}
 
 
 	// ********************************************************************* //
-	bool RayAACube( const Math::Ray& _ray, const Math::IVec3& _min, int _edgeLength, Side&  _side )
+	bool RayAACube( const Math::Ray& _ray, const Math::IVec3& _min, int _edgeLength, float& _t, Side&  _side )
 	{
 		// Box intersection algorithm:
 		// http://people.csail.mit.edu/amy/papers/box-jgt.pdf
@@ -103,7 +107,13 @@ namespace Intersect {
 
 		if( tmin > min ) _side = tside;
 
-		return 0.0f < max && 0.0f < tmax;
+		if( 0.0f > max || 0.0f > tmax ) return false;
+
+		float t = Math::max(Math::max(min, tmin), 0.0f);
+		if( t > _t ) return false;
+		_t = t;
+
+		return true;
 	}
 
 

@@ -107,7 +107,8 @@ void GSEditor::Simulate( double _deltaTime )
 	// Find out the position where the cursor points to.
 	WorldRay ray = m_modelCamera->GetRay( Input::Manager::GetCursorPosScreenSpace() );
 	Voxel::Model::ModelData::HitResult hit;
-	m_rayHits = m_model->RayCast( ray, 0, hit );
+	float maxRange = 1e10f;
+	m_rayHits = m_model->RayCast( ray, 0, hit, maxRange );
 	if( m_rayHits )
 	{
 		m_lvl0Position = hit.position;

@@ -92,6 +92,7 @@
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\gameloop.cpp" />
     <ClCompile Include="src\gameplay\drive.cpp" />
+    <ClCompile Include="src\gameplay\scenegraph.cpp" />
     <ClCompile Include="src\gamestates\gseditor.cpp">
       <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</PreprocessToFile>
     </ClCompile>
@@ -173,7 +174,10 @@
     <ClInclude Include="src\exceptions.hpp" />
     <ClInclude Include="src\game.hpp" />
     <ClInclude Include="src\gameloop.hpp" />
+    <ClInclude Include="src\gameplay\componentcontainer.hpp" />
     <ClInclude Include="src\gameplay\drive.hpp" />
+    <ClInclude Include="src\gameplay\scenegraph.hpp" />
+    <ClInclude Include="src\gameplay\sceneobject.hpp" />
     <ClInclude Include="src\gamestates\gamestatebase.hpp" />
     <ClInclude Include="src\gamestates\gseditor.hpp" />
     <ClInclude Include="src\gamestates\gseditorchoice.hpp" />
@@ -209,6 +213,7 @@
     <ClInclude Include="src\graphic\marker\wireframerenderer.hpp" />
     <ClInclude Include="src\input\camera.hpp" />
     <ClInclude Include="src\input\input.hpp" />
+    <ClInclude Include="src\math\box.hpp" />
     <ClInclude Include="src\math\fixedpoint.hpp" />
     <ClInclude Include="src\math\intersection.hpp" />
     <ClInclude Include="src\math\math.hpp" />

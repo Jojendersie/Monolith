@@ -233,6 +233,9 @@
     <ClCompile Include="src\graphic\marker\sphericalfunction.cpp">
       <Filter>Source Files\graphic\markers</Filter>
     </ClCompile>
+    <ClCompile Include="src\gameplay\scenegraph.cpp">
+      <Filter>Source Files\gameplay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
@@ -671,6 +674,18 @@
     </ClInclude>
     <ClInclude Include="src\graphic\interface\font.hpp">
       <Filter>Source Files\graphic\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\scenegraph.hpp">
+      <Filter>Source Files\gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\componentcontainer.hpp">
+      <Filter>Source Files\gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\box.hpp">
+      <Filter>Source Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\sceneobject.hpp">
+      <Filter>Source Files\gameplay</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

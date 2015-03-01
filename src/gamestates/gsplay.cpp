@@ -10,6 +10,7 @@
 using namespace Math;
 using namespace Graphic;
 #include "utilities/assert.hpp"
+#include "generators/random.hpp"
 
 // TODO: remove after test
 #include "../generators/asteroid.hpp"
@@ -24,7 +25,7 @@ namespace RenderStat {
 }
 
 // ************************************************************************* //
-GSPlay::GSPlay(Monolith* _game) : IGameState(_game), m_astTest(nullptr)
+GSPlay::GSPlay(Monolith* _game) : IGameState(_game)
 {
 	LOG_LVL2("Starting to create game state Play");
 
@@ -46,7 +47,6 @@ GSPlay::~GSPlay()
 {
 	delete m_objectPlane;
 	delete m_camera;
-	delete m_astTest;
 	delete m_hud;
 
 	LOG_LVL2("Deleted game state Play");
@@ -55,12 +55,18 @@ GSPlay::~GSPlay()
 // ************************************************************************* //
 void GSPlay::OnBegin()
 {
-	if( !m_astTest )
+	if( m_scene.NumActiveObjects() == 0 )
 	{
-		m_astTest = new Generators::Asteroid( 80, 50, 30, 2 );
-		m_astTest->SetPosition( FixVec3(Fix(10000000.0)) );
+		for( int i = 0; i < 5; ++i )
+		{
+			Generators::Random rnd(i*4+1);
+			auto model = new Generators::Asteroid( rnd.Uniform(20, 40), rnd.Uniform(20, 40), rnd.Uniform(20, 40), i );
+			Vec3 pos(rnd.Uniform(-50.0f, 50.0f), rnd.Uniform(-50.0f, 50.0f), rnd.Uniform(-50.0f, 50.0f));
+			model->SetPosition( FixVec3(pos) );
+			m_scene.AddObject(model);
+			if(i==0) m_camera->ZoomAt( *model );
+		}
 	}
-	m_camera->ZoomAt( *m_astTest );
 
 	LOG_LVL2("Entered game state Play");
 }
@@ -74,6 +80,7 @@ void GSPlay::OnEnd()
 // ************************************************************************* //
 void GSPlay::Simulate( double _deltaTime )
 {
+	m_scene.UpdateGraph();
 	/*static Generators::Random Rnd(1435461);
 	for( int i = 0; i < 100; ++i )
 		m_astTest->Set( IVec3(Rnd.Uniform(0,79), Rnd.Uniform(0,49), Rnd.Uniform(0,29)), 0, Voxel::VoxelType::UNDEFINED );//*/
@@ -91,12 +98,18 @@ void GSPlay::Render( double _deltaTime )
 	Graphic::Device::Clear( 0.05f, 0.05f, 0.06f );
 
 	Graphic::Device::SetEffect(	Resources::GetEffect(Effects::VOXEL_RENDER) );
-	m_astTest->Draw( *m_camera );
+	Jo::HybridArray<SOHandle, 32> visibleObjects;
+	m_scene.FrustumQuery(visibleObjects);
+	for( unsigned i = 0; i < visibleObjects.Size(); ++i )
+		dynamic_cast<Voxel::Model*>(&visibleObjects[i])->Draw( *m_camera );
 
-	Mat4x4 modelView;
-	m_astTest->GetModelMatrix( modelView, *m_camera );
-	modelView = Mat4x4::Translation(m_astTest->GetCenter()) * modelView;
-	m_objectPlane->Draw( modelView * m_camera->GetProjection() );
+	if( m_selectedObject )
+	{
+		Mat4x4 modelView;
+		m_selectedObjectModPtr->GetModelMatrix( modelView, *m_camera );
+		modelView = Mat4x4::Translation(m_selectedObjectModPtr->GetCenter()) * modelView;
+		m_objectPlane->Draw( modelView * m_camera->GetProjection() );
+	}
 	
 	m_hud->m_dbgLabel->SetText("<s 024>" + std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(RenderStat::g_numVoxels) + "\n#Chunks: " + std::to_string(RenderStat::g_numChunks)+"</s>");
 	m_hud->Draw( _deltaTime );
@@ -137,7 +150,10 @@ void GSPlay::KeyClick( int _key )
 		// Do a ray cast and delete the clicked voxel
 		WorldRay ray = m_camera->GetRay( Input::Manager::GetCursorPosScreenSpace() );
 		Voxel::Model::ModelData::HitResult hit;
-		if( m_astTest->RayCast(ray, 0, hit) )
-			m_astTest->Set( hit.position, 0, Voxel::VoxelType::UNDEFINED );
+		m_selectedObject = m_scene.RayQuery(ray, hit);
+		if( m_selectedObject ) {
+			m_selectedObjectModPtr = dynamic_cast<Voxel::Model*>(&m_selectedObject);
+			m_selectedObjectModPtr->Set( hit.position, 0, Voxel::VoxelType::UNDEFINED );
+		}
 	}
 }

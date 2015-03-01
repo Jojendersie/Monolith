@@ -7,6 +7,7 @@
 #include "component.hpp"
 #include "material.hpp"
 #include "math/transformation.hpp"
+#include "gameplay/sceneobject.hpp"
 
 namespace Voxel {
 
@@ -15,7 +16,7 @@ namespace Voxel {
 
 	/// \brief A model is a high level abstraction with graphics and
 	///		game play elements.
-	class Model: public Math::Transformation
+	class Model: public Math::Transformation, public ISceneObject
 	{
 	public:
 		typedef SparseVoxelOctree<Component, Model> ModelData;
@@ -52,7 +53,7 @@ namespace Voxel {
 		/// \brief Get the position of the center in world space
 		const Math::FixVec3& GetPosition() const			{ return m_position; }
 		/// \brief Set the position of the model based on its current center of gravity
-		void SetPosition(const Math::FixVec3& _position)	{ m_position = _position; }
+		void SetPosition(const Math::FixVec3& _position)	{ m_position = _position; ComputeBoundingBox(); }
 		/// \brief Get the center of gravity (mass center) in object space
 		const Math::Vec3& GetCenter() const					{ return m_center; }
 
@@ -76,7 +77,7 @@ namespace Voxel {
 		///	\param [in] _oldType The type of the voxel which was before.
 		void Update( const Math::IVec4& _position, const Component& _oldType, const Component& _newType );
 
-		bool RayCast( const Math::WorldRay& _ray, int _targetLevel, ModelData::HitResult& _hit ) const;
+		bool RayCast( const Math::WorldRay& _ray, int _targetLevel, ModelData::HitResult& _hit, float& _distance ) const;
 
 		/// \brief Remove all chunks which were not used or dirty.
 		void ClearChunkCache();
@@ -101,8 +102,8 @@ namespace Voxel {
 		float m_rotatoryMomentum;		///< Inertia of rotation for the full model.
 
 		float m_boundingSphereRadius;	///< Bounding sphere radius (to the center of gravity) for culling etc.
+		void ComputeBoundingBox();		///< Recompute the bounding box (largest octree node size) in world space (O(1))
 
-		//ComputeBounding
 		ModelData m_voxelTree;
 		
 		/// \brief  Decide for one voxel if it has the correct detail level and

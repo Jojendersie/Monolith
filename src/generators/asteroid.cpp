@@ -32,5 +32,7 @@ namespace Generators {
 
 //		for( int i=0; i<m_numChunks; ++i )
 	//		m_chunks[i]->ComputeVertexBuffer();
+
+		ComputeBoundingBox();
 	}
 };

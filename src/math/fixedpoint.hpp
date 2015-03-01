@@ -41,6 +41,11 @@ namespace Math {
 		//operator int64_t() const;
 		//int64_t data() const { return m_data; }
 
+		bool operator < (TFix _rhs) const;
+		bool operator <= (TFix _rhs) const;
+		bool operator > (TFix _rhs) const;
+		bool operator >= (TFix _rhs) const;
+		bool operator == (TFix _rhs) const;
 	private:
 		typename int64_t m_data;
 	};
@@ -185,6 +190,41 @@ namespace Math {
 	{
 		return m_data;
 	}*/
+
+	// ************************************************************************* //
+	template<int FracDigits>
+	bool TFix<FracDigits>::operator < (TFix _rhs) const
+	{
+		return m_data < _rhs.m_data;
+	}
+
+	// ************************************************************************* //
+	template<int FracDigits>
+	bool TFix<FracDigits>::operator <= (TFix _rhs) const
+	{
+		return m_data <= _rhs.m_data;
+	}
+
+	// ************************************************************************* //
+	template<int FracDigits>
+	bool TFix<FracDigits>::operator > (TFix _rhs) const
+	{
+		return m_data > _rhs.m_data;
+	}
+
+	// ************************************************************************* //
+	template<int FracDigits>
+	bool TFix<FracDigits>::operator >= (TFix _rhs) const
+	{
+		return m_data >= _rhs.m_data;
+	}
+
+	// ************************************************************************* //
+	template<int FracDigits>
+	bool TFix<FracDigits>::operator == (TFix _rhs) const
+	{
+		return m_data == _rhs.m_data;
+	}
 
 
 	typedef TFix<30> Fix;

@@ -172,13 +172,13 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	bool Model::RayCast( const Math::WorldRay& _ray, int _targetLevel, ModelData::HitResult& _hit ) const
+	bool Model::RayCast( const Math::WorldRay& _ray, int _targetLevel, ModelData::HitResult& _hit, float& _distance ) const
 	{
 		// Convert ray to model space
 		Ray ray( _ray, *this );
 		ray.m_origin += GetCenter();
 		// TODO: Mat4x4::Scaling(m_scale) translation relevant?
-		return m_voxelTree.RayCast(ray, _targetLevel, _hit);
+		return m_voxelTree.RayCast(ray, _targetLevel, _hit, _distance);
 	}
 
 	// ********************************************************************* //
@@ -304,5 +304,31 @@ namespace Voxel {
 			}
 			_file.Read( 1, &chunkType );
 		}
+
+		ComputeBoundingBox();
+	}
+	
+	// ********************************************************************* //
+	void Model::ComputeBoundingBox()
+	{
+		// Transform each octree corner to world space
+		float size = float(1 << m_voxelTree.GetRootSize());
+		Vec3 octMin = m_voxelTree.GetRootPosition() * size - m_center;
+		Vec3 octMax = octMin + size;
+		m_boundingBox.min = m_boundingBox.max = TransformInverse(octMin);
+		FixVec3 tvec = TransformInverse(Vec3(octMin[0], octMin[1], octMax[2]));
+		m_boundingBox.min = min(m_boundingBox.min, tvec); m_boundingBox.max = max(m_boundingBox.max, tvec);
+		tvec = TransformInverse(Vec3(octMin[0], octMax[1], octMin[2]));
+		m_boundingBox.min = min(m_boundingBox.min, tvec); m_boundingBox.max = max(m_boundingBox.max, tvec);
+		tvec = TransformInverse(Vec3(octMin[0], octMax[1], octMax[2]));
+		m_boundingBox.min = min(m_boundingBox.min, tvec); m_boundingBox.max = max(m_boundingBox.max, tvec);
+		tvec = TransformInverse(Vec3(octMax[0], octMin[1], octMin[2]));
+		m_boundingBox.min = min(m_boundingBox.min, tvec); m_boundingBox.max = max(m_boundingBox.max, tvec);
+		tvec = TransformInverse(Vec3(octMax[0], octMin[1], octMax[2]));
+		m_boundingBox.min = min(m_boundingBox.min, tvec); m_boundingBox.max = max(m_boundingBox.max, tvec);
+		tvec = TransformInverse(Vec3(octMax[0], octMax[1], octMin[2]));
+		m_boundingBox.min = min(m_boundingBox.min, tvec); m_boundingBox.max = max(m_boundingBox.max, tvec);
+		tvec = TransformInverse(octMax);
+		m_boundingBox.min = min(m_boundingBox.min, tvec); m_boundingBox.max = max(m_boundingBox.max, tvec);
 	}
 };
