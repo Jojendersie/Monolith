@@ -5,15 +5,6 @@
 #include "math/box.hpp"
 #include "sceneobject.hpp"
 
-/// \brief Object referencing interval entry for separating axis query tests.
-struct IntervalEntry
-{
-	SOHandle ref;
-	Math::Fix bbmin, bbmax;		///< The occupied interval on an axis
-
-	IntervalEntry(const SOHandle& _ref, Math::Fix _bbmin, Math::Fix _bbmax) :
-		ref(_ref), bbmin(_bbmin), bbmax(_bbmax) {}
-};
 
 /// \brief A scene management for several queries.
 /// \details This class provides the possibilities to return all objects which
@@ -47,8 +38,8 @@ public:
 private:
 
 	
-	std::vector<IntervalEntry> m_xIntervals;
-	//std::vector<IntervalEntry> m_xIntervals;
+	std::vector<SOHandle> m_xIntervalMin;
+	std::vector<SOHandle> m_xIntervalMax;
 	/// \brief If a new object is added it is put to the interval list in the
 	///		wrong place. It becomes active in the next frame
 	int m_numActiveObjects;

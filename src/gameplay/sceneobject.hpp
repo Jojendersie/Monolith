@@ -29,7 +29,7 @@ private:
 	bool m_deleteRequest;
 	/// Build a connection between objects and interval entries to fast find the
 	/// objects references in the SceneGraph
-	struct IntervalEntry* arrayPos[3];
+	int intervalMinArrayPos[3];
 	friend class SOHandle;
 	friend class SceneGraph;
 };

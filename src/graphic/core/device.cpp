@@ -88,7 +88,10 @@ namespace Graphic {
 		GL_CALL(glEnable, GL_DEBUG_OUTPUT);
 		GL_CALL(glEnable, GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
+		GL_CALL(glDebugMessageControl, GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+		GL_CALL(glDebugMessageControl, GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW, 0, nullptr, GL_FALSE);
 		GL_CALL(glDebugMessageControl, GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_MEDIUM, 0, nullptr, GL_TRUE);
+		GL_CALL(glDebugMessageControl, GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_HIGH, 0, nullptr, GL_TRUE);
 		GL_CALL(glDebugMessageCallback, &DebugErrorCallback, nullptr);
 	}
 
