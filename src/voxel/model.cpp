@@ -145,7 +145,7 @@ namespace Voxel {
 	{
 		// Compute real volume from logarithmic size
 		int size = 1 << _position[3];
-		Vec3 center = Math::IVec3(_position) + size * 0.5f;
+		Vec3 center = Math::IVec3(_position) * size + size * 0.5f;
 		size = size * size * size;
 
 		// Remove the old voxel
