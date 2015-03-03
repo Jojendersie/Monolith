@@ -36,7 +36,7 @@ GSPlay::GSPlay(Monolith* _game) : IGameState(_game)
 		0.3f,
 		Graphic::Device::GetAspectRatio() );
 
-	m_objectPlane = new Graphic::Marker::Grid( 40, 40, 20.0f, Utils::Color32F( 0.5f, 0.5f, 1.0f, 0.5f ), true );
+	m_objectPlane = new Graphic::Marker::Grid( 40, 40, 8.0f, Utils::Color32F( 0.5f, 0.5f, 1.0f, 0.5f ), true );
 	//m_objectPlane = new Graphic::Marker::Grid( 30, 30, 30, 10.0f, Utils::Color32F( 0.5f, 0.5f, 1.0f, 0.5f ) );
 
 	LOG_LVL2("Created game state Play");
@@ -57,11 +57,11 @@ void GSPlay::OnBegin()
 {
 	if( m_scene.NumActiveObjects() == 0 )
 	{
-		for( int i = 0; i < 5; ++i )
+		for( int i = 0; i < 50; ++i )
 		{
 			Generators::Random rnd(i*4+1);
-			auto model = new Generators::Asteroid( rnd.Uniform(20, 40), rnd.Uniform(20, 40), rnd.Uniform(20, 40), i );
-			Vec3 pos(rnd.Uniform(-50.0f, 50.0f), rnd.Uniform(-50.0f, 50.0f), rnd.Uniform(-50.0f, 50.0f));
+			auto model = new Generators::Asteroid( rnd.Uniform(10, 30), rnd.Uniform(10, 30), rnd.Uniform(10, 30), i );
+			Vec3 pos(rnd.Uniform(-150.0f, 150.0f), rnd.Uniform(-150.0f, 150.0f), rnd.Uniform(-150.0f, 150.0f));
 			model->SetPosition( FixVec3(pos) );
 			m_scene.AddObject(model);
 			if(i==0) m_camera->ZoomAt( *model );

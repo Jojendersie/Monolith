@@ -27,7 +27,7 @@ protected:
 private:
 	int m_referenceCounter;		///< Memory management of the scene
 	bool m_deleteRequest;
-	Math::Fix m_maxOfAllMin;	// Helper information for axis separating interval queries
+	Math::Fix m_minOfAllMin;	// Helper information for axis separating interval queries
 	friend class SOHandle;
 	friend class SceneGraph;
 };

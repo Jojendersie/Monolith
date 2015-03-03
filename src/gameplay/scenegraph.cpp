@@ -21,47 +21,67 @@ SOHandle SceneGraph::AddObject(ISceneObject* _object)
 // ************************************************************************* //
 SOHandle SceneGraph::RayQuery(const Math::WorldRay& _ray, Voxel::Model::ModelData::HitResult& _hit, float _maxRange) const
 {
-	// Test recursively against bounding boxes build from a ray split objects ->
-	// each split reduces the checked volume by 4x.
-	// Thereby reject all objects which are no models.
+	// The algorithm assumes always increasing x coordinates. Turn ray if necessary.
+	FixVec3 origin;
+	Vec3 direction;
+	if( _ray.direction[0] < 0.0f ) {origin = _ray.origin + FixVec3(_maxRange * _ray.direction); direction = -_ray.direction;}
+	else {origin = _ray.origin; direction = _ray.direction;}
+	// Test iteratively against bounding boxes build from split ray segment ->
+	// each logarithmic split reduces the checked volume by 4x.
+	int numSplits = max(1, int(_maxRange) / 100); // Split into boxes of length CONST
 	WorldBox box;
-	FixVec3 rayEnd = _ray.origin + FixVec3(_maxRange * _ray.direction);
-	box.min = min(_ray.origin, rayEnd);
-	box.max = max(_ray.origin, rayEnd);
-	Jo::HybridArray<SOHandle, 16> buffer;
-	BoxQuery(box, buffer);
-	// Remove non-models from query
-	for( unsigned i = 0; i < buffer.Size(); ++i )
-		if(!dynamic_cast<Voxel::Model*>(&buffer[i]))
-			buffer.Delete(i--);
+	FixVec3 offset = FixVec3((_maxRange / numSplits) * direction);
+	FixVec3 rayEnd = origin + offset;
+	box.min = min(origin, rayEnd);
+	box.max = max(origin, rayEnd);
 
-	// If there are too many potential colliders split the query
-	if(buffer.Size() > 8) // TODO find best threshold for performance
+	// Check all the colliders inside box and return closest intersection
+	SOHandle closestHit;
+	// Find first element which is a candidate for x
+	auto startit = std::lower_bound(m_xIntervalMax.begin(), m_xIntervalMax.end(), box.min[0], [](const SOHandle& _i, const Fix& _ref){ return _i->GetBoundingBoxMax()[0] < _ref; });
+	if( startit == m_xIntervalMax.end() ) return nullptr;
+	for(int step = 0; step < numSplits; ++step)
 	{
-		SOHandle hit = RayQuery(_ray, _hit, _maxRange / 2);
-		if(hit) return hit;
-		WorldRay ray;
-		ray.origin = _ray.origin + Fix(_maxRange / 2);
-		ray.direction = _ray.direction;
-		hit = RayQuery(ray, _hit, _maxRange / 2);
-		return hit;
-	} else {
-		// Check all the colliders linearly and return closest intersection
-		SOHandle closestHit;
-		for( unsigned i = 0; i < buffer.Size(); ++i )
+		auto it = startit;
+	//	LOG_ERROR(std::to_string((double)box.max[0]));
+		// Iterate as long as the element intersects in x
+		while( (*it)->m_minOfAllMin <= box.max[0] )
 		{
-			Voxel::Model* model = dynamic_cast<Voxel::Model*>(&buffer[i]);
-			Voxel::Model::ModelData::HitResult hit;
-			if( model->RayCast(_ray, 0, hit, _maxRange) )
+			// The current element intersects in x direction. Does it also intersect
+			// in the others?
+			if( (*it)->GetBoundingBoxMin()[1] < box.max[1] && (*it)->GetBoundingBoxMax()[1] > box.min[1] &&
+				(*it)->GetBoundingBoxMin()[2] < box.max[2] && (*it)->GetBoundingBoxMax()[2] > box.min[2] )
 			{
-				closestHit = std::move(buffer[i]);
-				_hit = hit;
+				const Voxel::Model* model = dynamic_cast<const Voxel::Model*>(&(*it));
+				if(model)
+				{
+					Voxel::Model::ModelData::HitResult hit;
+					if( model->RayCast(_ray, 0, hit, _maxRange) )
+					{
+						closestHit = *it;
+						_hit = hit;
+					}
+				}
 			}
+			++it;
+			if( it == m_xIntervalMax.end() )
+				return closestHit;
+			if( (*startit)->GetBoundingBoxMax()[0] <= box.max[0] )
+				++startit;
 		}
-		return closestHit;
+		// Ray march to a next box segment
+		box.min = rayEnd;
+		rayEnd = rayEnd + offset;
+		box.max = max(box.min, rayEnd);
+		box.min = min(box.min, rayEnd);
 	}
-	return nullptr;
+
+	return closestHit;
 }
+
+/*SOHandle SceneGraph::RayQueryCandidate(const SOHandle& _obj, Voxel::Model::ModelData::HitResult& _hit, float& _maxRange) const
+{
+}*/
 
 // ************************************************************************* //
 void SceneGraph::BoxQuery(const Math::WorldBox _box, Jo::HybridArray<SOHandle, 16>& _out) const
@@ -70,7 +90,7 @@ void SceneGraph::BoxQuery(const Math::WorldBox _box, Jo::HybridArray<SOHandle, 1
 	// Find first element which is a candidate for x
 	auto it = std::lower_bound(m_xIntervalMax.begin(), m_xIntervalMax.end(), _box.min[0], [](const SOHandle& _i, const Fix& _ref){ return _i->GetBoundingBoxMax()[0] < _ref; });
 	// Iterate as long as the element intersects in x
-	while( it != m_xIntervalMax.end() && (*it)->m_maxOfAllMin < _box.max[0] )
+	while( it != m_xIntervalMax.end() && (*it)->m_minOfAllMin < _box.max[0] )
 	{
 		// The current element intersects in x direction. Does it also intersect
 		// in the others?
@@ -114,11 +134,11 @@ void SceneGraph::ResortAxis()
 		});
 
 		// Update additional information for faster queries
-		m_xIntervalMax[m_numActiveObjects-1]->m_maxOfAllMin = m_xIntervalMax[m_numActiveObjects-1]->GetBoundingBoxMin()[0];
+		m_xIntervalMax[m_numActiveObjects-1]->m_minOfAllMin = m_xIntervalMax[m_numActiveObjects-1]->GetBoundingBoxMin()[0];
 		for( int i = m_numActiveObjects-2; i >= 0; --i )
 		{
-			Fix maxOfMin = min(m_xIntervalMax[i]->GetBoundingBoxMin()[0], m_xIntervalMax[i+1]->m_maxOfAllMin);
-			m_xIntervalMax[i]->m_maxOfAllMin = maxOfMin;
+			Fix minOfMin = min(m_xIntervalMax[i]->GetBoundingBoxMin()[0], m_xIntervalMax[i+1]->m_minOfAllMin);
+			m_xIntervalMax[i]->m_minOfAllMin = minOfMin;
 		}
 	}
 }
