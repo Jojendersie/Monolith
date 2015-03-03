@@ -27,9 +27,7 @@ protected:
 private:
 	int m_referenceCounter;		///< Memory management of the scene
 	bool m_deleteRequest;
-	/// Build a connection between objects and interval entries to fast find the
-	/// objects references in the SceneGraph
-	int intervalMinArrayPos[3];
+	Math::Fix m_maxOfAllMin;	// Helper information for axis separating interval queries
 	friend class SOHandle;
 	friend class SceneGraph;
 };

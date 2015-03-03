@@ -38,7 +38,7 @@ public:
 private:
 
 	
-	std::vector<SOHandle> m_xIntervalMin;
+	//std::vector<SOHandle> m_xIntervalMin;
 	std::vector<SOHandle> m_xIntervalMax;
 	/// \brief If a new object is added it is put to the interval list in the
 	///		wrong place. It becomes active in the next frame

@@ -13,14 +13,8 @@ SceneGraph::SceneGraph() :
 SOHandle SceneGraph::AddObject(ISceneObject* _object)
 {
 	SOHandle handle(_object);
-	handle->intervalMinArrayPos[0] = int(m_xIntervalMin.size());
-//	handle->arrayPos[1] = &m_yIntervals.back();
-//	handle->arrayPos[2] = &m_zIntervals.back();
 	// Add bounding intervals to the lists
-	m_xIntervalMin.push_back(handle);
 	m_xIntervalMax.push_back(handle);
-//	m_yIntervals.push_back(IntervalEntry(handle, _object->GetBoundingBoxMin()[1], _object->GetBoundingBoxMax()[1]));
-//	m_zIntervals.push_back(IntervalEntry(handle, _object->GetBoundingBoxMin()[2], _object->GetBoundingBoxMax()[2]));
 	return std::move(handle);
 }
 
@@ -75,22 +69,16 @@ void SceneGraph::BoxQuery(const Math::WorldBox _box, Jo::HybridArray<SOHandle, 1
 	// TODO: Segment trees or similar. currently only x is restricted logarithmically.
 	// Find first element which is a candidate for x
 	auto it = std::lower_bound(m_xIntervalMax.begin(), m_xIntervalMax.end(), _box.min[0], [](const SOHandle& _i, const Fix& _ref){ return _i->GetBoundingBoxMax()[0] < _ref; });
-	//auto last = std::lower_bound(m_xIntervalMin.begin(), m_xIntervalMin.end(), _box.max[0], [](const SOHandle& _i, const Fix& _ref){ return _i->GetBoundingBoxMin()[0] < _ref; });
-	//int idx = (*first)->intervalMinArrayPos[0];
 	// Iterate as long as the element intersects in x
-	while( it != m_xIntervalMax.end() )
+	while( it != m_xIntervalMax.end() && (*it)->m_maxOfAllMin < _box.max[0] )
 	{
 		// The current element intersects in x direction. Does it also intersect
 		// in the others?
-		if( (*it)->GetBoundingBoxMin()[0] < _box.max[0] &&
-			(*it)->GetBoundingBoxMin()[1] < _box.max[1] && (*it)->GetBoundingBoxMax()[1] > _box.min[1] &&
+		if( (*it)->GetBoundingBoxMin()[1] < _box.max[1] && (*it)->GetBoundingBoxMax()[1] > _box.min[1] &&
 			(*it)->GetBoundingBoxMin()[2] < _box.max[2] && (*it)->GetBoundingBoxMax()[2] > _box.min[2] )
 			_out.PushBack(*it);
 		++it;
 	}
-
-	//for(auto it: m_xIntervals)
-	//	_out.PushBack(it.ref);
 }
 
 // ************************************************************************* //
@@ -118,22 +106,19 @@ void SceneGraph::ResortAxis()
 {
 	m_numActiveObjects = (int)m_xIntervalMax.size();
 
-	// Sort axis
-	/*std::sort(m_xIntervalMin.begin(), m_xIntervalMin.end(), [](const SOHandle& _lhs, const SOHandle& _rhs){
-		return _lhs->GetBoundingBoxMin()[0] < _rhs->GetBoundingBoxMin()[0];
-	});*/
-	std::sort(m_xIntervalMax.begin(), m_xIntervalMax.end(), [](const SOHandle& _lhs, const SOHandle& _rhs){
-		return _lhs->GetBoundingBoxMax()[0] < _rhs->GetBoundingBoxMax()[0];
-	});
-	/*std::sort(m_yIntervals.begin(), m_yIntervals.end(), [](const IntervalEntry& _lhs, const IntervalEntry& _rhs){
-		return _lhs.bbmin < _rhs.bbmin;
-	});
-	std::sort(m_zIntervals.begin(), m_zIntervals.end(), [](const IntervalEntry& _lhs, const IntervalEntry& _rhs){
-		return _lhs.bbmin < _rhs.bbmin;
-	});*/
+	if(m_numActiveObjects > 1)
+	{
+		// Sort axis
+		std::sort(m_xIntervalMax.begin(), m_xIntervalMax.end(), [](const SOHandle& _lhs, const SOHandle& _rhs){
+			return _lhs->GetBoundingBoxMax()[0] < _rhs->GetBoundingBoxMax()[0];
+		});
 
-	// Update wrong references now
-	//for( int i = 0; i < m_numActiveObjects; ++i ) m_xIntervalMin[i]->intervalMinArrayPos[0] = i;
-	//for(auto& it: m_yIntervals) it.ref->arrayPos[1] = &it;
-	//for(auto& it: m_zIntervals) it.ref->arrayPos[2] = &it;
+		// Update additional information for faster queries
+		m_xIntervalMax[m_numActiveObjects-1]->m_maxOfAllMin = m_xIntervalMax[m_numActiveObjects-1]->GetBoundingBoxMin()[0];
+		for( int i = m_numActiveObjects-2; i >= 0; --i )
+		{
+			Fix maxOfMin = min(m_xIntervalMax[i]->GetBoundingBoxMin()[0], m_xIntervalMax[i+1]->m_maxOfAllMin);
+			m_xIntervalMax[i]->m_maxOfAllMin = maxOfMin;
+		}
+	}
 }
