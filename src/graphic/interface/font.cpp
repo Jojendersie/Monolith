@@ -137,7 +137,7 @@ namespace Graphic
 	{
 		//reset the previous build
 		m_characters.Clear();
-		m_sizeMax = m_size;
+		m_sizeMax = m_size / 2.0f;
 		Math::Vec2 currentPos = m_screenPos;
 
 		float maxExpanseX = currentPos[0];
