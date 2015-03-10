@@ -687,6 +687,9 @@
     <ClInclude Include="src\gameplay\sceneobject.hpp">
       <Filter>Source Files\gameplay</Filter>
     </ClInclude>
+    <ClInclude Include="src\utilities\threadsafebuffer.hpp">
+      <Filter>Source Files\utilities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\voxel.ps">

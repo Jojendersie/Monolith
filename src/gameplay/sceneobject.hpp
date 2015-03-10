@@ -2,6 +2,7 @@
 
 #include "utilities/assert.hpp"
 #include "math/box.hpp"
+#include <atomic>
 
 /// \brief All objects which should be handled by scene management must inherit
 ///		this interface.
@@ -16,7 +17,7 @@ public:
 
 	/// \brief For anybody how keeps an reference to the object: check this flag.
 	///		If true forget the reference and do not handle the object anymore.
-	bool IsDeleted() const	{ m_deleteRequest; }
+	bool IsDeleted() const	{ return m_deleteRequest; }
 
 	const Math::FixVec3& GetBoundingBoxMin() const { return m_boundingBox.min; }
 	const Math::FixVec3& GetBoundingBoxMax() const { return m_boundingBox.max; }
@@ -25,7 +26,7 @@ protected:
 	Math::WorldBox m_boundingBox;
 
 private:
-	int m_referenceCounter;		///< Memory management of the scene
+	std::atomic_int_fast32_t m_referenceCounter;		///< Memory management of the scene
 	bool m_deleteRequest;
 	Math::Fix m_minOfAllMin;	// Helper information for axis separating interval queries
 	friend class SOHandle;
@@ -38,10 +39,16 @@ class SOHandle
 public:
 	SOHandle() : m_ptr(nullptr) {}
 	explicit SOHandle(ISceneObject* _object) : m_ptr(_object) { m_ptr->m_referenceCounter = 1; }
-	SOHandle(const SOHandle& _rhs) : m_ptr(_rhs.m_ptr) { if(m_ptr) ++m_ptr->m_referenceCounter; }
+	SOHandle(const SOHandle& _rhs) : m_ptr(_rhs.m_ptr) { if(_rhs.m_ptr) ++_rhs.m_ptr->m_referenceCounter; }
 	SOHandle(SOHandle&& _rhs) : m_ptr(_rhs.m_ptr) { _rhs.m_ptr = nullptr; }
 
-	~SOHandle() { if(m_ptr) if(--m_ptr->m_referenceCounter <= 0) delete m_ptr; m_ptr = nullptr; }
+	~SOHandle() {
+		ISceneObject* ptr = m_ptr;
+		m_ptr = nullptr;
+		if(ptr)
+			if(--ptr->m_referenceCounter <= 0)
+				delete ptr;
+	}
 
 	void operator = (const SOHandle& _rhs) { this->~SOHandle(); m_ptr = _rhs.m_ptr; ++m_ptr->m_referenceCounter; }
 	void operator = (SOHandle&& _rhs) { this->~SOHandle(); m_ptr = _rhs.m_ptr; _rhs.m_ptr = nullptr; }

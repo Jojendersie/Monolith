@@ -89,6 +89,7 @@ void GSPlay::Simulate( double _deltaTime )
 // ************************************************************************* //
 void GSPlay::Render( double _deltaTime )
 {
+	//m_scene.UpdateGraph();
 	m_camera->UpdateMatrices();
 
 	RenderStat::g_numVoxels = 0;
@@ -100,8 +101,11 @@ void GSPlay::Render( double _deltaTime )
 	Graphic::Device::SetEffect(	Resources::GetEffect(Effects::VOXEL_RENDER) );
 	Jo::HybridArray<SOHandle, 32> visibleObjects;
 	m_scene.FrustumQuery(visibleObjects);
-	for( unsigned i = 0; i < visibleObjects.Size(); ++i )
-		dynamic_cast<Voxel::Model*>(&visibleObjects[i])->Draw( *m_camera );
+	for( unsigned i = 0; i < visibleObjects.Size(); ++i ) {
+		Voxel::Model* model = dynamic_cast<Voxel::Model*>(&visibleObjects[i]);
+		Assert(model != nullptr, "Thread error? Currently there are only models");
+		if(model) model->Draw( *m_camera );
+	}
 
 	if( m_selectedObject )
 	{

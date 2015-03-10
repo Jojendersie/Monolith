@@ -4,8 +4,9 @@
 
 using namespace Math;
 
+// ************************************************************************* //
 SceneGraph::SceneGraph() :
-	m_numActiveObjects(0)
+	m_xIntervalMax()
 {
 }
 
@@ -14,7 +15,7 @@ SOHandle SceneGraph::AddObject(ISceneObject* _object)
 {
 	SOHandle handle(_object);
 	// Add bounding intervals to the lists
-	m_xIntervalMax.push_back(handle);
+	m_newObjects.push_back(handle);
 	return std::move(handle);
 }
 
@@ -37,9 +38,10 @@ SOHandle SceneGraph::RayQuery(const Math::WorldRay& _ray, Voxel::Model::ModelDat
 
 	// Check all the colliders inside box and return closest intersection
 	SOHandle closestHit;
+	auto xReadAccess = m_xIntervalMax.GetReadAccess();	// Copy shared pointer to assert that the buffer does not change during algorithm.
 	// Find first element which is a candidate for x
-	auto startit = std::lower_bound(m_xIntervalMax.begin(), m_xIntervalMax.end(), box.min[0], [](const SOHandle& _i, const Fix& _ref){ return _i->GetBoundingBoxMax()[0] < _ref; });
-	if( startit == m_xIntervalMax.end() ) return nullptr;
+	auto startit = std::lower_bound(xReadAccess.buf().begin(), xReadAccess.buf().end(), box.min[0], [](const SOHandle& _i, const Fix& _ref){ return _i->GetBoundingBoxMax()[0] < _ref; });
+	if( startit == xReadAccess.buf().end() ) return nullptr;
 	for(int step = 0; step < numSplits; ++step)
 	{
 		auto it = startit;
@@ -64,7 +66,7 @@ SOHandle SceneGraph::RayQuery(const Math::WorldRay& _ray, Voxel::Model::ModelDat
 				}
 			}
 			++it;
-			if( it == m_xIntervalMax.end() )
+			if( it == xReadAccess.buf().end() )
 				return closestHit;
 			if( (*startit)->GetBoundingBoxMax()[0] <= box.max[0] )
 				++startit;
@@ -86,11 +88,12 @@ SOHandle SceneGraph::RayQuery(const Math::WorldRay& _ray, Voxel::Model::ModelDat
 // ************************************************************************* //
 void SceneGraph::BoxQuery(const Math::WorldBox _box, Jo::HybridArray<SOHandle, 16>& _out) const
 {
+	auto xReadAccess = m_xIntervalMax.GetReadAccess();	// Copy shared pointer to assert that the buffer does not change during algorithm.
 	// TODO: Segment trees or similar. currently only x is restricted logarithmically.
 	// Find first element which is a candidate for x
-	auto it = std::lower_bound(m_xIntervalMax.begin(), m_xIntervalMax.end(), _box.min[0], [](const SOHandle& _i, const Fix& _ref){ return _i->GetBoundingBoxMax()[0] < _ref; });
+	auto it = std::lower_bound(xReadAccess.buf().begin(), xReadAccess.buf().end(), _box.min[0], [](const SOHandle& _i, const Fix& _ref){ return _i->GetBoundingBoxMax()[0] < _ref; });
 	// Iterate as long as the element intersects in x
-	while( it != m_xIntervalMax.end() && (*it)->m_minOfAllMin < _box.max[0] )
+	while( it != xReadAccess.buf().end() && (*it)->m_minOfAllMin < _box.max[0] )
 	{
 		// The current element intersects in x direction. Does it also intersect
 		// in the others?
@@ -104,41 +107,58 @@ void SceneGraph::BoxQuery(const Math::WorldBox _box, Jo::HybridArray<SOHandle, 1
 // ************************************************************************* //
 void SceneGraph::FrustumQuery(Jo::HybridArray<SOHandle, 32>& _out) const
 {
+	auto xReadAccess = m_xIntervalMax.GetReadAccess();	// Copy shared pointer to assert that the buffer does not change during algorithm.
 	// TODO: Frustum culling (currently this returns all objects)
-	for(auto& it: m_xIntervalMax)
+	for(auto& it: xReadAccess.buf())
 		_out.PushBack(it);
 }
 
 // ************************************************************************* //
 void SceneGraph::UpdateGraph()
 {
-	RemoveDeadObjects();
 	ResortAxis();
-}
-
-// ************************************************************************* //
-void SceneGraph::RemoveDeadObjects()
-{
 }
 
 // ************************************************************************* //
 void SceneGraph::ResortAxis()
 {
-	m_numActiveObjects = (int)m_xIntervalMax.size();
+	// We want to add objects and reorder the buffer
+	Utils::ThreadSafeBuffer<SOHandle>::WriteGuard xListAccess;
+	m_xIntervalMax.GetWriteAccess(xListAccess);
 
-	if(m_numActiveObjects > 1)
+	// Delete the old ones
+	int n = NumActiveObjects();
+	for( int i = 0; i < n; i++ )
+	{
+		if(xListAccess.buf()[i]->IsDeleted()) {
+			xListAccess.buf()[i] = std::move(xListAccess.buf()[--n]);
+			xListAccess.buf().pop_back();
+		}
+	}
+
+	// Insert all new objects from the queue
+	int nnew = (int)m_newObjects.size();
+	if(nnew) {
+		for( int i = 0; i < nnew; ++i )
+			xListAccess.buf().push_back( m_newObjects[i] );
+		m_newObjects.clear();
+		n += nnew;
+	}
+
+	// Resort if not empty
+	if(n > 1)
 	{
 		// Sort axis
-		std::sort(m_xIntervalMax.begin(), m_xIntervalMax.end(), [](const SOHandle& _lhs, const SOHandle& _rhs){
+		std::sort(xListAccess.buf().begin(), xListAccess.buf().end(), [](const SOHandle& _lhs, const SOHandle& _rhs){
 			return _lhs->GetBoundingBoxMax()[0] < _rhs->GetBoundingBoxMax()[0];
 		});
 
 		// Update additional information for faster queries
-		m_xIntervalMax[m_numActiveObjects-1]->m_minOfAllMin = m_xIntervalMax[m_numActiveObjects-1]->GetBoundingBoxMin()[0];
-		for( int i = m_numActiveObjects-2; i >= 0; --i )
+		xListAccess.buf()[n-1]->m_minOfAllMin = xListAccess.buf()[n-1]->GetBoundingBoxMin()[0];
+		for( int i = n-2; i >= 0; --i )
 		{
-			Fix minOfMin = min(m_xIntervalMax[i]->GetBoundingBoxMin()[0], m_xIntervalMax[i+1]->m_minOfAllMin);
-			m_xIntervalMax[i]->m_minOfAllMin = minOfMin;
+			Fix minOfMin = min(xListAccess.buf()[i]->GetBoundingBoxMin()[0], xListAccess.buf()[i+1]->m_minOfAllMin);
+			xListAccess.buf()[i]->m_minOfAllMin = minOfMin;
 		}
 	}
 }

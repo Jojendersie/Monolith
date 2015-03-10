@@ -237,6 +237,7 @@
     <ClInclude Include="src\utilities\pathutils.hpp" />
     <ClInclude Include="src\utilities\policy.hpp" />
     <ClInclude Include="src\utilities\scopedpointer.hpp" />
+    <ClInclude Include="src\utilities\threadsafebuffer.hpp" />
     <ClInclude Include="src\voxel\chunk.hpp" />
     <ClInclude Include="src\voxel\component.hpp" />
     <ClInclude Include="src\voxel\material.hpp" />

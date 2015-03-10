@@ -4,6 +4,7 @@
 #include "math/ray.hpp"
 #include "math/box.hpp"
 #include "sceneobject.hpp"
+#include "utilities/threadsafebuffer.hpp"
 
 
 /// \brief A scene management for several queries.
@@ -31,23 +32,16 @@ public:
 	/// \param [in] _frustum TODO
 	void FrustumQuery(Jo::HybridArray<SOHandle, 32>& _out) const;
 
-	int NumActiveObjects() const { return m_numActiveObjects; }
+	int NumActiveObjects() const { return m_xIntervalMax.GetReadAccess().size(); }
 
 	/// \brief Remove destroyed objects and insert the new ones.
 	void UpdateGraph();
 private:
-
-	std::vector<SOHandle> m_xIntervalMax;
-
-	/// \brief If a new object is added it is put to the interval list in the
-	///		wrong place. It becomes active in the next frame
-	int m_numActiveObjects;
-
-	/// Delete old objects and their ref objects from all arrays
-	/// \details The DRef state is inconsistent afterwards
-	void RemoveDeadObjects();
+	std::vector<SOHandle> m_newObjects;	///< Added since last update
+	Utils::ThreadSafeBuffer<SOHandle> m_xIntervalMax;
 
 	/// \details Repairs the DRef array (which does not need to be correct before call).
+	///		Also add all new objects.
 	void ResortAxis();
 
 	//SOHandle RayQueryCandidate(const SOHandle& _obj, Voxel::Model::ModelData::HitResult& _hit, float& _maxRange) const;
