@@ -57,6 +57,7 @@ void GameLoop::Run()
 
 		// Limiting to target fps
 		double timeDifference = m_targetFrameDuration - deltaFrameTime;
+		//timeDifference = max(0.0, timeDifference);
 		if( timeDifference > 0.0 )
 		{
 			std::this_thread::sleep_for( std::chrono::microseconds(unsigned(timeDifference * 1000000.0))  );

@@ -27,9 +27,9 @@ vec2 BlinnPhongFresnel(vec3 _normal, vec3 _view, vec3 _light, float _shininess, 
 	vec2 ds;	
 
 	vec3 H = normalize(_light + _view);
-	float NdotL = min(1, max(0, dot(_normal, _light)));
-	float NdotH = min(1, max(0, dot(_normal, H)));
-	float HdotV = min(1, max(0, dot(H, _view)));
+	float NdotL = clamp(dot(_normal, _light), 0, 1);
+	float NdotH = clamp(dot(_normal, H), 0, 1);
+	float HdotV = clamp(dot(H, _view), 0, 1);
 	
 	ds.x = NdotL;
 	ds.y = (_power+1) * pow(NdotH, _power) / 120.0;

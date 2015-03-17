@@ -60,14 +60,14 @@ namespace Voxel {
 		else SetY( tmp );
 
 		tmp = 0;
-		for( int i=0; i<_num; ++i ) tmp += _materials[i].GetSpecular();
-		SetSpecular( (tmp + nh) / _num );
+		for( int i=0; i<_num; ++i ) tmp = Math::max(tmp, _materials[i].GetSpecular());
+		SetSpecular( tmp );
 
 		tmp = 0;
 		for( int i=0; i<_num; ++i ) tmp += _materials[i].GetShininess();
 		SetShininess( (tmp + nh) / _num );
 
-		// All must be transparent to inherite
+		// All must be transparent to inherit
 		tmp = 0;
 		for( int i=0; i<_num; ++i ) if(_materials[i].IsTransparent()) ++tmp;
 		SetTransparent(tmp == _num);
