@@ -30,9 +30,9 @@ namespace Graphic {
 			};
 
 			/// Constructs a new format form the given parameters.
-			/// \param[in] _numChannels
+			/// \param [in] _numChannels
 			///   Number of channels for this format. Will be ignored for _formatType != FormatType::COLOR.
-			/// \param[in] _bitDepth
+			/// \param [in] _bitDepth
 			///   bitDepth per Channel. For stencil formats this value is ignored since only GL_DEPTH24_STENCIL8 is supported.
 			///   (This means that neither GL_DEPTH32F_STENCIL8 nor GL_STENCIL_INDEX8 are supported)
 			Format(unsigned int _numChannels, unsigned int _bitDepth, ChannelType _channelType, FormatType _formatType = FormatType::COLOR);
@@ -44,23 +44,29 @@ namespace Graphic {
 		};
 
 		/// \brief Creates an empty 2D texture.
-		/// \param _numMipLevels[in] 0 will result in a full mipmap chain.
+		/// \param [in] _numMipLevels 0 will result in a full mipmap chain.
 		/// \todo Is there a better channel description?
 		Texture(unsigned int _width, unsigned int _height, const Format& format, unsigned int _numMipLevels = 1);
 
 		/// \brief Load a single 2D,3D or cubemap texture from file.
 		///
 		/// Currently supported: 2D TODO: the others
-		/// Will create a full mipmapchain.
+		/// Will create a full mipmap chain.
 		Texture( const std::string& _fileName );
 
 		/// \brief Load an 2D texture array. The texture index in the
 		///		array is derived from its index in the vector.
 		///
-		/// Will create a full mipmapchain.
+		/// Will create a full mipmap chain.
 		/// \param [in] _fileNames List of image files to be loaded into
 		///		the array.
 		Texture( const std::vector<std::string>& _fileNames );
+
+		/// \brief Creates an empty 2D texture array.
+		/// \details The array can be filled with TODO
+		/// \param [in] _layers Number of textures in the array.
+		/// \param [in] _numMipLevels 0 will result in a full mipmap chain.
+		Texture( unsigned int _width, unsigned int _height, unsigned int _layers, const Format& format, unsigned int _numMipLevels = 1 );
 
 		/// \brief Release resource
 		~Texture();

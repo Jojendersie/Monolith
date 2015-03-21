@@ -21,6 +21,7 @@ namespace Graphic {
 		{
 		case Effects::VOXEL_RENDER:
 			s_effects[(int)_effect] = new Effect( "shader/voxel.vs", "shader/voxel.ps", "shader/voxel.gs" );
+			//s_effects[(int)_effect] = new Effect( "shader/point.vs", "shader/voxel.ps" );
 			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::OBJECT_VOXEL) );
 			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::CAMERA) );
 			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::GLOBAL) );

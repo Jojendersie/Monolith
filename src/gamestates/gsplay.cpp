@@ -67,12 +67,19 @@ void GSPlay::OnBegin()
 		for( int i = 0; i < 25; ++i )
 		{
 			Generators::Random rnd(i*4+1);
-			auto model = new Generators::Asteroid( rnd.Uniform(10, 30), rnd.Uniform(10, 30), rnd.Uniform(10, 30), i );
+			auto model = new Generators::Asteroid( rnd.Uniform(15, 40), rnd.Uniform(15, 40), rnd.Uniform(15, 40), i );
 			Vec3 pos(rnd.Uniform(-150.0f, 150.0f), rnd.Uniform(-150.0f, 150.0f), rnd.Uniform(-150.0f, 150.0f));
 			model->SetPosition( FixVec3(pos) );
+			model->Rotate(rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI));
 			m_scene.AddObject(model);
 			if(i==0) m_camera->ZoomAt( *model );
 		}
+		Generators::Random rnd(484);
+		auto model = new Generators::Asteroid( 300, 300, 300, 846 );
+		model->SetPosition( FixVec3(Vec3(0.0f)) );
+		model->Rotate(rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI));
+		m_scene.AddObject(model);
+		m_camera->ZoomAt( *model );
 	}
 
 	LOG_LVL2("Entered game state Play");

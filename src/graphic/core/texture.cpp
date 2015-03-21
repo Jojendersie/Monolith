@@ -207,6 +207,34 @@ Texture::Texture( const std::vector<std::string>& _fileNames ) :
 	GL_CALL(glBindTexture, m_bindingPoint, 0); // Todo: Tell device that a texture has changed
 }
 
+Texture::Texture( unsigned int _width, unsigned int _height, unsigned int _layers, const Format& format, unsigned int _numMipLevels ) :
+	m_numMipLevels(_numMipLevels),
+	m_width(_width),
+	m_height(_height),
+	m_depth(_layers),
+	m_bindingPoint(GL_TEXTURE_2D_ARRAY)
+{
+	GL_CALL(glGenTextures, 1, &m_textureID);
+	GL_CALL(glBindTexture, GL_TEXTURE_2D_ARRAY, m_textureID);
+
+	// Reserve memory inclusive mip map storage
+	int width = _width * 2;
+	int height = _height * 2;
+	int level = 0;
+	do {
+        width = Math::max(1, (width / 2));
+        height = Math::max(1, (height / 2));
+		GL_CALL(glTexImage3D, m_bindingPoint, level, format.internalFormat, width, height, _layers,
+							  0, format.format, format.type, nullptr);
+		++level;
+	} while (width * height > 1);
+
+	m_numMipLevels = GetMaxPossibleMipMapLevels();
+	SetDefaultTextureParameter();
+
+	GL_CALL(glBindTexture, m_bindingPoint, 0);
+}
+
 void Texture::SetDefaultTextureParameter()
 {
 	// Always set some texture parameters (required for some drivers)
