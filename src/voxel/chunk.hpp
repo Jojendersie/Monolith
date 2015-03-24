@@ -13,19 +13,21 @@ namespace Graphic { class UniformBuffer; }
 
 namespace Voxel {
 
+	// Values in 2 to 6 are possible chunk sizes
+	const int LOG_CHUNK_SIZE = 6;
+	const int CHUNK_SIZE = 1<<LOG_CHUNK_SIZE;
+
 	struct VoxelVertex
 	{
 		/// \brief A lot of discrete information.
 		///	\details Single bits or groups of bits have different meanings:
 		///		0-5: Draw a side (1) or not (0). The order is: Left, Right,
 		///			 Bottom, Top, Front, Back
-		///		6-8: These three bits form a number s in [0,7] which denotes
-		///			 the voxel size 2^s. DEPRECATED
-		///		9-13: X coordinate of voxel relative to the grid corner of the
+		///		6-11: X coordinate of voxel relative to the grid corner of the
 		///			 respective size-dimension (2^s).
-		///		14-18: Y coordinate of voxel relative to the grid corner of the
+		///		12-17: Y coordinate of voxel relative to the grid corner of the
 		///			 respective size-dimension (2^s).
-		///		19-23: Z coordinate of voxel relative to the grid corner of the
+		///		18-23: Z coordinate of voxel relative to the grid corner of the
 		///			 respective size-dimension (2^s).
 		///		24-31: 256 texture indices / voxel types. DEPRECATED
 		uint32_t flags;
@@ -36,7 +38,7 @@ namespace Voxel {
 		void SetVisibility( int _l, int _r, int _bo, int _t, int _f, int _ba )	{ flags = (flags & 0xffffffc0) | _l | _r<<1 | _bo<<2 | _t<<3 | _f<<4 | _ba<<5; }
 		void SetVisibility( int _flags )					{ Assert(_flags < 64, "Invalid visiblity flag."); flags = (flags & 0xffffffc0) | _flags; }
 // DEPRECATED		void SetSize( int _level )							{ Assert(0<=_level && _level<=5); flags = (flags & 0xfffffe3f) | (_level<<6); }
-		void SetPosition( const Math::IVec3& _position )	{ flags = (flags & 0xff0001ff) | (_position[0] << 9) | (_position[1] << 14) | (_position[2] << 19); }
+		void SetPosition( const Math::IVec3& _position )	{ flags = (flags & 0xff00003f) | (_position[0] << 6) | (_position[1] << 12) | (_position[2] << 18); }
 // DEPRECATED		void SetTexture( int _textureIndex )				{ flags = (flags & 0x00ffffff) | (_textureIndex << 24); }
 //		void SetHasChildren( bool _bHasChildren )			{ flags = (flags & 0x7fffffff) | (_bHasChildren?0x80000000:0); }
 

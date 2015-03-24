@@ -270,7 +270,7 @@ namespace Voxel {
 	// ********************************************************************* //
 	void ChunkBuilder::RecomputeVertexBuffer( Chunk& _chunk )
 	{
-		VoxelVertex* vertexBuffer = (VoxelVertex*)malloc(32*32*32*sizeof(VoxelVertex));
+		VoxelVertex* vertexBuffer = (VoxelVertex*)malloc(CHUNK_SIZE*CHUNK_SIZE*CHUNK_SIZE*sizeof(VoxelVertex));
 
 		// If it is dirty update the subtree
 		Model::ModelData::SVON* node = _chunk.m_modelData->Get( IVec3(_chunk.m_root), _chunk.m_root[3] );

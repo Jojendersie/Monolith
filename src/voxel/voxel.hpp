@@ -5,6 +5,10 @@
 #include "material.hpp"
 #include "math/vector.hpp"
 
+namespace Graphic {
+	class Texture;
+}
+
 namespace Voxel {
 
 	enum struct VoxelType: uint8_t {
@@ -94,6 +98,9 @@ namespace Voxel {
 		static std::string GetName( VoxelType _type );
 
 		static int GetNumVoxels();
+
+		/// \brief Set the internal voxel texture array as TEXTURE0
+		static void BindVoxelTextureArray();
 	private:
 		/// \brief singleton constructor - calls load.
 		TypeInfo();
@@ -133,8 +140,9 @@ namespace Voxel {
 			~ComponentTypeInfo();
 		};
 
-		ComponentTypeInfo* m_voxels;	///< Array with one entry for each voxel
-		int m_numVoxels;				///< Number of known voxels
+		ComponentTypeInfo* m_voxels;		///< Array with one entry for each voxel
+		int m_numVoxels;					///< Number of known voxels
+		Graphic::Texture* m_voxelTextures;	///< Texture array with "volumetric" (N*N)xN texture
 
 		/// \brief Compute the mip maps for a border or standard texture.
 		/// \details The texture memory must have a size of ´_edge^3 + (_edge/2)^3 ...´
@@ -149,6 +157,9 @@ namespace Voxel {
 		/// \param [in] _default Defines if voxels at the border are surface or
 		///		not. Using true will create faces at the very outside.
 		static void GenerateSurfaceInfo( MatSample* _texture, int _edge, bool _default );
+
+		/// \brief Bake all the voxels inclusive mip-maps in the texture array.
+		void GenerateTexture();
 	};
 
 	/// \brief General information about a voxel of a specific type.

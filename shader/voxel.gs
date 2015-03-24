@@ -36,9 +36,9 @@ uint hash(uint i)
 
 void main(void)
 {
-	float x = float((vs_out_VoxelCode[0] >> 9 ) & uint(0x1f)) + 0.5;
-	float y = float((vs_out_VoxelCode[0] >> 14) & uint(0x1f)) + 0.5;
-	float z = float((vs_out_VoxelCode[0] >> 19) & uint(0x1f)) + 0.5;
+	float x = float((vs_out_VoxelCode[0] >> 6 ) & uint(0x3f)) + 0.5;
+	float y = float((vs_out_VoxelCode[0] >> 12) & uint(0x3f)) + 0.5;
+	float z = float((vs_out_VoxelCode[0] >> 18) & uint(0x3f)) + 0.5;
 
 	vec4 vPos = vec4(x, y, z, 1) * c_mWorldView;
 	vec3 vViewPos = vPos.xyz;

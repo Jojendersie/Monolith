@@ -67,12 +67,12 @@ namespace Voxel {
 			//float detailResolution = 0.31f * log( lengthSq(boundingSphere.m_center - camera.GetPosition()) );
 			float detailResolution = 0.021f * sq(log( lengthSq(boundingSphere.m_center) ));
 			//float detailResolution = 0.045f * pow(log( lengthSq(boundingSphere.m_center - camera.GetPosition()) ), 1.65f);
-			int targetLOD = max(2, Math::ceil(detailResolution));
+			int targetLOD = max(LOG_CHUNK_SIZE, Math::ceil(detailResolution));
 			if( _position[3] <= targetLOD )
 			{
 				// For very far objects a chunk might be too detailed. In this case
 				// a coarser level is used (usually 5 -> 32^3 chunks)
-				int levels = max(0, 5 - (targetLOD - _position[3]));
+				int levels = max(0, LOG_CHUNK_SIZE - (targetLOD - _position[3]));
 				// Encode in position -> part of the key / hash
 				IVec4 position(_position);
 				position[3] |= levels << 16;

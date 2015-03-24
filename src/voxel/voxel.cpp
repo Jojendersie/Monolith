@@ -1,6 +1,8 @@
 #include "voxel.hpp"
 #include "material.hpp"
 #include "utilities/logger.hpp"
+#include "graphic/core/texture.hpp"
+#include "graphic/core/device.hpp"
 #include <jofilelib.hpp>
 #include <hybridarray.hpp>
 
@@ -34,7 +36,8 @@ namespace Voxel {
 	// ********************************************************************* //
 	TypeInfo::TypeInfo() :
 		m_numVoxels(0),
-		m_voxels(nullptr)
+		m_voxels(nullptr),
+		m_voxelTextures(nullptr)
 	{
 	}
 
@@ -136,6 +139,8 @@ namespace Voxel {
 		delete[] g_InfoManager->m_voxels;
 		g_InfoManager->m_voxels = nullptr;
 		g_InfoManager->m_numVoxels = 0;
+		delete g_InfoManager->m_voxelTextures;
+		g_InfoManager->m_voxelTextures = nullptr;
 	}
 
 
@@ -442,6 +447,27 @@ namespace Voxel {
 			off += _e*_e*_e;
 			_e /= 2;
 		}
+	}
+
+	// ********************************************************************* //
+	void TypeInfo::BindVoxelTextureArray()
+	{
+		Graphic::Device::SetTexture( *g_InfoManager->m_voxelTextures, 0 );
+	}
+
+	// ********************************************************************* //
+	void TypeInfo::GenerateTexture()
+	{
+		// Get maximum resolution (all textures in an array must have the same
+		// size)
+		int maxRes = 0, maxMipMapLevels = maxMipMapLevels;
+		for( int i=0; i<m_numVoxels; ++i )
+			if( maxRes < m_voxels[i].textureResolution ) {
+				maxRes = m_voxels[i].textureResolution;
+				maxMipMapLevels = m_voxels[i].numMipMaps;
+			}
+		Graphic::Texture::Format format(1, 32, Graphic::Texture::Format::ChannelType::UINT);
+		m_voxelTextures = new Graphic::Texture(maxRes * maxRes, maxRes, m_numVoxels, format, maxMipMapLevels);
 	}
 
 } // namespace Voxel

@@ -127,12 +127,12 @@ Texture::Texture( const std::string& _fileName ) :
 	int height = image.Height() * 2;
 	int level = 0;
 	do {
-        width = Math::max(1, (width / 2));
-        height = Math::max(1, (height / 2));
+		width = Math::max(1, (width / 2));
+		height = Math::max(1, (height / 2));
 		GL_CALL(glTexImage2D, m_bindingPoint, level, format.internalFormat, width, height, 0,
 								format.format, format.type, level==0? image.GetBuffer() : nullptr);
 		++level;
-    } while( width * height > 1 );
+	} while( width * height > 1 );
 
 	
 	m_numMipLevels = GetMaxPossibleMipMapLevels();

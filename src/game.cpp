@@ -43,7 +43,6 @@ void RenderLoop::Step( double _deltaTime )
 	m_game.m_postProcessing->PerformPostProcessing(*m_game.m_sceneColorTexture, *m_game.m_sceneDepthTexture);
 
 	glfwSwapBuffers(Graphic::Device::GetWindow());
-	glFinish();
 
 #ifdef AUTO_SHADER_RELOAD
 	Graphic::Effect::UpdateShaderFileWatcher();
