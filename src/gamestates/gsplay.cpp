@@ -18,11 +18,13 @@ using namespace Graphic;
 #include "../generators/random.hpp"
 #include "../voxel/voxel.hpp"
 #include "../graphic/content.hpp"
+#include "../gameplay/galaxy.hpp"
 
 namespace RenderStat {
 	int g_numVoxels;
 	int g_numChunks;
 }
+
 
 // ************************************************************************* //
 GSPlay::GSPlay(Monolith* _game) : IGameState(_game)
@@ -30,7 +32,7 @@ GSPlay::GSPlay(Monolith* _game) : IGameState(_game)
 	LOG_LVL2("Starting to create game state Play");
 
 	m_hud = new Graphic::Hud(_game);
-
+	
 	m_camera = new Input::Camera( FixVec3( Fix(0.0), Fix(0.0), Fix(0.0) ),
 		Quaternion( 0.0f, 0.0f, 0.0f ),
 		0.3f,
@@ -38,6 +40,8 @@ GSPlay::GSPlay(Monolith* _game) : IGameState(_game)
 
 	m_objectPlane = new Graphic::Marker::Grid( 40, 40, 8.0f, Utils::Color32F( 0.5f, 0.5f, 1.0f, 0.5f ), true );
 	//m_objectPlane = new Graphic::Marker::Grid( 30, 30, 30, 10.0f, Utils::Color32F( 0.5f, 0.5f, 1.0f, 0.5f ) );
+
+	m_galaxy = new Galaxy(1000, 20000.f);
 
 	LOG_LVL2("Created game state Play");
 }
@@ -49,6 +53,8 @@ GSPlay::~GSPlay()
 	delete m_camera;
 	delete m_hud;
 
+	delete m_galaxy;
+
 	LOG_LVL2("Deleted game state Play");
 }
 
@@ -57,7 +63,7 @@ void GSPlay::OnBegin()
 {
 	if( m_scene.NumActiveObjects() == 0 )
 	{
-		for( int i = 0; i < 50; ++i )
+		for( int i = 0; i < 25; ++i )
 		{
 			Generators::Random rnd(i*4+1);
 			auto model = new Generators::Asteroid( rnd.Uniform(10, 30), rnd.Uniform(10, 30), rnd.Uniform(10, 30), i );
@@ -98,7 +104,10 @@ void GSPlay::Render( double _deltaTime )
 
 	Graphic::Device::Clear( 0.05f, 0.05f, 0.06f );
 
+	m_galaxy->Draw(*m_camera);
+
 	Graphic::Device::SetEffect(	Resources::GetEffect(Effects::VOXEL_RENDER) );
+
 	Jo::HybridArray<SOHandle, 32> visibleObjects;
 	m_scene.FrustumQuery(visibleObjects);
 	for( unsigned i = 0; i < visibleObjects.Size(); ++i ) {

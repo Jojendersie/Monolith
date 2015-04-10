@@ -92,7 +92,9 @@
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\gameloop.cpp" />
     <ClCompile Include="src\gameplay\drive.cpp" />
+    <ClCompile Include="src\gameplay\galaxy.cpp" />
     <ClCompile Include="src\gameplay\scenegraph.cpp" />
+    <ClCompile Include="src\gameplay\starsystem.cpp" />
     <ClCompile Include="src\gamestates\gseditor.cpp">
       <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</PreprocessToFile>
     </ClCompile>
@@ -176,8 +178,10 @@
     <ClInclude Include="src\gameloop.hpp" />
     <ClInclude Include="src\gameplay\componentcontainer.hpp" />
     <ClInclude Include="src\gameplay\drive.hpp" />
+    <ClInclude Include="src\gameplay\galaxy.hpp" />
     <ClInclude Include="src\gameplay\scenegraph.hpp" />
     <ClInclude Include="src\gameplay\sceneobject.hpp" />
+    <ClInclude Include="src\gameplay\starsystem.hpp" />
     <ClInclude Include="src\gamestates\gamestatebase.hpp" />
     <ClInclude Include="src\gamestates\gseditor.hpp" />
     <ClInclude Include="src\gamestates\gseditorchoice.hpp" />
@@ -246,6 +250,9 @@
     <ClInclude Include="src\voxel\voxel.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shader\backgroundstar.gs" />
+    <None Include="shader\backgroundstar.ps" />
+    <None Include="shader\backgroundstar.vs" />
     <None Include="shader\beam.gs" />
     <None Include="shader\beam.ps" />
     <None Include="shader\beam.vs" />

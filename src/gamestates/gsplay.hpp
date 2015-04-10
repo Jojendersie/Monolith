@@ -23,6 +23,7 @@ public:
 private:
 	Graphic::Marker::Grid* m_objectPlane;
 	Graphic::Hud* m_hud;
+	Galaxy* m_galaxy;
 	Input::Camera* m_camera;
 	SceneGraph m_scene;
 

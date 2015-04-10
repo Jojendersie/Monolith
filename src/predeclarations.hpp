@@ -23,6 +23,9 @@ class IGameState;
 typedef IGameState* IGameStateP;
 class Monolith;
 
+//searching for a home(namespace) :-(
+class Galaxy;
+
 namespace Generators {
 	class Asteroid;
 } // namespace Generators

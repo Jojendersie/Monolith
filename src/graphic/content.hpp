@@ -17,6 +17,7 @@ namespace Graphic {
 		BEAM = 3,			///< Draw beams for a set of lines Bound: {OBJECT_WIRE}
 		ALPHA_BACK = 4,		///< Draw a mesh's back faces with ab. enabled. Bound UBOs: {SIMPLE_OBJECT}
 		ALPHA_FRONT = 5,	///< Draw a mesh's front faces with ab. enabled. Bound UBOs: {SIMPLE_OBJECT}
+		BACKGROUNDSTAR = 6,
 		COUNT				///< Number of effects - this must be the last enumeration member
 	};
 
