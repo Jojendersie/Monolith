@@ -6,10 +6,9 @@
 /// \brief Information required by shader to draw a single star
 struct StarVertex
 {
-	Math::Vec3 position;
+	Math::Vec3 position; ///< position in viewspac
 	uint32_t color;
 	float size;
-
 };
 
 /// \brief A combination of stars and planets
@@ -17,7 +16,7 @@ struct StarVertex
 class StarSystem : public Math::Transformation
 {
 public:
-	StarSystem(const Math::FixVec3& _position, int _temperature, const Math::Quaternion& _rotation = Math::Quaternion());
+	StarSystem(const Math::FixVec3& _position, int _temperature, float _size = 1.f, const Math::Quaternion& _rotation = Math::Quaternion());
 
 	StarVertex& ComputeVertex(const Input::Camera& _camera);
 private:

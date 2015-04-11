@@ -2,12 +2,17 @@
 #include "../graphic/content.hpp"
 #include "generators/random.hpp"
 #include "../graphic/core/device.hpp"
+#include "../graphic/core/opengl.hpp"
+
 
 using namespace Math;
 
 Galaxy::Galaxy(int _stars, float _size)
 	: m_starInfos ("3c1", Graphic::VertexBuffer::PrimitiveType::POINT)
 {
+	//needs to be called to allow custom point size in the geometry shader
+	GL_CALL(glEnable, GL_PROGRAM_POINT_SIZE);
+
 	m_starSystems.reserve(_stars);
 
 	float radius = _size / 2;
@@ -18,8 +23,8 @@ Galaxy::Galaxy(int _stars, float _size)
 	for (int i = 0; i < _stars; ++i)
 	{
 		Vec3 pos;
-		pos[1] = rnd.Normal(radius*2);
-		pos[0] = rnd.Normal(radius*2);
+		pos[1] = rnd.Normal(_size);
+		pos[0] = rnd.Normal(_size);
 		pos[2] = rnd.Normal(height);
 
 		//alternative distribution
@@ -34,7 +39,8 @@ Galaxy::Galaxy(int _stars, float _size)
 
 		m_starSystems.emplace_back(
 			FixVec3(pos),
-			rnd.Uniform(2000, 40000)
+			rnd.Uniform(2000, 40000),
+			rnd.Uniform(1,2)
 			);
 	}
 }

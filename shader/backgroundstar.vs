@@ -3,7 +3,7 @@
 
 layout(location=3) in vec4 in_Color;
 layout(location=11) in vec3 in_Position;
-layout(location=13) in float in_Size;
+layout(location=12) in float in_Size;
 
 out vec4 vs_out_Color;
 out vec3 vs_out_Position;
@@ -16,5 +16,5 @@ void main()
 	vs_out_Color = in_Color;
 	vs_out_Position = in_Position;
 	//vs_out_Position = in_Position;
-//	vs_out_Size = in_Size;
+	vs_out_Size = in_Size;
 }

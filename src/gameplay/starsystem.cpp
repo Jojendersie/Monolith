@@ -7,11 +7,11 @@
 
 using namespace Math;
 
-StarSystem::StarSystem(const FixVec3& _position, int _temperature, const Quaternion& _rotation)
+StarSystem::StarSystem(const FixVec3& _position, int _temperature, float _size, const Quaternion& _rotation)
 	:Transformation(_position, _rotation)
 {
 	m_vertex.color = TemperatureToRGB(_temperature).RGBA();
-	m_vertex.size = 1.f;
+	m_vertex.size = _size;
 }
 
 StarVertex& StarSystem::ComputeVertex(const Input::Camera& _camera)
