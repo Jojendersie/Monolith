@@ -15,18 +15,58 @@ Galaxy::Galaxy(int _stars, float _size)
 
 	m_starSystems.reserve(_stars);
 
+	//generator params
+	//stars in the core blob / stars in the spiral arms
+	float coreToRemoteRatio = 0.40f;
+	//rotation of the arms in complete circles
+	float rotationRate = 2.25f;
+
 	float radius = _size / 2;
 	float radiusSq = radius * radius;
-	float height = radius / 10;
+	float height = radius / 32;
+	float coreStars = coreToRemoteRatio * _stars;
+	float factor = 0.99f / powf(_stars - coreStars, 2.f);
 
 	Generators::Random rnd(_stars);
 	for (int i = 0; i < _stars; ++i)
 	{
 		Vec3 pos;
-		pos[1] = rnd.Normal(_size);
-		pos[0] = rnd.Normal(_size);
-		pos[2] = rnd.Normal(height);
 
+		//center is a cloud
+		if (i / (float)_stars < coreToRemoteRatio)
+		{
+			pos[0] = rnd.Normal(radius * 10);
+			pos[1] = rnd.Normal(radius * 10);
+			pos[2] = rnd.Normal(radius * 10);
+		}
+		else
+		{
+			//spiral arms start in the core
+			float c = i - coreStars;
+			//radius function
+			//Dr = [coreStars,_stars - coreStars]
+			//Wr = [0,1]
+			// y = a(x-d)^2
+			//float f = c / float(100 + c);
+			//float r = c / float(_stars - coreStars);
+			//non linear so that the density of stars decreases with growing radius
+			float r = factor*pow(c, 2.f) + 0.01f;
+		
+			//noise decreases linear with radius
+			float relative = c / (float)(_stars - coreStars);
+			float f2 = (1.2f - relative) * radius / 12;
+			//2 arms starting on the same axis (+-)
+			pos[0] = (r*radius + rnd.Uniform(-f2, f2)) *(i % 2 ? 1.f : -1.f);
+
+			pos[1] = 0.f;
+			//rotation is linear
+			float a = relative * 2 * PI * rotationRate;
+			Mat3x3 rotator = Mat3x3(cos(a), -sin(a), 0.f,
+									sin(a),  cos(a), 0.f,
+									0.f,     0.f,    1.f);
+			pos = rotator * pos;
+			pos[2] = rnd.Uniform(-height, height);
+		}
 		//alternative distribution
 	/*	pos[0] = rnd.Uniform(-radius, radius);
 
@@ -40,7 +80,7 @@ Galaxy::Galaxy(int _stars, float _size)
 		m_starSystems.emplace_back(
 			FixVec3(pos),
 			rnd.Uniform(2000, 40000),
-			rnd.Uniform(1,2)
+			(float)rnd.Uniform(1,2)
 			);
 	}
 }
