@@ -199,7 +199,7 @@ namespace Graphic
 		m_font(_font),
 		m_fontSize(_fontSize),
 		m_textRender(m_font),
-		m_content("I"),//init with cursor indicator
+		m_content(""),//init with cursor indicator
 		m_cursor(0)
 	{
 	//	m_lines.emplace_back(new TextRender(_font));
@@ -240,27 +240,27 @@ namespace Graphic
 			return true; //nothing more happens
 		}
 		//right arrow key -> shift cursor 
-		else if (_key == GLFW_KEY_RIGHT && m_cursor + 1 < m_content.size())
+		else if (_key == GLFW_KEY_RIGHT && m_cursor < m_content.size())
 		{
-			std::swap(m_content[m_cursor], m_content[m_cursor + 1]);
+		//	std::swap(m_content[m_cursor], m_content[m_cursor + 1]);
 			m_cursor++;
 		}
 		//left arrow key 
 		else if (_key == GLFW_KEY_LEFT && m_cursor > 0)
 		{
-			std::swap(m_content[m_cursor], m_content[m_cursor - 1]);
+		//	std::swap(m_content[m_cursor], m_content[m_cursor - 1]);
 			m_cursor--;
 		}
 		//backspace
-		else if (_key == GLFW_KEY_BACKSPACE)
+		else if (_key == GLFW_KEY_BACKSPACE && m_cursor > 0)
 		{
-			m_content.erase(m_cursor - 1, 1);
 			m_cursor--;
+			m_content.erase(m_cursor, 1);
 		}
 		//del
-		else if (_key == GLFW_KEY_DELETE)
+		else if (_key == GLFW_KEY_DELETE && m_cursor < m_content.size())
 		{
-			m_content.erase(m_cursor+1, 1);
+			m_content.erase(m_cursor, 1);
 		}
 		//printable chars
 		//check whether an added char would overflow the rectangle; 1.5 to take into account the start offset
@@ -276,7 +276,9 @@ namespace Graphic
 		else return false;
 
 		//update textRender
-		m_textRender.SetText(m_content);
+		std::string str = m_content;
+		str.insert(m_cursor, 1, 'I');
+		m_textRender.SetText(str);
 		//calc pursor pos
 		//take dimensions of the first char, as every 
 //		m_cursor[0] = _pos[0] / m_font->m_sizeTable[0][0];

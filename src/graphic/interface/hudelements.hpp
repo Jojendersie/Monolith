@@ -169,7 +169,7 @@ namespace Graphic {
 		EditField(Jo::Files::MetaFileWrapper* _posMap, Font* _font, Math::Vec2 _position, Math::Vec2 _size, int _lines = 1, float _fontSize = 1);
 
 		/// \brief Returns the current text the field contains.
-		const std::string& GetText() { return m_textRender.GetText(); };
+		const std::string& GetText() { return m_content; };
 
 		/// \brief Returns the textRender to diretly manipulate the text.
 		TextRender* getTextRender() { return &m_textRender; };

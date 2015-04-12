@@ -161,7 +161,6 @@ namespace Graphic
 		//todo: include mousespeed in config  
 
 		//collision with hud elements
-		//unsigned int sign (i >= 0) check does not work
 		for(size_t i = m_screenOverlays.size(); i-- > 0; )
 		{
 			ScreenOverlay* screenOverlay = m_screenOverlays[i]; 
