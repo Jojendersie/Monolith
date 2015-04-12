@@ -11,6 +11,7 @@
 #include "utilities/assert.hpp"
 #include "math/sphericalfunction.hpp"
 
+
 #include <jofilelib.hpp>
 
 using namespace Math;
@@ -31,9 +32,9 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 
 	m_hud = new Graphic::Hud(_game);
 
-	m_hud->CreateEditField(Vec2(-0.98f, 0.94f), Vec2(0.66f, 0.1f), 1, 0.f);
+	Graphic::EditField& nameEdit = m_hud->CreateEditField(Vec2(-0.98f, 0.94f), Vec2(0.66f, 0.1f), 1, 0.f);
 
-	Graphic::Hud* voxelContainer = m_hud->CreateContainer(Math::Vec2(-0.98f,-1.0f), Math::Vec2(0.66f,1.8f));//Math::Vec2(0.6f,1.75f));
+	Graphic::Hud* voxelContainer = m_hud->CreateContainer(Vec2(-0.98f,-1.0f), Vec2(0.66f,1.8f));//Math::Vec2(0.6f,1.75f));
 	voxelContainer->SetScrollable(true);
 
 	//add every (available) voxel to the list which fits the criteria
@@ -55,7 +56,27 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 	}
 
 	//box holding informations about the current model
-	Graphic::Hud* modelInfoContainer = m_hud->CreateContainer(Math::Vec2(-0.0f,-0.9f), Math::Vec2(1.f,0.8f));
+	Graphic::Hud* modelInfoContainer = m_hud->CreateContainer(Math::Vec2(0.2f,-0.9f), Math::Vec2(0.8f,0.6f));
+
+	modelInfoContainer->CreateBtn("menuBtn", "load", Vec2(-0.9f, 0.92f), Vec2(0.8f, 0.22f), Graphic::width, [&]()
+	{
+		//copy and past from quick load
+		ScopedPtr<Voxel::Model> model = new Voxel::Model;
+		model->Load(Jo::Files::HDDFile("savegames/" + nameEdit.GetText() + ".vmo"));
+		{
+			std::unique_lock<std::mutex> lock(m_criticalModelWork);
+			// TODO: REquest for the old model
+			m_deleteList.PushBack(std::move(m_model));
+			m_model = std::move(model);
+			m_modelCamera->ZoomAt(*m_model);
+			m_recreateThrustVis = true;
+		}
+	});
+
+	modelInfoContainer->CreateBtn("menuBtn", "save", Vec2(0.0f, 0.92f), Vec2(0.8f, 0.22f), Graphic::width, [&]()
+	{
+		m_model->Save(Jo::Files::HDDFile("savegames/" + nameEdit.GetText() + ".vmo", Jo::Files::HDDFile::OVERWRITE));
+	});
 
 	// TODO: view port for this camera in the upper right corner
 	m_modelCamera = new Input::Camera( FixVec3( Fix(0.0), Fix(0.0), Fix(0.0) ),
