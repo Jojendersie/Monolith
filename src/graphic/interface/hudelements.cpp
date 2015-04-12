@@ -194,7 +194,7 @@ namespace Graphic
 
 
 	EditField::EditField(Jo::Files::MetaFileWrapper* _posMap, Font* _font, Math::Vec2 _position, Math::Vec2 _size, int _lines, float _fontSize) :
-		ScreenTexture(_posMap, "voxelBtnDefault", _position, _size, Graphic::no), //,"EditField,,"
+		ScreenTexture(_posMap, "voxelBtnDefault", _position, _size, Graphic::no), 
 		m_linesMax(_lines),
 		m_font(_font),
 		m_fontSize(_fontSize),
@@ -256,6 +256,11 @@ namespace Graphic
 		{
 			m_content.erase(m_cursor - 1, 1);
 			m_cursor--;
+		}
+		//del
+		else if (_key == GLFW_KEY_DELETE)
+		{
+			m_content.erase(m_cursor+1, 1);
 		}
 		//printable chars
 		//check whether an added char would overflow the rectangle; 1.5 to take into account the start offset

@@ -26,7 +26,9 @@ namespace Graphic {
 		void CreateModel(Math::Vec2 _pos , Math::Vec2 _size, Voxel::Model* _model);
 
 		/// \brief Creates an EditField
-		void CreateEditField(Math::Vec2 _pos, Math::Vec2 _size, int _lines = 1, float _fontSize = 1);
+		/// \details returns a reference to the field
+		/// which is valid until the hud is destroyed
+		EditField& CreateEditField(Math::Vec2 _pos, Math::Vec2 _size, int _lines = 1, float _fontSize = 1);
 
 		/// \brief Last call in every frame drawcall
 		void Draw(double _deltaTime);
@@ -57,7 +59,7 @@ namespace Graphic {
 		virtual bool KeyDown( int _key, int _modifiers, Math::Vec2 _pos = Math::Vec2(0.f,0.f)) override;
 		virtual bool KeyUp(int _key, int _modifiers, Math::Vec2 _pos = Math::Vec2(0.f,0.f)) override;
 
-		/// \ called by the current gamestate to update mouseinput
+		/// \brief called by the current gamestate to update mouseinput
 		virtual void MouseMove( double _dx, double _dy )override;
 
 		virtual bool Scroll(double _dx, double _dy) override;

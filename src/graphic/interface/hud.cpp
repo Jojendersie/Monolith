@@ -80,12 +80,14 @@ namespace Graphic
 	};
 
 	// ************************************************************************* //
-	void Hud::CreateEditField(Math::Vec2 _pos, Math::Vec2 _size, int _lines, float _fontSize)
+	EditField& Hud::CreateEditField(Math::Vec2 _pos, Math::Vec2 _size, int _lines, float _fontSize)
 	{
-		m_editFields.emplace_back(new EditField(m_texContainerMap, &Resources::GetFont(Fonts::GAME_FONT), _pos, _size, _lines, _fontSize));
-//		m_editFields.push_back(EditField(m_texContainerMap, &Resources::GetFont(Fonts::GAME_FONT), _pos, _size));
-		AddTexture(m_editFields.back().get());
-		AddTextRender(m_editFields.back()->getTextRender());
+		EditField* editField = new EditField(m_texContainerMap, &Resources::GetFont(Fonts::GAME_FONT), _pos, _size, _lines, _fontSize);
+		m_editFields.emplace_back(editField);
+		AddTexture(editField);
+		AddTextRender(editField->getTextRender());
+
+		return *editField;
 	}
 
 	// ************************************************************************* //

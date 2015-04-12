@@ -168,7 +168,10 @@ namespace Graphic {
 		/// _fontSize used fontsize for the text; 0 means automatic
 		EditField(Jo::Files::MetaFileWrapper* _posMap, Font* _font, Math::Vec2 _position, Math::Vec2 _size, int _lines = 1, float _fontSize = 1);
 
+		/// \brief Returns the current text the field contains.
+		const std::string& GetText() { return m_textRender.GetText(); };
 
+		/// \brief Returns the textRender to diretly manipulate the text.
 		TextRender* getTextRender() { return &m_textRender; };
 	private:
 
@@ -181,7 +184,7 @@ namespace Graphic {
 		int m_cursor; /// < index of the cursor char in m_content
 
 		std::string m_content;
-		TextRender m_textRender;
+		TextRender m_textRender; /// < text is stored in a single textRender
 		//std::vector< std::unique_ptr< TextRender > > m_lines; 
 
 		virtual bool KeyDown(int _key, int _modifiers, Math::Vec2 _pos) override;
