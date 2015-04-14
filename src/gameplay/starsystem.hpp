@@ -16,7 +16,8 @@ struct StarVertex
 class StarSystem : public Math::Transformation
 {
 public:
-	StarSystem(const Math::FixVec3& _position, int _temperature, float _size = 1.f, const Math::Quaternion& _rotation = Math::Quaternion());
+	StarSystem(const Math::FixVec3& _position, int _temperature, 
+		float _size = 1.f, const Math::Quaternion& _rotation = Math::Quaternion(), bool _ambient = false);
 
 	StarVertex& ComputeVertex(const Input::Camera& _camera);
 private:
@@ -26,4 +27,6 @@ private:
 	static Utils::Color8U TemperatureToRGB(int _temperature);
 
 	StarVertex m_vertex;
+
+	bool m_ambient;
 };

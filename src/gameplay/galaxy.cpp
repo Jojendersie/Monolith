@@ -7,7 +7,7 @@
 
 using namespace Math;
 
-Galaxy::Galaxy(int _stars, float _size)
+Galaxy::Galaxy(int _stars, float _size, int _ambientStars)
 	: m_starInfos ("3c1", Graphic::VertexBuffer::PrimitiveType::POINT)
 {
 	//needs to be called to allow custom point size in the geometry shader
@@ -83,11 +83,23 @@ Galaxy::Galaxy(int _stars, float _size)
 			(float)rnd.Uniform(1,2)
 			);
 	}
+	for (int i = 0; i < _ambientStars; ++i)
+	{
+		m_ambientStars.emplace_back(
+			FixVec3(),
+			rnd.Uniform(2000, 40000),
+			(float)rnd.Uniform(1, 2),
+			Quaternion(rnd.Uniform(0.f, 2.f*PI), rnd.Uniform(0.f, 2.f*PI), 0.f),
+			true);
+	}
 }
 
 void Galaxy::Draw(const Input::Camera& _camera)
 {
 	m_starInfos.Clear();
+
+	for (auto& starSystem : m_ambientStars)
+		m_starInfos.Add(starSystem.ComputeVertex(_camera));
 
 	for (auto& starSystem : m_starSystems)
 		m_starInfos.Add(starSystem.ComputeVertex(_camera));

@@ -41,7 +41,8 @@ GSPlay::GSPlay(Monolith* _game) : IGameState(_game)
 	m_objectPlane = new Graphic::Marker::Grid( 40, 40, 8.0f, Utils::Color32F( 0.5f, 0.5f, 1.0f, 0.5f ), true );
 	//m_objectPlane = new Graphic::Marker::Grid( 30, 30, 30, 10.0f, Utils::Color32F( 0.5f, 0.5f, 1.0f, 0.5f ) );
 
-	m_galaxy = new Galaxy(1000, 20000.f);
+	m_galaxy = new Galaxy(1000, 20000.f, 10000);
+
 
 	LOG_LVL2("Created game state Play");
 }
@@ -151,6 +152,8 @@ void GSPlay::Scroll( double _dx, double _dy )
 // ************************************************************************* //
 void GSPlay::KeyDown( int _key, int _modifiers )
 {
+	if (_key == GLFW_KEY_SPACE)
+		m_hud->ShowCursor(!m_hud->CursorVisible());
 	if( _key == GLFW_KEY_ESCAPE )
 		m_finished = true;
 }

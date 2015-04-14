@@ -52,6 +52,9 @@ namespace Graphic {
 		/// \brief When scrollable all elements of the hud will move when a scrollevent is recieved
 		void SetScrollable(bool _scrollable) {m_scrollable = _scrollable;};
 
+		void ShowCursor(bool _visible) { m_showCursor = _visible; };
+		bool CursorVisible() { return m_showCursor; };
+
 		/// \brief Mouse events
 		//atleast one is important so that dynamic_cast can work
 		virtual void MouseEnter() override;

@@ -7,8 +7,9 @@
 
 using namespace Math;
 
-StarSystem::StarSystem(const FixVec3& _position, int _temperature, float _size, const Quaternion& _rotation)
-	:Transformation(_position, _rotation)
+StarSystem::StarSystem(const FixVec3& _position, int _temperature, float _size, const Quaternion& _rotation, bool _ambient)
+	:Transformation(_position, _rotation),
+	m_ambient(_ambient)
 {
 	m_vertex.color = TemperatureToRGB(_temperature).RGBA();
 	m_vertex.size = _size;
@@ -16,7 +17,12 @@ StarSystem::StarSystem(const FixVec3& _position, int _temperature, float _size, 
 
 StarVertex& StarSystem::ComputeVertex(const Input::Camera& _camera)
 {
-	m_vertex.position = _camera.RenderState().Transform(m_position);
+	if (m_ambient)
+	{
+		m_vertex.position = (_camera.RenderState().GetRotation() * m_rotation).XAxis();
+	}
+	else
+		m_vertex.position = _camera.RenderState().Transform(m_position);
 
 	return m_vertex;
 }
