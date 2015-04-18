@@ -460,7 +460,7 @@ namespace Voxel {
 	{
 		// Get maximum resolution (all textures in an array must have the same
 		// size)
-		int maxRes = 0, maxMipMapLevels = maxMipMapLevels;
+		int maxRes = 0, maxMipMapLevels = 0;
 		for( int i=0; i<m_numVoxels; ++i )
 			if( maxRes < m_voxels[i].textureResolution ) {
 				maxRes = m_voxels[i].textureResolution;
