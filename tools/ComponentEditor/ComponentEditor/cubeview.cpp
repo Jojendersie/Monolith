@@ -31,6 +31,10 @@ CubeView::CubeView(QComboBox* _colorBox, int _res, QWidget *parent)
 
 	m_offset = (-m_res/5.0);// /2.5 to center it; /2 blocks only have a size of 0.5
 
+	float linOffset = m_offset+ (m_res-1)*0.5;
+
+	m_axisOffset = -QVector3D(linOffset, linOffset, linOffset);
+
 	m_cube.resize(m_res);
 	for (int i = 0; i < m_res; ++i) 
 	{
@@ -99,25 +103,42 @@ void CubeView::setTex( unsigned int* _tex )
 
 void CubeView::paintGL(QGLPainter *painter)
 {
-	painter->setStandardEffect(QGL::StandardEffect::FlatColor);//LitDecalTexture2D);
-//  painter->setStandardEffect(QGL::LitDecalTexture2D);//LitDecalTexture2D);
-//	QGLLightParameters* mainLightParam = new QGLLightParameters(this);
-//	const QGLLightParameters* orgLightParam = painter->mainLight();
-//	mainLightParam->setPosition(orgLightParam->position());
-//	mainLightParam->setDirection(orgLightParam->direction());
-//	mainLightParam = painter->mainLight();
-//	mainLightParam->setAmbientColor(QColor(0xff,0xff,0xff));
-//	mainLightParam->setDiffuseColor(QColor(0xff,0xff,0xff));
-//	mainLightParam->setSpecularColor(QColor(0x0,0x0,0x0));
-//	painter->setMainLight(mainLightParam);
-
     painter->modelViewMatrix().rotate(45.0f, 0.0f, 0.0f, 0.0f);
+	
+	painter->setStandardEffect(QGL::StandardEffect::FlatColor);
+	QArray<QVector3D> line;
+	line[0] = m_axisOffset;
+
+	//x
+	painter->setColor(QColor(255,0,0));
+	line[1] = m_axisOffset + QVector3D(m_res*0.5f, 0.f, 0.f);
+	painter->clearAttributes();
+	painter->setVertexAttribute(QGL::Position, QGLAttributeValue(line));
+    painter->draw(QGL::LineStrip, 2);
+
+	//y
+	painter->setColor(QColor(0,255,0));
+	line[1] = m_axisOffset + QVector3D(0.f, m_res*0.5f, 0.f);
+	painter->clearAttributes();
+	painter->setVertexAttribute(QGL::Position, QGLAttributeValue(line));
+    painter->draw(QGL::LineStrip, 2);
+
+	//z
+	painter->setColor(QColor(0,0,255));
+	line[1] = m_axisOffset + QVector3D(0.f, 0.f, m_res*0.5f);
+	painter->clearAttributes();
+	painter->setVertexAttribute(QGL::Position, QGLAttributeValue(line));
+    painter->draw(QGL::LineStrip, 2);
+
+	painter->setStandardEffect(QGL::LitMaterial);
+
 	FOREACH
 	{
 	//	QGLMaterial material;
 	//	material.setColor
 		
 		painter->setColor(m_cubeData[x][y][z]->m_color);
+		 painter->setFaceColor(QGL::AllFaces, m_cubeData[x][y][z]->m_color);
 	//	painter->setFaceColor(QGL::AllFaces, m_cubeData[x][y][z]->m_color);
 		m_cube[x][y][z]->draw(painter);
 

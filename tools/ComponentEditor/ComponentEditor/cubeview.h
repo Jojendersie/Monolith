@@ -59,6 +59,10 @@ private:
     vector<vector<vector<QGLSceneNode*> > > m_cube;
 	//data for single cubes
 	vector<vector<vector<Cube*> > > m_cubeData;
+
+	//position offset of the coordinate axis
+	QVector3D m_axisOffset;
+
 	//the currently displayed voxel
 	Voxel* m_voxel;
 	//tex resolution of the current voxel
