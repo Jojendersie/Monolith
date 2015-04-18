@@ -67,7 +67,7 @@ namespace Voxel {
 			//float detailResolution = 0.31f * log( lengthSq(boundingSphere.m_center - camera.GetPosition()) );
 			float detailResolution = 0.021f * sq(log( lengthSq(boundingSphere.m_center) ));
 			//float detailResolution = 0.045f * pow(log( lengthSq(boundingSphere.m_center - camera.GetPosition()) ), 1.65f);
-			int targetLOD = max(LOG_CHUNK_SIZE, Math::ceil(detailResolution));
+			int targetLOD = max(LOG_CHUNK_SIZE-3, Math::ceil(detailResolution));
 			if( _position[3] <= targetLOD )
 			{
 				// For very far objects a chunk might be too detailed. In this case
@@ -135,7 +135,15 @@ namespace Voxel {
 
 	Math::Mat4x4& Model::GetModelMatrix( Math::Mat4x4& _out, const Input::Camera& _reference ) const
 	{
-		_out = Mat4x4::Translation(-m_center) * GetTransformation(_reference.RenderState());
+		if( this == _reference.GetAttachedModel() )
+		{
+			_out = Mat4x4::Translation(-m_center)
+				 * Mat4x4::Rotation(m_rotation)
+				 * Mat4x4::Translation(_reference.GetReferencePosition())
+				 * Mat4x4::Rotation(_reference.RenderState().GetRotation());
+		} else {
+			_out = Mat4x4::Translation(-m_center) * GetTransformation(_reference.RenderState());
+		}
 		return _out;
 	}
 

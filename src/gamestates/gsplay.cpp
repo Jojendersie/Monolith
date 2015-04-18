@@ -26,6 +26,8 @@ namespace RenderStat {
 }
 
 
+Voxel::Model* g_model;
+float velocity;
 // ************************************************************************* //
 GSPlay::GSPlay(Monolith* _game) : IGameState(_game)
 {
@@ -43,6 +45,13 @@ GSPlay::GSPlay(Monolith* _game) : IGameState(_game)
 
 	m_galaxy = new Galaxy(1000, 20000.f, 10000);
 
+	g_model = new Voxel::Model();
+	g_model->Load(Jo::Files::HDDFile("savegames/playership.vmo"));
+	//position to 0
+	g_model->SetPosition(FixVec3(Fix(0.f)));
+	m_scene.AddObject(g_model);
+	m_camera->ZoomAt(*g_model);
+	velocity = 0.f;
 
 	LOG_LVL2("Created game state Play");
 }
@@ -72,7 +81,7 @@ void GSPlay::OnBegin()
 			model->SetPosition( FixVec3(pos) );
 			model->Rotate(rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI));
 			m_scene.AddObject(model);
-			if(i==0) m_camera->ZoomAt( *model );
+			//if(i==0) m_camera->ZoomAt( *model );
 		}
 		/*Generators::Random rnd(484);
 		auto model = new Generators::Asteroid( 300, 300, 300, 846 );
@@ -94,6 +103,7 @@ void GSPlay::OnEnd()
 // ************************************************************************* //
 void GSPlay::Simulate( double _deltaTime )
 {
+	g_model->Translate(g_model->GetRotation().ZAxis() * -velocity * (float)_deltaTime);
 	m_scene.UpdateGraph();
 	/*static Generators::Random Rnd(1435461);
 	for( int i = 0; i < 100; ++i )
@@ -103,7 +113,6 @@ void GSPlay::Simulate( double _deltaTime )
 // ************************************************************************* //
 void GSPlay::Render( double _deltaTime )
 {
-	//m_scene.UpdateGraph();
 	m_camera->UpdateMatrices();
 
 	RenderStat::g_numVoxels = 0;
@@ -124,13 +133,6 @@ void GSPlay::Render( double _deltaTime )
 		if(model) model->Draw( *m_camera );
 	}
 
-	/*if( m_selectedObject )
-	{
-		Mat4x4 modelView;
-		m_selectedObjectModPtr->GetModelMatrix( modelView, *m_camera );
-		modelView = Mat4x4::Translation(m_selectedObjectModPtr->GetCenter()) * modelView;
-		m_objectPlane->Draw( modelView * m_camera->GetProjection() );
-	}*/
 	if( m_selectedObject )
 		DrawReferenceGrid( m_selectedObjectModPtr );
 	
@@ -161,6 +163,10 @@ void GSPlay::Scroll( double _dx, double _dy )
 // ************************************************************************* //
 void GSPlay::KeyDown( int _key, int _modifiers )
 {
+	if (_key == GLFW_KEY_V)
+		velocity++;
+	else if (_key == GLFW_KEY_I)
+		velocity--;
 	if (_key == GLFW_KEY_SPACE)
 		m_hud->ShowCursor(!m_hud->CursorVisible());
 	if( _key == GLFW_KEY_ESCAPE )
