@@ -50,7 +50,7 @@ GSPlay::GSPlay(Monolith* _game) : IGameState(_game)
 	//position to 0
 	g_model->SetPosition(FixVec3(Fix(0.f)));
 	m_scene.AddObject(g_model);
-	m_camera->ZoomAt(*g_model);
+	m_camera->ZoomAt(*g_model, Input::Camera::FOLLOW_AND_ROTATE);
 	velocity = 0.f;
 
 	LOG_LVL2("Created game state Play");
@@ -182,10 +182,10 @@ void GSPlay::KeyClick( int _key )
 		WorldRay ray = m_camera->GetRay( Input::Manager::GetCursorPosScreenSpace() );
 		Voxel::Model::ModelData::HitResult hit;
 		m_selectedObject = m_scene.RayQuery(ray, hit);
-		if( m_selectedObject ) {
+		/*if( m_selectedObject ) {
 			m_selectedObjectModPtr = dynamic_cast<Voxel::Model*>(&m_selectedObject);
 			m_selectedObjectModPtr->Set( hit.position, 0, Voxel::VoxelType::UNDEFINED );
-		}
+		}*/
 	}
 }
 

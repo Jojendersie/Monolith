@@ -68,7 +68,7 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 			// TODO: REquest for the old model
 			m_deleteList.PushBack(std::move(m_model));
 			m_model = std::move(model);
-			m_modelCamera->ZoomAt(*m_model);
+			m_modelCamera->ZoomAt(*m_model, Input::Camera::REFERENCE_ONLY);
 			m_recreateThrustVis = true;
 		}
 	});
@@ -245,7 +245,7 @@ void GSEditor::KeyDown( int _key, int _modifiers )
 			// TODO: REquest for the old model
 			m_deleteList.PushBack( std::move(m_model) );
 			m_model = std::move(model);
-			m_modelCamera->ZoomAt( *m_model );
+			m_modelCamera->ZoomAt( *m_model, Input::Camera::REFERENCE_ONLY );
 			m_recreateThrustVis = true;
 		}
 	}
@@ -305,7 +305,7 @@ void GSEditor::CreateNewModel( const Voxel::Model* _copyFrom )
 		m_recreateThrustVis = true;
 	}
 
-	m_modelCamera->ZoomAt( *m_model );
+	m_modelCamera->ZoomAt( *m_model, Input::Camera::REFERENCE_ONLY );
 }
 
 // ************************************************************************* //

@@ -13,8 +13,9 @@ namespace Input {
 		m_latestTransformation( _position, _rotation ),
 		m_fov( _fov ),
 		m_aspect( _aspect ),
-		m_hardAttached( false ),
-
+		m_attachMode( REFERENCE_ONLY ),
+		m_phi(0.0f),
+		m_theta(0.0f),
 		m_nearPlane(5.0f),
 		m_farPlane(50000.0f)
 	{
@@ -34,7 +35,7 @@ namespace Input {
 	// ********************************************************************* //
 	Vec3 Camera::GetReferencePosition() const
 	{
-		if( m_hardAttached ) return Mat3x3::Rotation(m_renderTransformation.GetRotation()) * m_referencePos;
+		if( m_attachMode != REFERENCE_ONLY ) return Mat3x3::Rotation(m_renderTransformation.GetRotation()) * m_referencePos;
 		return Vec3(m_attachedTo->GetPosition() - m_renderTransformation.GetPosition());
 	}
 
@@ -42,7 +43,7 @@ namespace Input {
 	void Camera::UpdateMatrices()
 	{
 		m_mutex.lock();
-		if( m_hardAttached ) NormalizeReference();
+		if( m_attachMode != REFERENCE_ONLY ) NormalizeReference();
 		m_renderTransformation = m_latestTransformation;
 		m_projection = Math::Mat4x4::Projection( m_fov, m_aspect, m_nearPlane, m_farPlane );
 		m_mutex.unlock();
@@ -63,18 +64,28 @@ namespace Input {
 	// ********************************************************************* //
 	void Camera::Rotate( float _theta, float _phi )
 	{
+		m_phi += _phi;
+		m_theta += _theta;
 		m_mutex.lock();
 		if( m_attachedTo ) {
 			// Do an object relative rotation.
 			// In soft case the reference point is recomputed since we don't
-			// want to jump back but center movement at the object
-			if( !m_hardAttached ) m_referencePos = m_latestTransformation.Transform( m_attachedTo->GetPosition() );
-			m_latestTransformation.Rotate( Math::Quaternion( -_theta, _phi, 0.0f ) );
-			m_rotationMatrix = Mat3x3::Rotation(m_latestTransformation.GetRotation());
+			// want to jump back but center movement at the object.
+			if( m_attachMode == REFERENCE_ONLY )
+				m_referencePos = m_latestTransformation.Transform( m_attachedTo->GetPosition() );
+			// Additionally the rotation is either relative to the world or to the object.
+			m_worldRotation = Quaternion( 0.0f, m_phi, 0.0f ) * Quaternion( -m_theta, 0.0f, 0.0f );
+			if( m_attachMode != FOLLOW_AND_ROTATE )
+			{
+				m_latestTransformation.SetRotation( m_worldRotation );
+				m_rotationMatrix = Mat3x3::Rotation( m_latestTransformation.GetRotation() );
+			}
 			NormalizeReference();
 		} else {
-			m_latestTransformation.Rotate( ~Math::Quaternion( _theta, _phi, 0.0f ) );
-			m_rotationMatrix = Mat3x3::Rotation(m_latestTransformation.GetRotation());
+			//m_worldRotation *= ~Math::Quaternion( _theta, _phi, 0.0f );
+			m_worldRotation = Quaternion( 0.0f, m_phi, 0.0f ) * Quaternion( -m_theta, 0.0f, 0.0f );
+			m_latestTransformation.SetRotation( m_worldRotation );
+			m_rotationMatrix = Mat3x3::Rotation( m_latestTransformation.GetRotation() );
 		}
 		m_mutex.unlock();
 	}
@@ -91,7 +102,7 @@ namespace Input {
 		// Compute actual xy directions in camera space
 		m_latestTransformation.Translate( m_rotationMatrix.YAxis() * _dy - m_rotationMatrix.XAxis() * _dx );
 		// Make soft attachment
-		m_hardAttached = false;
+		m_attachMode = REFERENCE_ONLY;
 	}
 
 	// ********************************************************************* //
@@ -110,10 +121,17 @@ namespace Input {
 	}
 
 	// ********************************************************************* //
-	void Camera::ZoomAt( const Voxel::Model& _model )
+	void Camera::ZoomAt( const Voxel::Model& _model, AttachMode _mode )
 	{
+		// Rotate camera back to the world space if necessary
+		if( m_attachedTo && _mode == FOLLOW_AND_ROTATE )
+		{
+			// TODO: Get model theta and phi to transform the relative rotation
+			// to an absolute one.
+		}
+
 		m_attachedTo = &_model;
-		m_hardAttached = true;
+		m_attachMode = _mode;
 		m_referencePos[0] = 0.0f;
 		m_referencePos[1] = 0.0f;
 		// Compute required distance to the model
@@ -125,23 +143,37 @@ namespace Input {
 	}
 
 	// ********************************************************************* //
-	void Camera::Attach( const Voxel::Model* _model )
+	void Camera::Attach( const Voxel::Model* _model, AttachMode _mode )
 	{
+		// Rotate camera back to the world space if necessary
+		if( m_attachedTo && _mode == FOLLOW_AND_ROTATE )
+		{
+			// TODO: Get model theta and phi to transform the relative rotation
+			// to an absolute one.
+		}
+
 		m_attachedTo = _model;
+		m_attachMode = _mode;
 		// Compute actual reference frame.
 		m_referencePos = m_latestTransformation.Transform( _model->GetPosition() );
+
+		m_mutex.lock();
+		NormalizeReference();
+		m_mutex.unlock();
 	}
 
 	// ********************************************************************* //
 	void Camera::NormalizeReference()
 	{
-		//if( m_attachedTo )
-		//{
-			// Transform by rotation inverse (which is multiplying from left for
-			// rotations)
-			m_latestTransformation.SetPosition( m_attachedTo->GetPosition() - FixVec3(m_rotationMatrix * m_referencePos) );
-		//} else
-		//	LOG_LVL1("Camera is not attached and cannot be set to a reference position.");
+		// Transform by rotation inverse (which is multiplying from left for
+		// rotations)
+		m_latestTransformation.SetPosition( m_attachedTo->GetPosition() - FixVec3(m_rotationMatrix * m_referencePos) );
+		// Object might be rotated -> 
+		if( m_attachMode == FOLLOW_AND_ROTATE )
+		{
+			m_latestTransformation.SetRotation( ~m_attachedTo->GetRotation() * m_worldRotation );
+			m_rotationMatrix = Mat3x3::Rotation( m_latestTransformation.GetRotation() );
+		}
 	}
 
 	// ********************************************************************* //

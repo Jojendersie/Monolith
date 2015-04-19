@@ -13,6 +13,12 @@ namespace Input {
 	class Camera
 	{
 	public:
+		enum AttachMode
+		{
+			REFERENCE_ONLY,			///< The rotation center is at the objects position.
+			FOLLOW,					///< Rotation center at object and relative position is hold.
+			FOLLOW_AND_ROTATE,		///< Rotation center at object, relative position is hold and camera is rotated relative to the object rotation.
+		};
 
 		/// \brief Create a new free perspective camera.
 		/// \param [in] _position Initial position.
@@ -51,12 +57,12 @@ namespace Input {
 		///		given model should fit to the screen.
 		/// \details The given model is tracked afterwards.
 		/// \param [in] _model The model to zoom at. It is also tracked afterwards.
-		void ZoomAt( const Voxel::Model& _model );
+		void ZoomAt( const Voxel::Model& _model, AttachMode _mode );
 
 		/// \brief Attach or detach any object.
 		/// \details If the camera is not attached movements are done in camera-XZ
 		///		and rotations around the camera position.
-		void Attach( const Voxel::Model* _model );
+		void Attach( const Voxel::Model* _model, AttachMode _mode );
 
 		/// \brief Get the current movement reference model.
 		const Voxel::Model* GetAttachedModel() const	{ return m_attachedTo; }
@@ -96,9 +102,13 @@ namespace Input {
 		float m_nearPlane;
 		float m_farPlane;
 
+		float m_phi;
+		float m_theta;
+
 		const Voxel::Model* m_attachedTo;	///< The camera can track this object and uses it as reference system
 		Math::Vec3 m_referencePos;			///< Object position in view space. This reference frame is kept for a tracked object.
-		bool m_hardAttached;				///< If the object is hard attached the camera position follows the object. If it is soft attached rotations are relative to the object.
+		Math::Quaternion m_worldRotation;	///< World space rotation of the camera. This is equal to the rotation if not attached with FOLLOW_AND_ROTATE.
+		AttachMode m_attachMode;			///< If the object is hard attached the camera position follows the object. If it is soft attached rotations are relative to the object.
 
 		/// \brief Reset camera position such that the original object
 		///		reference position is restored.

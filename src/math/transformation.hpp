@@ -19,12 +19,14 @@ namespace Math {
 		/// \brief Set a total new position.
 		void SetPosition( const Math::FixVec3& _position )	{ m_position = _position; }
 		/// \brief Read position
-		const Math::FixVec3& GetPosition() const	{ return m_position; }
+		const Math::FixVec3& GetPosition() const			{ return m_position; }
+		/// \brief Override rotation
+		void SetRotation( const Quaternion& _rotation )		{ m_rotation = _rotation; }
 		/// \brief Read rotation
-		const Quaternion& GetRotation() const		{ return m_rotation; }
+		const Quaternion& GetRotation() const				{ return m_rotation; }
 
 		/// \brief Move the object.
-		void Translate( const Vec3& _vector )		{ m_position[0] += Fix(_vector[0]); m_position[1] += Fix(_vector[1]); m_position[2] += Fix(_vector[2]); }
+		void Translate( const Vec3& _vector )				{ m_position[0] += Fix(_vector[0]); m_position[1] += Fix(_vector[1]); m_position[2] += Fix(_vector[2]); }
 
 		void Rotate( const Quaternion& _rotation )				{ m_rotation *= _rotation; }
 		void Rotate( float _yaw, float _pitch, float _roll )	{ m_rotation *= Quaternion( _yaw, _pitch, _roll ); }

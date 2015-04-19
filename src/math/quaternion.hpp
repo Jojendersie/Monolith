@@ -37,7 +37,7 @@ public:
 		r = float( cos( _a * 0.5 ) );
 		i = _axis[0] * fSin;
 		j = _axis[1] * fSin;
-		k = _axis[1] * fSin;
+		k = _axis[2] * fSin;
 	}
 
 	// From Matrix
