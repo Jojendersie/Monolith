@@ -22,7 +22,7 @@ void main(void)
 	vec4 projectedPos = vec4(vs_out_Position[0].xyz * c_vProjection.xyz + vec3(0, 0, c_vProjection.w), vs_out_Position[0].z);
 	
 	//always visible
-	projectedPos[2] = 0;
+	if (projectedPos[2] > 0) projectedPos[2] = 0;
 
 	gl_Position = projectedPos;
 	//currently ignored; call glEnable (GL_PROGRAM_POINT_SIZE)

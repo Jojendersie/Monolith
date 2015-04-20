@@ -19,7 +19,9 @@ StarVertex& StarSystem::ComputeVertex(const Input::Camera& _camera)
 {
 	if (m_ambient)
 	{
-		m_vertex.position = (_camera.RenderState().GetRotation() * m_rotation).XAxis();
+		//combined rotation using _camera.RenderState().GetRotation() * m_rotation seems to produce different results...
+		m_vertex.position = Mat3x3::Rotation(m_rotation) * Vec3(0.f, 0.f, 10.f);
+		m_vertex.position = m_vertex.position * Mat3x3::Rotation(_camera.RenderState().GetRotation());
 	}
 	else
 		m_vertex.position = _camera.RenderState().Transform(m_position);

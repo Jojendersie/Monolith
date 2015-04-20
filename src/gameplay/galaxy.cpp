@@ -27,11 +27,11 @@ Galaxy::Galaxy(int _stars, float _size, int _ambientStars)
 	float coreStars = coreToRemoteRatio * _stars;
 	float factor = 0.99f / powf(_stars - coreStars, 2.f);
 
+	Vec3 pos;
+
 	Generators::Random rnd(_stars);
 	for (int i = 0; i < _stars; ++i)
 	{
-		Vec3 pos;
-
 		//center is a cloud
 		if (i / (float)_stars < coreToRemoteRatio)
 		{
@@ -99,7 +99,11 @@ void Galaxy::Draw(const Input::Camera& _camera)
 	m_starInfos.Clear();
 
 	for (auto& starSystem : m_ambientStars)
-		m_starInfos.Add(starSystem.ComputeVertex(_camera));
+	{
+		StarVertex& star = starSystem.ComputeVertex(_camera);
+		if (star.position[2] >= 0)
+			m_starInfos.Add(star);
+	}
 
 	for (auto& starSystem : m_starSystems)
 		m_starInfos.Add(starSystem.ComputeVertex(_camera));

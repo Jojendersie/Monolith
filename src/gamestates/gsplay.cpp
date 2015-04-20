@@ -25,7 +25,6 @@ namespace RenderStat {
 	int g_numChunks;
 }
 
-
 Voxel::Model* g_model;
 float velocity;
 // ************************************************************************* //
@@ -76,19 +75,12 @@ void GSPlay::OnBegin()
 		for( int i = 0; i < 25; ++i )
 		{
 			Generators::Random rnd(i*4+1);
-			auto model = new Generators::Asteroid( rnd.Uniform(15, 40), rnd.Uniform(15, 40), rnd.Uniform(15, 40), i );
+			auto model = new Generators::Asteroid( rnd.Uniform(10, 30), rnd.Uniform(10, 30), rnd.Uniform(10, 30), i );
 			Vec3 pos(rnd.Uniform(-150.0f, 150.0f), rnd.Uniform(-150.0f, 150.0f), rnd.Uniform(-150.0f, 150.0f));
 			model->SetPosition( FixVec3(pos) );
-			model->Rotate(rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI));
 			m_scene.AddObject(model);
-			//if(i==0) m_camera->ZoomAt( *model );
+	//		if(i==0) m_camera->ZoomAt( *model );
 		}
-		/*Generators::Random rnd(484);
-		auto model = new Generators::Asteroid( 300, 300, 300, 846 );
-		model->SetPosition( FixVec3(Vec3(0.0f)) );
-		model->Rotate(rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI));
-		m_scene.AddObject(model);
-		m_camera->ZoomAt( *model );*/
 	}
 
 	LOG_LVL2("Entered game state Play");
@@ -104,6 +96,7 @@ void GSPlay::OnEnd()
 void GSPlay::Simulate( double _deltaTime )
 {
 	g_model->Translate(g_model->GetRotation().ZAxis() * -velocity * (float)_deltaTime);
+	LOG_ERROR(std::to_string(_deltaTime) + ", " + std::to_string(Monolith::Time()));
 	m_scene.UpdateGraph();
 	/*static Generators::Random Rnd(1435461);
 	for( int i = 0; i < 100; ++i )
@@ -113,6 +106,7 @@ void GSPlay::Simulate( double _deltaTime )
 // ************************************************************************* //
 void GSPlay::Render( double _deltaTime )
 {
+	//m_scene.UpdateGraph();
 	m_camera->UpdateMatrices();
 
 	RenderStat::g_numVoxels = 0;
@@ -134,7 +128,12 @@ void GSPlay::Render( double _deltaTime )
 	}
 
 	if( m_selectedObject )
-		DrawReferenceGrid( m_selectedObjectModPtr );
+	{
+		Mat4x4 modelView;
+		m_selectedObjectModPtr->GetModelMatrix( modelView, *m_camera );
+		modelView = Mat4x4::Translation(m_selectedObjectModPtr->GetCenter()) * modelView;
+		m_objectPlane->Draw( modelView * m_camera->GetProjection() );
+	}
 	
 	m_hud->m_dbgLabel->SetText("<s 024>" + std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(RenderStat::g_numVoxels) + "\n#Chunks: " + std::to_string(RenderStat::g_numChunks)+"</s>");
 	m_hud->Draw( _deltaTime );
@@ -167,7 +166,7 @@ void GSPlay::KeyDown( int _key, int _modifiers )
 		velocity++;
 	else if (_key == GLFW_KEY_I)
 		velocity--;
-	if (_key == GLFW_KEY_SPACE)
+	else if (_key == GLFW_KEY_SPACE)
 		m_hud->ShowCursor(!m_hud->CursorVisible());
 	if( _key == GLFW_KEY_ESCAPE )
 		m_finished = true;
@@ -187,32 +186,4 @@ void GSPlay::KeyClick( int _key )
 			m_selectedObjectModPtr->Set( hit.position, 0, Voxel::VoxelType::UNDEFINED );
 		}*/
 	}
-}
-
-// ************************************************************************* //
-void GSPlay::DrawReferenceGrid(const Voxel::Model* _model) const
-{
-	Mat4x4 modelView;
-	Vec3 position;
-	if( _model )
-	{
-		if( _model == m_camera->GetAttachedModel() )
-		{
-			// Compute relative to the model position
-			position = m_camera->GetReferencePosition();
-			modelView =  Mat4x4::Rotation(_model->GetRotation()) * Mat4x4::Translation(position) * Mat4x4(m_camera->RenderState().GetRotation());
-			//_model->GetModelMatrix( modelView, *m_camera );
-		} else {
-			position = _model->GetCenter();
-			_model->GetModelMatrix( modelView, *m_camera );
-			modelView = Mat4x4::Translation(position) * modelView;
-		}
-	} else {
-		// Compute relative to the camera
-		position[0] = position[2] = 0.0;
-		position[1] = float(m_camera->RenderState().GetPosition()[1]);
-		modelView = Mat4x4::Translation(position) * Mat4x4(m_camera->RenderState().GetRotation());
-		// TODO: toggle the plane one on and off
-	}
-	m_objectPlane->Draw( modelView * m_camera->GetProjection() );
 }
