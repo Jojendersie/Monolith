@@ -88,7 +88,7 @@ namespace Math {
 	{
 		for(int c=0; c<n; ++c)
 			for(int r=0; r<n; ++r)
-				m_data[r+c*n] += _m.m_data[r+c*m];
+				m_data[r+c*n] += _m.m_data[r+c*n];
 		return *this;
 	}
 
