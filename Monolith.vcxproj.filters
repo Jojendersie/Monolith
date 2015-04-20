@@ -236,6 +236,12 @@
     <ClCompile Include="src\gameplay\scenegraph.cpp">
       <Filter>Source Files\gameplay</Filter>
     </ClCompile>
+    <ClCompile Include="src\gameplay\starsystem.cpp">
+      <Filter>Source Files\gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\galaxy.cpp">
+      <Filter>Source Files\gameplay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
@@ -690,6 +696,12 @@
     <ClInclude Include="src\utilities\threadsafebuffer.hpp">
       <Filter>Source Files\utilities</Filter>
     </ClInclude>
+    <ClInclude Include="src\gameplay\starsystem.hpp">
+      <Filter>Source Files\gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\galaxy.hpp">
+      <Filter>Source Files\gameplay</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\voxel.ps">
@@ -751,6 +763,15 @@
     </None>
     <None Include="shader\postprocessing\ambientocclusionblur.ps">
       <Filter>Resource Files\postprocessing</Filter>
+    </None>
+    <None Include="shader\backgroundstar.gs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shader\backgroundstar.ps">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shader\backgroundstar.vs">
+      <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
