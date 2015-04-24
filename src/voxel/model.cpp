@@ -181,6 +181,14 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
+	void Model::Update()
+	{
+		// Last step: update world-space bounding box, which depends on the
+		// transformation.
+		UpdateBoundingBox();
+	}
+
+	// ********************************************************************* //
 	bool Model::RayCast( const Math::WorldRay& _ray, int _targetLevel, ModelData::HitResult& _hit, float& _distance ) const
 	{
 		// Convert ray to model space
@@ -318,12 +326,12 @@ namespace Voxel {
 	}
 	
 	// ********************************************************************* //
-	void Model::ComputeBoundingBox()
+	void Model::UpdateBoundingBox()
 	{
 		// Transform each octree corner to world space
 		float size = float(1 << m_voxelTree.GetRootSize());
-		Vec3 octMin = m_voxelTree.GetRootPosition() * size - m_center;
-		Vec3 octMax = octMin + size;
+		Vec3 octMin = m_objectBBmin - m_center;//m_voxelTree.GetRootPosition() * size - m_center;
+		Vec3 octMax = m_objectBBmax - m_center;//octMin + size;
 		m_boundingBox.min = m_boundingBox.max = TransformInverse(octMin);
 		FixVec3 tvec = TransformInverse(Vec3(octMin[0], octMin[1], octMax[2]));
 		m_boundingBox.min = min(m_boundingBox.min, tvec); m_boundingBox.max = max(m_boundingBox.max, tvec);
@@ -339,5 +347,47 @@ namespace Voxel {
 		m_boundingBox.min = min(m_boundingBox.min, tvec); m_boundingBox.max = max(m_boundingBox.max, tvec);
 		tvec = TransformInverse(octMax);
 		m_boundingBox.min = min(m_boundingBox.min, tvec); m_boundingBox.max = max(m_boundingBox.max, tvec);
+	}
+
+	// ********************************************************************* //
+	void Model::ComputeBoundingBox()
+	{
+		struct ComputeBB: public ModelData::SVONeighborProcessor
+		{
+		public:
+			IVec3 bbmin, bbmax; /// Finest level voxel positions
+
+			ComputeBB() :
+				bbmin(2147483647),
+				bbmax(-2147483647)
+			{
+			}
+
+			bool PreTraversal(const Math::IVec4& _position, ModelData::SVON* _node,
+				const ModelData::SVON* _left, const ModelData::SVON* _right, const ModelData::SVON* _bottom,
+				const ModelData::SVON* _top, const ModelData::SVON* _front, const ModelData::SVON* _back)
+				//bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
+			{
+				// Stop in inner nodes (they cannot contribute to the bounding box)
+				if( _left && _right && _bottom && _top && _front && _back )
+					return false;
+				// TODO: early out due to possible boundaries?
+
+				// On finest level update minima and maxima
+				if(_position[3] == 0)
+				{
+					// TODO: optimize
+					bbmin = min(bbmin, IVec3(_position));
+					bbmax = max(bbmax, IVec3(_position));
+				}
+
+				return true;
+			}
+		};
+
+		ComputeBB proc;
+		m_voxelTree.TraverseEx(proc);
+		m_objectBBmin = proc.bbmin;
+		m_objectBBmax = proc.bbmax;
 	}
 };

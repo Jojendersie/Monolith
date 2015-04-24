@@ -175,10 +175,10 @@ void GSPlay::KeyClick( int _key )
 		WorldRay ray = m_camera->GetRay( Input::Manager::GetCursorPosScreenSpace() );
 		Voxel::Model::ModelData::HitResult hit;
 		m_selectedObject = m_scene.RayQuery(ray, hit);
-		/*if( m_selectedObject ) {
+		if( m_selectedObject ) {
 			m_selectedObjectModPtr = dynamic_cast<Voxel::Model*>(&m_selectedObject);
-			m_selectedObjectModPtr->Set( hit.position, 0, Voxel::VoxelType::UNDEFINED );
-		}*/
+		//	m_selectedObjectModPtr->Set( hit.position, 0, Voxel::VoxelType::UNDEFINED );
+		}
 	}
 }
 
@@ -205,6 +205,7 @@ void GSPlay::DrawReferenceGrid(const Voxel::Model* _model) const
 		position[0] = position[2] = 0.0;
 		position[1] = float(m_camera->RenderState().GetPosition()[1]);
 		modelView = Mat4x4::Translation(position) * Mat4x4(m_camera->RenderState().GetRotation());
+		//modelView = Mat4x4(m_camera->RenderState().GetRotation()) * Mat4x4::Translation(position);
 		// TODO: toggle the plane one on and off
 	}
 	m_objectPlane->Draw( modelView * m_camera->GetProjection() );

@@ -42,7 +42,10 @@ private:
 
 	/// \details Repairs the DRef array (which does not need to be correct before call).
 	///		Also add all new objects.
-	void ResortAxis();
+	void ResortAxis(Utils::ThreadSafeBuffer<SOHandle>::WriteGuard& _xListAccess);
+
+	/// \brief Add and remove objects from the queue
+	void ManageObjects(Utils::ThreadSafeBuffer<SOHandle>::WriteGuard& _xListAccess);
 
 	//SOHandle RayQueryCandidate(const SOHandle& _obj, Voxel::Model::ModelData::HitResult& _hit, float& _maxRange) const;
 };

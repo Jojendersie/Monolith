@@ -116,23 +116,53 @@ void SceneGraph::FrustumQuery(Jo::HybridArray<SOHandle, 32>& _out) const
 // ************************************************************************* //
 void SceneGraph::UpdateGraph()
 {
-	ResortAxis();
-}
-
-// ************************************************************************* //
-void SceneGraph::ResortAxis()
-{
 	// We want to add objects and reorder the buffer
 	Utils::ThreadSafeBuffer<SOHandle>::WriteGuard xListAccess;
 	m_xIntervalMax.GetWriteAccess(xListAccess);
 
+	ManageObjects(xListAccess);
+
+	// Update objects them self (bounding volumes...)
+	for( int i = 0; i < xListAccess.buf().size(); i++ )
+	{
+		xListAccess.buf()[i]->Update();
+	}
+
+	ResortAxis(xListAccess);
+}
+
+// ************************************************************************* //
+void SceneGraph::ResortAxis(Utils::ThreadSafeBuffer<SOHandle>::WriteGuard& _xListAccess)
+{
+	// Resort if not empty
+	if(_xListAccess.buf().size() > 1)
+	{
+		// Sort axis
+		std::sort(_xListAccess.buf().begin(), _xListAccess.buf().end(), [](const SOHandle& _lhs, const SOHandle& _rhs){
+			return _lhs->GetBoundingBoxMax()[0] < _rhs->GetBoundingBoxMax()[0];
+		});
+
+		// Update additional information for faster queries
+		int n = (int)_xListAccess.buf().size();
+		_xListAccess.buf()[n-1]->m_minOfAllMin = _xListAccess.buf()[n-1]->GetBoundingBoxMin()[0];
+		for( int i = n-2; i >= 0; --i )
+		{
+			Fix minOfMin = min(_xListAccess.buf()[i]->GetBoundingBoxMin()[0], _xListAccess.buf()[i+1]->m_minOfAllMin);
+			_xListAccess.buf()[i]->m_minOfAllMin = minOfMin;
+		}
+	}
+}
+
+// ************************************************************************* //
+void SceneGraph::ManageObjects(Utils::ThreadSafeBuffer<SOHandle>::WriteGuard& _xListAccess)
+{
 	// Delete the old ones
 	int n = NumActiveObjects();
 	for( int i = 0; i < n; i++ )
 	{
-		if(xListAccess.buf()[i]->IsDeleted()) {
-			xListAccess.buf()[i] = std::move(xListAccess.buf()[--n]);
-			xListAccess.buf().pop_back();
+		if(_xListAccess.buf()[i]->IsDeleted()) {
+			_xListAccess.buf()[i] = std::move(_xListAccess.buf()[--n]);
+			_xListAccess.buf().pop_back();
 		}
 	}
 
@@ -140,25 +170,7 @@ void SceneGraph::ResortAxis()
 	int nnew = (int)m_newObjects.size();
 	if(nnew) {
 		for( int i = 0; i < nnew; ++i )
-			xListAccess.buf().push_back( m_newObjects[i] );
+			_xListAccess.buf().push_back( m_newObjects[i] );
 		m_newObjects.clear();
-		n += nnew;
-	}
-
-	// Resort if not empty
-	if(n > 1)
-	{
-		// Sort axis
-		std::sort(xListAccess.buf().begin(), xListAccess.buf().end(), [](const SOHandle& _lhs, const SOHandle& _rhs){
-			return _lhs->GetBoundingBoxMax()[0] < _rhs->GetBoundingBoxMax()[0];
-		});
-
-		// Update additional information for faster queries
-		xListAccess.buf()[n-1]->m_minOfAllMin = xListAccess.buf()[n-1]->GetBoundingBoxMin()[0];
-		for( int i = n-2; i >= 0; --i )
-		{
-			Fix minOfMin = min(xListAccess.buf()[i]->GetBoundingBoxMin()[0], xListAccess.buf()[i+1]->m_minOfAllMin);
-			xListAccess.buf()[i]->m_minOfAllMin = minOfMin;
-		}
 	}
 }

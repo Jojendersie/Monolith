@@ -77,6 +77,9 @@ namespace Voxel {
 		///	\param [in] _oldType The type of the voxel which was before.
 		void Update( const Math::IVec4& _position, const Component& _oldType, const Component& _newType );
 
+		/// Simulate one step. Also updates the bounding box.
+		virtual void Update() override;
+
 		bool RayCast( const Math::WorldRay& _ray, int _targetLevel, ModelData::HitResult& _hit, float& _distance ) const;
 
 		/// \brief Remove all chunks which were not used or dirty.
@@ -90,6 +93,8 @@ namespace Voxel {
 		/// \brief Load a model from an opened file
 		/// \throws 
 		void Load( const Jo::Files::IFile& _file );
+
+		void UpdateBoundingBox();		///< Recompute the bounding box in world space (O(1))
 	protected:
 		std::unordered_map<Math::IVec4, Chunk> m_chunks;
 		int m_numVoxels;				///< Count the number of voxels for statistical issues
@@ -102,7 +107,9 @@ namespace Voxel {
 		float m_rotatoryMomentum;		///< Inertia of rotation for the full model.
 
 		float m_boundingSphereRadius;	///< Bounding sphere radius (to the center of gravity) for culling etc.
-		void ComputeBoundingBox();		///< Recompute the bounding box (largest octree node size) in world space (O(1))
+		Math::IVec3 m_objectBBmin;		///< Minimum position of voxels in this model
+		Math::IVec3 m_objectBBmax;		///< Maximum position of voxels in this model
+		void ComputeBoundingBox();		///< Recompute the bounding box of the model in object space
 
 		ModelData m_voxelTree;
 		
@@ -114,5 +121,9 @@ namespace Voxel {
 		
 		friend class Chunk;
 		friend struct DecideToDraw;
+
+//	private:
+		/// Recursive helper to find the current models bounding box
+//		void ComputeBoundingBox();
 	};
 };
