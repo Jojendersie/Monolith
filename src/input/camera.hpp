@@ -86,6 +86,9 @@ namespace Input {
 
 		/// \brief Determines the ray starting at camera's near plane in world space.
 		Math::WorldRay GetRay(const Math::Vec2& _screenSpaceCoordinate) const;
+
+		/// \brief Get the angle (radiant) of the camera rotation around Y-axis.
+		float GetYRotation() const { return m_phi; }
 	private:
 		// Computed matrices used in rendering
 		Math::Mat4x4 m_projection;

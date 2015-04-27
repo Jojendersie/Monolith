@@ -202,10 +202,12 @@ void GSPlay::DrawReferenceGrid(const Voxel::Model* _model) const
 		}
 	} else {
 		// Compute relative to the camera
-		position[0] = position[2] = 0.0;
-		position[1] = float(m_camera->RenderState().GetPosition()[1]);
-		modelView = Mat4x4::Translation(position) * Mat4x4(m_camera->RenderState().GetRotation());
-		//modelView = Mat4x4(m_camera->RenderState().GetRotation()) * Mat4x4::Translation(position);
+		position[0] = 150.0 * sin(m_camera->GetYRotation());
+		position[1] = -120.0f;
+		position[2] = 150.0f * cos(m_camera->GetYRotation());
+		modelView = Mat4x4::Translation(position)
+			* Mat4x4::RotationY(-m_camera->GetYRotation())
+			* Mat4x4::RotationX(-0.4f);
 		// TODO: toggle the plane one on and off
 	}
 	m_objectPlane->Draw( modelView * m_camera->GetProjection() );
