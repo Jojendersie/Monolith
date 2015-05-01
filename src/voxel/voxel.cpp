@@ -193,7 +193,7 @@ namespace Voxel {
 	// ********************************************************************* //
 	bool TypeInfo::Sample( VoxelType _type, Math::IVec3 _position, int _level, uint8_t _rootSurface, Material& _materialOut, uint8_t& _surfaceOut )
 	{
-		int off, e;
+		int e, off;
 		int index = SamplePos(_type, _position, _level, e, off);
 
 		Assert(_position[0] >= 0 && _position[0] < e, "Out of bounds access in voxel texture!");
@@ -478,10 +478,10 @@ namespace Voxel {
 				maxMipMapLevels = m_voxels[i].numMipMaps;
 			}
 		// Reserve texture memory
-		Graphic::Texture::Format format(1, 32, Graphic::Texture::Format::ChannelType::UINT);
+		Graphic::Texture::Format format(2, 32, Graphic::Texture::Format::ChannelType::UINT);
 		m_voxelTextures = new Graphic::Texture(maxRes, maxRes, maxRes, m_numVoxels, format, maxMipMapLevels);
 
-		ScopedPtr<uint32_t> buffer(new unsigned int[maxRes * maxRes * maxRes]);
+		ScopedPtr<uint32_t> buffer(new unsigned int[maxRes * maxRes * maxRes * 2]);
 
 		// Fill with data
 		for( int i=0; i<m_numVoxels; ++i )
@@ -493,10 +493,42 @@ namespace Voxel {
 				for( ; pos[2] < res; ++pos[2] )
 					for( pos[1] = 0; pos[1] < res; ++pos[1] )
 						for( pos[0] = 0; pos[0] < res; ++pos[0] ) {
-							int tmp0, tmp1;
 							Math::IVec3 modPos = pos;
-							Material mat = m_voxels[i].texture[SamplePos(VoxelType(i), modPos, maxMipMapLevels - l, tmp0, tmp1)].material;
-							buffer[pos[0] + res * (pos[1] + res * pos[2])] = mat.code;
+							int e, off;
+							int index = SamplePos(VoxelType(i), modPos, maxMipMapLevels - l, e, off);
+							// Generate a single material code and a mask for which neighborhood
+							// this sample is visible.
+							// A bit in borderSample.surface is set if the neighbor creates
+							// a material. The 7th bit is set if there is a material in every case.
+							MatSample matInfo;
+							matInfo.surface = 0;
+							matInfo.material = Material::UNDEFINED;
+							ComponentTypeInfo& currentVoxel = m_voxels[i];
+
+							// For each neighbor do the border texture sampling
+							if( currentVoxel.borderTexture )
+							for( int b = 0; b < 6; ++b )
+							{
+								MatSample& sample = currentVoxel.borderTexture[off + GetBorderIndex[b](modPos, e)];
+								if( sample.material != Material::UNDEFINED )
+								{
+									// Overwrite the material (-> take last)
+									matInfo.material = sample.material;
+									matInfo.surface |= 1<<b;
+								}
+							}
+
+							// Take main texture if no border texture was found
+							MatSample& sample = currentVoxel.texture[index];
+							if( sample.material != Material::UNDEFINED )
+							{
+								matInfo.material = sample.material;
+								matInfo.surface |= 0x40;
+							}
+
+							int bufferIndex = (pos[0] + res * (pos[1] + res * pos[2])) * 2;
+							buffer[bufferIndex] = matInfo.material.code;
+							buffer[bufferIndex + 1] = matInfo.surface; // TODO: Here are a lot of unused bits - can be used for empty space skipping
 						}
 				m_voxelTextures->UploadData(i, l, buffer);
 				res /= 2;

@@ -104,13 +104,12 @@ namespace Voxel {
 			// Remains undefined
 			if( !_node->Children() ) return;
 
+			_node->Data().type = VoxelType::UNDEFINED;
+
 			// Take the last defined children and check solidity.
 			bool solid = true;
 			for( int i = 0; i < 8; ++i )
 			{
-				if( _node->Children()[i].Data().type != VoxelType::UNDEFINED ) {
-					_node->Data().type = _node->Children()[i].Data().type;
-				}
 				solid &= _node->Children()[i].Data().solid;
 			}
 			_node->Data().solid = solid ? 1 : 0;
