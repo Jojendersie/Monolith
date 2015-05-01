@@ -50,6 +50,9 @@ public:
 	T& operator * () { return *m_ptr; }
 
 	operator bool () { return m_ptr != nullptr; }
+
+	T& operator [] (unsigned _index) { return m_ptr[_index]; }
+	const T& operator [] (unsigned _index) const { return m_ptr[_index]; }
 private:
 	T* m_ptr;
 

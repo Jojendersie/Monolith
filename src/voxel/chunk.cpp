@@ -51,6 +51,7 @@ namespace Voxel {
 		// Translation to center the chunks
 		Math::Mat4x4 modelView = Mat4x4::Translation(m_position) * Mat4x4::Scaling(m_scale) * _modelView;
 		objectConstants["WorldView"] = modelView;
+		objectConstants["InverseWorldView"] = modelView.Inverse();
 		Math::Mat4x4 modelViewProjection = modelView * _projection;
 
 		float halfScale = m_scale * 0.5f;
@@ -244,6 +245,7 @@ namespace Voxel {
 							{
 								appendBuffer->SetPosition( offset+position );
 								appendBuffer->SetVisibility( surface );
+								appendBuffer->SetTexture( (int)_node->Data().type );
 								++appendBuffer;
 							}
 						}
@@ -258,6 +260,7 @@ namespace Voxel {
 				// Generate a vertex here
 				appendBuffer->SetPosition( IVec3(_position)-pmin );
 				appendBuffer->SetVisibility( _node->Data().surface );
+				appendBuffer->SetTexture( (int)_node->Data().type );
 				appendBuffer->material = _node->Data().material;
 				++appendBuffer;
 			}

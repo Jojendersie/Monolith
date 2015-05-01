@@ -158,6 +158,15 @@ namespace Voxel {
 		///		not. Using true will create faces at the very outside.
 		static void GenerateSurfaceInfo( MatSample* _texture, int _edge, bool _default );
 
+		/// \brief Compute the array access index and offsets
+		/// \param [inout] _position The position inside the mip map level.
+		///		The position can be changed if upsampling occurs.
+		/// \param [in] _level The mip map level to sample
+		/// \param [out] _edge Length of a single edge.
+		/// \param [out] _offset Offset for the mip map level.
+		/// \return The full index of the voxel or an upsampled voxel position.
+		static int SamplePos( VoxelType _type, Math::IVec3& _position, int _level, int& _edge, int& _offset );
+
 		/// \brief Bake all the voxels inclusive mip-maps in the texture array.
 		void GenerateTexture();
 	};

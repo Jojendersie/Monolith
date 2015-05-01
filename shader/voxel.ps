@@ -3,21 +3,101 @@
 flat in uint gs_materialCode;	// The material code
 flat in vec3 gs_normal;
 flat in vec4 gs_viewDir_phase;
+flat in vec3 gs_objectPosition;
+flat in uint gs_materialIndex;
+in vec3 gs_texCoord;
+//flat in float gs_sideLength;
 out vec4 fragColor;
+uniform isampler2DArray u_componentTex;
 
 #include "material.glsl"
 #include "globalubo.glsl"
 
+// Standard linear congruential generator to hash an integer
+uint hash(uint i)
+{
+	return i * uint(1103515245) + uint(12345);
+}
+
+layout(std140) uniform Object
+{
+	mat4 c_mWorldView;
+	mat4 c_mInverseWorldView;
+	vec4 c_vCorner000;
+	vec4 c_vCorner001;
+	vec4 c_vCorner010;
+	vec4 c_vCorner011;
+	vec4 c_vCorner100;
+	vec4 c_vCorner101;
+	vec4 c_vCorner110;
+	vec4 c_vCorner111;
+	float c_fMaxOffset;
+};
+
 void main()
 {
+	// Find mip map level
+	// TODO
+	
+	vec3 chunkSpacePos = gs_objectPosition + gs_texCoord - 0.5;
+	vec3 viewDir = normalize((vec4(chunkSpacePos, 1) * c_mWorldView).xyz);
+	vec3 chunkSpaceDir = viewDir * mat3x3(c_mInverseWorldView);
+	ivec3 dirSign; 
+	dirSign.x = chunkSpaceDir.x < 0.0f ? -1 : 1;
+	dirSign.y = chunkSpaceDir.y < 0.0f ? -1 : 1;
+	dirSign.z = chunkSpaceDir.z < 0.0f ? -1 : 1;
+	vec3 voxelPos = gs_texCoord * 7.99999;
+	ivec3 rayPos = ivec3(voxelPos);
+	vec3 absDir = abs(chunkSpaceDir);
+	vec3 projLength = 1.0 / (absDir + 0.0001);
+	vec3 d = voxelPos - rayPos;
+	if(dirSign.x == 1) d.x = 1-d.x;
+	if(dirSign.y == 1) d.y = 1-d.y;
+	if(dirSign.z == 1) d.z = 1-d.z;
+	d *= projLength;
+	
+	int code = texelFetch(u_componentTex, ivec3(rayPos.x + rayPos.y * 8, rayPos.z, gs_materialIndex), 0).x;
+	while(code == 0)// && all(lessThan(rayPos, ivec3(8,8,8))) && all(greaterThanEqual(rayPos, ivec3(0,0,0))))
+	{
+		if(d.x < d.y || d.z < d.y) {
+			if(d.x < d.z) {
+				rayPos.x += dirSign.x;
+				d.yz -= d.x;
+				d.x = projLength.x;
+			} else {
+				rayPos.z += dirSign.z;
+				d.xy -= d.z;
+				d.z = projLength.z;
+			}
+		} else {
+			rayPos.y += dirSign.y;
+			d.xz -= d.y;
+			d.y = projLength.y;
+		}
+		if(any(greaterThanEqual(rayPos, ivec3(8,8,8))) || any(lessThan(rayPos, ivec3(0,0,0))))
+			discard;
+		code = texelFetch(u_componentTex, ivec3(rayPos.x + rayPos.y * 8, rayPos.z, gs_materialIndex), 0).x;
+	}
+	
+	// Estimate normal from the plane we intersected
+	d = abs(d - projLength);
+	vec3 normal;
+	/*if(d.x < 0.0001) normal = vec3(-dirSign.x, 0.0, 0.0);
+	if(d.y < 0.0001) normal = vec3(0.0, -dirSign.y, 0.0);
+	if(d.z < 0.0001) normal = vec3(0.0, 0.0, -dirSign.z);
+	normal *= mat3x3(c_mWorldView);*/
+	if(d.x < 0.0001) normal = -dirSign.x * vec3(c_mWorldView[0][0], c_mWorldView[1][0], c_mWorldView[2][0]);
+	if(d.y < 0.0001) normal = -dirSign.y * vec3(c_mWorldView[0][1], c_mWorldView[1][1], c_mWorldView[2][1]);
+	if(d.z < 0.0001) normal = -dirSign.z * vec3(c_mWorldView[0][2], c_mWorldView[1][2], c_mWorldView[2][2]);
+	
 	// Decode transparency or color rotation
-	int code = int(gs_materialCode);
 	float yvar = float((code >> 28) & 0xf) / 15.0;
 
 	// Decode rgb color from material
 	float color_y  = float(code & 0xff) / 255.0;
 	
-	color_y *= (sin(c_fTime * 3.0 + gs_viewDir_phase.w) * 0.5 + 0.5) * yvar + 1 - yvar;
+	float phase = mod(hash(uint(rayPos.x + rayPos.y * 8 + rayPos.z * 64)), uint(6283)) * 0.001;
+	color_y *= (sin(c_fTime * 3.0 + phase) * 0.5 + 0.5) * yvar + 1 - yvar;
 	float color_pb = (float((code >> 18) & 0x1f) - 15.0) / 255.0;
 	float color_pr = (float((code >> 23) & 0x1f) - 15.0) / 255.0;
 	vec3 color = vec3(color_y + 0.22627 * color_pb + 11.472 * color_pr,
@@ -31,6 +111,8 @@ void main()
 	float specular = (1 << ((code >> 8) & 0xf)) * 3.0;
 	float emissive = float((code >> 17) & 1);
 	
-	fragColor.xyz = Lightning(gs_normal, gs_viewDir_phase.xyz, shininess, specular, color, emissive);
+	fragColor.xyz = Lightning(normal, -viewDir, shininess, specular, color, emissive);
+//	fragColor.xyz = texelFetch(u_componentTex, ivec3(3,3,0), 0).x;
 	fragColor.a = 1;
+//	fragColor.xyz = gs_texCoord/7.0;//texelPos / 7.0;
 }

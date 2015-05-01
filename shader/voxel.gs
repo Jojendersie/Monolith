@@ -7,6 +7,10 @@ in uint vs_out_MaterialCode[1];
 flat out uint gs_materialCode;
 flat out vec3 gs_normal;
 flat out vec4 gs_viewDir_phase;
+flat out vec3 gs_objectPosition;
+flat out uint gs_materialIndex;
+out vec3 gs_texCoord;
+//flat out float gs_sideLength;
 
 layout(points) in;
 layout(triangle_strip, max_vertices = OUT_VERTS) out;
@@ -16,6 +20,7 @@ layout(triangle_strip, max_vertices = OUT_VERTS) out;
 layout(std140) uniform Object
 {
 	mat4 c_mWorldView;
+	mat4 c_mInverseWorldView;
 	vec4 c_vCorner000;
 	vec4 c_vCorner001;
 	vec4 c_vCorner010;
@@ -42,6 +47,7 @@ void main(void)
 
 	vec4 vPos = vec4(x, y, z, 1) * c_mWorldView;
 	vec3 vViewPos = vPos.xyz;
+	gs_objectPosition = vec3(x, y, z);
 	vPos = vec4(vPos.xyz * c_vProjection.xyz + vec3(0,0,c_vProjection.w), vPos.z);
 
 	// Discard voxel outside the viewing volume
@@ -54,6 +60,7 @@ void main(void)
 	gs_materialCode = vs_out_MaterialCode[0];
 	gs_viewDir_phase.xyz = normalize(-vViewPos);
 	gs_viewDir_phase.w = mod(hash(vs_out_VoxelCode[0]), uint(6283)) * 0.001;
+	gs_materialIndex = vs_out_VoxelCode[0] >> 24;
 	
 	// To determine the culling the projective position is inverse transformed
 	// back to view space (which is a single mad operation). This direction to
@@ -69,12 +76,16 @@ void main(void)
 		{
 			gs_normal = normalize((vec4(0,0,-1,0) * c_mWorldView).xyz);
 			gl_Position = c_vCorner000 + vPos;
+			gs_texCoord = vec3(0,0,0);
 			EmitVertex();
 			gl_Position = c_vCorner100 + vPos;
+			gs_texCoord = vec3(1,0,0);
 			EmitVertex();
 			gl_Position = c_vCorner010 + vPos;
+			gs_texCoord = vec3(0,1,0);
 			EmitVertex();
 			gl_Position = c_vCorner110 + vPos;
+			gs_texCoord = vec3(1,1,0);
 			EmitVertex();
 			EndPrimitive();
 		}
@@ -83,12 +94,16 @@ void main(void)
 		{
 			gs_normal = normalize((vec4(0,0,1,0) * c_mWorldView).xyz);
 			gl_Position = c_vCorner011 + vPos;
+			gs_texCoord = vec3(0,1,1);
 			EmitVertex();
 			gl_Position = c_vCorner111 + vPos;
+			gs_texCoord = vec3(1,1,1);
 			EmitVertex();
 			gl_Position = c_vCorner001 + vPos;
+			gs_texCoord = vec3(0,0,1);
 			EmitVertex();
 			gl_Position = c_vCorner101 + vPos;
+			gs_texCoord = vec3(1,0,1);
 			EmitVertex();
 			EndPrimitive();
 		}
@@ -99,12 +114,16 @@ void main(void)
 		{
 			gs_normal = normalize((vec4(0,1,0,0) * c_mWorldView).xyz);
 			gl_Position = c_vCorner010 + vPos;
+			gs_texCoord = vec3(0,1,0);
 			EmitVertex();
 			gl_Position = c_vCorner110 + vPos;
+			gs_texCoord = vec3(1,1,0);
 			EmitVertex();
 			gl_Position = c_vCorner011 + vPos;
+			gs_texCoord = vec3(0,1,1);
 			EmitVertex();
 			gl_Position = c_vCorner111 + vPos;
+			gs_texCoord = vec3(1,1,1);
 			EmitVertex();
 			EndPrimitive();
 		}
@@ -113,12 +132,16 @@ void main(void)
 		{
 			gs_normal = normalize((vec4(0,-1,0,0) * c_mWorldView).xyz);
 			gl_Position = c_vCorner100 + vPos;
+			gs_texCoord = vec3(1,0,0);
 			EmitVertex();
 			gl_Position = c_vCorner000 + vPos;
+			gs_texCoord = vec3(0,0,0);
 			EmitVertex();
 			gl_Position = c_vCorner101 + vPos;
+			gs_texCoord = vec3(1,0,1);
 			EmitVertex();
 			gl_Position = c_vCorner001 + vPos;
+			gs_texCoord = vec3(0,0,1);
 			EmitVertex();
 			EndPrimitive();
 		}
@@ -129,12 +152,16 @@ void main(void)
 		{
 			gs_normal = normalize((vec4(-1,0,0,0) * c_mWorldView).xyz);
 			gl_Position = c_vCorner000 + vPos;
+			gs_texCoord = vec3(0,0,0);
 			EmitVertex();
 			gl_Position = c_vCorner010 + vPos;
+			gs_texCoord = vec3(0,1,0);
 			EmitVertex();
 			gl_Position = c_vCorner001 + vPos;
+			gs_texCoord = vec3(0,0,1);
 			EmitVertex();
 			gl_Position = c_vCorner011 + vPos;
+			gs_texCoord = vec3(0,1,1);
 			EmitVertex();
 			EndPrimitive();
 		}
@@ -143,12 +170,16 @@ void main(void)
 		{
 			gs_normal = normalize((vec4(1,0,0,0) * c_mWorldView).xyz);
 			gl_Position = c_vCorner110 + vPos;
+			gs_texCoord = vec3(1,1,0);
 			EmitVertex();
 			gl_Position = c_vCorner100 + vPos;
+			gs_texCoord = vec3(1,0,0);
 			EmitVertex();
 			gl_Position = c_vCorner111 + vPos;
+			gs_texCoord = vec3(1,1,1);
 			EmitVertex();
 			gl_Position = c_vCorner101 + vPos;
+			gs_texCoord = vec3(1,0,1);
 			EmitVertex();
 			EndPrimitive();
 		}

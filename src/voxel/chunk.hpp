@@ -29,7 +29,7 @@ namespace Voxel {
 		///			 respective size-dimension (2^s).
 		///		18-23: Z coordinate of voxel relative to the grid corner of the
 		///			 respective size-dimension (2^s).
-		///		24-31: 256 texture indices / voxel types. DEPRECATED
+		///		24-31: 256 texture indices / voxel types.
 		uint32_t flags;
 		Material material;
 
@@ -39,7 +39,7 @@ namespace Voxel {
 		void SetVisibility( int _flags )					{ Assert(_flags < 64, "Invalid visiblity flag."); flags = (flags & 0xffffffc0) | _flags; }
 // DEPRECATED		void SetSize( int _level )							{ Assert(0<=_level && _level<=5); flags = (flags & 0xfffffe3f) | (_level<<6); }
 		void SetPosition( const Math::IVec3& _position )	{ flags = (flags & 0xff00003f) | (_position[0] << 6) | (_position[1] << 12) | (_position[2] << 18); }
-// DEPRECATED		void SetTexture( int _textureIndex )				{ flags = (flags & 0x00ffffff) | (_textureIndex << 24); }
+ 		void SetTexture( int _textureIndex )				{ flags = (flags & 0x00ffffff) | (_textureIndex << 24); }
 //		void SetHasChildren( bool _bHasChildren )			{ flags = (flags & 0x7fffffff) | (_bHasChildren?0x80000000:0); }
 
 		bool IsVisible() const								{ return (flags & 0x3f) != 0; }

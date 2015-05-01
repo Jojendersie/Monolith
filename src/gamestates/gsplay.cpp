@@ -80,8 +80,14 @@ void GSPlay::OnBegin()
 			model->SetPosition( FixVec3(pos) );
 			model->Rotate(rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI));
 			m_scene.AddObject(model);
-	//		if(i==0) m_camera->ZoomAt( *model );
+		//	if(i==0) m_camera->ZoomAt( *model, Input::Camera::FOLLOW_AND_ROTATE );
 		}
+		Generators::Random rnd(484);
+		auto model = new Generators::Asteroid( 200, 200, 200, 846 );
+		model->SetPosition( FixVec3(Vec3(0.0f)) );
+		model->Rotate(rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI));
+		m_scene.AddObject(model);
+		//m_camera->ZoomAt( *model );
 	}
 
 	LOG_LVL2("Entered game state Play");
@@ -117,7 +123,7 @@ void GSPlay::Render( double _deltaTime )
 	m_galaxy->Draw(*m_camera);
 
 	Graphic::Device::SetEffect(	Resources::GetEffect(Effects::VOXEL_RENDER) );
-
+	Voxel::TypeInfo::BindVoxelTextureArray();
 	Jo::HybridArray<SOHandle, 32> visibleObjects;
 	m_scene.FrustumQuery(visibleObjects);
 	for( unsigned i = 0; i < visibleObjects.Size(); ++i ) {
@@ -202,7 +208,7 @@ void GSPlay::DrawReferenceGrid(const Voxel::Model* _model) const
 		}
 	} else {
 		// Compute relative to the camera
-		position[0] = 150.0 * sin(m_camera->GetYRotation());
+		position[0] = 150.0f * sin(m_camera->GetYRotation());
 		position[1] = -120.0f;
 		position[2] = 150.0f * cos(m_camera->GetYRotation());
 		modelView = Mat4x4::Translation(position)

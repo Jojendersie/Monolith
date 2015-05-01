@@ -46,7 +46,7 @@ namespace Graphic {
 		/// \brief Creates an empty 2D texture.
 		/// \param [in] _numMipLevels 0 will result in a full mipmap chain.
 		/// \todo Is there a better channel description?
-		Texture(unsigned int _width, unsigned int _height, const Format& format, unsigned int _numMipLevels = 1);
+		Texture(unsigned int _width, unsigned int _height, const Format& _format, unsigned int _numMipLevels = 1);
 
 		/// \brief Load a single 2D,3D or cubemap texture from file.
 		///
@@ -62,11 +62,14 @@ namespace Graphic {
 		///		the array.
 		Texture( const std::vector<std::string>& _fileNames );
 
-		/// \brief Creates an empty 2D texture array.
-		/// \details The array can be filled with TODO
+		/// \brief Creates an empty 3D texture array.
+		/// \details The array can be filled with UploadData().
+		///
+		///		Since 3D texture arrays are not supported natively this is done
+		///		by creating a (_width * _height) x _depth 2D texture.
 		/// \param [in] _layers Number of textures in the array.
 		/// \param [in] _numMipLevels 0 will result in a full mipmap chain.
-		Texture( unsigned int _width, unsigned int _height, unsigned int _layers, const Format& format, unsigned int _numMipLevels = 1 );
+		Texture( unsigned int _width, unsigned int _height, unsigned int _depth, unsigned int _layers, const Format& format, unsigned int _numMipLevels = 1 );
 
 		/// \brief Release resource
 		~Texture();
@@ -87,6 +90,13 @@ namespace Graphic {
 		/// \brief Returns the 2d size of the texture as Vector2
 		Math::IVec2 Size2D() { return Math::IVec2(m_width, m_height); }
 
+		/// \brief Fill a texture with data.
+		/// \details This calls glTexSubImage3D with the width and height for the
+		///		target mipmap level.
+		///
+		///		Additional the texture is bound automatically.
+		void UploadData(unsigned _layer, unsigned _mipLevel, const void* _buffer);
+
 	private:
 		/// Sets some default texture parameter to the binding point.
 		void SetDefaultTextureParameter();
@@ -94,12 +104,16 @@ namespace Graphic {
 		/// Determines how many mipmap levels a full mipmap chain would contain.
 		unsigned int GetMaxPossibleMipMapLevels();
 
+		Format m_format;			///< Format desc created during construction
+
 		unsigned m_textureID;		///< OpenGL texture handle
 		unsigned m_bindingPoint;	///< The constructor determines GL_TEXTURE_2D_ARRAY,... 
 
 		unsigned int m_width;		///< Just informative: width of the texture
 		unsigned int m_height;		///< Just informative: height of the texture
-		unsigned int m_depth;		///< Just informative: depth of the texture (volume), or number of slices in an array or 1
+		// TODO: the 3D texture handling changed (27.04.) most method might be incompatible
+		unsigned int m_depth;		///< Just informative: depth of the texture (volume) or 1
+		unsigned int m_layers;		///< number of slices in an array or 1
 
 		unsigned int m_numMipLevels;
 

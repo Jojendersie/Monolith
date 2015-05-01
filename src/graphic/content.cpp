@@ -25,7 +25,7 @@ namespace Graphic {
 			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::OBJECT_VOXEL) );
 			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::CAMERA) );
 			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::GLOBAL) );
-			s_effects[(int)_effect]->BindTexture( "u_diffuseTex", 0, GetSamplerState(SamplerStates::POINT) );
+			s_effects[(int)_effect]->BindTexture( "u_componentTex", 0, GetSamplerState(SamplerStates::POINT) );
 			break;
 		case Effects::TEXTURE_2DQUAD:
 			s_effects[(int)_effect] = new Effect( "shader/screentex.vs", "shader/screentex.ps", "shader/screentex.gs" );
@@ -95,6 +95,9 @@ namespace Graphic {
 			break; }
 		case UniformBuffers::CAMERA:
 			s_ubos[(int)_ubo] = new UniformBuffer( "Camera" );
+			s_ubos[(int)_ubo]->AddAttribute( "InverseCameraR0", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC3 );
+			s_ubos[(int)_ubo]->AddAttribute( "InverseCameraR1", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC3 );
+			s_ubos[(int)_ubo]->AddAttribute( "InverseCameraR2", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC3 );
 			// The projection matrix is very sparse. That can be used
 			// explicitly to reduce constant buffer size and arithmetic
 			// instructions in shader:
@@ -118,6 +121,7 @@ namespace Graphic {
 		case UniformBuffers::OBJECT_VOXEL:
 			s_ubos[(int)_ubo] = new UniformBuffer( "Object" );
 			s_ubos[(int)_ubo]->AddAttribute( "WorldView", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
+			s_ubos[(int)_ubo]->AddAttribute( "InverseWorldView", Graphic::UniformBuffer::ATTRIBUTE_TYPE::MATRIX );
 			s_ubos[(int)_ubo]->AddAttribute( "Corner000", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
 			s_ubos[(int)_ubo]->AddAttribute( "Corner001", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
 			s_ubos[(int)_ubo]->AddAttribute( "Corner010", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );

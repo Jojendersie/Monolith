@@ -10,6 +10,7 @@ layout(std140) uniform Global
 
 layout(std140) uniform Camera
 {
+	mat3x3 c_mInverseView;
 	vec4 c_vProjection;
 	vec4 c_vInverseProjection;
 	float c_NearPlane;

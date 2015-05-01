@@ -3,6 +3,7 @@
 #include "utilities/logger.hpp"
 #include "graphic/core/texture.hpp"
 #include "graphic/core/device.hpp"
+#include "utilities/scopedpointer.hpp"
 #include <jofilelib.hpp>
 #include <hybridarray.hpp>
 
@@ -131,6 +132,8 @@ namespace Voxel {
 		} catch(...) {
 			LOG_CRITICAL( "Unknown error during loading the voxel definition file." );
 		}
+
+		g_InfoManager->GenerateTexture();
 	}
 
 	// ********************************************************************* //
@@ -167,23 +170,31 @@ namespace Voxel {
 	};
 
 	// ********************************************************************* //
-	bool TypeInfo::Sample( VoxelType _type, Math::IVec3 _position, int _level, uint8_t _rootSurface, Material& _materialOut, uint8_t& _surfaceOut )
+	int TypeInfo::SamplePos( VoxelType _type, Math::IVec3& _position, int _level, int& _edge, int& _offset )
 	{
 		// Compute level access values
 		int maxLevel = GetMaxLevel(_type);
-		int e, off;
 		// 0   1   2   3 <- level
 		// 585 73  9   1 <- l ^ 3 * 8 / 7
 		// 584 576 512 0 <- offsets
 		if( _level >= maxLevel ) {
-			e = (1 << maxLevel);
-			off = 0;
+			_edge = (1 << maxLevel);
+			_offset = 0;
 			_position /= 1 << (_level-maxLevel);
 		} else {
-			e = (1 << _level);
+			_edge = (1 << _level);
 			int m = 1 << maxLevel, n = 1 << _level;
-			off = (m*m*m * 8) / 7 - (n*n*n * 8) / 7;
+			_offset = (m*m*m * 8) / 7 - (n*n*n * 8) / 7;
 		}
+
+		return _offset + _position[0] + _edge * (_position[1] + _edge * _position[2]);
+	}
+
+	// ********************************************************************* //
+	bool TypeInfo::Sample( VoxelType _type, Math::IVec3 _position, int _level, uint8_t _rootSurface, Material& _materialOut, uint8_t& _surfaceOut )
+	{
+		int off, e;
+		int index = SamplePos(_type, _position, _level, e, off);
 
 		Assert(_position[0] >= 0 && _position[0] < e, "Out of bounds access in voxel texture!");
 		Assert(_position[1] >= 0 && _position[1] < e, "Out of bounds access in voxel texture!");
@@ -216,7 +227,7 @@ namespace Voxel {
 
 
 		// Take main texture if no border texture was found
-		MatSample& sample = currentVoxel.texture[off + _position[0] + e * (_position[1] + e * _position[2])];
+		MatSample& sample = currentVoxel.texture[index];
 		if( sample.material != Material::UNDEFINED )
 		{
 			// Again combine surface flags to draw as few as possible
@@ -466,8 +477,31 @@ namespace Voxel {
 				maxRes = m_voxels[i].textureResolution;
 				maxMipMapLevels = m_voxels[i].numMipMaps;
 			}
+		// Reserve texture memory
 		Graphic::Texture::Format format(1, 32, Graphic::Texture::Format::ChannelType::UINT);
-		m_voxelTextures = new Graphic::Texture(maxRes * maxRes, maxRes, m_numVoxels, format, maxMipMapLevels);
+		m_voxelTextures = new Graphic::Texture(maxRes, maxRes, maxRes, m_numVoxels, format, maxMipMapLevels);
+
+		ScopedPtr<uint32_t> buffer(new unsigned int[maxRes * maxRes * maxRes]);
+
+		// Fill with data
+		for( int i=0; i<m_numVoxels; ++i )
+		{
+			int res = maxRes;
+			for( int l = 0; l < maxMipMapLevels; ++l )
+			{
+				Math::IVec3 pos(0);
+				for( ; pos[2] < res; ++pos[2] )
+					for( pos[1] = 0; pos[1] < res; ++pos[1] )
+						for( pos[0] = 0; pos[0] < res; ++pos[0] ) {
+							int tmp0, tmp1;
+							Math::IVec3 modPos = pos;
+							Material mat = m_voxels[i].texture[SamplePos(VoxelType(i), modPos, maxMipMapLevels - l, tmp0, tmp1)].material;
+							buffer[pos[0] + res * (pos[1] + res * pos[2])] = mat.code;
+						}
+				m_voxelTextures->UploadData(i, l, buffer);
+				res /= 2;
+			}
+		}
 	}
 
 } // namespace Voxel
