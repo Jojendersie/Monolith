@@ -1,13 +1,9 @@
 #version 330
 
-flat in vec3 gs_normal;
-//flat in int gs_materialCode;	// The material code
-flat in vec4 gs_viewDir_phase;
 flat in vec3 gs_objectPosition;
-//flat in int gs_voxelCode;
+// Contains voxel-code, material-code and mip-map level
 flat in ivec3 gs_voxel_material_mipmap;
 in vec3 gs_texCoord;
-//flat in float gs_sideLength;
 out vec4 fragColor;
 uniform isampler2DArray u_componentTex;
 
@@ -15,9 +11,9 @@ uniform isampler2DArray u_componentTex;
 #include "globalubo.glsl"
 
 // Standard linear congruential generator to hash an integer
-uint hash(uint i)
+int hash(int i)
 {
-	return i * uint(1103515245) + uint(12345);
+	return i * 1103515245 + 12345;
 }
 
 layout(std140) uniform Object
@@ -45,9 +41,7 @@ void main()
 
 	// Find view direction in component-space
 	vec3 chunkSpacePos = gs_objectPosition + gs_texCoord - 0.5;
-	vec3 viewDir = (vec4(chunkSpacePos, 1) * c_mWorldView).xyz;
-	float viewDistSq = dot(viewDir, viewDir);
-	viewDir /= sqrt(viewDistSq);
+	vec3 viewDir = normalize((vec4(chunkSpacePos, 1) * c_mWorldView).xyz);
 	vec3 chunkSpaceDir = viewDir * mat3x3(c_mInverseWorldView);
 	
 	// Number of pixel must be equal in all directions (can theoretically be changed
@@ -110,7 +104,7 @@ void main()
 	// Decode rgb color from material
 	float color_y  = float(codes.x & 0xff) / 255.0;
 	
-	float phase = mod(hash(uint(rayPos.x + rayPos.y * 8 + rayPos.z * 64)), uint(6283)) * 0.001;
+	float phase = mod(hash(rayPos.x + rayPos.y * 8 + rayPos.z * 64), 6283) * 0.001;
 	color_y *= (sin(c_fTime * 3.0 + phase) * 0.5 + 0.5) * yvar + 1 - yvar;
 	float color_pb = (float((codes.x >> 18) & 0x1f) - 15.0) / 255.0;
 	float color_pr = (float((codes.x >> 23) & 0x1f) - 15.0) / 255.0;
@@ -126,7 +120,5 @@ void main()
 	float emissive = float((codes.x >> 17) & 1);
 	
 	fragColor.xyz = Lightning(normal, -viewDir, shininess, specular, color, emissive);
-//	fragColor.xyz = texelFetch(u_componentTex, ivec3(3,3,0), 0).x;
 	fragColor.a = 1;
-//	fragColor.xyz = gs_texCoord/7.0;//texelPos / 7.0;
 }

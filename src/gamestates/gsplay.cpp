@@ -82,11 +82,11 @@ void GSPlay::OnBegin()
 			m_scene.AddObject(model);
 		//	if(i==0) m_camera->ZoomAt( *model, Input::Camera::FOLLOW_AND_ROTATE );
 		}
-		Generators::Random rnd(484);
+	/*	Generators::Random rnd(484);
 		auto model = new Generators::Asteroid( 200, 200, 200, 846 );
 		model->SetPosition( FixVec3(Vec3(0.0f)) );
 		model->Rotate(rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI));
-		m_scene.AddObject(model);
+		m_scene.AddObject(model);*/
 		//m_camera->ZoomAt( *model );
 	}
 
