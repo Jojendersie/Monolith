@@ -4,11 +4,10 @@
 
 in uint vs_out_VoxelCode[1];
 in uint vs_out_MaterialCode[1];
-flat out int gs_materialCode;
 flat out vec3 gs_normal;
 flat out vec4 gs_viewDir_phase;
 flat out vec3 gs_objectPosition;
-flat out int gs_voxelCode;
+flat out ivec3 gs_voxel_material_mipmap;
 out vec3 gs_texCoord;
 //flat out float gs_sideLength;
 
@@ -57,10 +56,11 @@ void main(void)
 		abs(vPos.y) > w )
 		return;
 
-	gs_materialCode = int(vs_out_MaterialCode[0]);
+	gs_voxel_material_mipmap.y = int(vs_out_MaterialCode[0]);
 	gs_viewDir_phase.xyz = normalize(-vViewPos);
 	gs_viewDir_phase.w = mod(hash(vs_out_VoxelCode[0]), uint(6283)) * 0.001;
-	gs_voxelCode = int(vs_out_VoxelCode[0]);
+	gs_voxel_material_mipmap.x = int(vs_out_VoxelCode[0]);
+	gs_voxel_material_mipmap.z = clamp(int(log2(vPos.z * c_vInverseProjection.y / 30)), 0, 3);
 	
 	// To determine the culling the projective position is inverse transformed
 	// back to view space (which is a single mad operation). This direction to

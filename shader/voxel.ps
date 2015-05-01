@@ -1,10 +1,11 @@
 #version 330
 
 flat in vec3 gs_normal;
-flat in int gs_materialCode;	// The material code
+//flat in int gs_materialCode;	// The material code
 flat in vec4 gs_viewDir_phase;
 flat in vec3 gs_objectPosition;
-flat in int gs_voxelCode;
+//flat in int gs_voxelCode;
+flat in ivec3 gs_voxel_material_mipmap;
 in vec3 gs_texCoord;
 //flat in float gs_sideLength;
 out vec4 fragColor;
@@ -36,24 +37,29 @@ layout(std140) uniform Object
 
 void main()
 {
-	// Find mip map level
-	// TODO
-	
 	// Determine which voxels can be sampled at all (dependent on neighborhood)
-	int voxelMask = 0x40 | ((~gs_voxelCode) & 0x3f);
-	int materialIndex = gs_voxelCode >> 24;
+	int voxelMask = 0x40 | ((~gs_voxel_material_mipmap.x) & 0x3f);
+	int materialIndex = gs_voxel_material_mipmap.x >> 24;
 	ivec2 codes;
-	codes.x = gs_materialCode;
+	codes.x = gs_voxel_material_mipmap.y;
+
+	// Find view direction in component-space
+	vec3 chunkSpacePos = gs_objectPosition + gs_texCoord - 0.5;
+	vec3 viewDir = (vec4(chunkSpacePos, 1) * c_mWorldView).xyz;
+	float viewDistSq = dot(viewDir, viewDir);
+	viewDir /= sqrt(viewDistSq);
+	vec3 chunkSpaceDir = viewDir * mat3x3(c_mInverseWorldView);
+	
+	// Number of pixel must be equal in all directions (can theoretically be changed
+	// if required). Used for ray marching the texture.
+	int texSize = 8 / (1 << gs_voxel_material_mipmap.z);
 	
 	// Initialize ray marching algorithm
-	vec3 chunkSpacePos = gs_objectPosition + gs_texCoord - 0.5;
-	vec3 viewDir = normalize((vec4(chunkSpacePos, 1) * c_mWorldView).xyz);
-	vec3 chunkSpaceDir = viewDir * mat3x3(c_mInverseWorldView);
 	ivec3 dirSign; 
 	dirSign.x = chunkSpaceDir.x < 0.0f ? -1 : 1;
 	dirSign.y = chunkSpaceDir.y < 0.0f ? -1 : 1;
 	dirSign.z = chunkSpaceDir.z < 0.0f ? -1 : 1;
-	vec3 voxelPos = gs_texCoord * 7.99999;
+	vec3 voxelPos = gs_texCoord * (texSize - 0.00001);
 	ivec3 rayPos = ivec3(voxelPos);
 	vec3 absDir = abs(chunkSpaceDir);
 	vec3 projLength = 1.0 / (absDir + 0.0001);
@@ -62,11 +68,11 @@ void main()
 	if(dirSign.y == 1) d.y = 1-d.y;
 	if(dirSign.z == 1) d.z = 1-d.z;
 	d *= projLength;
-
-	if( materialIndex != 0 )
+	
+	if( materialIndex != 0 && texSize > 1 )
 	{
 		// Ray march until a voxel is set in the current configuration
-		codes = texelFetch(u_componentTex, ivec3(rayPos.x + rayPos.y * 8, rayPos.z, materialIndex), 0).xy;
+		codes = texelFetch(u_componentTex, ivec3(rayPos.x + rayPos.y * texSize, rayPos.z, materialIndex), gs_voxel_material_mipmap.z).xy;
 		while((codes.y & voxelMask) == 0)
 		{
 			if(d.x < d.y || d.z < d.y) {
@@ -84,9 +90,9 @@ void main()
 				d.xz -= d.y;
 				d.y = projLength.y;
 			}
-			if(any(greaterThanEqual(rayPos, ivec3(8,8,8))) || any(lessThan(rayPos, ivec3(0,0,0))))
+			if(any(greaterThanEqual(rayPos, ivec3(texSize,texSize,texSize))) || any(lessThan(rayPos, ivec3(0,0,0))))
 				discard;
-			codes = texelFetch(u_componentTex, ivec3(rayPos.x + rayPos.y * 8, rayPos.z, materialIndex), 0).xy;
+			codes = texelFetch(u_componentTex, ivec3(rayPos.x + rayPos.y * texSize, rayPos.z, materialIndex), gs_voxel_material_mipmap.z).xy;
 		}
 	}
 	
@@ -119,7 +125,7 @@ void main()
 	float specular = (1 << ((codes.x >> 8) & 0xf)) * 3.0;
 	float emissive = float((codes.x >> 17) & 1);
 	
-	fragColor.xyz = 1.5 * Lightning(normal, -viewDir, shininess, specular, color, emissive);
+	fragColor.xyz = Lightning(normal, -viewDir, shininess, specular, color, emissive);
 //	fragColor.xyz = texelFetch(u_componentTex, ivec3(3,3,0), 0).x;
 	fragColor.a = 1;
 //	fragColor.xyz = gs_texCoord/7.0;//texelPos / 7.0;

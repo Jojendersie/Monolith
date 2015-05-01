@@ -23,7 +23,7 @@ namespace Input {
 		/// \brief Create a new free perspective camera.
 		/// \param [in] _position Initial position.
 		/// \param [in] _rotation Initial rotation.
-		/// \param [in] _fov Field of view in radiance.
+		/// \param [in] _fov Field of view in Y-direction in radiants.
 		/// \param [in] _aspect View port width/height.
 		Camera( const Math::FixVec3& _position, const Math::Quaternion& _rotation,
 				float _fov, float _aspect );
@@ -99,7 +99,7 @@ namespace Input {
 		Math::Plane m_frustum[6];			///< Left, Right, Bottom, Top, Near, Far all showing inwards in view space
 
 		std::mutex m_mutex;					///< mutex between all update methods
-		float m_fov;
+		float m_fov;						///< Field of view in Y-direction in radiants.
 		float m_aspect;
 
 		float m_nearPlane;
