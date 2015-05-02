@@ -91,8 +91,11 @@
     <ClCompile Include="src\exceptions.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\gameloop.cpp" />
+    <ClCompile Include="src\gameplay\componentsystem.cpp" />
+    <ClCompile Include="src\gameplay\computersystem.cpp" />
     <ClCompile Include="src\gameplay\drive.cpp" />
     <ClCompile Include="src\gameplay\galaxy.cpp" />
+    <ClCompile Include="src\gameplay\reactorsystem.cpp" />
     <ClCompile Include="src\gameplay\scenegraph.cpp" />
     <ClCompile Include="src\gameplay\starsystem.cpp" />
     <ClCompile Include="src\gamestates\gseditor.cpp">

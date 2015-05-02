@@ -94,6 +94,9 @@ namespace Voxel {
 		/// \brief Returns the amount of Heisenbergium the voxel consists of voxel.
 		static int GetHeisenbergium( ComponentType _type );
 
+		/// \brief Get the energy produced by this voxel in [J/s]
+		static float GetEnergyOut( ComponentType _type );
+
 		/// \brief Returns the name of the voxel
 		static std::string GetName( ComponentType _type );
 
@@ -133,6 +136,8 @@ namespace Voxel {
 			bool isSolid;
 			MatSample* texture;			///< Main texture used for sampling of the material-sub-voxels
 			MatSample* borderTexture;	///< A texture which is added on each side of this voxel (rotated) which has a neighbor. The coordinate system is on x axis.
+
+			float energyOut;			///< Energy produced by this voxel in [J/s]
 
 			std::string name;			///< The name of this voxel type
 

@@ -81,6 +81,7 @@ namespace Voxel {
 			voxelInfo.rareEarthElements = voxelNode[string("Rare Earth Elements")].Get(0);
 			voxelInfo.semiconductors = voxelNode[string("Semiconductors")].Get(0);
 			voxelInfo.heisenbergium = voxelNode[string("Heisenbergium")].Get(0);
+			voxelInfo.energyOut = voxelNode[string("EnergyOut")].Get(0.0f);
 			// Get volumetric size
 			int s = voxelNode[string("Texture Resolution")].Get(0);
 			voxelInfo.textureResolution = s;
@@ -359,6 +360,16 @@ namespace Voxel {
 			return 0;
 		} else
 			return g_InfoManager->m_voxels[(int)_type].heisenbergium;
+	}
+
+	// ********************************************************************* //
+	float TypeInfo::GetEnergyOut( ComponentType _type )
+	{
+		if( (int)_type >= g_InfoManager->m_numVoxels ) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0;
+		} else
+			return g_InfoManager->m_voxels[(int)_type].energyOut;
 	}
 
 	// ********************************************************************* //
