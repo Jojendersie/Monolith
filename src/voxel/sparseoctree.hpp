@@ -62,6 +62,8 @@ namespace Voxel {
 		///		through optimization.
 		template<class Processor>
 		void Traverse( Processor& _processor );
+		template<class Processor>
+		void Traverse( Processor& _processor ) const;
 
 		/// \brief Traverse through the whole tree and compute additional
 		///		neighborhood access.
@@ -115,6 +117,8 @@ namespace Voxel {
 			///		SVOProcessor concept.
 			template<class Processor>
 			void Traverse( const Math::IVec4& _position, Processor& _processor );
+			template<class Processor>
+			void Traverse( const Math::IVec4& _position, Processor& _processor ) const;
 
 			/// \brief Recursive traverse with neighborhood information.
 			/// \see SparseVoxelOctree::TraverseEx
@@ -186,11 +190,13 @@ namespace Voxel {
 			///		node's data. Inclusive read access to its children.
 			/// \return false if traversal should stop here and do not go deeper.
 			bool PreTraversal(const Math::IVec4& _position, SVON* _node)	{}
+			bool PreTraversal(const Math::IVec4& _position, const SVON* _node)	{}
 
 			/// \brief Called after returning from recursion.
 			/// \details If there are no children or recursion is canceled due
 			///		to PreTraversal's return value PostTraversal is also called.
 			void PostTraversal(const Math::IVec4& _position, SVON* _node)	{}
+			void PostTraversal(const Math::IVec4& _position, const SVON* _node)	{}
 		protected:
 			/// \brief This is a concept - do not use instances of this type
 			SVOProcessor()						{}
@@ -413,6 +419,15 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	template<typename T, typename Listener> template<typename Processor>
+	void SparseVoxelOctree<T,Listener>::Traverse( Processor& _processor ) const
+	{
+		Assert(m_rootSize != -1, "Octree not yet initialized!");
+
+		m_root.Traverse(IVec4(m_rootPosition, m_rootSize), _processor);
+	}
+
+	// ********************************************************************* //
+	template<typename T, typename Listener> template<typename Processor>
 	void SparseVoxelOctree<T,Listener>::TraverseEx( Processor& _processor )
 	{
 		Assert(m_rootSize != -1, "Octree not yet initialized!");
@@ -543,6 +558,23 @@ namespace Voxel {
 	// ********************************************************************* //
 	template<typename T, typename Listener> template<class Processor>
 	void SparseVoxelOctree<T,Listener>::SVON::Traverse( const Math::IVec4& _position, Processor& _processor )
+	{
+		if( _processor.PreTraversal(_position, this) && m_children )
+		{
+			Math::IVec4 position(_position[0]<<1, _position[1]<<1, _position[2]<<1, _position[3]);
+			for( int i=0; i<8; ++i )
+			{
+				// Is the voxel outside the tree/really empty?
+				if( m_children[i].m_data != T::UNDEFINED || m_children[i].m_children )
+					m_children[i].Traverse(position + CHILD_OFFSETS[i], _processor);
+			}
+		}
+
+		_processor.PostTraversal(_position, this);
+	}
+
+	template<typename T, typename Listener> template<class Processor>
+	void SparseVoxelOctree<T,Listener>::SVON::Traverse( const Math::IVec4& _position, Processor& _processor ) const
 	{
 		if( _processor.PreTraversal(_position, this) && m_children )
 		{

@@ -80,7 +80,7 @@ namespace Utils {
 			{
 			}
 
-			const T& operator [] (int _index) const { return (*ptr)[_index]; }
+			T& operator [] (int _index) const { return (*ptr)[_index]; }
 			int size() const { return (int)ptr->size(); }
 			const std::vector<T>& buf() const { return *ptr; }
 		private:

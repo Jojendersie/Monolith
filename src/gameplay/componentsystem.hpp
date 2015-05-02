@@ -21,8 +21,10 @@ namespace Mechanics {
 	class ComponentSystem
 	{
 	public:
+		/// \param [in] _theShip Reference to the ship where the current
+		///		system belongs too.
 		/// \param [in] _name A name to identify this system in a script.
-		ComponentSystem(const std::string& _name);
+		ComponentSystem(Ship& _theShip, const std::string& _name);
 
 		virtual ~ComponentSystem();
 
@@ -57,6 +59,7 @@ namespace Mechanics {
 
 		const std::string& GetName() const { return m_name; }
 	private:
+		class Ship& m_ship;
 		std::string m_name;			///< A name which is used in the script to identify this system
 	};
 }

@@ -97,6 +97,7 @@
     <ClCompile Include="src\gameplay\galaxy.cpp" />
     <ClCompile Include="src\gameplay\reactorsystem.cpp" />
     <ClCompile Include="src\gameplay\scenegraph.cpp" />
+    <ClCompile Include="src\gameplay\ship.cpp" />
     <ClCompile Include="src\gameplay\starsystem.cpp" />
     <ClCompile Include="src\gamestates\gseditor.cpp">
       <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</PreprocessToFile>

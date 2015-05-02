@@ -21,7 +21,7 @@ static SphericalFunction g_superFunc( [](const Math::Vec3& _dir){ return abs(_di
 
 // ************************************************************************* //
 GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
-	m_model( nullptr ),
+	m_ship( nullptr ),
 	m_rayHits( false ),
 	m_deletionMode( false ),
 	m_lvl0Position( 0 ),
@@ -42,7 +42,7 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 	{
 		Voxel::ComponentType type = (Voxel::ComponentType)(i+1);
 		Voxel::Model* vox = new Voxel::Model;
-		vox->Set(Math::IVec3(0,0,0),0,type);
+		vox->Set(Math::IVec3(0,0,0), type);
 		voxelContainer->CreateModel(Math::Vec2(-0.76f,0.9f-i*0.2f), Math::Vec2(0.f, 0.f), vox);
 		voxelContainer->CreateBtn("voxelBtn", "<s 022>       "+Voxel::TypeInfo::GetName(type)
 									+ " Ì:" + std::to_string(Voxel::TypeInfo::GetHydrogen(type))
@@ -61,21 +61,21 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 	modelInfoContainer->CreateBtn("menuBtn", "load", Vec2(-0.9f, 0.92f), Vec2(0.8f, 0.22f), Graphic::width, [&]()
 	{
 		//copy and past from quick load
-		ScopedPtr<Voxel::Model> model = new Voxel::Model;
-		model->Load(Jo::Files::HDDFile("savegames/" + nameEdit.GetText() + ".vmo"));
+		ScopedPtr<Ship> ship = new Ship;
+		ship->Load(Jo::Files::HDDFile("savegames/" + nameEdit.GetText() + ".vmo"));
 		{
 			std::unique_lock<std::mutex> lock(m_criticalModelWork);
 			// TODO: REquest for the old model
-			m_deleteList.PushBack(std::move(m_model));
-			m_model = std::move(model);
-			m_modelCamera->ZoomAt(*m_model, Input::Camera::REFERENCE_ONLY);
+			m_deleteList.PushBack(std::move(m_ship));
+			m_ship = std::move(ship);
+			m_modelCamera->ZoomAt(*m_ship, Input::Camera::REFERENCE_ONLY);
 			m_recreateThrustVis = true;
 		}
 	});
 
 	modelInfoContainer->CreateBtn("menuBtn", "save", Vec2(0.0f, 0.92f), Vec2(0.8f, 0.22f), Graphic::width, [&]()
 	{
-		m_model->Save(Jo::Files::HDDFile("savegames/" + nameEdit.GetText() + ".vmo", Jo::Files::HDDFile::OVERWRITE));
+		m_ship->Save(Jo::Files::HDDFile("savegames/" + nameEdit.GetText() + ".vmo", Jo::Files::HDDFile::OVERWRITE));
 	});
 
 	// TODO: view port for this camera in the upper right corner
@@ -117,7 +117,7 @@ void GSEditor::OnBegin()
 void GSEditor::OnEnd()
 {
 	// TODO: User store request
-	m_model = nullptr;
+	m_ship = nullptr;
 
 	LOG_LVL2("Left game state Editor");
 }
@@ -129,7 +129,7 @@ void GSEditor::Simulate( double _deltaTime )
 	WorldRay ray = m_modelCamera->GetRay( Input::Manager::GetCursorPosScreenSpace() );
 	Voxel::Model::ModelData::HitResult hit;
 	float maxRange = 1e10f;
-	m_rayHits = m_model->RayCast( ray, 0, hit, maxRange );
+	m_rayHits = m_ship->RayCast( ray, 0, hit, maxRange );
 	if( m_rayHits )
 	{
 		m_lvl0Position = hit.position;
@@ -167,14 +167,14 @@ void GSEditor::Render( double _deltaTime )
 	{
 		m_modelCamera->Set( Graphic::Resources::GetUBO(Graphic::UniformBuffers::CAMERA) );
 		Graphic::Device::SetEffect(	Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
-		m_model->Draw( *m_modelCamera );
-		m_model->GetModelMatrix( modelViewProjection, *m_modelCamera );
-		//modelViewProjection = Mat4x4::Translation(m_model->GetCenter()) * modelViewProjection;
+		m_ship->Draw( *m_modelCamera );
+		m_ship->GetModelMatrix( modelViewProjection, *m_modelCamera );
+		//modelViewProjection = Mat4x4::Translation(m_ship->GetModel().GetCenter()) * modelViewProjection;
 		modelViewProjection *= m_modelCamera->GetProjection();
 
 		// Draw the thrust function
 		if( m_recreateThrustVis ) { m_thrustFunction = new Graphic::Marker::SphericalFunction( g_superFunc ); m_recreateThrustVis = false; }
-		m_thrustFunction->Draw( Mat4x4::Translation(m_model->GetCenter()) * modelViewProjection );
+		m_thrustFunction->Draw( Mat4x4::Translation(m_ship->GetCenter()) * modelViewProjection );
 
 		m_deleteList.Clear();
 		m_criticalModelWork.unlock();
@@ -212,7 +212,7 @@ void GSEditor::MouseMove( double _dx, double _dy )
 	// Read config file for speed
 	double rotSpeed = m_game->Config[std::string("Input")][std::string("CameraRotationSpeed")];
 	if( Input::Manager::IsVirtualKeyPressed(Input::VirtualKey::ROTATE_CAMERA) )
-		m_model->Rotate( Quaternion( float(-_dy * rotSpeed), float(_dx * rotSpeed), 0.0f ) );
+		m_ship->Rotate( Quaternion( float(-_dy * rotSpeed), float(_dx * rotSpeed), 0.0f ) );
 
 	m_hud->MouseMove(_dx, _dy);
 }
@@ -235,17 +235,17 @@ void GSEditor::KeyDown( int _key, int _modifiers )
 		m_finished = true;
 
 	if( Input::Manager::IsVirtualKey(_key, Input::VirtualKey::QUICK_SAVE) )
-		m_model->Save( Jo::Files::HDDFile( "savegames/test.vmo", Jo::Files::HDDFile::OVERWRITE ) );
+		m_ship->Save( Jo::Files::HDDFile( "savegames/test.vmo", Jo::Files::HDDFile::OVERWRITE ) );
 	if( Input::Manager::IsVirtualKey(_key, Input::VirtualKey::QUICK_LOAD) )
 	{
-		ScopedPtr<Voxel::Model> model = new Voxel::Model;
-		model->Load( Jo::Files::HDDFile( "savegames/test.vmo" ) );
+		ScopedPtr<Ship> ship = new Ship;
+		ship->Load( Jo::Files::HDDFile( "savegames/test.vmo" ) );
 		{
 			std::unique_lock<std::mutex> lock(m_criticalModelWork);
 			// TODO: REquest for the old model
-			m_deleteList.PushBack( std::move(m_model) );
-			m_model = std::move(model);
-			m_modelCamera->ZoomAt( *m_model, Input::Camera::REFERENCE_ONLY );
+			m_deleteList.PushBack( std::move(m_ship) );
+			m_ship = std::move(ship);
+			m_modelCamera->ZoomAt( *m_ship, Input::Camera::REFERENCE_ONLY );
 			m_recreateThrustVis = true;
 		}
 	}
@@ -271,10 +271,10 @@ void GSEditor::KeyClick( int _key )
 		if( m_deletionMode )
 		{
 			// Delete
-			m_model->Set( m_lvl0Position, 0, Voxel::ComponentType::UNDEFINED );
+			m_ship->RemoveComponent( m_lvl0Position );
 		} else {
 			// Add a voxel of the chosen type
-			m_model->Set( m_lvl0Position, 0, m_currentType );
+			m_ship->AddComponent( m_lvl0Position, m_currentType );
 		}
 		m_recreateThrustVis = true;
 	}
@@ -289,23 +289,20 @@ void GSEditor::KeyDoubleClick( int _key )
 void GSEditor::CreateNewModel( const Voxel::Model* _copyFrom )
 {
 	// Currently undefined situation: Delete/store model with a request.
-	Assert( !m_model, "Need to save model before creating a new one!" );
+	Assert( !m_ship, "Need to save model before creating a new one!" );
 
 	if( _copyFrom )
 	{
 	// TODO copy construction
 	//m_model = new Voxel::Model(*_copyFrom);
 	} else {
-		// Create empty model
-		m_model = new Voxel::Model();
-
-		// Insert the computer
-		m_model->Set(IVec3(2048,2048,2048), 0, Voxel::ComponentType::ROCK_1 );
+		// Create empty model with computer
+		m_ship = new Ship();
 
 		m_recreateThrustVis = true;
 	}
 
-	m_modelCamera->ZoomAt( *m_model, Input::Camera::REFERENCE_ONLY );
+	m_modelCamera->ZoomAt( *m_ship, Input::Camera::REFERENCE_ONLY );
 }
 
 // ************************************************************************* //
@@ -320,6 +317,6 @@ void GSEditor::ValidatePosition()
 		m_validPosition = false;
 
 	// Do not delete the last computer
-	if( m_model->GetNumVoxels() == 1 && m_model->Get(m_lvl0Position, 0) != Voxel::ComponentType::UNDEFINED )
+	if( m_lvl0Position == m_ship->GetCentralComputerPosition() )
 		m_validPosition = false;
 }

@@ -22,9 +22,11 @@ public:
 	const Math::FixVec3& GetBoundingBoxMin() const { return m_boundingBox.min; }
 	const Math::FixVec3& GetBoundingBoxMax() const { return m_boundingBox.max; }
 
-	/// \brief Do one simulation step, i.e. integrate positions and bounding information.
-	virtual void Update() {}
+	/// \brief Recompute bounding box information dependent on current transformation.
+	virtual void UpdateBoundingBox() {}
 
+	/// \brief Do one simulation step, i.e. integrate positions.
+	virtual void Simulate(float _deltaTime) {}
 protected:
 	Math::WorldBox m_boundingBox;
 

@@ -7,10 +7,11 @@
 #include "graphic/interface/hud.hpp"
 #include "graphic/marker/grid.hpp"
 #include "GLFW/glfw3.h"
-using namespace Math;
-using namespace Graphic;
 #include "utilities/assert.hpp"
 #include "generators/random.hpp"
+#include "gameplay/ship.hpp"
+using namespace Math;
+using namespace Graphic;
 
 // TODO: remove after test
 #include "../generators/asteroid.hpp"
@@ -25,7 +26,7 @@ namespace RenderStat {
 	int g_numChunks;
 }
 
-Voxel::Model* g_model;
+Ship* g_model;
 float velocity;
 // ************************************************************************* //
 GSPlay::GSPlay(Monolith* _game) : IGameState(_game)
@@ -44,7 +45,7 @@ GSPlay::GSPlay(Monolith* _game) : IGameState(_game)
 
 	m_galaxy = new Galaxy(1000, 20000.f, 10000);
 
-	g_model = new Voxel::Model();
+	g_model = new Ship();
 	g_model->Load(Jo::Files::HDDFile("savegames/playership.vmo"));
 	//position to 0
 	g_model->SetPosition(FixVec3(Fix(0.f)));
@@ -103,6 +104,7 @@ void GSPlay::OnEnd()
 void GSPlay::Simulate( double _deltaTime )
 {
 	g_model->Translate(g_model->GetRotation().ZAxis() * -velocity * (float)_deltaTime);
+	m_scene.Simulate((float)_deltaTime);
 	m_scene.UpdateGraph();
 	/*static Generators::Random Rnd(1435461);
 	for( int i = 0; i < 100; ++i )

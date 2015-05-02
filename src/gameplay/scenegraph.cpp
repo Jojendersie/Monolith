@@ -125,10 +125,19 @@ void SceneGraph::UpdateGraph()
 	// Update objects them self (bounding volumes...)
 	for( int i = 0; i < xListAccess.buf().size(); i++ )
 	{
-		xListAccess.buf()[i]->Update();
+		xListAccess.buf()[i]->UpdateBoundingBox();
 	}
 
 	ResortAxis(xListAccess);
+}
+
+// ************************************************************************* //
+void SceneGraph::Simulate(float _deltaTime)
+{
+	auto xReadAccess = m_xIntervalMax.GetReadAccess();	// Copy shared pointer to assert that the buffer does not change during algorithm.
+
+	for(int i = 0; i < xReadAccess.size(); ++i)
+		xReadAccess[i]->Simulate(_deltaTime);
 }
 
 // ************************************************************************* //

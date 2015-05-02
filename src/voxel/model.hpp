@@ -39,14 +39,13 @@ namespace Voxel {
 
 		/// \brief Set a voxel in the model and update mass properties.
 		/// \see SparseVoxelOctree::Set.
-		void Set( const Math::IVec3& _position, int _level, ComponentType _type )	{ m_voxelTree.Set( _position, _level, Voxel(_type) ); }
+		void Set( const Math::IVec3& _position, ComponentType _type )	{ m_voxelTree.Set( _position, 0, Voxel(_type) ); }
 
-		/// \brief Returns the type of a voxel on a certain grid level and
-		///		position.
+		/// \brief Returns the type of a voxel on a finest grid level.
 		///	\details If the position is outside the return value is UNDEFINED. For
 		///		levels other than 0 the returned value will be some
 		///		approximating LOD (majority) of the children.
-		ComponentType Get( const Math::IVec3& _position, int _level ) const;
+		ComponentType Get( const Math::IVec3& _position ) const;
 
 		int GetNumVoxels() const { return m_numVoxels; }
 
@@ -77,8 +76,11 @@ namespace Voxel {
 		///	\param [in] _oldType The type of the voxel which was before.
 		void Update( const Math::IVec4& _position, const Voxel& _oldType, const Voxel& _newType );
 
-		/// Simulate one step. Also updates the bounding box.
-		virtual void Update() override;
+		/// Recompute the bounding box in world space (O(1)).
+		virtual void UpdateBoundingBox() override;
+
+		/// Simulate physics.
+		virtual void Simulate(float _deltaTime) override;
 
 		bool RayCast( const Math::WorldRay& _ray, int _targetLevel, ModelData::HitResult& _hit, float& _distance ) const;
 
@@ -88,13 +90,11 @@ namespace Voxel {
 		/// \brief Save to an opened file.
 		/// \details The model format is binary and compressed. The size is not
 		///		known in advance.
-		void Save( Jo::Files::IFile& _file );
+		void Save( Jo::Files::IFile& _file ) const;
 
 		/// \brief Load a model from an opened file
 		/// \throws 
 		void Load( const Jo::Files::IFile& _file );
-
-		void UpdateBoundingBox();		///< Recompute the bounding box in world space (O(1))
 	protected:
 		std::unordered_map<Math::IVec4, Chunk> m_chunks;
 		int m_numVoxels;				///< Count the number of voxels for statistical issues

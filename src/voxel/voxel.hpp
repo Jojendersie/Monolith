@@ -14,10 +14,11 @@ namespace Voxel {
 	enum struct ComponentType: uint8_t {
 		UNDEFINED,
 		WATER,
-		ROCK_1,
-		ROCK_2,
-		ROCK_3,
-		ROCK_4
+		COMPUTER,
+		STONE,
+		SOLAR_CELL,
+		ION_THRUSTER,
+		CANNON
 	};
 
 	/// \brief A class which provides runtime-constant data about voxel types.

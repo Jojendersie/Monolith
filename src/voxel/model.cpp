@@ -116,9 +116,9 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	ComponentType Model::Get( const Math::IVec3& _position, int _level ) const
+	ComponentType Model::Get( const Math::IVec3& _position ) const
 	{
-		auto node = m_voxelTree.Get(_position, _level);
+		auto node = m_voxelTree.Get(_position, 0);
 		if( node ) return node->Data().type;
 		
 		return ComponentType::UNDEFINED;
@@ -181,11 +181,8 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	void Model::Update()
+	void Model::Simulate(float _deltaTime)
 	{
-		// Last step: update world-space bounding box, which depends on the
-		// transformation.
-		UpdateBoundingBox();
 	}
 
 	// ********************************************************************* //
@@ -229,7 +226,7 @@ namespace Voxel {
 			file(_file)
 		{}
 
-		bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
+		bool PreTraversal(const Math::IVec4& _position, const Model::ModelData::SVON* _node)
 		{
 			if( _node->Children() )
 			{
@@ -258,7 +255,7 @@ namespace Voxel {
 	};
 
 	// ********************************************************************* //
-	void Model::Save( Jo::Files::IFile& _file )
+	void Model::Save( Jo::Files::IFile& _file ) const
 	{
 		if(!_file.CanWrite()) throw InvalidSaveGame( _file, "To save a model the file must be opened for writing!" );
 
@@ -294,13 +291,17 @@ namespace Voxel {
 			// Now data comes
 			ComponentType type;
 			_file.Read( sizeof(ComponentType), &type );
-			_model->Set( _position, _level, type );
+			_model->Set( _position, type );
 		}
 	}
 
 	void Model::Load( const Jo::Files::IFile& _file )
 	{
-		Assert(m_numVoxels == 0, "Cannot load into a partially filled model!");
+		if(m_numVoxels > 0) {
+			// Clear
+			m_voxelTree = ModelData(this);
+			m_numVoxels = 0;
+		}
 
 		ModelChunkTypes chunkType;
 		_file.Read( 1, &chunkType );

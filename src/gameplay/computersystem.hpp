@@ -15,6 +15,17 @@ namespace Mechanics {
 	class ComputerSystem: public ComponentSystem
 	{
 	public:
+		ComputerSystem(Ship& _theShip, const std::string& _name) :
+			ComponentSystem(_theShip, _name),
+			m_batteries(_theShip),
+			m_drives(_theShip),
+			m_reactors(_theShip),
+			m_sensors(_theShip),
+			m_shields(_theShip),
+			m_storage(_theShip),
+			m_weapons(_theShip)
+		{}
+
 		virtual void Estimate(float _deltaTime) override;
 		virtual void Process(float _deltaTime) override;
 		virtual void OnAdd(const Math::IVec3& _position, Voxel::ComponentType _type) override;

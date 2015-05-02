@@ -3,6 +3,7 @@
 #include "gamestatebase.hpp"
 #include "math/vector.hpp"
 #include "utilities/scopedpointer.hpp"
+#include "gameplay/ship.hpp"
 #include <hybridarray.hpp>
 
 /// \brief Game state to edit voxel models.
@@ -32,9 +33,9 @@ private:
 	ScopedPtr<Graphic::Marker::SphericalFunction> m_thrustFunction;	///< Visualization for the maximum engine thrust
 	bool m_recreateThrustVis;
 
-	ScopedPtr<Voxel::Model> m_model;	///< The model which is currently edited
+	ScopedPtr<Ship> m_ship;				///< The ship which is currently edited
 	std::mutex m_criticalModelWork;		///< Locked if a model is replaced or similar
-	Jo::HybridArray<ScopedPtr<Voxel::Model>> m_deleteList;	///< Deletion must be done by the one who has the context
+	Jo::HybridArray<ScopedPtr<Ship>> m_deleteList;	///< Deletion must be done by the one who has the context
 
 	Voxel::ComponentType m_currentType;		///< The type of the voxel which is painted
 	bool m_rayHits;						///< The hit information is up to date and filled

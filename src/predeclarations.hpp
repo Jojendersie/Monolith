@@ -25,6 +25,18 @@ class Monolith;
 
 //searching for a home(namespace) :-(
 class Galaxy;
+class Ship;
+
+namespace Mechanics {
+	class ComponentSystem;
+	class ComputerSystem;
+	class ReactorSystem;
+	class BatterySystem;
+	class ShieldSystem;
+	class StorageSystem;
+	class SensorSystem;
+	class DriveSystem;
+}
 
 namespace Generators {
 	class Asteroid;

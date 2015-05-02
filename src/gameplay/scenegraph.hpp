@@ -36,6 +36,9 @@ public:
 
 	/// \brief Remove destroyed objects and insert the new ones.
 	void UpdateGraph();
+
+	/// \brief Simulate physics and AI and ships...
+	void Simulate(float _deltaTime);
 private:
 	std::vector<SOHandle> m_newObjects;	///< Added since last update
 	Utils::ThreadSafeBuffer<SOHandle> m_xIntervalMax;
