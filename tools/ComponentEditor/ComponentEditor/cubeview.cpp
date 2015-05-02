@@ -58,7 +58,7 @@ CubeView::CubeView(QComboBox* _colorBox, int _res, QWidget *parent)
 		//build cube
 		QGLBuilder builder;
 		builder << QGL::Faceted;
-		builder << QGLCube(0.5);
+		builder << QGLCube(0.44);//0.5
 	
 		m_cube[x][y][z] = builder.finalizedSceneNode();
 	//	m_cube[ix][iy][iz]->setParent(&pickScene);
@@ -74,7 +74,7 @@ CubeView::CubeView(QComboBox* _colorBox, int _res, QWidget *parent)
 	}
 	m_pickScene.setPickable(true);
 	QList<QGLPickNode *>nodes = m_pickScene.pickNodes();
-	int arafasg = nodes.length();
+	//int arafasg = nodes.length();
 	foreach (QGLPickNode *node, nodes)
 	{
 		registerObject(node->id(), node);
@@ -144,7 +144,7 @@ void CubeView::paintGL(QGLPainter *painter)
 
 		painter->setColor(QColor(255,255,255));
 		//geometry is stored in the child nodes
-		foreach (QGLSceneNode *node, m_cube[x][y][z]->allChildren())
+/*		foreach (QGLSceneNode *node, m_cube[x][y][z]->allChildren())
 		{
 			node->setDrawingMode(QGL::LineStrip);//LineStrip
 			node->setDrawingWidth(2);
@@ -152,7 +152,7 @@ void CubeView::paintGL(QGLPainter *painter)
 			m_cube[x][y][z]->draw(painter);
 			//turn back to normal
 			node->setDrawingMode(QGL::Triangles);
-		}
+		}*/
 	}
 }
 
@@ -233,7 +233,7 @@ void CubeView::mouseReleaseEvent( QMouseEvent* _e )
 	{
 		processCube = [](Cube& _cube){_cube.setState(false);};
 	}
-	else
+	else if(_e->button() == Qt::RightButton)
 	{
 		processCube = [&](Cube& _cube){
 			colorChanged(m_colorBox->currentText());

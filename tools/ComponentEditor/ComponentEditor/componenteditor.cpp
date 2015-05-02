@@ -226,7 +226,7 @@ void ComponentEditor::save()
 					break;
 				}
 
-		//bordertexture, only in case of existens
+		//bordertexture, only in case of existenz
 		if(voxelInfo.borderTexture)
 		{
 			auto& borderTexNode = voxelNode.Add(string("Border Texture"), Jo::Files::MetaFileWrapper::ElementType::INT32, s);
