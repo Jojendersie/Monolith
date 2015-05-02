@@ -104,7 +104,7 @@ namespace Voxel {
 			// Remains undefined
 			if( !_node->Children() ) return;
 
-			_node->Data().type = VoxelType::UNDEFINED;
+			_node->Data().type = ComponentType::UNDEFINED;
 
 			// Take the last defined children and check solidity.
 			bool solid = true;

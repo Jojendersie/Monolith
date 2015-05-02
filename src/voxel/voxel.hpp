@@ -11,7 +11,7 @@ namespace Graphic {
 
 namespace Voxel {
 
-	enum struct VoxelType: uint8_t {
+	enum struct ComponentType: uint8_t {
 		UNDEFINED,
 		WATER,
 		ROCK_1,
@@ -58,44 +58,44 @@ namespace Voxel {
 		///	\param [out] _surfaceOut The surface properties at the target
 		///		position.
 		///	\return The voxel is valid (defined and surface voxel).
-		static bool Sample( VoxelType _type, Math::IVec3 _position, int _level, uint8_t _rootSurface, Material& _materialOut, uint8_t& _surfaceOut );
+		static bool Sample( ComponentType _type, Math::IVec3 _position, int _level, uint8_t _rootSurface, Material& _materialOut, uint8_t& _surfaceOut );
 
 		/// \brief Returns the number of mip maps for the given type's materials.
-		static int GetMaxLevel( VoxelType _type );
+		static int GetMaxLevel( ComponentType _type );
 
 		/// \brief Returns if the volume texture is solid or not.
-		static bool IsSolid( VoxelType _type );
+		static bool IsSolid( ComponentType _type );
 
 		/// \brief Returns the mass of the voxel.
 		/// TODO: use integer(64?) mass
-		static float GetMass( VoxelType _type );
+		static float GetMass( ComponentType _type );
 		
 		/// \brief Returns the thresholdEnergy of the voxel.
-		static float GetThresholdEnergy( VoxelType _type );
+		static float GetThresholdEnergy( ComponentType _type );
 		
 		/// \brief Returns the reactionEnergy of the voxel.
-		static float GetReactionEnergy( VoxelType _type );
+		static float GetReactionEnergy( ComponentType _type );
 		
 		/// \brief Returns the amount of hydrogen the voxel consists of voxel.
-		static int GetHydrogen( VoxelType _type );
+		static int GetHydrogen( ComponentType _type );
 
 		/// \brief Returns the amount of carbon the voxel consists of voxel.
-		static int GetCarbon( VoxelType _type );
+		static int GetCarbon( ComponentType _type );
 
 		/// \brief Returns the amount of metal the voxel consists of voxel.
-		static int GetMetals( VoxelType _type );
+		static int GetMetals( ComponentType _type );
 
 		/// \brief Returns the amount of rareEarthElements the voxel consists of voxel.
-		static int GetRareEarthElements( VoxelType _type );
+		static int GetRareEarthElements( ComponentType _type );
 
 		/// \brief Returns the amount of semiconductors the voxel consists of voxel.
-		static int GetSemiconductors( VoxelType _type );
+		static int GetSemiconductors( ComponentType _type );
 
 		/// \brief Returns the amount of Heisenbergium the voxel consists of voxel.
-		static int GetHeisenbergium( VoxelType _type );
+		static int GetHeisenbergium( ComponentType _type );
 
 		/// \brief Returns the name of the voxel
-		static std::string GetName( VoxelType _type );
+		static std::string GetName( ComponentType _type );
 
 		static int GetNumVoxels();
 
@@ -165,7 +165,7 @@ namespace Voxel {
 		/// \param [out] _edge Length of a single edge.
 		/// \param [out] _offset Offset for the mip map level.
 		/// \return The full index of the voxel or an upsampled voxel position.
-		static int SamplePos( VoxelType _type, Math::IVec3& _position, int _level, int& _edge, int& _offset );
+		static int SamplePos( ComponentType _type, Math::IVec3& _position, int _level, int& _edge, int& _offset );
 
 		/// \brief Bake all the voxels inclusive mip-maps in the texture array.
 		void GenerateTexture();
@@ -198,4 +198,37 @@ namespace Voxel {
 		{ 4.7f, 940000.0f, 50000.0f, 0, 5, 4, 1, 0, 0, 0x0},	// ROCK_3
 		{ 2.6f, 780000.0f, 45000.0f, 0, 4, 7, 0, 0, 0, 0x0},	// ROCK_4
 	};//*/
+
+
+	/// \brief Models are represented by a material and voxel-type tree in one.
+	/// \details A voxel is just a volumetric representation in contrast to components
+	///		which are functional units.
+#	pragma pack(push, 1)
+	struct Voxel
+	{
+		Material material;		///< Graphical representation
+		ComponentType type;			///< The type of the voxel
+		uint8_t dirty: 1;		///< Somebody changed a child or this node
+		uint8_t solid: 1;		///< This node and all its children are defined
+		uint8_t surface: 6;	///< One flag for each direction if there is no solid neighborhood
+
+		/// \brief Standard constructor creates undefined element
+		Voxel() : material(Material::UNDEFINED), type(ComponentType::UNDEFINED), dirty(0), solid(0), surface(0)	{}
+
+		/// \brief Construct a component with a defined type and undefined material
+		Voxel(ComponentType _type) : type(_type), dirty(1), solid(TypeInfo::IsSolid(_type)?1:0), surface(0) { uint8_t dummy; TypeInfo::Sample(_type, Math::IVec3(0), 0, 0, material, dummy); }
+
+		/// \brief Mark this component as outdated (it is set to undefined)
+		void Touch()			{ dirty = 1; }
+		bool IsDirty() const	{ return dirty == 1; }
+
+		/// \brief Undefined material and type.
+		static const Voxel UNDEFINED;
+
+		/// \brief Checks if type is equal
+		bool operator == (const Voxel& _mat) const		{ return type == _mat.type; }
+		/// \brief Checks if type is not equal
+		bool operator != (const Voxel& _mat) const		{ return type != _mat.type; }
+	};
+#	pragma pack(pop)
 };

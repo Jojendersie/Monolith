@@ -4,7 +4,7 @@
 #include <jofilelib.hpp>
 #include "predeclarations.hpp"
 #include "sparseoctree.hpp"
-#include "component.hpp"
+#include "voxel.hpp"
 #include "material.hpp"
 #include "math/transformation.hpp"
 #include "gameplay/sceneobject.hpp"
@@ -19,7 +19,7 @@ namespace Voxel {
 	class Model: public Math::Transformation, public ISceneObject
 	{
 	public:
-		typedef SparseVoxelOctree<Component, Model> ModelData;
+		typedef SparseVoxelOctree<Voxel, Model> ModelData;
 
 		/// \brief Constructs an empty model without any chunk
 		Model();
@@ -39,14 +39,14 @@ namespace Voxel {
 
 		/// \brief Set a voxel in the model and update mass properties.
 		/// \see SparseVoxelOctree::Set.
-		void Set( const Math::IVec3& _position, int _level, VoxelType _type )	{ m_voxelTree.Set( _position, _level, Component(_type) ); }
+		void Set( const Math::IVec3& _position, int _level, ComponentType _type )	{ m_voxelTree.Set( _position, _level, Voxel(_type) ); }
 
 		/// \brief Returns the type of a voxel on a certain grid level and
 		///		position.
 		///	\details If the position is outside the return value is UNDEFINED. For
 		///		levels other than 0 the returned value will be some
 		///		approximating LOD (majority) of the children.
-		VoxelType Get( const Math::IVec3& _position, int _level ) const;
+		ComponentType Get( const Math::IVec3& _position, int _level ) const;
 
 		int GetNumVoxels() const { return m_numVoxels; }
 
@@ -75,7 +75,7 @@ namespace Voxel {
 		///		component is the size with logarithmic scale of the voxel.
 		///		0 denotes the highest detail 2^0.
 		///	\param [in] _oldType The type of the voxel which was before.
-		void Update( const Math::IVec4& _position, const Component& _oldType, const Component& _newType );
+		void Update( const Math::IVec4& _position, const Voxel& _oldType, const Voxel& _newType );
 
 		/// Simulate one step. Also updates the bounding box.
 		virtual void Update() override;

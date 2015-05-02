@@ -1,5 +1,5 @@
 #include "material.hpp"
-#include "component.hpp"
+#include "voxel.hpp"
 #include "utilities/assert.hpp"
 #include <cmath>
 #include "..\math\mathbase.hpp"
@@ -7,7 +7,7 @@
 namespace Voxel {
 
 	const Material Material::UNDEFINED = 0x0;
-	const Component Component::UNDEFINED;
+	const Voxel Voxel::UNDEFINED;
 
 	Material::Material( uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _specular, uint8_t _shininess, bool _emissive, uint8_t _variance )
 	{

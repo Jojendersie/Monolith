@@ -116,12 +116,12 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	VoxelType Model::Get( const Math::IVec3& _position, int _level ) const
+	ComponentType Model::Get( const Math::IVec3& _position, int _level ) const
 	{
 		auto node = m_voxelTree.Get(_position, _level);
 		if( node ) return node->Data().type;
 		
-		return VoxelType::UNDEFINED;
+		return ComponentType::UNDEFINED;
 	}
 
 
@@ -149,7 +149,7 @@ namespace Voxel {
 
 
 	// ********************************************************************* //
-	void Model::Update( const Math::IVec4& _position, const Component& _oldType, const Component& _newType )
+	void Model::Update( const Math::IVec4& _position, const Voxel& _oldType, const Voxel& _newType )
 	{
 		// Compute real volume from logarithmic size
 		int size = 1 << _position[3];
@@ -292,8 +292,8 @@ namespace Voxel {
 			}
 		} else {
 			// Now data comes
-			VoxelType type;
-			_file.Read( sizeof(VoxelType), &type );
+			ComponentType type;
+			_file.Read( sizeof(ComponentType), &type );
 			_model->Set( _position, _level, type );
 		}
 	}

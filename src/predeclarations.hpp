@@ -88,8 +88,8 @@ namespace Utils {
 namespace Voxel {
 	class Chunk;
 	class Model;
-	enum struct VoxelType: uint8_t;
+	enum struct ComponentType: uint8_t;
 	struct VoxelVertex;
 	struct Material;
-	struct Component;
+	struct Voxel;
 } // namespace Voxel

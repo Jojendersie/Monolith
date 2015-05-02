@@ -126,7 +126,7 @@ namespace Voxel {
 
 		/// \brief Information from the target volume out of the octree
 		struct PerVoxelInfo {
-			VoxelType type;	///< type of the target voxel -> texture.
+			ComponentType type;	///< type of the target voxel -> texture.
 			bool solid;		///< solidity is required to compute neighbor visibility
 		};
 

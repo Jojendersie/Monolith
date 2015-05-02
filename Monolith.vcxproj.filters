@@ -492,9 +492,6 @@
     <ClInclude Include="src\gamestates\gsplay.hpp">
       <Filter>Source Files\gamestates</Filter>
     </ClInclude>
-    <ClInclude Include="src\voxel\component.hpp">
-      <Filter>Source Files\voxel</Filter>
-    </ClInclude>
     <ClInclude Include="src\utilities\loggerinit.hpp">
       <Filter>Source Files\utilities</Filter>
     </ClInclude>
@@ -684,9 +681,6 @@
     <ClInclude Include="src\gameplay\scenegraph.hpp">
       <Filter>Source Files\gameplay</Filter>
     </ClInclude>
-    <ClInclude Include="src\gameplay\componentcontainer.hpp">
-      <Filter>Source Files\gameplay</Filter>
-    </ClInclude>
     <ClInclude Include="src\math\box.hpp">
       <Filter>Source Files\math</Filter>
     </ClInclude>
@@ -700,6 +694,36 @@
       <Filter>Source Files\gameplay</Filter>
     </ClInclude>
     <ClInclude Include="src\gameplay\galaxy.hpp">
+      <Filter>Source Files\gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\computersystem.hpp">
+      <Filter>Source Files\gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\drivesystem.hpp">
+      <Filter>Source Files\gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\reactorsystem.hpp">
+      <Filter>Source Files\gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\sensorsystem.hpp">
+      <Filter>Source Files\gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\shieldsystem.hpp">
+      <Filter>Source Files\gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\storagesystem.hpp">
+      <Filter>Source Files\gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\weaponsystem.hpp">
+      <Filter>Source Files\gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\batterysystem.hpp">
+      <Filter>Source Files\gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\componentsystem.hpp">
+      <Filter>Source Files\gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\ship.hpp">
       <Filter>Source Files\gameplay</Filter>
     </ClInclude>
   </ItemGroup>

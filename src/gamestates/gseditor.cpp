@@ -25,7 +25,7 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 	m_rayHits( false ),
 	m_deletionMode( false ),
 	m_lvl0Position( 0 ),
-	m_currentType( Voxel::VoxelType::WATER ),
+	m_currentType( Voxel::ComponentType::WATER ),
 	m_recreateThrustVis( false )
 {
 	LOG_LVL2("Starting to create game state Editor");
@@ -40,7 +40,7 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 	//add every (available) voxel to the list which fits the criteria
 	for(int i = 0; i < Voxel::TypeInfo::GetNumVoxels()-1; i++)
 	{
-		Voxel::VoxelType type = (Voxel::VoxelType)(i+1);
+		Voxel::ComponentType type = (Voxel::ComponentType)(i+1);
 		Voxel::Model* vox = new Voxel::Model;
 		vox->Set(Math::IVec3(0,0,0),0,type);
 		voxelContainer->CreateModel(Math::Vec2(-0.76f,0.9f-i*0.2f), Math::Vec2(0.f, 0.f), vox);
@@ -253,7 +253,7 @@ void GSEditor::KeyDown( int _key, int _modifiers )
 	// DEBUG CODE TO TEST EDITING WITHOUT THE HUD
 	if( _key >= GLFW_KEY_0 && _key <= GLFW_KEY_9 )
 	{
-		m_currentType = Voxel::VoxelType(_key - GLFW_KEY_0);
+		m_currentType = Voxel::ComponentType(_key - GLFW_KEY_0);
 	}
 }
 
@@ -271,7 +271,7 @@ void GSEditor::KeyClick( int _key )
 		if( m_deletionMode )
 		{
 			// Delete
-			m_model->Set( m_lvl0Position, 0, Voxel::VoxelType::UNDEFINED );
+			m_model->Set( m_lvl0Position, 0, Voxel::ComponentType::UNDEFINED );
 		} else {
 			// Add a voxel of the chosen type
 			m_model->Set( m_lvl0Position, 0, m_currentType );
@@ -300,7 +300,7 @@ void GSEditor::CreateNewModel( const Voxel::Model* _copyFrom )
 		m_model = new Voxel::Model();
 
 		// Insert the computer
-		m_model->Set(IVec3(2048,2048,2048), 0, Voxel::VoxelType::ROCK_1 );
+		m_model->Set(IVec3(2048,2048,2048), 0, Voxel::ComponentType::ROCK_1 );
 
 		m_recreateThrustVis = true;
 	}
@@ -320,6 +320,6 @@ void GSEditor::ValidatePosition()
 		m_validPosition = false;
 
 	// Do not delete the last computer
-	if( m_model->GetNumVoxels() == 1 && m_model->Get(m_lvl0Position, 0) != Voxel::VoxelType::UNDEFINED )
+	if( m_model->GetNumVoxels() == 1 && m_model->Get(m_lvl0Position, 0) != Voxel::ComponentType::UNDEFINED )
 		m_validPosition = false;
 }

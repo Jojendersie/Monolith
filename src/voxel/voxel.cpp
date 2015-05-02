@@ -170,7 +170,7 @@ namespace Voxel {
 	};
 
 	// ********************************************************************* //
-	int TypeInfo::SamplePos( VoxelType _type, Math::IVec3& _position, int _level, int& _edge, int& _offset )
+	int TypeInfo::SamplePos( ComponentType _type, Math::IVec3& _position, int _level, int& _edge, int& _offset )
 	{
 		// Compute level access values
 		int maxLevel = GetMaxLevel(_type);
@@ -191,7 +191,7 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	bool TypeInfo::Sample( VoxelType _type, Math::IVec3 _position, int _level, uint8_t _rootSurface, Material& _materialOut, uint8_t& _surfaceOut )
+	bool TypeInfo::Sample( ComponentType _type, Math::IVec3 _position, int _level, uint8_t _rootSurface, Material& _materialOut, uint8_t& _surfaceOut )
 	{
 		int e, off;
 		int index = SamplePos(_type, _position, _level, e, off);
@@ -252,7 +252,7 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	int TypeInfo::GetMaxLevel( VoxelType _type )
+	int TypeInfo::GetMaxLevel( ComponentType _type )
 	{
 		if( (int)_type >= g_InfoManager->m_numVoxels ) {
 			LOG_LVL1("The searched voxel type is not defined.");
@@ -262,7 +262,7 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	bool TypeInfo::IsSolid( VoxelType _type )
+	bool TypeInfo::IsSolid( ComponentType _type )
 	{
 		if( (int)_type >= g_InfoManager->m_numVoxels ) {
 			LOG_LVL1("The searched voxel type is not defined.");
@@ -272,7 +272,7 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	float TypeInfo::GetMass( VoxelType _type )
+	float TypeInfo::GetMass( ComponentType _type )
 	{
 		if( (int)_type >= g_InfoManager->m_numVoxels ) {
 			LOG_LVL1("The searched voxel type is not defined.");
@@ -282,7 +282,7 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	float TypeInfo::GetThresholdEnergy( VoxelType _type )
+	float TypeInfo::GetThresholdEnergy( ComponentType _type )
 	{
 		if( (int)_type >= g_InfoManager->m_numVoxels ) {
 			LOG_LVL1("The searched voxel type is not defined.");
@@ -292,7 +292,7 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	float TypeInfo::GetReactionEnergy( VoxelType _type )
+	float TypeInfo::GetReactionEnergy( ComponentType _type )
 	{
 		if( (int)_type >= g_InfoManager->m_numVoxels ) {
 			LOG_LVL1("The searched voxel type is not defined.");
@@ -302,7 +302,7 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	int TypeInfo::GetHydrogen( VoxelType _type )
+	int TypeInfo::GetHydrogen( ComponentType _type )
 	{
 		if( (int)_type >= g_InfoManager->m_numVoxels ) {
 			LOG_LVL1("The searched voxel type is not defined.");
@@ -312,7 +312,7 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	int TypeInfo::GetCarbon( VoxelType _type )
+	int TypeInfo::GetCarbon( ComponentType _type )
 	{
 		if( (int)_type >= g_InfoManager->m_numVoxels ) {
 			LOG_LVL1("The searched voxel type is not defined.");
@@ -322,7 +322,7 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	int TypeInfo::GetMetals( VoxelType _type )
+	int TypeInfo::GetMetals( ComponentType _type )
 	{
 		if( (int)_type >= g_InfoManager->m_numVoxels ) {
 			LOG_LVL1("The searched voxel type is not defined.");
@@ -332,7 +332,7 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	int TypeInfo::GetRareEarthElements( VoxelType _type )
+	int TypeInfo::GetRareEarthElements( ComponentType _type )
 	{
 		if( (int)_type >= g_InfoManager->m_numVoxels ) {
 			LOG_LVL1("The searched voxel type is not defined.");
@@ -342,7 +342,7 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	int TypeInfo::GetSemiconductors( VoxelType _type )
+	int TypeInfo::GetSemiconductors( ComponentType _type )
 	{
 		if( (int)_type >= g_InfoManager->m_numVoxels ) {
 			LOG_LVL1("The searched voxel type is not defined.");
@@ -352,7 +352,7 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	int TypeInfo::GetHeisenbergium( VoxelType _type )
+	int TypeInfo::GetHeisenbergium( ComponentType _type )
 	{
 		if( (int)_type >= g_InfoManager->m_numVoxels ) {
 			LOG_LVL1("The searched voxel type is not defined.");
@@ -362,7 +362,7 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	std::string TypeInfo::GetName( VoxelType _type )
+	std::string TypeInfo::GetName( ComponentType _type )
 	{
 		if( (int)_type >= g_InfoManager->m_numVoxels ) {
 			LOG_LVL1("The searched voxel type is not defined.");
@@ -495,7 +495,7 @@ namespace Voxel {
 						for( pos[0] = 0; pos[0] < res; ++pos[0] ) {
 							Math::IVec3 modPos = pos;
 							int e, off;
-							int index = SamplePos(VoxelType(i), modPos, maxMipMapLevels - l, e, off);
+							int index = SamplePos(ComponentType(i), modPos, maxMipMapLevels - l, e, off);
 							// Generate a single material code and a mask for which neighborhood
 							// this sample is visible.
 							// A bit in borderSample.surface is set if the neighbor creates
