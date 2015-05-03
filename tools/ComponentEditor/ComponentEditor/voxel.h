@@ -1,6 +1,17 @@
 #include <string>
 #include <vector>
 
+struct Attribute
+{
+	Attribute(){};
+	Attribute(const std::string& _name, float _val)
+		: name(_name),
+		value(_val)
+	{};
+	std::string name;
+	float value;
+};
+
 struct Voxel
 {
 	Voxel();
@@ -27,5 +38,7 @@ struct Voxel
 	unsigned int* borderTexture;
 
 	std::string name;
+
+	std::vector< Attribute > m_attributes;
 };
 

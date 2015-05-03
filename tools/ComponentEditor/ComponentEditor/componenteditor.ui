@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>238</width>
-    <height>514</height>
+    <height>523</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -79,7 +79,7 @@
       <x>10</x>
       <y>190</y>
       <width>211</width>
-      <height>271</height>
+      <height>281</height>
      </rect>
     </property>
     <property name="title">
@@ -375,6 +375,19 @@
      </property>
      <property name="clearButtonEnabled">
       <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonAtr">
+     <property name="geometry">
+      <rect>
+       <x>84</x>
+       <y>250</y>
+       <width>111</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>additional attributes</string>
      </property>
     </widget>
    </widget>

@@ -129,7 +129,6 @@ void ComponentEditor::open()
 		m_voxels[i] = new Voxel;
 		auto& voxelNode = infoFile.RootNode[string("PerVoxelInfo")][i];
 		Voxel& voxelInfo = *m_voxels[i];
-				// TODO: string pooling to avoid construction and destruction of std strings
 		voxelInfo.name = voxelNode[string("Name")];
 		voxelInfo.isSolid = voxelNode[string("Solid")].Get(true);
 		voxelInfo.mass = voxelNode[string("Mass")].Get(1.0f);
@@ -145,7 +144,9 @@ void ComponentEditor::open()
 		int s = voxelNode[string("Texture Resolution")].Get(0);
 		voxelInfo.textureResolution = s;
 		Jo::Files::MetaFileWrapper::Node* borderTexNode = nullptr;
-		voxelNode.HasChild( string("Border Texture"), &borderTexNode );
+		
+		bool hasBorderTex = voxelNode.HasChild( string("Border Texture"), &borderTexNode );
+
 		s = s * s * s;
 		// Copy textures while interpreting the lookup table
 		voxelInfo.texture = new unsigned int[s];
@@ -177,6 +178,13 @@ void ComponentEditor::open()
 		}
 		QString qname = QString::fromStdString(m_voxels[i]->name);
 		ui.comboBox_2->addItem(qname);
+
+		//additional attributes
+		//14 or 15 fixed attributes in fron of this sector
+		for(int index = hasBorderTex ? 15 : 14; index < voxelNode.Size(); ++index)
+		{
+			voxelInfo.m_attributes.emplace_back(voxelNode[index].GetName(), voxelNode[index].Get(0.f));
+		}
 	}//end for m_voxelCount
 }
 
@@ -226,7 +234,7 @@ void ComponentEditor::save()
 					break;
 				}
 
-		//bordertexture, only in case of existenz
+		//bordertexture, only in case of existence
 		if(voxelInfo.borderTexture)
 		{
 			auto& borderTexNode = voxelNode.Add(string("Border Texture"), Jo::Files::MetaFileWrapper::ElementType::INT32, s);
@@ -237,6 +245,11 @@ void ComponentEditor::save()
 						borderTexNode[c] = v;
 						break;
 					}
+		}
+		//aditional attributes
+		for(auto& atr : voxelInfo.m_attributes)
+		{
+			voxelNode[atr.name] = atr.value;
 		}
 			 
 	}
@@ -333,6 +346,13 @@ void ComponentEditor::voxelChosen(const QString & _text)
 			m_view->show();
 			return;
 		}
+}
+
+void ComponentEditor::on_pushButtonAtr_clicked()
+{
+	//parent takes ownership
+	if(m_voxel)
+		(new AttributeTable(this, m_voxel->m_attributes))->show();
 }
 
 void ComponentEditor::saveModelChanges()

@@ -64,6 +64,7 @@ public:
     QLabel *label_12;
     QLabel *label_13;
     QLineEdit *editName;
+    QPushButton *pushButtonAtr;
     QGroupBox *groupBox_2;
     QLineEdit *lineEdit_2;
     QPushButton *pushButtonNew;
@@ -83,7 +84,7 @@ public:
     {
         if (ComponentEditorClass->objectName().isEmpty())
             ComponentEditorClass->setObjectName(QStringLiteral("ComponentEditorClass"));
-        ComponentEditorClass->resize(238, 514);
+        ComponentEditorClass->resize(238, 523);
         actionOpen = new QAction(ComponentEditorClass);
         actionOpen->setObjectName(QStringLiteral("actionOpen"));
         actionSave = new QAction(ComponentEditorClass);
@@ -109,7 +110,7 @@ public:
         BtnColorRemove->setGeometry(QRect(170, 50, 31, 23));
         generalInfos = new QGroupBox(centralWidget);
         generalInfos->setObjectName(QStringLiteral("generalInfos"));
-        generalInfos->setGeometry(QRect(10, 190, 211, 271));
+        generalInfos->setGeometry(QRect(10, 190, 211, 281));
         editMass = new QLineEdit(generalInfos);
         editMass->setObjectName(QStringLiteral("editMass"));
         editMass->setGeometry(QRect(60, 50, 131, 20));
@@ -184,6 +185,9 @@ public:
         editName->setObjectName(QStringLiteral("editName"));
         editName->setGeometry(QRect(62, 20, 131, 20));
         editName->setClearButtonEnabled(false);
+        pushButtonAtr = new QPushButton(generalInfos);
+        pushButtonAtr->setObjectName(QStringLiteral("pushButtonAtr"));
+        pushButtonAtr->setGeometry(QRect(84, 250, 111, 20));
         groupBox_2 = new QGroupBox(centralWidget);
         groupBox_2->setObjectName(QStringLiteral("groupBox_2"));
         groupBox_2->setGeometry(QRect(10, 20, 211, 91));
@@ -265,6 +269,7 @@ public:
         checkBoxSolid->setText(QString());
         label_12->setText(QApplication::translate("ComponentEditorClass", "Solid:", 0));
         label_13->setText(QApplication::translate("ComponentEditorClass", "Name:", 0));
+        pushButtonAtr->setText(QApplication::translate("ComponentEditorClass", "additional attributes", 0));
         groupBox_2->setTitle(QApplication::translate("ComponentEditorClass", "Voxels", 0));
         pushButtonNew->setText(QApplication::translate("ComponentEditorClass", "+", 0));
         pushButtonRemove->setText(QApplication::translate("ComponentEditorClass", "remove", 0));

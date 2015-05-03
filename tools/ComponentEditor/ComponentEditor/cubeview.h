@@ -4,7 +4,7 @@
 #include <Qt3D/qglview>
 #include <Qt3D/qgltexture2d>
 #include "cube.h"
-#include "voxel.h"
+#include "attributetable.h" //actually only "voxel.h" is required
 #include <vector>
 
 #include "SceneManager.h"

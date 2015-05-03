@@ -37,6 +37,7 @@ private slots:
 	//triggered when a voxel is chosen in the combo box
 	void voxelChosen( const QString & _text );
 
+	void on_pushButtonAtr_clicked();
 private:
 	//modes: 0 - border; 1 - normal
 	//!caution! does no savety tests

@@ -1,7 +1,7 @@
 The component editor allows to create and alter voxels/components. 
 To prevent buggs and unintended or unexpected behavior its important to follow the usage instructions below.
 
-A session should start with loading the voxel.json because merging afterwards is only possible manualy.
+A session should start with loading the voxel.json because merging afterwards is only possible manual.
 The voxel UNDEFINED should be ignored aswell as the color 0.
 The colors are processed as YCbCr and hex values and should be created with the colorbuilder.
 Any visual represenations show only the RGB parts, yet the full information is preserved. 
@@ -12,3 +12,6 @@ Then one cube of this color is spawned in a edge.
 Cubes can be added with rightclick and removed with leftclick. 
 When the mouse gets released focusing another cube the operation is applied on the volume
 defined by the first and last selected cube.
+
+When adding additional attributes make shure to apply changes to a cell pressing enter or entering
+another cell before closing the window.
