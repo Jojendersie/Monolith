@@ -46,7 +46,7 @@ void main()
 	
 	// Number of pixel must be equal in all directions (can theoretically be changed
 	// if required). Used for ray marching the texture.
-	int texSize = 8 / (1 << gs_voxel_material_mipmap.z);
+	int texSize = 16 / (1 << gs_voxel_material_mipmap.z);
 	
 	// Initialize ray marching algorithm
 	ivec3 dirSign; 
