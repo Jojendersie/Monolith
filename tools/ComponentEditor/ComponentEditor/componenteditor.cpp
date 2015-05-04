@@ -8,7 +8,8 @@ ComponentEditor::ComponentEditor(QWidget *parent)
 	: QMainWindow(parent), 
 	m_view(nullptr),
 	m_voxel(nullptr),
-	m_voxelCount(0)
+	m_voxelCount(0),
+	m_currentIndex(-1)
 {
 	ui.setupUi(this);
 	ui_pushButton = findChild<QPushButton*>("pushButton");
@@ -24,7 +25,8 @@ ComponentEditor::ComponentEditor(QWidget *parent)
 
 ComponentEditor::~ComponentEditor()
 {
-
+	for(int i = 0; i < m_voxelCount; ++i)
+		delete m_voxels[i];
 }
 
 void ComponentEditor::closeEvent(QCloseEvent *event)
@@ -69,7 +71,7 @@ void ComponentEditor::on_BtnColorRemove_clicked()
 	ui_comboBox->removeItem(ui_comboBox->currentIndex());
 }
 
-//add voxel
+//swap bordertex
 void ComponentEditor::on_pushButtonSwap_clicked()
 {
 	saveModelChanges();
@@ -88,6 +90,10 @@ void ComponentEditor::on_pushButtonSwap_clicked()
 
 void ComponentEditor::on_pushButtonNew_clicked()
 {
+	if(ui.lineEdit_2->text() == "") return;
+
+	if(ui.editTexres->text() == "") ui.editTexres->setText("16");
+
 	m_voxels[m_voxelCount] = new Voxel(*m_voxels[0]);
 	int res  = ui.editTexres->text().toInt();
 	m_voxels[m_voxelCount]->textureResolution = res;
@@ -101,6 +107,45 @@ void ComponentEditor::on_pushButtonNew_clicked()
 	//clean edits to show that the input has been accepted
 	ui.editTexres->setText("");
 	ui.lineEdit_2->setText("");
+}
+
+void ComponentEditor::on_pushButtonCopy_clicked()
+{
+	if(!m_voxel) return;
+	if(ui.lineEdit_2->text() == "") return;
+
+	m_voxels[m_voxelCount] = new Voxel(*m_voxel);
+
+	//the copy needs its one texture
+	int res = m_voxel->textureResolution;
+	res = res*res*res;
+	QString qname = ui.lineEdit_2->text();
+	m_voxels[m_voxelCount]->name = qname.toStdString();
+	m_voxels[m_voxelCount]->texture = new unsigned int[res];
+	memcpy(m_voxels[m_voxelCount]->texture, m_voxel->texture, res * sizeof(unsigned int));
+	if(m_voxel->borderTexture)
+	{
+		m_voxels[m_voxelCount]->borderTexture = new unsigned int[res];
+		memcpy(m_voxels[m_voxelCount]->borderTexture, m_voxel->borderTexture, res * sizeof(unsigned int));
+	}
+	ui.comboBox_2->addItem(qname);
+
+	m_voxelCount++;
+
+	ui.lineEdit_2->setText("");
+}
+
+void ComponentEditor::on_pushButtonRemove_clicked()
+{
+	//delete and fill place with the last voxel
+	delete m_voxels[m_currentIndex];
+	m_voxelCount--;
+	if(m_currentIndex != m_voxelCount)
+		m_voxels[m_currentIndex] = m_voxels[m_voxelCount];
+	//reset m_voxel to prevent the saving
+	m_voxel = nullptr;
+	//remove from selection
+	ui.comboBox_2->removeItem(ui.comboBox_2->currentIndex());
 }
 
 //just copy and past from https://github.com/Jojendersie/Monolith/blob/master/src/voxel/voxel.cpp
@@ -285,10 +330,13 @@ void ComponentEditor::voxelChosen(const QString & _text)
 		m_view = nullptr;
 	}
 	ui.comboBox->clear();
+
+	string str = _text.toStdString();
 	//perform linear search til name matches
 	for(int i = 0; i < m_voxelCount; i++)
-		if(m_voxels[i]->name == _text.toStdString())
+		if(m_voxels[i]->name == str)
 		{
+			m_currentIndex = i;
 			m_voxel = m_voxels[i];
 			//update edits with the voxelinformation
 			ui.editName->setText(_text);

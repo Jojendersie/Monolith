@@ -422,6 +422,9 @@
        <height>21</height>
       </rect>
      </property>
+     <property name="toolTip">
+      <string>add new voxel</string>
+     </property>
      <property name="text">
       <string>+</string>
      </property>
@@ -439,14 +442,17 @@
     <widget class="QPushButton" name="pushButtonRemove">
      <property name="geometry">
       <rect>
-       <x>120</x>
+       <x>170</x>
        <y>60</y>
-       <width>81</width>
+       <width>31</width>
        <height>23</height>
       </rect>
      </property>
+     <property name="toolTip">
+      <string>delete voxel</string>
+     </property>
      <property name="text">
-      <string>remove</string>
+      <string>x</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_14">
@@ -472,7 +478,7 @@
       </rect>
      </property>
      <property name="text">
-      <string/>
+      <string>16</string>
      </property>
      <property name="clearButtonEnabled">
       <bool>false</bool>
@@ -489,6 +495,22 @@
      </property>
      <property name="text">
       <string>Name:</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonCopy">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>60</y>
+       <width>31</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>copy the selected voxel</string>
+     </property>
+     <property name="text">
+      <string>c</string>
      </property>
     </widget>
    </widget>

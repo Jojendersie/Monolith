@@ -73,6 +73,7 @@ public:
     QLabel *label_14;
     QLineEdit *editTexres;
     QLabel *label_2;
+    QPushButton *pushButtonCopy;
     QPushButton *pushButtonSwap;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -202,7 +203,7 @@ public:
         comboBox_2->setGeometry(QRect(20, 60, 81, 22));
         pushButtonRemove = new QPushButton(groupBox_2);
         pushButtonRemove->setObjectName(QStringLiteral("pushButtonRemove"));
-        pushButtonRemove->setGeometry(QRect(120, 60, 81, 23));
+        pushButtonRemove->setGeometry(QRect(170, 60, 31, 23));
         label_14 = new QLabel(groupBox_2);
         label_14->setObjectName(QStringLiteral("label_14"));
         label_14->setGeometry(QRect(120, 10, 41, 16));
@@ -213,6 +214,9 @@ public:
         label_2 = new QLabel(groupBox_2);
         label_2->setObjectName(QStringLiteral("label_2"));
         label_2->setGeometry(QRect(20, 10, 46, 13));
+        pushButtonCopy = new QPushButton(groupBox_2);
+        pushButtonCopy->setObjectName(QStringLiteral("pushButtonCopy"));
+        pushButtonCopy->setGeometry(QRect(120, 60, 31, 23));
         pushButtonSwap = new QPushButton(centralWidget);
         pushButtonSwap->setObjectName(QStringLiteral("pushButtonSwap"));
         pushButtonSwap->setGeometry(QRect(20, 0, 191, 23));
@@ -271,11 +275,21 @@ public:
         label_13->setText(QApplication::translate("ComponentEditorClass", "Name:", 0));
         pushButtonAtr->setText(QApplication::translate("ComponentEditorClass", "additional attributes", 0));
         groupBox_2->setTitle(QApplication::translate("ComponentEditorClass", "Voxels", 0));
+#ifndef QT_NO_TOOLTIP
+        pushButtonNew->setToolTip(QApplication::translate("ComponentEditorClass", "add new voxel", 0));
+#endif // QT_NO_TOOLTIP
         pushButtonNew->setText(QApplication::translate("ComponentEditorClass", "+", 0));
-        pushButtonRemove->setText(QApplication::translate("ComponentEditorClass", "remove", 0));
+#ifndef QT_NO_TOOLTIP
+        pushButtonRemove->setToolTip(QApplication::translate("ComponentEditorClass", "delete voxel", 0));
+#endif // QT_NO_TOOLTIP
+        pushButtonRemove->setText(QApplication::translate("ComponentEditorClass", "x", 0));
         label_14->setText(QApplication::translate("ComponentEditorClass", "Texres:", 0));
-        editTexres->setText(QString());
+        editTexres->setText(QApplication::translate("ComponentEditorClass", "16", 0));
         label_2->setText(QApplication::translate("ComponentEditorClass", "Name:", 0));
+#ifndef QT_NO_TOOLTIP
+        pushButtonCopy->setToolTip(QApplication::translate("ComponentEditorClass", "copy the selected voxel", 0));
+#endif // QT_NO_TOOLTIP
+        pushButtonCopy->setText(QApplication::translate("ComponentEditorClass", "c", 0));
         pushButtonSwap->setText(QApplication::translate("ComponentEditorClass", "bordertexture", 0));
         menuFile->setTitle(QApplication::translate("ComponentEditorClass", "file", 0));
         menuInfo->setTitle(QApplication::translate("ComponentEditorClass", "Info", 0));

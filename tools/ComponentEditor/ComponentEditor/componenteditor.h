@@ -30,6 +30,10 @@ private slots:
 	void on_pushButtonSwap_clicked();
 	//new voxel
 	void on_pushButtonNew_clicked();
+	//new voxel as copy
+	void on_pushButtonCopy_clicked();
+	//
+	void on_pushButtonRemove_clicked();
 	//creates a filedialog, loads the chosen file and sets up the editor
 	void open();
 	//creates an filedialog and saves all voxel into the chosen file, erasing its previous content
@@ -52,6 +56,8 @@ private:
 
 	Voxel* m_voxels[255];
 	Voxel* m_voxel; //currently active voxel
+	int m_currentIndex; //index of active voxel
+
 	int m_voxelCount;
 	CubeView* m_view;//the active view
 
