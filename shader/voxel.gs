@@ -56,7 +56,7 @@ void main(void)
 	gs_objectPosition = vec3(x, y, z);
 	gs_voxel_material_mipmap.y = int(vs_out_MaterialCode[0]);
 	gs_voxel_material_mipmap.x = int(vs_out_VoxelCode[0]);
-	gs_voxel_material_mipmap.z = clamp(int(log2(vPos.z * c_vInverseProjection.y / 30)), 0, 3);
+	gs_voxel_material_mipmap.z = clamp(int(log2(vPos.z * c_vInverseProjection.y / 16)), 0, 4);
 	
 	// To determine the culling the projective position is inverse transformed
 	// back to view space (which is a single mad operation). This direction to

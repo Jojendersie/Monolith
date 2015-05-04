@@ -18,7 +18,7 @@ namespace Voxel {
 		STONE,
 		SOLAR_CELL,
 		ION_THRUSTER,
-		CANNON
+		LASER
 	};
 
 	/// \brief A class which provides runtime-constant data about voxel types.

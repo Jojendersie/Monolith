@@ -150,16 +150,17 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	// A set of functions to sample rotated/mirrored in the border field
-	typedef int (*BorderIndexFunc)(const Math::IVec3& _position, int _e);
+	/*typedef int (*BorderIndexFunc)(const Math::IVec3& _position, int _e);
 	static BorderIndexFunc GetBorderIndex[6] = {
-		[](const Math::IVec3& _position, int _e) { return _position[1] + _e * (_position[2] + _e * _position[0]); },
+		[](const Math::IVec3& _position, int _e) { return _position[1] + _e * (_position[2] + _e *       _position[0]); },
 		[](const Math::IVec3& _position, int _e) { return _position[1] + _e * (_position[2] + _e * (_e - _position[0] - 1)); },
-		[](const Math::IVec3& _position, int _e) { return _position[0] + _e * (_position[2] + _e * _position[1]); },
+		[](const Math::IVec3& _position, int _e) { return _position[0] + _e * (_position[2] + _e *       _position[1]); },
 		[](const Math::IVec3& _position, int _e) { return _position[0] + _e * (_position[2] + _e * (_e - _position[1] - 1)); },
-		[](const Math::IVec3& _position, int _e) { return _position[0] + _e * (_position[1] + _e * _position[2]); },
+		[](const Math::IVec3& _position, int _e) { return _position[0] + _e * (_position[1] + _e *       _position[2]); },
 		[](const Math::IVec3& _position, int _e) { return _position[0] + _e * (_position[1] + _e * (_e - _position[2] - 1)); }
-	};
+	};*/
 	// A function to swap the surface bits in the same order as the access is done
+	// THIS IS CURRENTLY WRONG!
 	typedef uint8_t (*BorderSurfaceFunc)(uint8_t _surface);
 	static BorderSurfaceFunc GetBorderSurface[6] = {
 		[](uint8_t _s) -> uint8_t { return 0x3f & ((_s << 2) | (_s >> 4)); },
@@ -168,6 +169,16 @@ namespace Voxel {
 		[](uint8_t _s) -> uint8_t { return 0x3f & ((_s & 3) | ((_s << 2) & 0x30) | ((_s >> 1 ) & 0x08) | ((_s >> 3 ) & 0x04) ); },
 		[](uint8_t _s) -> uint8_t { return _s; },
 		[](uint8_t _s) -> uint8_t { return 0x3f & ((_s & 0xf) | ((_s >> 1) & 0x10) | ((_s << 1) & 0x20)); },
+	};
+
+	typedef int (*BorderIndexFunc)(const Math::IVec3& _position, int _e);
+	static BorderIndexFunc GetBorderIndex[6] = {
+		[](const Math::IVec3& _position, int _e) { return _position[1] + _e * (_position[0]          + _e * _position[2]); }, // Left
+		[](const Math::IVec3& _position, int _e) { return _position[1] + _e * (_e - _position[0] - 1 + _e * _position[2]); }, // Right
+		[](const Math::IVec3& _position, int _e) { return _position[0] + _e * (_position[1]          + _e * _position[2]); }, // Bottom
+		[](const Math::IVec3& _position, int _e) { return _position[0] + _e * (_e - _position[1] - 1 + _e * _position[2]); }, // Top
+		[](const Math::IVec3& _position, int _e) { return _position[0] + _e * (_position[2]          + _e * _position[1]); }, // Front
+		[](const Math::IVec3& _position, int _e) { return _position[0] + _e * (_e - _position[2] - 1 + _e * _position[1]); }  // Back
 	};
 
 	// ********************************************************************* //
