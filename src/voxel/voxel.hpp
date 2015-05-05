@@ -98,6 +98,9 @@ namespace Voxel {
 		/// \brief Get the energy produced by this voxel in [J/s]
 		static float GetEnergyOut( ComponentType _type );
 
+		/// \brief Get the storage volume of this voxel
+		static float GetStorageVolume(ComponentType _type);
+
 		/// \brief Returns the name of the voxel
 		static std::string GetName( ComponentType _type );
 
@@ -139,6 +142,7 @@ namespace Voxel {
 			MatSample* borderTexture;	///< A texture which is added on each side of this voxel (rotated) which has a neighbor. The coordinate system is on x axis.
 
 			float energyOut;			///< Energy produced by this voxel in [J/s]
+			float storageVolume;		///< Amount of storage a single voxel can hold
 
 			std::string name;			///< The name of this voxel type
 

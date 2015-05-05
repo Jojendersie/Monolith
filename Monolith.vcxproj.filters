@@ -254,6 +254,9 @@
     <ClCompile Include="src\gameplay\ship.cpp">
       <Filter>Source Files\gameplay</Filter>
     </ClCompile>
+    <ClCompile Include="src\gameplay\storagesystem.cpp">
+      <Filter>Source Files\gameplay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
