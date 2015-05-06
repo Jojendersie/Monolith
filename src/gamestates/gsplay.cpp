@@ -103,7 +103,6 @@ void GSPlay::OnEnd()
 // ************************************************************************* //
 void GSPlay::Simulate( double _deltaTime )
 {
-	g_model->Translate(g_model->GetRotation().ZAxis() * -velocity * (float)_deltaTime);
 	m_scene.Simulate((float)_deltaTime);
 	m_scene.UpdateGraph();
 	/*static Generators::Random Rnd(1435461);
@@ -165,9 +164,9 @@ void GSPlay::Scroll( double _dx, double _dy )
 void GSPlay::KeyDown( int _key, int _modifiers )
 {
 	if (_key == GLFW_KEY_V)
-		velocity++;
+		g_model->Push(g_model->GetRotation().ZAxis() * -1.0f);
 	else if (_key == GLFW_KEY_I)
-		velocity--;
+		g_model->Push(g_model->GetRotation().ZAxis() * +1.0f);
 	else if (_key == GLFW_KEY_SPACE)
 		m_hud->ShowCursor(!m_hud->CursorVisible());
 	if( _key == GLFW_KEY_ESCAPE )

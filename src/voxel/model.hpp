@@ -79,6 +79,10 @@ namespace Voxel {
 		/// Recompute the bounding box in world space (O(1)).
 		virtual void UpdateBoundingBox() override;
 
+		/// \brief Perform a physical push on the model.
+		/// \details The length of the vector is [(m/s)*N]
+		void Push(const Math::Vec3& _velocity) { m_velocity += _velocity / m_mass ; };
+
 		/// Simulate physics.
 		virtual void Simulate(float _deltaTime) override;
 
