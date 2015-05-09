@@ -36,11 +36,11 @@ public:
 
 	/// \brief Player or AI can set the velocity. The drives automatically try
 	///		to reach it.
-	void SetTargetVelocity( float _targetVelocity )	{ m_targetVelocity = _targetVelocity; }
+	void SetTargetVelocity( const Math::Vec3& _targetVelocity )	{ m_targetVelocity = _targetVelocity; }
 
 	/// \brief Player or AI can set the rotation. The drives automatically try
 	///		to reach it.
-	void SetTargetRotation( const Math::Quaternion& _rotation )	{ m_targetRotation = _rotation; }
+	void SetTargetAngularVelocity( const Math::Vec3& _rotation )	{ m_targetAngularVelocity = _rotation; }
 
 	/// \brief Get current ship rotation.
 	const Math::Quaternion& GetRotation() const { return Model::GetRotation(); }
@@ -60,6 +60,6 @@ protected:
 	const int COMPUTER_TICKS = 2;*/
 
 	// Controllable state
-	Math::Quaternion m_targetRotation;
-	float m_targetVelocity;
+	Math::Vec3 m_targetAngularVelocity;
+	Math::Vec3 m_targetVelocity;
 };

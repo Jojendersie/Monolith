@@ -2,6 +2,9 @@
 
 #include "gamestatebase.hpp"
 #include "gameplay/scenegraph.hpp"
+#include "gameplay/managment/playercontroller.hpp"
+
+#include <memory>
 
 /// \brief State for the main phase: in game.
 class GSPlay: public IGameState
@@ -26,6 +29,7 @@ private:
 	Galaxy* m_galaxy;
 	Input::Camera* m_camera;
 	SceneGraph m_scene;
+	std::unique_ptr<PlayerController> m_player;
 
 	SOHandle m_selectedObject;
 	Voxel::Model* m_selectedObjectModPtr;

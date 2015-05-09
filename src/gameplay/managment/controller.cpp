@@ -1,13 +1,13 @@
 #include "controller.hpp"
 
-Controller::Controller(Ship* _ship)
+Controller::Controller(SOHandle _ship)
 {
-	if (_ship != nullptr) Possess(*_ship);
+	if (_ship) Possess(_ship);
 }
 
-void Controller::Possess(Ship& _ship)
+void Controller::Possess(SOHandle _ship)
 {
-	m_ship = &_ship;
-
+	m_ship = static_cast<Ship*>(&_ship);
+	m_shipHandle = _ship;
 	//bind events
 }

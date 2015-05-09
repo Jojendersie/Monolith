@@ -26,8 +26,6 @@ namespace RenderStat {
 	int g_numChunks;
 }
 
-Ship* g_model;
-float velocity;
 // ************************************************************************* //
 GSPlay::GSPlay(Monolith* _game) : IGameState(_game)
 {
@@ -45,13 +43,7 @@ GSPlay::GSPlay(Monolith* _game) : IGameState(_game)
 
 	m_galaxy = new Galaxy(1000, 20000.f, 10000);
 
-	g_model = new Ship();
-	g_model->Load(Jo::Files::HDDFile("savegames/playership.vmo"));
-	//position to 0
-	g_model->SetPosition(FixVec3(Fix(0.f)));
-	m_scene.AddObject(g_model);
-	m_camera->ZoomAt(*g_model, Input::Camera::FOLLOW_AND_ROTATE);
-	velocity = 0.f;
+	m_player = std::make_unique<PlayerController>(nullptr);
 
 	LOG_LVL2("Created game state Play");
 }
@@ -73,6 +65,14 @@ void GSPlay::OnBegin()
 {
 	if( m_scene.NumActiveObjects() == 0 )
 	{
+		Ship* playerModel = new Ship();
+		playerModel->Load(Jo::Files::HDDFile("savegames/playership.vmo"));
+		//position to 0
+		playerModel->SetPosition(FixVec3(Fix(0.f)));
+		SOHandle shipHandle = m_scene.AddObject(playerModel);
+		m_camera->ZoomAt(*playerModel, Input::Camera::FOLLOW_AND_ROTATE);
+		m_player->Possess(shipHandle);
+
 		for( int i = 0; i < 25; ++i )
 		{
 			Generators::Random rnd(i*4+1);
@@ -83,11 +83,11 @@ void GSPlay::OnBegin()
 			m_scene.AddObject(model);
 		//	if(i==0) m_camera->ZoomAt( *model, Input::Camera::FOLLOW_AND_ROTATE );
 		}
-		Generators::Random rnd(484);
+		/*Generators::Random rnd(484);
 		auto model = new Generators::Asteroid( 200, 200, 200, 846 );
 		model->SetPosition( FixVec3(Vec3(0.0f)) );
 		model->Rotate(rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI));
-		m_scene.AddObject(model);
+		m_scene.AddObject(model);*/
 		//m_camera->ZoomAt( *model );
 	}
 
@@ -105,6 +105,7 @@ void GSPlay::Simulate( double _deltaTime )
 {
 	m_scene.Simulate((float)_deltaTime);
 	m_scene.UpdateGraph();
+	m_player->Process( _deltaTime );
 	/*static Generators::Random Rnd(1435461);
 	for( int i = 0; i < 100; ++i )
 		m_astTest->Set( IVec3(Rnd.Uniform(0,79), Rnd.Uniform(0,49), Rnd.Uniform(0,29)), 0, Voxel::VoxelType::UNDEFINED );//*/

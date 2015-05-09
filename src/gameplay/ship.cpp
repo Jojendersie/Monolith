@@ -54,8 +54,8 @@ void Ship::Save( Jo::Files::IFile& _file ) const
 {
 	Model::Save(_file);
 	// Store ship state
-	_file.Write(&m_targetVelocity, sizeof(float));
-	_file.Write(&m_targetRotation, sizeof(Math::Quaternion));
+	_file.Write(&m_targetVelocity, sizeof(Math::Vec3));
+	_file.Write(&m_targetAngularVelocity, sizeof(Math::Vec3));
 	// TODO: store precomputed system data
 }
 
@@ -65,13 +65,17 @@ void Ship::Load( const Jo::Files::IFile& _file )
 	Model::Load(_file);
 	// Load ship state
 	_file.Read(sizeof(float), &m_targetVelocity);
-	_file.Read(sizeof(Math::Quaternion), &m_targetRotation);
+	_file.Read(sizeof(Math::Vec3), &m_targetAngularVelocity);
 	// TODO: load precomputed system data
 }
 
 // ********************************************************************* //
 void Ship::Simulate(float _deltaTime)
 {
+	// TODO: Accelerate dependent on input.
+	Model::m_angularVelocity = m_targetAngularVelocity;
+	Model::m_velocity = (~m_rotation).ZAxis() * m_targetVelocity;
+
 	// Also simulate the physics
 	Model::Simulate(_deltaTime);
 

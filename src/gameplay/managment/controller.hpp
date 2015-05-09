@@ -3,16 +3,17 @@
 class Controller
 {
 public:
-	Controller(Ship* _ship = nullptr);
+	Controller(SOHandle _ship = nullptr);
 
 	///\brief Takes control of the target ship
 	///\details Any former ownership of this controller is discarded
-	void Possess(Ship& _ship);
+	void Possess(SOHandle _ship);
 
-	//virtual void Process(float _deltaTime);
+	virtual void Process(float _deltaTime) = 0;
 protected:
 	Ship* m_ship;
-private:
 	
+private:
+	SOHandle m_shipHandle;
 	//events
 };
