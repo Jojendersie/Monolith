@@ -94,7 +94,10 @@
     <ClCompile Include="src\gameplay\componentsystem.cpp" />
     <ClCompile Include="src\gameplay\computersystem.cpp" />
     <ClCompile Include="src\gameplay\drive.cpp" />
+    <ClCompile Include="src\gameplay\drivesystem.cpp" />
     <ClCompile Include="src\gameplay\galaxy.cpp" />
+    <ClCompile Include="src\gameplay\managment\controller.cpp" />
+    <ClCompile Include="src\gameplay\managment\playercontroller.cpp" />
     <ClCompile Include="src\gameplay\reactorsystem.cpp" />
     <ClCompile Include="src\gameplay\scenegraph.cpp" />
     <ClCompile Include="src\gameplay\ship.cpp" />
@@ -187,6 +190,8 @@
     <ClInclude Include="src\gameplay\drive.hpp" />
     <ClInclude Include="src\gameplay\drivesystem.hpp" />
     <ClInclude Include="src\gameplay\galaxy.hpp" />
+    <ClInclude Include="src\gameplay\managment\controller.hpp" />
+    <ClInclude Include="src\gameplay\managment\playercontroller.hpp" />
     <ClInclude Include="src\gameplay\reactorsystem.hpp" />
     <ClInclude Include="src\gameplay\scenegraph.hpp" />
     <ClInclude Include="src\gameplay\sceneobject.hpp" />

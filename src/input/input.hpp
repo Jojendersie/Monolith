@@ -73,7 +73,9 @@ namespace Input {
 		ZOOM,
 		EDITOR_DELETIONMODE,
 		QUICK_SAVE,
-		QUICK_LOAD
+		QUICK_LOAD,
+		ACCELERATE_FORWARD,
+		ACCELERATE_BACKWARD
 	};
 
 	/// \brief Takes the glfw input and converts it to a printable character

@@ -58,8 +58,9 @@ namespace Mechanics {
 		virtual void OnNeighborChange(const Math::IVec3& _position) {}
 
 		const std::string& GetName() const { return m_name; }
-	private:
+	protected:
 		class Ship& m_ship;
+	private:
 		std::string m_name;			///< A name which is used in the script to identify this system
 	};
 }

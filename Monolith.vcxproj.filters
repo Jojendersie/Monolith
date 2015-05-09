@@ -66,6 +66,9 @@
     <Filter Include="Source Files\dependencies\JoFileLib">
       <UniqueIdentifier>{aad1fd60-67da-4a84-85fc-0450a7ce9308}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\gameplay\managment">
+      <UniqueIdentifier>{6768f0aa-d6f0-4575-acb5-cadfee45b978}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
@@ -255,6 +258,15 @@
       <Filter>Source Files\gameplay</Filter>
     </ClCompile>
     <ClCompile Include="src\gameplay\storagesystem.cpp">
+      <Filter>Source Files\gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\managment\controller.cpp">
+      <Filter>Source Files\gameplay\managment</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\managment\playercontroller.cpp">
+      <Filter>Source Files\gameplay\managment</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\drivesystem.cpp">
       <Filter>Source Files\gameplay</Filter>
     </ClCompile>
   </ItemGroup>
@@ -740,6 +752,12 @@
     </ClInclude>
     <ClInclude Include="src\gameplay\ship.hpp">
       <Filter>Source Files\gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\managment\controller.hpp">
+      <Filter>Source Files\gameplay\managment</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\managment\playercontroller.hpp">
+      <Filter>Source Files\gameplay\managment</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

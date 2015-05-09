@@ -163,11 +163,7 @@ void GSPlay::Scroll( double _dx, double _dy )
 // ************************************************************************* //
 void GSPlay::KeyDown( int _key, int _modifiers )
 {
-	if (_key == GLFW_KEY_V)
-		g_model->Push(g_model->GetRotation().ZAxis() * -1.0f);
-	else if (_key == GLFW_KEY_I)
-		g_model->Push(g_model->GetRotation().ZAxis() * +1.0f);
-	else if (_key == GLFW_KEY_SPACE)
+	if (_key == GLFW_KEY_SPACE)
 		m_hud->ShowCursor(!m_hud->CursorVisible());
 	if( _key == GLFW_KEY_ESCAPE )
 		m_finished = true;

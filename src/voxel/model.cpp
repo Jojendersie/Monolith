@@ -183,10 +183,6 @@ namespace Voxel {
 	// ********************************************************************* //
 	void Model::Simulate(float _deltaTime)
 	{
-		Translate(m_velocity * _deltaTime);
-		Quaternion rot = m_rotatoryVelocity;
-		rot.r = _deltaTime;
-		Rotate(rot);
 	}
 
 	// ********************************************************************* //
