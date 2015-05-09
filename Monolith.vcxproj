@@ -39,12 +39,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>dependencies\glfw-3.0.4\bin;dependencies\glew-1.10.0\lib\Release\x64;dependencies\JoFileLib\lib\Debug;$(LibraryPath)</LibraryPath>
-    <IncludePath>dependencies\JoFileLib\include;dependencies\glfw-3.0.4\include;$(SolutionDir)\src;$(IncludePath)</IncludePath>
+    <LibraryPath>dependencies\glfw-3.1.1\lib;dependencies\glew-1.10.0\lib\Release\x64;dependencies\JoFileLib\lib\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>dependencies\JoFileLib\include;dependencies\glfw-3.1.1\include;$(SolutionDir)\src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LibraryPath>dependencies\glfw-3.0.4\bin;dependencies\glew-1.10.0\lib\Release\x64;dependencies\JoFileLib\lib\Release;$(LibraryPath)</LibraryPath>
-    <IncludePath>dependencies\JoFileLib\include;dependencies\glfw-3.0.4\include;$(SolutionDir)\src;$(IncludePath)</IncludePath>
+    <LibraryPath>dependencies\glfw-3.1.1\lib;dependencies\glew-1.10.0\lib\Release\x64;dependencies\JoFileLib\lib\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>dependencies\JoFileLib\include;dependencies\glfw-3.1.1\include;$(SolutionDir)\src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -91,18 +91,17 @@
     <ClCompile Include="src\exceptions.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\gameloop.cpp" />
-    <ClCompile Include="src\gameplay\componentsystem.cpp" />
-    <ClCompile Include="src\gameplay\computersystem.cpp" />
-    <ClCompile Include="src\gameplay\drive.cpp" />
-    <ClCompile Include="src\gameplay\drivesystem.cpp" />
+    <ClCompile Include="src\gameplay\componentsystems\componentsystem.cpp" />
+    <ClCompile Include="src\gameplay\componentsystems\computersystem.cpp" />
+    <ClCompile Include="src\gameplay\componentsystems\drivesystem.cpp" />
+    <ClCompile Include="src\gameplay\componentsystems\reactorsystem.cpp" />
+    <ClCompile Include="src\gameplay\componentsystems\storagesystem.cpp" />
     <ClCompile Include="src\gameplay\galaxy.cpp" />
     <ClCompile Include="src\gameplay\managment\controller.cpp" />
     <ClCompile Include="src\gameplay\managment\playercontroller.cpp" />
-    <ClCompile Include="src\gameplay\reactorsystem.cpp" />
     <ClCompile Include="src\gameplay\scenegraph.cpp" />
     <ClCompile Include="src\gameplay\ship.cpp" />
     <ClCompile Include="src\gameplay\starsystem.cpp" />
-    <ClCompile Include="src\gameplay\storagesystem.cpp" />
     <ClCompile Include="src\gamestates\gseditor.cpp">
       <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</PreprocessToFile>
     </ClCompile>
@@ -184,23 +183,22 @@
     <ClInclude Include="src\exceptions.hpp" />
     <ClInclude Include="src\game.hpp" />
     <ClInclude Include="src\gameloop.hpp" />
-    <ClInclude Include="src\gameplay\batterysystem.hpp" />
-    <ClInclude Include="src\gameplay\componentsystem.hpp" />
-    <ClInclude Include="src\gameplay\computersystem.hpp" />
-    <ClInclude Include="src\gameplay\drive.hpp" />
-    <ClInclude Include="src\gameplay\drivesystem.hpp" />
+    <ClInclude Include="src\gameplay\componentsystems\batterysystem.hpp" />
+    <ClInclude Include="src\gameplay\componentsystems\componentsystem.hpp" />
+    <ClInclude Include="src\gameplay\componentsystems\computersystem.hpp" />
+    <ClInclude Include="src\gameplay\componentsystems\drivesystem.hpp" />
+    <ClInclude Include="src\gameplay\componentsystems\reactorsystem.hpp" />
+    <ClInclude Include="src\gameplay\componentsystems\sensorsystem.hpp" />
+    <ClInclude Include="src\gameplay\componentsystems\shieldsystem.hpp" />
+    <ClInclude Include="src\gameplay\componentsystems\storagesystem.hpp" />
+    <ClInclude Include="src\gameplay\componentsystems\weaponsystem.hpp" />
     <ClInclude Include="src\gameplay\galaxy.hpp" />
     <ClInclude Include="src\gameplay\managment\controller.hpp" />
     <ClInclude Include="src\gameplay\managment\playercontroller.hpp" />
-    <ClInclude Include="src\gameplay\reactorsystem.hpp" />
     <ClInclude Include="src\gameplay\scenegraph.hpp" />
     <ClInclude Include="src\gameplay\sceneobject.hpp" />
-    <ClInclude Include="src\gameplay\sensorsystem.hpp" />
-    <ClInclude Include="src\gameplay\shieldsystem.hpp" />
     <ClInclude Include="src\gameplay\ship.hpp" />
     <ClInclude Include="src\gameplay\starsystem.hpp" />
-    <ClInclude Include="src\gameplay\storagesystem.hpp" />
-    <ClInclude Include="src\gameplay\weaponsystem.hpp" />
     <ClInclude Include="src\gamestates\gamestatebase.hpp" />
     <ClInclude Include="src\gamestates\gseditor.hpp" />
     <ClInclude Include="src\gamestates\gseditorchoice.hpp" />

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "voxel/model.hpp"
-#include "computersystem.hpp"
+#include "componentsystems/computersystem.hpp"
 
 /// \brief A ship is a model with additional simulation and control options.
 /// \details A standard ship design contains a single computer with one

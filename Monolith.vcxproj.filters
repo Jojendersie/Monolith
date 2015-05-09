@@ -69,6 +69,9 @@
     <Filter Include="Source Files\gameplay\managment">
       <UniqueIdentifier>{6768f0aa-d6f0-4575-acb5-cadfee45b978}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\gameplay\componentsystems">
+      <UniqueIdentifier>{40aee80c-8889-4375-879f-a6836ea42531}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
@@ -224,9 +227,6 @@
     <ClCompile Include="src\utilities\pathutils.cpp">
       <Filter>Source Files\utilities</Filter>
     </ClCompile>
-    <ClCompile Include="src\gameplay\drive.cpp">
-      <Filter>Source Files\gameplay</Filter>
-    </ClCompile>
     <ClCompile Include="src\gameloop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -245,19 +245,7 @@
     <ClCompile Include="src\gameplay\galaxy.cpp">
       <Filter>Source Files\gameplay</Filter>
     </ClCompile>
-    <ClCompile Include="src\gameplay\reactorsystem.cpp">
-      <Filter>Source Files\gameplay</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gameplay\computersystem.cpp">
-      <Filter>Source Files\gameplay</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gameplay\componentsystem.cpp">
-      <Filter>Source Files\gameplay</Filter>
-    </ClCompile>
     <ClCompile Include="src\gameplay\ship.cpp">
-      <Filter>Source Files\gameplay</Filter>
-    </ClCompile>
-    <ClCompile Include="src\gameplay\storagesystem.cpp">
       <Filter>Source Files\gameplay</Filter>
     </ClCompile>
     <ClCompile Include="src\gameplay\managment\controller.cpp">
@@ -266,8 +254,20 @@
     <ClCompile Include="src\gameplay\managment\playercontroller.cpp">
       <Filter>Source Files\gameplay\managment</Filter>
     </ClCompile>
-    <ClCompile Include="src\gameplay\drivesystem.cpp">
-      <Filter>Source Files\gameplay</Filter>
+    <ClCompile Include="src\gameplay\componentsystems\componentsystem.cpp">
+      <Filter>Source Files\gameplay\componentsystems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\componentsystems\computersystem.cpp">
+      <Filter>Source Files\gameplay\componentsystems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\componentsystems\drivesystem.cpp">
+      <Filter>Source Files\gameplay\componentsystems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\componentsystems\reactorsystem.cpp">
+      <Filter>Source Files\gameplay\componentsystems</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\componentsystems\storagesystem.cpp">
+      <Filter>Source Files\gameplay\componentsystems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -687,9 +687,6 @@
     <ClInclude Include="src\math\sphericalfunction.hpp">
       <Filter>Source Files\math</Filter>
     </ClInclude>
-    <ClInclude Include="src\gameplay\drive.hpp">
-      <Filter>Source Files\gameplay</Filter>
-    </ClInclude>
     <ClInclude Include="src\gameloop.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -723,33 +720,6 @@
     <ClInclude Include="src\gameplay\galaxy.hpp">
       <Filter>Source Files\gameplay</Filter>
     </ClInclude>
-    <ClInclude Include="src\gameplay\computersystem.hpp">
-      <Filter>Source Files\gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gameplay\drivesystem.hpp">
-      <Filter>Source Files\gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gameplay\reactorsystem.hpp">
-      <Filter>Source Files\gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gameplay\sensorsystem.hpp">
-      <Filter>Source Files\gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gameplay\shieldsystem.hpp">
-      <Filter>Source Files\gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gameplay\storagesystem.hpp">
-      <Filter>Source Files\gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gameplay\weaponsystem.hpp">
-      <Filter>Source Files\gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gameplay\batterysystem.hpp">
-      <Filter>Source Files\gameplay</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gameplay\componentsystem.hpp">
-      <Filter>Source Files\gameplay</Filter>
-    </ClInclude>
     <ClInclude Include="src\gameplay\ship.hpp">
       <Filter>Source Files\gameplay</Filter>
     </ClInclude>
@@ -758,6 +728,33 @@
     </ClInclude>
     <ClInclude Include="src\gameplay\managment\playercontroller.hpp">
       <Filter>Source Files\gameplay\managment</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\componentsystems\componentsystem.hpp">
+      <Filter>Source Files\gameplay\componentsystems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\componentsystems\computersystem.hpp">
+      <Filter>Source Files\gameplay\componentsystems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\componentsystems\drivesystem.hpp">
+      <Filter>Source Files\gameplay\componentsystems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\componentsystems\reactorsystem.hpp">
+      <Filter>Source Files\gameplay\componentsystems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\componentsystems\sensorsystem.hpp">
+      <Filter>Source Files\gameplay\componentsystems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\componentsystems\shieldsystem.hpp">
+      <Filter>Source Files\gameplay\componentsystems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\componentsystems\storagesystem.hpp">
+      <Filter>Source Files\gameplay\componentsystems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\componentsystems\weaponsystem.hpp">
+      <Filter>Source Files\gameplay\componentsystems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\componentsystems\batterysystem.hpp">
+      <Filter>Source Files\gameplay\componentsystems</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
