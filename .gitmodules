@@ -1,0 +1,6 @@
+[submodule "epsilon"]
+	path = epsilon
+	url = git@github.com:Jojendersie/Epsilon-Intersection.git
+[submodule "dependencies/epsilon"]
+	path = dependencies/epsilon
+	url = git@github.com:Jojendersie/Epsilon-Intersection.git
