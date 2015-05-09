@@ -6,7 +6,8 @@
 using namespace Math;
 
 PlayerController::PlayerController(SOHandle _ship)
-	: Controller(_ship)
+	: Controller(_ship),
+	m_mouseRotationEnabled(false)
 {
 
 }
@@ -23,7 +24,6 @@ void PlayerController::Scroll(double _dx, double _dy)
 
 void PlayerController::KeyDown(int _key, int _modifiers)
 {
-	if (Input::Manager::IsVirtualKey(_key, Input::VirtualKey::ACCELERATE_FORWARD));
 }
 
 void PlayerController::KeyUp(int _key, int _modifiers)
@@ -35,14 +35,35 @@ void PlayerController::KeyUp(int _key, int _modifiers)
 void PlayerController::Process(float _deltaTime)
 {
 	// Movement
+	// Velocity in Z is increased/decreased while a key is pressed.
+	// In other directions stop pushing resets the velocity
+	m_velocity[0] = 0.0f;
 	if(glfwGetKey(Graphic::Device::GetWindow(), GLFW_KEY_W))
-		m_ship->SetTargetVelocity(Vec3(0.0f, 0.0f, 1.0f));
+		m_velocity[2] += _deltaTime * 50.0f;
 	if(glfwGetKey(Graphic::Device::GetWindow(), GLFW_KEY_S))
-		m_ship->SetTargetVelocity(Vec3(0.0f, 0.0f, -1.0f));
+		m_velocity[2] -= _deltaTime * 50.0f;
+	if(glfwGetKey(Graphic::Device::GetWindow(), GLFW_KEY_D))
+		m_velocity[0] = _deltaTime * 100.0f;
+	if(glfwGetKey(Graphic::Device::GetWindow(), GLFW_KEY_A))
+		m_velocity[0] = -_deltaTime * 100.0f;
+	if(glfwGetKey(Graphic::Device::GetWindow(), GLFW_KEY_TAB))
+		m_velocity = Vec3(0.0f);
+	m_ship->SetTargetVelocity(m_velocity);
 
 	// Rotation
+	// Stop pushing the rotation keys always resets to zero.
+	Vec3 angularVel(0.0f);
 	if(glfwGetKey(Graphic::Device::GetWindow(), GLFW_KEY_E))
-		m_ship->SetTargetAngularVelocity((~m_ship->GetRotation()).ZAxis() * 0.5f);
-	if(glfwGetKey(Graphic::Device::GetWindow(), GLFW_KEY_Q))
-		m_ship->SetTargetAngularVelocity((~m_ship->GetRotation()).ZAxis() * -0.5f);
+		angularVel += (~m_ship->GetRotation()).ZAxis() * 0.5f;
+	else if(glfwGetKey(Graphic::Device::GetWindow(), GLFW_KEY_Q))
+		angularVel += (~m_ship->GetRotation()).ZAxis() * -0.5f;
+	// Rotate towards mouse cursor
+	if( m_mouseRotationEnabled )
+	{
+		Vec2 cursor = Input::Manager::GetCursorPosScreenSpace();
+		cursor = Vec2(sgn(cursor[0]), sgn(cursor[1])) * max(Vec2(0.0f), abs(cursor) - 0.1f);
+		angularVel += (~m_ship->GetRotation()).YAxis() * -cursor[0];
+		angularVel += (~m_ship->GetRotation()).XAxis() * cursor[1];
+	}
+	m_ship->SetTargetAngularVelocity(angularVel);
 }

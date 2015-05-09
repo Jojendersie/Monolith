@@ -149,8 +149,8 @@ void GSPlay::MouseMove( double _dx, double _dy )
 	double moveSpeed = m_game->Config[std::string("Input")][std::string("CameraMovementSpeed")];
 	if( Input::Manager::IsVirtualKeyPressed(Input::VirtualKey::ROTATE_CAMERA) )
 		m_camera->Rotate( float(_dy * rotSpeed), float(_dx * rotSpeed) );
-	else if( Input::Manager::IsVirtualKeyPressed(Input::VirtualKey::MOVE_CAMERA) )
-		m_camera->Move( float(_dx * moveSpeed), float(_dy * moveSpeed) );
+	/*else if( Input::Manager::IsVirtualKeyPressed(Input::VirtualKey::MOVE_CAMERA) )
+		m_camera->Move( float(_dx * moveSpeed), float(_dy * moveSpeed) );*/
 	m_hud->MouseMove(_dx, _dy);
 }
 
@@ -164,8 +164,11 @@ void GSPlay::Scroll( double _dx, double _dy )
 // ************************************************************************* //
 void GSPlay::KeyDown( int _key, int _modifiers )
 {
-	if (_key == GLFW_KEY_SPACE)
-		m_hud->ShowCursor(!m_hud->CursorVisible());
+	if (_key == GLFW_KEY_SPACE) {
+		bool cursorVisible = !m_hud->CursorVisible();
+		m_hud->ShowCursor(cursorVisible);
+		m_player->SetMouseRotation(!cursorVisible);
+	}
 	if( _key == GLFW_KEY_ESCAPE )
 		m_finished = true;
 }

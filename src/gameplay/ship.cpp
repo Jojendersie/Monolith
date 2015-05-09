@@ -1,5 +1,8 @@
 #include "ship.hpp"
 
+using namespace Math;
+
+
 Ship::Ship() :
 	m_primarySystem(*this, "CentralComputer"),
 	m_targetVelocity(0.0f),
@@ -74,7 +77,8 @@ void Ship::Simulate(float _deltaTime)
 {
 	// TODO: Accelerate dependent on input.
 	Model::m_angularVelocity = m_targetAngularVelocity;
-	Model::m_velocity = (~m_rotation).ZAxis() * m_targetVelocity;
+	//Model::m_velocity = (~m_rotation).ZAxis() * m_targetVelocity;
+	Model::m_velocity = m_targetVelocity * Mat3x3::Rotation(m_rotation);
 
 	// Also simulate the physics
 	Model::Simulate(_deltaTime);
