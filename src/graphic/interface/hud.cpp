@@ -9,13 +9,13 @@ using namespace Math;
 
 namespace Graphic
 {
-	Hud::Hud(Monolith* _game, Math::Vec2 _pos, Math::Vec2 _size, bool _showCursor):
+	Hud::Hud(Monolith* _game, Math::Vec2 _pos, Math::Vec2 _size, int _cursor):
 		ScreenOverlay(Math::Vec2(_pos[0],_pos[1] + _size[1]), _size),
 		m_game(_game),
 		m_characters( "2222", VertexBuffer::PrimitiveType::POINT ),
 		m_texContainer("texture/combined.png"),
 		m_preElem(NULL),
-		m_showCursor(_showCursor),
+		m_showCursor(_cursor),
 		m_scrollable(false),
 		m_focus(nullptr)
 	{
@@ -32,9 +32,14 @@ namespace Graphic
 		Jo::Files::HDDFile file("texture/combined.sraw");
 		m_texContainerMap = new Jo::Files::MetaFileWrapper( file, Jo::Files::Format::SRAW );
 		
-		m_cursor = new ScreenTexture(m_texContainerMap, "cursor", Math::Vec2(0.f,0.f), Math::Vec2(0.07f,0.07f), height);
-	//	m_cursor->SetState(_showCursor);
-		AddTexture(m_cursor);
+		m_cursors.emplace_back(m_texContainerMap, "cursor");
+		m_cursors.emplace_back(m_texContainerMap, "cursorAlt", Math::Vec2(0.07f, 0.07f), Vec2(-0.035f, 0.035f));
+
+		//cursor occupies adress [0]
+		m_screenOverlays.push_back(&m_cursors[0].texture);
+
+		ShowCursor(_cursor);
+		//make shure that the cursor occupies adress [0]
 
 		//editfield testing
 		//CreateEditField(Vec2(-1.f, 0.f), Vec2(0.4f, 0.1f), 1, 0.f);
@@ -46,7 +51,6 @@ namespace Graphic
 		delete m_dbgLabel;
 
 		delete m_texContainerMap;
-		delete m_cursor;
 		for( Button* btn : m_buttons )
 			delete btn;
 	}
@@ -156,7 +160,7 @@ namespace Graphic
 	{
 		// Get cursor converted to screen coordinates
 		Math::Vec2 cursorPos = Input::Manager::GetCursorPosScreenSpace();
-		m_cursor->m_vertex.position = cursorPos;
+		m_cursor->texture.m_vertex.position = cursorPos + m_cursor->offset;
 
 		//todo: include mousespeed in config  
 
@@ -239,10 +243,13 @@ namespace Graphic
 		return false;
 	}
 
+
 	void Hud::MouseEnter()
 	{
 		ScreenOverlay::MouseEnter();
 	}
+
+
 	void Hud::MouseLeave()
 	{
 		if(m_preElem)
@@ -303,5 +310,29 @@ namespace Graphic
 		AddTexture(_btn);//add the collision btn last so it is in front of the elements
 		AddTextRender(&(_btn->m_caption));
 	}
+
+	void Hud::ShowCursor(int _cursor)
+	{ 
+		m_showCursor = _cursor;
+		if (_cursor)
+		{
+			m_cursor = &m_cursors[_cursor - 1];
+
+			//cursor position is only updated on mousemove
+			m_cursor->texture.m_vertex.position = Input::Manager::GetCursorPosScreenSpace() + m_cursor->offset;
+
+			m_screenOverlays[0] = &m_cursor->texture;
+		}
+	}
+
+	Hud::CursorData::CursorData(Jo::Files::MetaFileWrapper* _posMap, std::string _name,
+		Math::Vec2 _size, Math::Vec2 _off)
+		: texture(_posMap, _name, Math::Vec2(0.f), _size, height),
+		offset(_off)
+	{
+		//rescaling to fit the screen
+		texture.SetSize(Math::Vec2(texture.m_sizeDef[0] / Device::GetAspectRatio(), texture.m_sizeDef[1]));
+		offset[0] /= Device::GetAspectRatio();
+	};
 
 };

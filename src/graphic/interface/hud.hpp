@@ -10,7 +10,7 @@ namespace Graphic {
 	{
 	public:
 		/// \brief Creates an Hud object wich handles a 2d interface on the specfied screen rectangle
-		Hud( Monolith* _game, Math::Vec2 _pos=Math::Vec2(-1.f,-1.f) , Math::Vec2 _size=Math::Vec2(2.f,2.f), bool _showCursor = true);
+		Hud( Monolith* _game, Math::Vec2 _pos=Math::Vec2(-1.f,-1.f) , Math::Vec2 _size=Math::Vec2(2.f,2.f), int _cursor = 1);
 
 		// functions intended do be used in gamestates to create a button with the specefied params
 		void CreateBtn(std::string _texName, std::string _desc, Math::Vec2 _position, Math::Vec2 _size,
@@ -52,8 +52,8 @@ namespace Graphic {
 		/// \brief When scrollable all elements of the hud will move when a scrollevent is recieved
 		void SetScrollable(bool _scrollable) {m_scrollable = _scrollable;};
 
-		void ShowCursor(bool _visible) { m_showCursor = _visible; };
-		bool CursorVisible() { return m_showCursor; };
+		void ShowCursor(int _cursor);
+		int CursorVisible() { return m_showCursor; };
 
 		/// \brief Mouse events
 		//atleast one is important so that dynamic_cast can work
@@ -103,8 +103,18 @@ namespace Graphic {
 		std::vector<ScreenOverlay*> m_screenOverlays;
 
 		ScreenOverlay* m_preElem;///< Handle to the screenTexture wich the cursor points to 
-		ScreenTexture* m_cursor;///< the ingame cursor
-		bool m_showCursor;
+
+		struct CursorData
+		{
+			CursorData(Jo::Files::MetaFileWrapper* _posMap, std::string _name,
+				Math::Vec2 _size = Math::Vec2(0.07f, 0.07f), Math::Vec2 _off = Math::Vec2(0.f));
+			ScreenTexture texture;
+			Math::Vec2 offset;
+		};
+
+		std::vector < CursorData > m_cursors; ///< all available cursors
+		CursorData* m_cursor;///< the ingame cursor
+		int m_showCursor;
 
 		bool m_scrollable; ///< wether mouse scrolling moves the elements
 	};
