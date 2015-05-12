@@ -1,0 +1,97 @@
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\bo}{\mathbf}
+\newcommand{\it}{\mathit}
+\newcommand{\mat}[1]{\begin{pmatrix}#1\end{pmatrix}}
+\newcommand{\Span}[1]{\textrm{ span}\left\{#1\right\}}
+\newcommand{\vp}{\vec{\varphi}}
+\newcommand{\vt}{\vec{t}}
+\newcommand{\ve}{\vec{e}}
+\newcommand{\vn}{\vec{n}}
+\newcommand{\vz}{\vec{z}}
+\newcommand{\dx}{\,\mathrm{d}x\,}
+\newcommand{\dy}{\,\mathrm{d}y\,}
+\newcommand{\dz}{\,\mathrm{d}z\,}
+\newcommand{\dV}{\,\mathrm{d}V\,}
+\newcommand{\Tau}{\mathcal{T}}
+\newcommand{\dof}{\textit{dof} }
+\newcommand{\dofs}{\textit{dof}s }
+\newcommand{\bdxd}{\left(\begin{array}{ccc}}
+\newcommand{\edxd}{\end{array}\right)}
+\newcommand{\Int}{\int\limits}
+
+\documentclass[a4paper,11pt]{article}
+\usepackage[a4paper, left=3cm, right=2cm, top=4cm, bottom=2cm]{geometry}
+
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{enumerate}
+\usepackage{color}
+%\usepackage{wrapfig}
+\usepackage{subcaption}
+
+\definecolor{red}{rgb}{.8,0,0}
+\definecolor{black}{rgb}{0,0,0}
+\definecolor{gray}{rgb}{.7,.7,.7}
+\definecolor{blue}{rgb}{0,0,.8}
+\definecolor{green}{rgb}{0,.8,0}
+
+
+%\newcounter{thm}
+%\newtheorem{stz}[thm]{Satz}
+%\newtheorem{lem}[thm]{Lemma}
+
+
+\begin{document}
+\pagestyle{fancy}
+
+%\begin{align*}
+%I = \bdxd I_{11} & I_{12} & I_{13} \\ I_{21} & I_{22} & I_{23} \\ I_{31} & I_{32} & I_{33} \\ \edxd \\
+%I_i = \left( \int_{V_i} \rho_i (r^2\delta_{\alpha\beta}-x_\alpha x_\beta) \dV \right)_{\alpha\beta} \\
+%I=\sum_i m_i \bdxd y_i^2+z_i^2 & -x_i y_i &  x_i z_i \\ -y_ix_i & x_i^2+z_i^2 & -y_iz_i \\ -z_ix_i & -z_iy_i & x_i^2+y_i^2  \edxd\\
+Integral exemplarisch für eine Diagonal und eine Nichtdiagonalkomponente
+\begin{align*}
+(I_i)_{11}=&\rho_i\Int_{x_i-r/2}^{x_i+r/2}\Int_{y_i-r/2}^{y_i+r/2}\Int_{z_i-r/2}^{z_i+r/2} (y-y_0)^2+(z-z_0)^2\dz\dy\dx \\
+=&\rho_i\Int_{y_i-r/2}^{y_i+r/2}\Int_{z_i-r/2}^{z_i+r/2}\left[ ((y-y_0)^2+(z-z_0)^2)z \right]_{z_i-r/2}^{z_i+r/2}\dz\dy \\
+=&\rho_i r\Int_{y_i-r/2}^{y_i+r/2}\Int_{z_i-r/2}^{z_i+r/2}(y-y_0)^2+(z-z_0)^2\dz\dy \\
+=&\rho_i r^2 (\Int_{y_i-r/2}^{y_i+r/2}(y-y_0)^2\dy+\Int_{z_i-r/2}^{z_i+r/2}(z-z_0)^2\dz) \\
+=&\rho_i r^2\left[\frac{(y-y_0)^3}{3}\right]_{y_i-r/2}^{y_i+r/2}+r^2\left[\frac{(z-z_0)^3}{3}\right]_{z_i-r/2}^{z_i+r/2} \\
+=&\rho_i r^3(y_0^2-y_0(2y_i)+z_0^2-z_0(2z_i)+(r^2 /6+y_i^2+z_i^2))\\
+=&y_0^2(m_i)-y_0( 2y_i m_i)+z_0^2( m_i)-z_0( 2z_i m_i)+(r^2 /6+y_i^2+z_i^2)m_i\\
+(I_i)_{12}=&\rho_i\Int_{x_i-r/2}^{x_i+r/2}\Int_{y_i-r/2}^{y_i+r/2}\Int_{z_i-r/2}^{z_i+r/2} -(x-x_0)(y-y_0)\dz\dy\dx \\
+=&\rho_i r\Int_{x_i-r/2}^{x_i+r/2}\Int_{y_i-r/2}^{y_i+r/2} -(x-x_0)(y-y_0)\dy\dx \\
+=&\rho_i r\Int_{x_i-r/2}^{x_i+r/2}-(x-x_0)\left[ \frac{(y-y_0)^2}{2}\right]_{y_i-r/2}^{y_i+r/2}\dx \\
+=&-\rho_i r\left[ \frac{(x-x_0)^2}{2}\right]_{x_i-r/2}^{x_i+r/2}\left[ \frac{(y-y_0)^2}{2}\right]_{y_i-r/2}^{y_i+r/2} \\
+=&-\rho_i r^3 (x_i-x_0)(y_i-y_0)\\
+=&-x_0y_0(m_i)+x_0(y_im_i)+y_0(x_im_i)-x_i y_i m_i\\
+\end{align*}
+Ergebniss:
+\begin{align*}
+I=&x_0^2\sum_im_i\bdxd 0 & 0 & 0 \\ 0 & 1 & 0\\ 0 & 0 & 1\edxd 
++ y_0^2\sum_im_i\bdxd 1 & 0 & 0 \\ 0 & 0 & 0\\ 0 & 0 & 1\edxd 
++ z_0^2\sum_im_i\bdxd 1 & 0 & 0 \\ 0 & 1 & 0\\ 0 & 0 & 0\edxd\\
+-&x_0y_0\sum_im_i\bdxd 0 & 1 & 0 \\ 1 & 0 & 0 \\ 0& 0 & 0\edxd
+-x_0z_0\sum_im_i\bdxd 0 & 0 & 1 \\ 0 & 0 & 0 \\1& 0 & 0\edxd
+-y_0z_0\sum_im_i\bdxd 0 & 0 & 0 \\ 0 & 0 & 1 \\ 0& 1 & 0\edxd\\
++&x_0\sum_im_i\bdxd 0 & y_i & z_i \\ y_i&-2x_i &0 \\z_i & 0 & -2x_i \\  \edxd
++y_0\sum_im_i\bdxd -2y_i & x_i & 0 \\ x_i& 0 & z_i \\0 & z_i & -2y_i \\  \edxd
++z_0\sum_im_i\bdxd -2z_i & 0 & x_i \\ 0 &- 2z_i &y_i \\x_i & y_i & 0 \\  \edxd \\
++&\sum_im_i\bdxd y_i^2+z_i^2+r^2/6 & -x_iy_i & -x_iz_i \\ -x_iy_i & x_i^2+z_i^2+r^2/6 & -y_iz_i \\ -x_iz_i & -y_iz_i & x_i^2+y_i^2+r^2/6 \\ \edxd
+\end{align*}
+Inkrementell aktuallisiert werden also:
+\begin{align*}
+&\sum_im_i;\,\sum_im_ix_i;\,\sum_im_iy_i;\,\sum_im_iz_i;\,\sum_im_ix_iy_i;\,\sum_im_ix_iz_i;\,\sum_im_iy_iz_i;\\
+&\sum_im_i(y_i^2+z_i^2+r^2/6);\,\sum_im_i(x_i^2+z_i^2+r^2/6);\,\sum_im_i(x_i^2+y_i^2+r^2/6)\\
+\end{align*}
+
+	
+\end{document}

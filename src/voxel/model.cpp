@@ -155,25 +155,62 @@ namespace Voxel {
 		int size = 1 << _position[3];
 		float voxelSurface = size * size / 6.0f;
 		Vec3 center = Math::IVec3(_position) * size + size * 0.5f;
-		size = size * size * size;
+		int volume = size * size * size;
 
 		// Remove the old voxel
 		if( TypeInfo::GetMass(_oldType.type) > 0.0f )
 		{
-			float oldMass = TypeInfo::GetMass(_oldType.type) * size;
+			float oldMass = TypeInfo::GetMass(_oldType.type) * volume;
 			m_center = (m_center * m_mass - center * oldMass) / (m_mass - oldMass);
 			m_mass -= oldMass;
-			m_numVoxels -= size;
+			m_numVoxels -= volume;
+
+			// Update inertia helper variables
+			m_inertiaX_Y_Z += oldMass * center;
+			m_inertiaXY_XZ_YZ[0] += oldMass * center[0] * center[1];
+			m_inertiaXY_XZ_YZ[1] += oldMass * center[0] * center[2];
+			m_inertiaXY_XZ_YZ[2] += oldMass * center[1] * center[2];
+			Vec3 centerSq = center * center; 
+			m_inertiaXYR_XZR_YZR[0] += oldMass * (centerSq[0] + centerSq[1] + voxelSurface);
+			m_inertiaXYR_XZR_YZR[1] += oldMass * (centerSq[0] + centerSq[2] + voxelSurface);
+			m_inertiaXYR_XZR_YZR[2] += oldMass * (centerSq[1] + centerSq[2] + voxelSurface);
 		}
 
 		// Add new voxel
 		if( TypeInfo::GetMass(_newType.type) )
 		{
-			float newMass = TypeInfo::GetMass(_newType.type) * size;
+			float newMass = TypeInfo::GetMass(_newType.type) * volume;
 			m_center = (m_center * m_mass + center * newMass) / (m_mass + newMass);
 			m_mass += newMass;
-			m_numVoxels += size;
+			m_numVoxels += volume;
+
+			// Update inertia helper variables
+			m_inertiaX_Y_Z += newMass * center;
+			m_inertiaXY_XZ_YZ[0] += newMass * center[0] * center[1];
+			m_inertiaXY_XZ_YZ[1] += newMass * center[0] * center[2];
+			m_inertiaXY_XZ_YZ[2] += newMass * center[1] * center[2];
+			Vec3 centerSq = center * center; 
+			m_inertiaXYR_XZR_YZR[0] += newMass * (centerSq[0] + centerSq[1] + voxelSurface);
+			m_inertiaXYR_XZR_YZR[1] += newMass * (centerSq[0] + centerSq[2] + voxelSurface);
+			m_inertiaXYR_XZR_YZR[2] += newMass * (centerSq[1] + centerSq[2] + voxelSurface);
 		}
+
+		Vec3 xxm_yym_zzm = m_center * m_center * m_mass;
+		Vec3 xym_xzm_yzm(m_center[0] * m_center[1] * m_mass,
+			m_center[0] * m_center[2] * m_mass,
+			m_center[2] * m_center[1] * m_mass);
+		Vec3 x2i_y2i_z2i = m_center * 2 * m_inertiaX_Y_Z;
+		xxm_yym_zzm -= x2i_y2i_z2i;
+
+		float I11 = xxm_yym_zzm[1] + xxm_yym_zzm[2] + m_inertiaXYR_XZR_YZR[2];
+		float I22 = xxm_yym_zzm[0] + xxm_yym_zzm[2] + m_inertiaXYR_XZR_YZR[1];
+		float I33 = xxm_yym_zzm[0] + xxm_yym_zzm[1] + m_inertiaXYR_XZR_YZR[0];
+
+		float I12 = -xym_xzm_yzm[0] + m_center[0]*m_inertiaX_Y_Z[1] + m_center[1]*m_inertiaX_Y_Z[0] - m_inertiaXY_XZ_YZ[0];
+		float I13 = -xym_xzm_yzm[1] + m_center[0]*m_inertiaX_Y_Z[2] + m_center[2]*m_inertiaX_Y_Z[0] - m_inertiaXY_XZ_YZ[1];
+		float I23 = -xym_xzm_yzm[2] + m_center[1]*m_inertiaX_Y_Z[2] + m_center[2]*m_inertiaX_Y_Z[1] - m_inertiaXY_XZ_YZ[2];
+
+		m_inertiaTensor = Mat3x3(I11,I12,I13,I12,I22,I23,I13,I23,I33);
 
 		// TEMP: approximate a sphere; TODO Grow and shrink a real bounding volume
 		// TODO remove Math::Vector if replaced by template

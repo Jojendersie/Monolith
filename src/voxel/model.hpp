@@ -104,7 +104,15 @@ namespace Voxel {
 		Math::Vec3 m_angularVelocity;	///< Current change of rotation per second
 		Math::Vec3 m_velocity;			///< Velocity in m/s (vector length)
 		float m_mass;					///< Mass (inertia) of the full model
-		float m_rotatoryMomentum;		///< Inertia of rotation for the full model.
+		Math::Mat3x3 m_inertiaTensor;	///< Mass (inertia) in relation to rotations
+		
+		/// Helper variables for iterative updates of inertia each a weighted
+		/// sum of voxel masses see "momentOfInertia.tex" for more information.
+		/// This is necessary because removing a voxel moves the center too,
+		/// which invalidates the whole matrix.
+		Math::Vec3 m_inertiaX_Y_Z;
+		Math::Vec3 m_inertiaXY_XZ_YZ;
+		Math::Vec3 m_inertiaXYR_XZR_YZR;
 
 		float m_boundingSphereRadius;	///< Bounding sphere radius (to the center of gravity) for culling etc.
 		Math::IVec3 m_objectBBmin;		///< Minimum position of voxels in this model

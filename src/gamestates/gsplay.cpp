@@ -105,7 +105,7 @@ void GSPlay::Simulate( double _deltaTime )
 {
 	m_scene.Simulate((float)_deltaTime);
 	m_scene.UpdateGraph();
-	m_player->Process( _deltaTime );
+	m_player->Process( (float)_deltaTime );
 	/*static Generators::Random Rnd(1435461);
 	for( int i = 0; i < 100; ++i )
 		m_astTest->Set( IVec3(Rnd.Uniform(0,79), Rnd.Uniform(0,49), Rnd.Uniform(0,29)), 0, Voxel::VoxelType::UNDEFINED );//*/
