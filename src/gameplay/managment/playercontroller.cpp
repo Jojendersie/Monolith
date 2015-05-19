@@ -61,7 +61,8 @@ void PlayerController::Process(float _deltaTime)
 	if( m_mouseRotationEnabled )
 	{
 		Vec2 cursor = Input::Manager::GetCursorPosScreenSpace();
-		cursor = Vec2(sgn(cursor[0]), sgn(cursor[1])) * max(Vec2(0.0f), abs(cursor) - 0.1f);
+		//cursor = Vec2(sgn(cursor[0]), sgn(cursor[1])) * max(Vec2(0.0f), abs(cursor) - 0.1f);
+		cursor = Vec2(sgn(cursor[0]), sgn(cursor[1])) * cursor * cursor;
 		angularVel += (~m_ship->GetRotation()).YAxis() * -cursor[0];
 		angularVel += (~m_ship->GetRotation()).XAxis() * cursor[1];
 	}

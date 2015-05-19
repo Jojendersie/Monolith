@@ -217,13 +217,14 @@ namespace Voxel {
 	struct Voxel
 	{
 		Material material;		///< Graphical representation
-		ComponentType type;			///< The type of the voxel
+		uint16_t health;		///< Hit points until destruction (0 and less). One hit point is approximating 30kJ
+		ComponentType type;		///< The type of the voxel
 		uint8_t dirty: 1;		///< Somebody changed a child or this node
 		uint8_t solid: 1;		///< This node and all its children are defined
-		uint8_t surface: 6;	///< One flag for each direction if there is no solid neighborhood
+		uint8_t surface: 6;		///< One flag for each direction if there is no solid neighborhood
 
 		/// \brief Standard constructor creates undefined element
-		Voxel() : material(Material::UNDEFINED), type(ComponentType::UNDEFINED), dirty(0), solid(0), surface(0)	{}
+		Voxel() : material(Material::UNDEFINED), type(ComponentType::UNDEFINED), dirty(0), solid(0), surface(0), health(0)	{}
 
 		/// \brief Construct a component with a defined type and undefined material
 		Voxel(ComponentType _type) : type(_type), dirty(1), solid(TypeInfo::IsSolid(_type)?1:0), surface(0) { uint8_t dummy; TypeInfo::Sample(_type, Math::IVec3(0), 0, 0, material, dummy); }
