@@ -1,5 +1,6 @@
 #include "scenegraph.hpp"
 #include "math/box.hpp"
+#include "voxel/sparseoctree.hpp"
 #include <algorithm>
 
 using namespace Math;
@@ -136,6 +137,12 @@ void SceneGraph::Simulate(float _deltaTime)
 {
 	auto xReadAccess = m_xIntervalMax.GetReadAccess();	// Copy shared pointer to assert that the buffer does not change during algorithm.
 
+	CollisionCheck collisionCheck;
+	//check every possible pair for collision
+	for (int i = 0; i < xReadAccess.size(); ++i)
+		for (int j = i + 1; j < xReadAccess.size(); ++j)
+			collisionCheck.Run(*(static_cast<Voxel::Model*>(&xReadAccess[i])), *(static_cast<Voxel::Model*>(&xReadAccess[j])));
+
 	for(int i = 0; i < xReadAccess.size(); ++i)
 		xReadAccess[i]->Simulate(_deltaTime);
 }
@@ -181,5 +188,133 @@ void SceneGraph::ManageObjects(Utils::ThreadSafeBuffer<SOHandle>::WriteGuard& _x
 		for( int i = 0; i < nnew; ++i )
 			_xListAccess.buf().push_back( m_newObjects[i] );
 		m_newObjects.clear();
+	}
+}
+
+// ************************************************************************* //
+void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model1)
+{
+	//use already computed bounding box for the first try
+	float r0 = _model0.GetRadius();
+	r0 *= r0;
+
+	float r1 = _model1.GetRadius();
+	r1 *= r1;
+
+	float dist = _model0.DistanceSq(_model1);
+
+	m_posSlf = Vec3(0.f);
+	//manual translation to a local space
+	//because transform rotates aswell
+	FixVec3 fixPos0 = _model0.GetPosition();
+	FixVec3 fixPos1 = _model1.GetPosition(); 
+	m_posOth = Vec3(float(fixPos1[0] - fixPos0[0]),
+		float(fixPos1[1] - fixPos0[1]),
+		float(fixPos1[2] - fixPos0[2])); //_model0.Transform(_model1.GetPosition());
+
+	dist = lengthSq(m_posOth - m_posSlf);
+
+	if (dist < r0 + r1)
+	{
+		const Voxel::Model::ModelData& tree0 = _model0.GetVoxelTree();
+		const Voxel::Model::ModelData& tree1 = _model1.GetVoxelTree();
+		const Voxel::Model::ModelData::SVON* node0 = tree0.Get(tree0.GetRootPosition(), tree0.GetRootSize());
+		const Voxel::Model::ModelData::SVON* node1 = tree1.Get(tree1.GetRootPosition(), tree1.GetRootSize());
+
+		IVec4 pos0 = IVec4(tree0.GetRootPosition());
+		pos0[3] = tree0.GetRootSize();
+		IVec4 pos1 = IVec4(tree1.GetRootPosition());
+		pos1[3] = tree1.GetRootSize();
+
+		m_rotSlf = Mat3x3::Rotation(_model0.GetRotation());
+		m_rotOth = Mat3x3::Rotation(_model1.GetRotation());
+
+		m_posSlf -= _model0.GetCenter() * m_rotSlf;
+		m_posOth -= _model1.GetCenter() * m_rotOth;
+
+		//make shure that the bigger one is slf
+		if (pos0[3] < pos1[3])
+		{
+			m_modelSlf = &_model1;
+			m_modelOth = &_model0;
+
+			std::swap(m_posSlf, m_posOth);
+
+			std::swap(m_rotSlf, m_rotOth); 
+
+			TreeCollision(pos1, *node1, pos0, *node0);
+		}
+		else
+		{
+			m_modelSlf = &_model0;
+			m_modelOth = &_model1;
+
+			TreeCollision(pos0, *node0, pos1, *node1);
+		}
+
+		//resolve hits
+		for (auto& hit : m_hits)
+			m_modelOth->Set(IVec3(hit.second), Voxel::ComponentType::UNDEFINED);
+	}
+}
+
+// ************************************************************************* //
+void SceneGraph::CollisionCheck::TreeCollision(const Math::IVec4& _position0, const Voxel::Model::ModelData::SVON& _node0, const Math::IVec4& _position1, const Voxel::Model::ModelData::SVON& _node1)
+{
+	int sizeSlf = 1 << _position0[3];
+	int sizeOth = 1 << _position1[3];
+	Vec3 posSlf = Vec3(IVec3(_position0) * sizeSlf);
+	posSlf += sizeSlf*0.5f;
+	posSlf = posSlf * m_rotSlf + m_posSlf;
+	Vec3 posOth = Vec3(IVec3(_position1) * sizeOth);
+	posOth += sizeOth*0.5f;
+	posOth = posOth * m_rotOth + m_posOth;
+
+	int size = sizeSlf + sizeOth;
+	float len = length(posOth - posSlf);
+	//diameter of the outer shpere
+	//probably decreasable without changes of the results
+	if (1.73205 * size > len)
+	{
+		//break condition
+		if (_position0[3] == 0)
+		{
+			//check with a smaller tollerance
+			if (0.7 * size > len)
+			{
+				m_hits.emplace_back(IVec3(_position0), IVec3(_position1));
+			}
+		}
+		//recursive call with higher resolution
+		else
+		{
+			Math::IVec4 position0(_position0[0] << 1, _position0[1] << 1, _position0[2] << 1, _position0[3]);
+			
+			//when they are not on the same resolution level decrease only the bigger one
+			if (_position0[3] > _position1[3])
+			{
+				for (int i = 0; i < 8; ++i)
+				{
+					const Voxel::Model::ModelData::SVON* child0 = _node0.GetChild(i);
+					if (child0) TreeCollision(position0 + Voxel::CHILD_OFFSETS[i], *child0, _position1, _node1);
+				}
+			}
+			else
+			{
+				Math::IVec4 position1(_position1[0] << 1, _position1[1] << 1, _position1[2] << 1, _position1[3]);
+
+				for (int i = 0; i < 8; ++i)
+				{
+					const Voxel::Model::ModelData::SVON* child0 = _node0.GetChild(i);
+					if (child0)
+						for (int j = 0; j < 8; ++j)
+						{
+							const Voxel::Model::ModelData::SVON* child1 = _node1.GetChild(j);
+							if (child1)
+								TreeCollision(position0 + Voxel::CHILD_OFFSETS[i], *child0, position1 + Voxel::CHILD_OFFSETS[j], *child1);
+						}
+				}
+			}
+		}
 	}
 }

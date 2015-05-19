@@ -160,7 +160,7 @@ namespace Graphic
 	{
 		// Get cursor converted to screen coordinates
 		Math::Vec2 cursorPos = Input::Manager::GetCursorPosScreenSpace();
-		m_cursor->texture.m_vertex.position = cursorPos + m_cursor->offset;
+		if (m_cursor)	m_cursor->texture.m_vertex.position = cursorPos + m_cursor->offset;
 
 		//todo: include mousespeed in config  
 

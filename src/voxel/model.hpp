@@ -56,7 +56,7 @@ namespace Voxel {
 		/// \brief Get the center of gravity (mass center) in object space
 		const Math::Vec3& GetCenter() const					{ return m_center; }
 
-		/// \brief Get the bounding radius of the sphere centered at the center
+		/// \brief Get the bounding u of the sphere centered at the center
 		///		of gravity.
 		float GetRadius() const { return m_boundingSphereRadius; }
 
@@ -95,6 +95,8 @@ namespace Voxel {
 		/// \brief Load a model from an opened file
 		/// \throws 
 		void Load( const Jo::Files::IFile& _file );
+
+		const ModelData& GetVoxelTree() { return m_voxelTree; };
 	protected:
 		std::unordered_map<Math::IVec4, Chunk> m_chunks;
 		int m_numVoxels;				///< Count the number of voxels for statistical issues
