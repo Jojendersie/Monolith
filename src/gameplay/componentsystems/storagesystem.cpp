@@ -3,7 +3,7 @@
 
 namespace Mechanics {
 
-	void StorageSystem::Estimate(float _deltaTime)
+	void StorageSystem::Estimate(float _deltaTime, SystemRequierements& _requirements)
 	{
 		
 	}

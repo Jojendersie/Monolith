@@ -75,15 +75,19 @@ void Ship::Load( const Jo::Files::IFile& _file )
 // ********************************************************************* //
 void Ship::Simulate(float _deltaTime)
 {
-	// TODO: Accelerate dependent on input.
-	Model::m_angularVelocity = m_targetAngularVelocity;
-	//Model::m_velocity = (~m_rotation).ZAxis() * m_targetVelocity;
-	Model::m_velocity = m_targetVelocity * Mat3x3::Rotation(m_rotation);
+	Mechanics::SystemRequierements requirements;
+	// Estimate the required forces to reach the target velocities
+	requirements.torque = m_inertiaTensor * (m_targetAngularVelocity - Model::m_angularVelocity) / _deltaTime;
+	requirements.thrust = (m_mass / _deltaTime) * (m_targetVelocity - Model::m_velocity);
+
+	// Do Energy management
+	m_primarySystem.Estimate(_deltaTime, requirements);
+	m_primarySystem.Process(_deltaTime, requirements);
+
+	// Accelerate dependent on available torque and force.
+	Model::m_angularVelocity += _deltaTime * (m_inertiaTensorInverse * requirements.torque);
+	Model::m_velocity += (_deltaTime / m_mass) * requirements.thrust;
 
 	// Also simulate the physics
 	Model::Simulate(_deltaTime);
-
-	// Do Energy management
-	m_primarySystem.Estimate(_deltaTime);
-	m_primarySystem.Process(_deltaTime);
 }

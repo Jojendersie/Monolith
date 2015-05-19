@@ -211,6 +211,7 @@ namespace Voxel {
 		float I23 = -xym_xzm_yzm[2] + m_center[1]*m_inertiaX_Y_Z[2] + m_center[2]*m_inertiaX_Y_Z[1] - m_inertiaXY_XZ_YZ[2];
 
 		m_inertiaTensor = Mat3x3(I11,I12,I13,I12,I22,I23,I13,I23,I33);
+		m_inertiaTensorInverse = m_inertiaTensor.Inverse();
 
 		// TEMP: approximate a sphere; TODO Grow and shrink a real bounding volume
 		// TODO remove Math::Vector if replaced by template

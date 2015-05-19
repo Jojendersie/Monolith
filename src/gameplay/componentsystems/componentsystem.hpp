@@ -5,6 +5,13 @@
 
 namespace Mechanics {
 
+	/// \brief A collection of data which is communicated through all systems.
+	struct SystemRequierements
+	{
+		Math::Vec3 thrust;	///< Required force to accelerate the ship
+		Math::Vec3 torque;	///< Required torque to rotate the ship
+	};
+
 	/// \brief Base class for all different acting component types / groups.
 	/// \details A components system handles energy flow and other component-specific 
 	///		simulations. Each system has to define a state which is partially known
@@ -29,17 +36,17 @@ namespace Mechanics {
 		virtual ~ComponentSystem();
 
 		// *** Energetic state ***
-		// All energy is measured in [J]
+		// All energy is measured in [kJ]
 		float m_energyDemand;		///< How much energy does this system and its sub system like to have?
 		float m_energyIn;			///< How much energy is available (set by parent system)
 		float m_energyMaxOut;		///< How much energy can be drawn by the parent system.
 		float m_energyLoss;			///< How much of m_energyMaxOut is actually used form the parent system?
 
 		/// \brief Calculate m_energyDemand and m_energyMaxOut for this frame.
-		virtual void Estimate(float _deltaTime) {}
+		virtual void Estimate(float _deltaTime, SystemRequierements& _requirements) {}
 
 		/// \brief Make whatever is possible with the current energy.
-		virtual void Process(float _deltaTime) {}
+		virtual void Process(float _deltaTime, SystemRequierements& _provided) {}
 
 		/// \brief Called whenever a component is added to this system.
 		/// \details You may update precomputed information here.

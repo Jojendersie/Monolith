@@ -107,6 +107,7 @@ namespace Voxel {
 		Math::Vec3 m_velocity;			///< Velocity in m/s (vector length)
 		float m_mass;					///< Mass (inertia) of the full model
 		Math::Mat3x3 m_inertiaTensor;	///< Mass (inertia) in relation to rotations
+		Math::Mat3x3 m_inertiaTensorInverse; ///< Inverted inertia tensor matrix
 		
 		/// Helper variables for iterative updates of inertia each a weighted
 		/// sum of voxel masses see "momentOfInertia.tex" for more information.

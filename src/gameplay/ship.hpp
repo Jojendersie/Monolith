@@ -36,7 +36,7 @@ public:
 
 	/// \brief Player or AI can set the velocity. The drives automatically try
 	///		to reach it.
-	void SetTargetVelocity( const Math::Vec3& _targetVelocity )	{ m_targetVelocity = _targetVelocity; }
+	void SetTargetVelocity( const Math::Vec3& _targetVelocity )	{ m_targetVelocity = _targetVelocity * Math::Mat3x3::Rotation(m_rotation); }
 
 	/// \brief Player or AI can set the rotation. The drives automatically try
 	///		to reach it.

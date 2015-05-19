@@ -9,7 +9,7 @@ namespace Mechanics {
 	public:
 		StorageSystem(Ship& _theShip) : ComponentSystem(_theShip, "Storage") {}
 
-		virtual void Estimate(float _deltaTime) override;
+		virtual void Estimate(float _deltaTime, SystemRequierements& _requirements) override;
 		virtual void OnAdd(const Math::IVec3& _position, Voxel::ComponentType _type) override;
 		virtual void OnRemove(const Math::IVec3& _position, Voxel::ComponentType _type) override;
 		virtual void OnNeighborChange(const Math::IVec3& _position) override;

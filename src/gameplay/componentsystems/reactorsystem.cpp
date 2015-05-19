@@ -3,7 +3,7 @@
 
 namespace Mechanics {
 
-	void ReactorSystem::Estimate(float _deltaTime)
+	void ReactorSystem::Estimate(float _deltaTime, SystemRequierements& _requirements)
 	{
 		// Simply produce as much as the components can afford
 		m_energyMaxOut = m_totalEnergyOut * _deltaTime;
