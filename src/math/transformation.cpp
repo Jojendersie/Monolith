@@ -27,7 +27,7 @@ namespace Math {
 		Math::Vec3 pos(float(_position[0] - m_position[0]),
 			float(_position[1] - m_position[1]),
 			float(_position[2] - m_position[2]) );
-		return pos * Mat3x3::Rotation(m_rotation);
+		return pos * m_rotationMatrix;
 	}
 
 	// ********************************************************************* //
@@ -35,7 +35,7 @@ namespace Math {
 	Math::FixVec3 Transformation::TransformInverse( const Vec3& _position ) const
 	{
 		// TODO: potential optimization: precompute the matrix or use quaternion multiplication
-		Vec3 pos = Mat3x3::Rotation(m_rotation) * _position;
+		Vec3 pos = m_rotationMatrix * _position;
 		return FixVec3(Fix(pos[0]) + m_position[0], Fix(pos[1]) + m_position[1], Fix(pos[2]) + m_position[2]);
 	}
 

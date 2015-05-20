@@ -243,7 +243,7 @@ namespace Voxel {
 		deltaRot.j = theta[1] * s;
 		deltaRot.k = theta[2] * s;
 
-		m_rotation *= deltaRot;
+		Rotate( deltaRot );
 	}
 
 	// ********************************************************************* //

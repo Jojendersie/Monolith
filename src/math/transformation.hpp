@@ -21,16 +21,18 @@ namespace Math {
 		/// \brief Read position
 		const Math::FixVec3& GetPosition() const			{ return m_position; }
 		/// \brief Override rotation
-		void SetRotation( const Quaternion& _rotation )		{ m_rotation = _rotation; }
+		void SetRotation( const Quaternion& _rotation )		{ m_rotation = _rotation; m_rotationMatrix = Mat3x3::Rotation(m_rotation); m_inverseRotationMatrix = m_rotationMatrix.Transposed(); }
 		/// \brief Read rotation
 		const Quaternion& GetRotation() const				{ return m_rotation; }
+		const Mat3x3& GetRotationMatrix() const				{ return m_rotationMatrix; }
+		const Mat3x3& GetInverseRotationMatrix() const		{ return m_inverseRotationMatrix; }
 
 		/// \brief Move the object.
 		void Translate( const Vec3& _vector )				{ m_position[0] += Fix(_vector[0]); m_position[1] += Fix(_vector[1]); m_position[2] += Fix(_vector[2]); }
 
-		void Rotate( const Quaternion& _rotation )				{ m_rotation *= _rotation; }
-		void Rotate( float _yaw, float _pitch, float _roll )	{ m_rotation *= Quaternion( _yaw, _pitch, _roll ); }
-		void Rotate( const Vec3& _axis, float _angle )			{ m_rotation *= Quaternion( _axis, _angle ); }
+		void Rotate( const Quaternion& _rotation )				{ m_rotation *= _rotation; m_rotationMatrix = Mat3x3::Rotation(m_rotation); m_inverseRotationMatrix = m_rotationMatrix.Transposed(); }
+		void Rotate( float _yaw, float _pitch, float _roll )	{ m_rotation *= Quaternion( _yaw, _pitch, _roll ); m_rotationMatrix = Mat3x3::Rotation(m_rotation); m_inverseRotationMatrix = m_rotationMatrix.Transposed(); }
+		void Rotate( const Vec3& _axis, float _angle )			{ m_rotation *= Quaternion( _axis, _angle ); m_rotationMatrix = Mat3x3::Rotation(m_rotation); m_inverseRotationMatrix = m_rotationMatrix.Transposed(); }
 
 		/// \brief Get an approximated floating point transformation.
 		Mat4x4 GetTransformation() const;
@@ -54,6 +56,8 @@ namespace Math {
 	protected:
 		Math::FixVec3 m_position;				///< World-position
 		Quaternion m_rotation;					///< Standard rotation component
+		Math::Mat3x3 m_rotationMatrix;			///< Same rotation in matrix form (read only)
+		Math::Mat3x3 m_inverseRotationMatrix;	///< Inverse rotation matrix (read only)
 	};
 
 } // namespace Math
