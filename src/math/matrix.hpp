@@ -229,10 +229,10 @@ namespace Math {
 	template<int n, class D>
 	D Matrix<n,D>::operator - () const
 	{
-		Matrix<m,n,D> result;
+		Matrix<n,n,D> result;
 		for(int c=0; c<n; ++c)
 			for(int r=0; r<n; ++r)
-				result(r,c) = -m_data[r+c*m];
+				result(r,c) = -m_data[r+c*n];
 		return result;
 	}
 

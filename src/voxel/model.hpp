@@ -56,6 +56,19 @@ namespace Voxel {
 		/// \brief Get the center of gravity (mass center) in object space
 		const Math::Vec3& GetCenter() const					{ return m_center; }
 
+		/// \brief Get the mass of the model
+		float GetMass()										{ return m_mass; };
+		/// \brief Get the current velocity of the model
+		const Math::Vec3& GetVelocity() const				{ return m_velocity; }
+		void AddVelocity(const Math::Vec3& _velocity)		{ m_velocity += _velocity; }
+
+		/// \brief Get the angular velocity of the model
+		const Math::Vec3& GetAngularVelocity() const		{ return m_angularVelocity; }
+		void AddAngularVelocity(const Math::Vec3& _velocity){ m_angularVelocity += _velocity; }
+
+		const Math::Mat3x3& GetInertiaTensor() const		{ return m_inertiaTensor; }
+		const Math::Mat3x3& GetInertiaTensorInverse() const		{ return m_inertiaTensorInverse; }
+
 		/// \brief Get the bounding u of the sphere centered at the center
 		///		of gravity.
 		float GetRadius() const { return m_boundingSphereRadius; }

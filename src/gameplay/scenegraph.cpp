@@ -201,8 +201,6 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 	float r1 = _model1.GetRadius();
 	r1 *= r1;
 
-	float dist = _model0.DistanceSq(_model1);
-
 	m_posSlf = Vec3(0.f);
 	//manual translation to a local space
 	//because transform rotates aswell
@@ -210,9 +208,9 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 	FixVec3 fixPos1 = _model1.GetPosition(); 
 	m_posOth = Vec3(float(fixPos1[0] - fixPos0[0]),
 		float(fixPos1[1] - fixPos0[1]),
-		float(fixPos1[2] - fixPos0[2])); //_model0.Transform(_model1.GetPosition());
+		float(fixPos1[2] - fixPos0[2])); 
 
-	dist = lengthSq(m_posOth - m_posSlf);
+	float dist = lengthSq(m_posOth - m_posSlf);
 
 	if (dist < r0 + r1)
 	{
@@ -252,9 +250,49 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 			TreeCollision(pos0, *node0, pos1, *node1);
 		}
 
+		if (!m_hits.size()) return;
+
 		//resolve hits
-		for (auto& hit : m_hits)
-			m_modelOth->Set(IVec3(hit.second), Voxel::ComponentType::UNDEFINED);
+
+		float massSlf = m_modelSlf->GetMass();
+		float massOth = m_modelOth->GetMass();
+
+		//no more tree calcs take place
+		//actual center of mass positions are required
+		m_posSlf += m_modelSlf->GetCenter() * m_rotSlf;
+		m_posOth += m_modelOth->GetCenter() * m_rotOth;
+
+		Vec3 point = m_hits[0].posSlf + 0.5f*(m_hits[0].posOth - m_hits[0].posSlf);
+		Vec3 radiusSlf = point - m_posSlf;
+		Vec3 radiusOth = point - m_posOth;
+
+		Vec3 velocitySlf = m_modelSlf->GetVelocity() + cross(m_modelSlf->GetAngularVelocity(), radiusSlf);
+		Vec3 velocityOth = m_modelOth->GetVelocity() + cross(m_modelOth->GetAngularVelocity(), radiusOth);
+
+		//not sure how the collision normal is calculated
+		Vec3 normal = normalize(m_hits[0].posOth - m_hits[0].posSlf);
+
+		float epsilon = 0.f;
+
+		float impulse = -(1 + epsilon) * dot((velocitySlf - velocityOth), normal);
+		impulse /= dot(normal, normal*(1 / massSlf + 1 / massOth))
+			+ dot(cross(m_modelSlf->GetInertiaTensorInverse()*cross(radiusSlf, normal), radiusSlf)
+			+ cross(m_modelOth->GetInertiaTensorInverse()*cross(radiusOth, normal), radiusOth),normal);
+
+		m_modelSlf->AddVelocity(impulse / massSlf * normal);
+		m_modelOth->AddVelocity(impulse / massOth * -normal);
+
+		m_modelSlf->AddAngularVelocity(cross(radiusSlf, impulse*normal) * m_modelSlf->GetInertiaTensorInverse());
+		m_modelOth->AddAngularVelocity(-cross(radiusOth, impulse*normal) * m_modelOth->GetInertiaTensorInverse());
+
+		//set both back so that they dont intersect
+		normal *= 0.5f;
+		m_modelSlf->Translate(-normal);
+		m_modelOth->Translate(normal);
+//		for (auto& hit : m_hits)
+			//m_modelOth->Set(IVec3(hit.second), Voxel::ComponentType::UNDEFINED);
+
+		
 	}
 }
 
@@ -279,10 +317,16 @@ void SceneGraph::CollisionCheck::TreeCollision(const Math::IVec4& _position0, co
 		//break condition
 		if (_position0[3] == 0)
 		{
-			//check with a smaller tollerance
+			//check with a smaller tolerance
 			if (0.7 * size > len)
 			{
-				m_hits.emplace_back(IVec3(_position0), IVec3(_position1));
+				HitResult hit;
+				hit.gridPosSlf = IVec3(_position0);
+				hit.gridPosOth = IVec3(_position1);
+				hit.posSlf = posSlf;
+				hit.posOth = posOth;
+
+				m_hits.push_back(hit);
 			}
 		}
 		//recursive call with higher resolution

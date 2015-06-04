@@ -52,13 +52,21 @@ private:
 
 	//SOHandle RayQueryCandidate(const SOHandle& _obj, Voxel::Model::ModelData::HitResult& _hit, float& _maxRange) const;
 
+	struct HitResult
+	{
+		Math::IVec3 gridPosSlf;
+		Math::IVec3 gridPosOth;
+
+		Math::Vec3 posSlf;
+		Math::Vec3 posOth;
+	};
+
 	class CollisionCheck
 	{
 	public:
 		CollisionCheck(){};
 
 		void Run(Voxel::Model& _model0, Voxel::Model& _model1);
-		//void Run() { Run(m_modelSlf, m_modelOth); };
 	private:
 		//model reference
 		Voxel::Model* m_modelSlf;
@@ -72,10 +80,11 @@ private:
 		Math::Mat3x3 m_rotSlf;
 		Math::Mat3x3 m_rotOth;
 
-		std::vector < std::pair < Math::IVec3, Math::IVec3 > > m_hits;
+		std::vector < HitResult> m_hits;
 
 		/// \brief Solves the collision of two octrees
-		/// \details Expects the larger one Successfull matches are stored in
+		/// \details Expects the larger one as first param. 
+		///			 Successfull matches are stored in m_hits
 		/// \param [in] _position Position in the grid of the current node
 		/// \param [in] _node The nodes that are checked against
 		void TreeCollision(const Math::IVec4& _position0, const Voxel::Model::ModelData::SVON& _node0, const Math::IVec4& _position1, const Voxel::Model::ModelData::SVON& _node1);
