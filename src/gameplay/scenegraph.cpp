@@ -289,8 +289,8 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 		normal *= 0.5f;
 		m_modelSlf->Translate(-normal);
 		m_modelOth->Translate(normal);
-//		for (auto& hit : m_hits)
-			//m_modelOth->Set(IVec3(hit.second), Voxel::ComponentType::UNDEFINED);
+	//	for (auto& hit : m_hits)
+	//		m_modelOth->Set(IVec3(hit.gridPosOth), Voxel::ComponentType::UNDEFINED);
 
 		
 	}
@@ -308,25 +308,21 @@ void SceneGraph::CollisionCheck::TreeCollision(const Math::IVec4& _position0, co
 	posOth += sizeOth*0.5f;
 	posOth = posOth * m_rotOth + m_posOth;
 
-	int size = sizeSlf + sizeOth;
-	float len = length(posOth - posSlf);
+	int sizeSq = sizeSlf + sizeOth;
+	sizeSq *= sizeSq;
+	float lenSq = lengthSq(posOth - posSlf);
 	//diameter of the outer shpere
-	//probably decreasable without changes of the results
-	if (1.73205 * size > len)
+	//probably decreasable without changes to the results
+	// (sqrt(3)/2)^2
+	if (0.7499993 * sizeSq > lenSq)
 	{
 		//break condition
 		if (_position0[3] == 0)
 		{
 			//check with a smaller tolerance
-			if (0.7 * size > len)
+			if (0.25 * sizeSq > lenSq)
 			{
-				HitResult hit;
-				hit.gridPosSlf = IVec3(_position0);
-				hit.gridPosOth = IVec3(_position1);
-				hit.posSlf = posSlf;
-				hit.posOth = posOth;
-
-				m_hits.push_back(hit);
+				m_hits.emplace_back(IVec3(_position0), IVec3(_position1), posSlf, posOth);
 			}
 		}
 		//recursive call with higher resolution

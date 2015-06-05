@@ -54,6 +54,12 @@ private:
 
 	struct HitResult
 	{
+		HitResult(Math::IVec3 _gridPosSlf, Math::IVec3 _gridPosOth, Math::Vec3 _posSlf, Math::Vec3 _posOth)
+			: gridPosSlf(_gridPosSlf),
+			gridPosOth(_gridPosOth),
+			posSlf(_posSlf),
+			posOth(_posOth) {};
+
 		Math::IVec3 gridPosSlf;
 		Math::IVec3 gridPosOth;
 
