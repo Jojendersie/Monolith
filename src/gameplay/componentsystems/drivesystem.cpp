@@ -4,8 +4,8 @@ using namespace Math;
 
 namespace Mechanics {
 
-	DriveSystem::DriveSystem(class Ship& _theShip) :
-		ComponentSystem(_theShip, "Drive"),
+	DriveSystem::DriveSystem(class Ship& _theShip, unsigned _id) :
+		ComponentSystem(_theShip, "Drive", _id),
 		m_maxTorque([](const Vec3& _dir){ return 1.0f; }),
 		m_maxThrust([](const Vec3& _dir){ return 1.0f; })
 	{

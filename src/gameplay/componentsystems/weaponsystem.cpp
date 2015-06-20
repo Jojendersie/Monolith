@@ -5,8 +5,8 @@ using namespace Math;
 
 namespace Mechanics {
 
-	WeaponSystem::WeaponSystem(Ship& _theShip)
-		: ComponentSystem(_theShip, "Weapons")
+	WeaponSystem::WeaponSystem(Ship& _theShip, unsigned _id)
+		: ComponentSystem(_theShip, "Weapons", _id)
 	{
 		//add some test data
 		WeaponInformation weapon;
@@ -61,7 +61,7 @@ namespace Mechanics {
 	}
 
 
-	void WeaponSystem::OnAdd(const Math::IVec3& _position, Voxel::ComponentType _type) 
+	void WeaponSystem::OnAdd(const Math::IVec3& _position, Voxel::ComponentType _type, uint8_t _assignment) 
 	{
 		WeaponInformation weapon;
 		weapon.position = Vec3(_position) + 0.5f;

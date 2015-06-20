@@ -31,7 +31,7 @@ namespace Mechanics {
 		/// \param [in] _theShip Reference to the ship where the current
 		///		system belongs too.
 		/// \param [in] _name A name to identify this system in a script.
-		ComponentSystem(Ship& _theShip, const std::string& _name);
+		ComponentSystem(Ship& _theShip, const std::string& _name, unsigned _id);
 
 		virtual ~ComponentSystem();
 
@@ -48,25 +48,20 @@ namespace Mechanics {
 		/// \brief Make whatever is possible with the current energy.
 		virtual void Process(float _deltaTime, SystemRequierements& _provided) {}
 
-		/// \brief Called whenever a component is added to this system.
-		/// \details You may update precomputed information here.
+		/// \brief Called during recomputation if a component is added to the systems.
+		/// \details Update precomputed information here.
 		/// \param [in] _position Voxel position in the ship model.
 		/// \param [in] _type Type of the attached component.
-		virtual void OnAdd(const Math::IVec3& _position, Voxel::ComponentType _type) {}
+		/// \param [in] _assignment The assignment to the responsible system.
+		virtual void OnAdd(const Math::IVec3& _position, Voxel::ComponentType _type, uint8_t _assignment) {}
 
-		/// \brief Called whenever a component is removed from this system.
-		/// \details You may update precomputed information here.
-		virtual void OnRemove(const Math::IVec3& _position, Voxel::ComponentType _type) {}
-
-		/// \brief Called when a neighbor component is added/deleted. The neighbor
-		///		is not necessarily part of the same system, but the current one
-		///		(at position) is.
-		/// \param [in] _position Position of the component to update.
-		virtual void OnNeighborChange(const Math::IVec3& _position) {}
+		/// \brief Recursively clear the system state. This is done if everything is recomputed.
+		virtual void ClearSystem() {}
 
 		const std::string& GetName() const { return m_name; }
 	protected:
 		class Ship& m_ship;
+		const unsigned m_id;						///< System ID for this system and all its direct sub systems.
 	private:
 		std::string m_name;			///< A name which is used in the script to identify this system
 	};

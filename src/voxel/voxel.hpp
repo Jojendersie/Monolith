@@ -21,6 +21,18 @@ namespace Voxel {
 		LASER
 	};
 
+	enum struct ComponentClass {
+		BATTERY,
+		COMPUTER,
+		DRIVE,
+		REACTOR,
+		SENSOR,
+		SHIELD,
+		STATIC,
+		STORAGE,
+		WEAPON,
+	};
+
 	/// \brief A class which provides runtime-constant data about voxel types.
 	/// \details The data is loaded from a file named voxel.json.
 	class TypeInfo
@@ -108,6 +120,16 @@ namespace Voxel {
 
 		/// \brief Set the internal voxel texture array as TEXTURE0
 		static void BindVoxelTextureArray();
+
+		/// \brief Get general type
+		static bool IsComputer( ComponentType _type );
+		static bool IsStorage( ComponentType _type );
+		static bool IsReactor( ComponentType _type );
+		static bool IsBattery( ComponentType _type );
+		static bool IsDrive( ComponentType _type );
+		static bool IsWeapon( ComponentType _type );
+		static bool IsShield( ComponentType _type );
+		static bool IsSensor( ComponentType _type );
 	private:
 		/// \brief singleton constructor - calls load.
 		TypeInfo();
@@ -141,8 +163,18 @@ namespace Voxel {
 			MatSample* texture;			///< Main texture used for sampling of the material-sub-voxels
 			MatSample* borderTexture;	///< A texture which is added on each side of this voxel (rotated) which has a neighbor. The coordinate system is on x axis.
 
-			float energyOut;			///< Energy produced by this voxel in [J/s]
+			float energyOutput;			///< Maximum energy produced by this voxel in [kJ/s]
+			float energyDrain;			///< Maximum energy consumed by this voxel in [kJ/s]
 			float storageVolume;		///< Amount of storage a single voxel can hold
+			float capacity;				///< Capacity of energy reservoir in [kJ]
+			float damage;				///< Damage per shot in [kJ]
+			float cooldown;				///< Time in [s] between shots at maximum energy supply. If energy supply is smaller the cooldown gets longer.
+			float range;				///< Range of a weapon in [] or range of a sensor. For sensors the range increases relatively if multiple components are working together.
+			float projectileSpeed;		///< Speed of any kind of shots in [/s]
+			float thrust; 				///< [kN] at maximum energy supply.
+			float shieldRegeneration;	///< [hit points/s]
+			uint8_t shieldComponentType;///< The component which is spawned and regenerate by the shield.
+			float lifeSupport;			///< Number of supportable storage components [#vox]
 
 			std::string name;			///< The name of this voxel type
 
@@ -222,12 +254,13 @@ namespace Voxel {
 		uint8_t dirty: 1;		///< Somebody changed a child or this node
 		uint8_t solid: 1;		///< This node and all its children are defined
 		uint8_t surface: 6;		///< One flag for each direction if there is no solid neighborhood
+		uint8_t sysAssignment;	///< Used from outside to determine an assignment to different ship systems.
 
 		/// \brief Standard constructor creates undefined element
-		Voxel() : material(Material::UNDEFINED), type(ComponentType::UNDEFINED), dirty(0), solid(0), surface(0), health(0)	{}
+		Voxel() : material(Material::UNDEFINED), type(ComponentType::UNDEFINED), dirty(0), solid(0), surface(0), health(0), sysAssignment(0)	{}
 
 		/// \brief Construct a component with a defined type and undefined material
-		Voxel(ComponentType _type) : type(_type), dirty(1), solid(TypeInfo::IsSolid(_type)?1:0), surface(0) { uint8_t dummy; TypeInfo::Sample(_type, Math::IVec3(0), 0, 0, material, dummy); }
+		Voxel(ComponentType _type) : type(_type), dirty(1), solid(TypeInfo::IsSolid(_type)?1:0), surface(0), sysAssignment(0) { uint8_t dummy; TypeInfo::Sample(_type, Math::IVec3(0), 0, 0, material, dummy); }
 
 		/// \brief Mark this component as outdated (it is set to undefined)
 		void Touch()			{ dirty = 1; }

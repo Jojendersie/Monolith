@@ -9,13 +9,13 @@ namespace Mechanics {
 		m_energyMaxOut = m_totalEnergyOut * _deltaTime;
 	}
 
-	void ReactorSystem::OnAdd(const Math::IVec3& _position, Voxel::ComponentType _type)
+	void ReactorSystem::OnAdd(const Math::IVec3& _position, Voxel::ComponentType _type, uint8_t _assignment)
 	{
 		m_totalEnergyOut += Voxel::TypeInfo::GetEnergyOut( _type );
 	}
 
-	void ReactorSystem::OnRemove(const Math::IVec3& _position, Voxel::ComponentType _type)
+	void ReactorSystem::ClearSystem()
 	{
-		m_totalEnergyOut -= Voxel::TypeInfo::GetEnergyOut( _type );
+		m_totalEnergyOut = 0;
 	}
 }

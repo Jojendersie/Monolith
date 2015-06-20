@@ -49,7 +49,11 @@ public:
 	/// \brief Simulate ship logic
 	virtual void Simulate(float _deltaTime) override;
 
+	unsigned AllocNewSystemID();
+	void ReleaseSystemID( unsigned _id );
+
 protected:
+	std::vector<bool> m_computerSystemAllocation;	///< One ship can have up to 256 computer systems. The primary system is 0. true means the system id is used.
 	Mechanics::ComputerSystem m_primarySystem;
 	Math::IVec3 m_centralComputerPosition;
 	/*int m_ticks;		///< Simulation counter which reduces the number of specific simulation steps. Is reset to 0 when it reaches WEAPON_TICKS * THRUSTER_TICKS * ....
@@ -62,4 +66,7 @@ protected:
 	// Controllable state
 	Math::Vec3 m_targetAngularVelocity;
 	Math::Vec3 m_targetVelocity;
+
+	/// \brief Compute complex informations if the underlying model changed
+	void ComputeParameters();
 };

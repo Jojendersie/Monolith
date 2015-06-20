@@ -8,18 +8,13 @@ namespace Mechanics {
 		
 	}
 
-	void StorageSystem::OnAdd(const Math::IVec3& _position, Voxel::ComponentType _type)
+	void StorageSystem::OnAdd(const Math::IVec3& _position, Voxel::ComponentType _type, uint8_t _assignment)
 	{
 		m_storageVolume += Voxel::TypeInfo::GetStorageVolume(_type);
 	}
 
-	void StorageSystem::OnRemove(const Math::IVec3& _position, Voxel::ComponentType _type)
+	void StorageSystem::ClearSystem()
 	{
-		m_storageVolume -= Voxel::TypeInfo::GetStorageVolume(_type);
-	}
-
-	void StorageSystem::OnNeighborChange(const Math::IVec3& _position)
-	{
-		//currently impossible
+		m_storageVolume = 0;
 	}
 }

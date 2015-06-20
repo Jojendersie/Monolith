@@ -7,7 +7,7 @@ namespace Mechanics {
 	class ShieldSystem: public ComponentSystem
 	{
 	public:
-		ShieldSystem(Ship& _theShip) : ComponentSystem(_theShip, "Shield") {}
+		ShieldSystem(Ship& _theShip, unsigned _id) : ComponentSystem(_theShip, "Shield", _id) {}
 	private:
 	};
 

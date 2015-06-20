@@ -81,9 +81,19 @@ namespace Voxel {
 			voxelInfo.rareEarthElements = voxelNode[string("Rare Earth Elements")].Get(0);
 			voxelInfo.semiconductors = voxelNode[string("Semiconductors")].Get(0);
 			voxelInfo.heisenbergium = voxelNode[string("Heisenbergium")].Get(0);
-			//optional values
-			voxelInfo.energyOut = voxelNode[string("EnergyOut")].Get(0.0f);
+			// Optional values
+			voxelInfo.energyOutput = voxelNode[string("EnergyOutput")].Get(0.0f);
+			voxelInfo.energyDrain = voxelNode[string("EnergyOutput")].Get(0.0f);
 			voxelInfo.storageVolume = voxelNode[string("StorageVolume")].Get(0.0f);
+			voxelInfo.capacity = voxelNode[string("Capacity")].Get(0.0f);
+			voxelInfo.damage = voxelNode[string("Damage")].Get(0.0f);
+			voxelInfo.cooldown = voxelNode[string("Cooldown")].Get(0.0f);
+			voxelInfo.range = voxelNode[string("Range")].Get(0.0f);
+			voxelInfo.projectileSpeed = voxelNode[string("ProjectileSpeed")].Get(0.0f);
+			voxelInfo.thrust = voxelNode[string("Thrust")].Get(0.0f);
+			voxelInfo.shieldRegeneration = voxelNode[string("ShieldRegeneration")].Get(0.0f);
+			voxelInfo.shieldComponentType = voxelNode[string("ShieldComponentType")].Get(0);
+			voxelInfo.lifeSupport = voxelNode[string("LifeSupport")].Get(0.0f);
 			// Get volumetric size
 			int s = voxelNode[string("Texture Resolution")].Get(0);
 			voxelInfo.textureResolution = s;
@@ -382,7 +392,7 @@ namespace Voxel {
 			LOG_LVL1("The searched voxel type is not defined.");
 			return 0;
 		} else
-			return g_InfoManager->m_voxels[(int)_type].energyOut;
+			return g_InfoManager->m_voxels[(int)_type].energyOutput;
 	}
 
 	// ********************************************************************* //
@@ -499,6 +509,48 @@ namespace Voxel {
 	void TypeInfo::BindVoxelTextureArray()
 	{
 		Graphic::Device::SetTexture( *g_InfoManager->m_voxelTextures, 0 );
+	}
+
+	// ********************************************************************* //
+	bool TypeInfo::IsComputer( ComponentType _type )
+	{
+		return _type == ComponentType::COMPUTER;
+	}
+
+	bool TypeInfo::IsStorage( ComponentType _type )
+	{
+		return GetStorageVolume(_type) > 0.0f;
+	}
+
+	bool TypeInfo::IsReactor( ComponentType _type )
+	{
+		return false;
+		//return GetEnergyOut(_type) > 0.0f && GetEnergyIn(_type) == 0.0f;
+	}
+
+	bool TypeInfo::IsBattery( ComponentType _type )
+	{
+		return false;
+	}
+
+	bool TypeInfo::IsDrive( ComponentType _type )
+	{
+		return false;
+	}
+
+	bool TypeInfo::IsWeapon( ComponentType _type )
+	{
+		return false;
+	}
+
+	bool TypeInfo::IsShield( ComponentType _type )
+	{
+		return false;
+	}
+
+	bool TypeInfo::IsSensor( ComponentType _type )
+	{
+		return false;
 	}
 
 	// ********************************************************************* //

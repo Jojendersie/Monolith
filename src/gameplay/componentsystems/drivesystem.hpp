@@ -8,7 +8,7 @@ namespace Mechanics {
 	class DriveSystem: public ComponentSystem
 	{
 	public:
-		DriveSystem(class Ship& _theShip);
+		DriveSystem(class Ship& _theShip, unsigned _id);
 		virtual void Estimate(float _deltaTime, SystemRequierements& _requirements) override;
 		virtual void Process(float _deltaTime, SystemRequierements& _provided) override;
 	private:
