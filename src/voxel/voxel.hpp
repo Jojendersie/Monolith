@@ -107,11 +107,38 @@ namespace Voxel {
 		/// \brief Returns the amount of Heisenbergium the voxel consists of voxel.
 		static int GetHeisenbergium( ComponentType _type );
 
-		/// \brief Get the energy produced by this voxel in [J/s]
+		/// \brief Get the energy produced by this voxel in [kJ/s]
 		static float GetEnergyOut( ComponentType _type );
+
+		/// \brief Maximum energy usage of the component [kJ/s].
+		static float GetEnergyDrain(ComponentType _type);
+
+		/// \brief Capacity of energy reservoir in [kJ].
+		static float GetCapacity(ComponentType _type);
 
 		/// \brief Get the storage volume of this voxel
 		static float GetStorageVolume(ComponentType _type);
+
+		/// \brief Get the maximum thrust of this voxel in [kN].
+		static float GetThrust(ComponentType _type);
+
+		/// \brief Damage per shot in [kJ].
+		static float GetDamage(ComponentType _type);
+
+		/// \brief Range of a weapon in [] or range of a sensor.
+		static float GetRange(ComponentType _type);
+
+		/// \brief Speed of any kind of shots in [/s].
+		static float GetProjectileSpeed(ComponentType _type);
+
+		/// \brief [hit points/s].
+		static float GetShieldRegeneration(ComponentType _type);
+
+		/// \brief The component which is spawned and regenerate by the shield.
+		static float GetShieldComponentType(ComponentType _type);
+
+		/// \brief Number of supportable storage components [#vox].
+		static float GetLiveSupport(ComponentType _type);
 
 		/// \brief Returns the name of the voxel
 		static std::string GetName( ComponentType _type );

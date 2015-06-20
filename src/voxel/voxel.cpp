@@ -396,6 +396,26 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
+	float TypeInfo::GetEnergyDrain( ComponentType _type )
+	{
+		if( (int)_type >= g_InfoManager->m_numVoxels ) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0;
+		} else
+			return g_InfoManager->m_voxels[(int)_type].energyDrain;
+	}
+
+	// ********************************************************************* //
+	float TypeInfo::GetCapacity( ComponentType _type )
+	{
+		if( (int)_type >= g_InfoManager->m_numVoxels ) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0;
+		} else
+			return g_InfoManager->m_voxels[(int)_type].capacity;
+	}
+
+	// ********************************************************************* //
 	float TypeInfo::GetStorageVolume(ComponentType _type)
 	{
 		if ((int)_type >= g_InfoManager->m_numVoxels) {
@@ -404,6 +424,83 @@ namespace Voxel {
 		}
 		else
 			return g_InfoManager->m_voxels[(int)_type].storageVolume;
+	}
+
+	// ********************************************************************* //
+	float TypeInfo::GetThrust(ComponentType _type)
+	{
+		if ((int)_type >= g_InfoManager->m_numVoxels) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0;
+		}
+		else
+			return g_InfoManager->m_voxels[(int)_type].thrust;
+	}
+
+	// ********************************************************************* //
+	float TypeInfo::GetDamage(ComponentType _type)
+	{
+		if ((int)_type >= g_InfoManager->m_numVoxels) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0;
+		}
+		else
+			return g_InfoManager->m_voxels[(int)_type].damage;
+	}
+
+	// ********************************************************************* //
+	float TypeInfo::GetRange(ComponentType _type)
+	{
+		if ((int)_type >= g_InfoManager->m_numVoxels) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0;
+		}
+		else
+			return g_InfoManager->m_voxels[(int)_type].range;
+	}
+
+	// ********************************************************************* //
+	float TypeInfo::GetProjectileSpeed(ComponentType _type)
+	{
+		if ((int)_type >= g_InfoManager->m_numVoxels) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0;
+		}
+		else
+			return g_InfoManager->m_voxels[(int)_type].projectileSpeed;
+	}
+
+	// ********************************************************************* //
+	float TypeInfo::GetShieldRegeneration(ComponentType _type)
+	{
+		if ((int)_type >= g_InfoManager->m_numVoxels) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0;
+		}
+		else
+			return g_InfoManager->m_voxels[(int)_type].shieldRegeneration;
+	}
+
+	// ********************************************************************* //
+	float TypeInfo::GetShieldComponentType(ComponentType _type)
+	{
+		if ((int)_type >= g_InfoManager->m_numVoxels) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0;
+		}
+		else
+			return g_InfoManager->m_voxels[(int)_type].shieldComponentType;
+	}
+
+	// ********************************************************************* //
+	float TypeInfo::GetLiveSupport(ComponentType _type)
+	{
+		if ((int)_type >= g_InfoManager->m_numVoxels) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return 0;
+		}
+		else
+			return g_InfoManager->m_voxels[(int)_type].lifeSupport;
 	}
 
 	// ********************************************************************* //
