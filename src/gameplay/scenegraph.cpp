@@ -269,7 +269,6 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 		Vec3 velocitySlf = m_modelSlf->GetVelocity() + cross(m_modelSlf->GetAngularVelocity(), radiusSlf);
 		Vec3 velocityOth = m_modelOth->GetVelocity() + cross(m_modelOth->GetAngularVelocity(), radiusOth);
 
-		//not sure how the collision normal is calculated
 		Vec3 normal = normalize(m_hits[0].posOth - m_hits[0].posSlf);
 
 		float epsilon = 0.f;
@@ -312,7 +311,6 @@ void SceneGraph::CollisionCheck::TreeCollision(const Math::IVec4& _position0, co
 	sizeSq *= sizeSq;
 	float lenSq = lengthSq(posOth - posSlf);
 	//diameter of the outer shpere
-	//probably decreasable without changes to the results
 	// (sqrt(3)/2)^2
 	if (0.7499993 * sizeSq > lenSq)
 	{
@@ -320,6 +318,7 @@ void SceneGraph::CollisionCheck::TreeCollision(const Math::IVec4& _position0, co
 		if (_position0[3] == 0)
 		{
 			//check with a smaller tolerance
+			//(sqrt(2)/2)^2
 			if (0.25 * sizeSq > lenSq)
 			{
 				m_hits.emplace_back(IVec3(_position0), IVec3(_position1), posSlf, posOth);

@@ -5,9 +5,10 @@
 
 using namespace Math;
 
-PlayerController::PlayerController(SOHandle _ship)
+PlayerController::PlayerController(SOHandle _ship, Input::Camera* _camera)
 	: Controller(_ship),
-	m_mouseRotationEnabled(false)
+	m_mouseRotationEnabled(false),
+	m_camera(_camera)
 {
 
 }
@@ -24,6 +25,7 @@ void PlayerController::Scroll(double _dx, double _dy)
 
 void PlayerController::KeyDown(int _key, int _modifiers)
 {
+
 }
 
 void PlayerController::KeyUp(int _key, int _modifiers)

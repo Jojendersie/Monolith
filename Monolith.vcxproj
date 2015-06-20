@@ -96,6 +96,7 @@
     <ClCompile Include="src\gameplay\componentsystems\drivesystem.cpp" />
     <ClCompile Include="src\gameplay\componentsystems\reactorsystem.cpp" />
     <ClCompile Include="src\gameplay\componentsystems\storagesystem.cpp" />
+    <ClCompile Include="src\gameplay\componentsystems\weaponsystem.cpp" />
     <ClCompile Include="src\gameplay\galaxy.cpp" />
     <ClCompile Include="src\gameplay\managment\controller.cpp" />
     <ClCompile Include="src\gameplay\managment\playercontroller.cpp" />

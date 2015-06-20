@@ -269,6 +269,9 @@
     <ClCompile Include="src\gameplay\componentsystems\storagesystem.cpp">
       <Filter>Source Files\gameplay\componentsystems</Filter>
     </ClCompile>
+    <ClCompile Include="src\gameplay\componentsystems\weaponsystem.cpp">
+      <Filter>Source Files\gameplay\componentsystems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
