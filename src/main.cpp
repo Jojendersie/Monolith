@@ -32,7 +32,7 @@ int main()
 
 	// Create and run game
 	{
-		Monolith Game( false );
+		Monolith Game( true );
 		Game.Run();
 	}
 }

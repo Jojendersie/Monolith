@@ -16,9 +16,6 @@
 
 using namespace Math;
 
-// THIS IS A TEST FUNCTION
-static SphericalFunction g_superFunc( [](const Math::Vec3& _dir){ return abs(_dir[1]) * 3; } );
-
 // ************************************************************************* //
 GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 	m_ship( nullptr ),
@@ -173,7 +170,7 @@ void GSEditor::Render( double _deltaTime )
 		modelViewProjection *= m_modelCamera->GetProjection();
 
 		// Draw the thrust function
-		if( m_recreateThrustVis ) { m_thrustFunction = new Graphic::Marker::SphericalFunction( g_superFunc ); m_recreateThrustVis = false; }
+		if( m_recreateThrustVis ) { m_thrustFunction = new Graphic::Marker::SphericalFunction( m_ship->DebugGet() ); m_recreateThrustVis = false; }
 		m_thrustFunction->Draw( Mat4x4::Translation(m_ship->GetCenter()) * modelViewProjection );
 
 		m_deleteList.Clear();
@@ -276,6 +273,7 @@ void GSEditor::KeyClick( int _key )
 			// Add a voxel of the chosen type
 			m_ship->AddComponent( m_lvl0Position, m_currentType );
 		}
+		m_ship->ComputeParameters();
 		m_recreateThrustVis = true;
 	}
 }

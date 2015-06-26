@@ -82,8 +82,8 @@ namespace Voxel {
 			voxelInfo.semiconductors = voxelNode[string("Semiconductors")].Get(0);
 			voxelInfo.heisenbergium = voxelNode[string("Heisenbergium")].Get(0);
 			// Optional values
-			voxelInfo.energyOutput = voxelNode[string("EnergyOutput")].Get(0.0f);
-			voxelInfo.energyDrain = voxelNode[string("EnergyOutput")].Get(0.0f);
+			voxelInfo.energyOutput = voxelNode[string("Energy Output")].Get(0.0f);
+			voxelInfo.energyDrain = voxelNode[string("Energy Drain")].Get(0.0f);
 			voxelInfo.storageVolume = voxelNode[string("StorageVolume")].Get(0.0f);
 			voxelInfo.capacity = voxelNode[string("Capacity")].Get(0.0f);
 			voxelInfo.damage = voxelNode[string("Damage")].Get(0.0f);
@@ -632,7 +632,7 @@ namespace Voxel {
 
 	bool TypeInfo::IsDrive( ComponentType _type )
 	{
-		return false;
+		return GetThrust(_type) > 0.0f;
 	}
 
 	bool TypeInfo::IsWeapon( ComponentType _type )

@@ -52,6 +52,12 @@ public:
 	unsigned AllocNewSystemID();
 	void ReleaseSystemID( unsigned _id );
 
+	Math::CubeMap<3> DebugGet() const {
+		return m_primarySystem.m_drives.m_maxTorque;
+	}
+
+	/// \brief Compute complex informations if the underlying model changed
+	void ComputeParameters();
 protected:
 	std::vector<bool> m_computerSystemAllocation;	///< One ship can have up to 256 computer systems. The primary system is 0. true means the system id is used.
 	Mechanics::ComputerSystem m_primarySystem;
@@ -66,7 +72,4 @@ protected:
 	// Controllable state
 	Math::Vec3 m_targetAngularVelocity;
 	Math::Vec3 m_targetVelocity;
-
-	/// \brief Compute complex informations if the underlying model changed
-	void ComputeParameters();
 };

@@ -40,6 +40,7 @@ void PlayerController::Process(float _deltaTime)
 	// Velocity in Z is increased/decreased while a key is pressed.
 	// In other directions stop pushing resets the velocity
 	m_velocity[0] = 0.0f;
+	m_velocity[2] = m_ship->GetVelocity()[2];
 	if(glfwGetKey(Graphic::Device::GetWindow(), GLFW_KEY_W))
 		m_velocity[2] += _deltaTime * 50.0f;
 	if(glfwGetKey(Graphic::Device::GetWindow(), GLFW_KEY_S))

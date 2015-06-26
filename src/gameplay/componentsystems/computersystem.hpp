@@ -34,6 +34,7 @@ namespace Mechanics {
 		bool m_enabled;								///< The system is disabled if its computer voxel is destroyed. Repairing this ship reenables the system again.
 
 		//Script m_script; TODO
+		friend class Ship;
 	};
 
 }

@@ -23,6 +23,14 @@ namespace Math {
 			SAMPLE_COUNT = 2*N*N + 2*N*(N-2) + 2*(N-2)*(N-2)
 		};
 
+		/// \brief Create a cube map with all values = 0
+		CubeMap()
+		{
+			auto endit = end();
+			for( auto it = begin(); it != endit; ++it )
+				it.value() = 0.0f;
+		}
+
 		/// \brief Create a cube map which discretizes an arbitrary function.
 		/// \details For each cube map sample the function is called once.
 		/// \param [in] _function A spherical function which maps a direction to
@@ -46,8 +54,8 @@ namespace Math {
 			// Find the principal direction
 			Math::Vec3 absDir = abs(_direction);
 			int pdir = 0, udir = 1, vdir = 2;
-			if( absDir[1] > absDir[0] && absDir[1] > absDir[2] )		{ pdir = 1; udir = 0; }
-			else if( absDir[2] > absDir[0] && absDir[2] > absDir[1] )	{ pdir = 2; vdir = 0; }
+			if( absDir[1] >= absDir[0] && absDir[1] >= absDir[2] )		{ pdir = 1; udir = 0; }
+			else if( absDir[2] >= absDir[0] && absDir[2] >= absDir[1] )	{ pdir = 2; vdir = 0; }
 
 			// Get 3D outer cube position
 			// Project ray to the cube faces.
@@ -77,6 +85,46 @@ namespace Math {
 			Assert( fu >= 0.0f && fu <= 1.0f, "Interpolation coordinate wrong" );
 			Assert( fv >= 0.0f && fv <= 1.0f, "Interpolation coordinate wrong" );
 			return lerp(lerp(s00, s10, fu), lerp(s01, s11, fu), fv);
+		}
+
+		/// \brief Project a value additive to the function
+		void splat ( const Math::Vec3& _direction, float _value )
+		{
+			// Find the principal direction
+			Math::Vec3 absDir = abs(_direction);
+			int pdir = 0, udir = 1, vdir = 2;
+			if( absDir[1] >= absDir[0] && absDir[1] >= absDir[2] )		{ pdir = 1; udir = 0; }
+			else if( absDir[2] >= absDir[0] && absDir[2] >= absDir[1] )	{ pdir = 2; vdir = 0; }
+
+			// Get 3D outer cube position
+			// Project ray to the cube faces.
+			Math::Vec3 projDir = _direction / absDir[pdir];
+			// Transform [-1,1] to [0, N-1)
+			projDir = (projDir * 0.5f + 0.5f) * (N-1);// ((N-1) * 0.99999f);// * std::nexttoward(N-1, 0.0);	// TODO: constexpr vs1xx
+			Assert( projDir[0] <= N-1 && projDir[0] >= 0.0f
+				&& projDir[1] <= N-1 && projDir[1] >= 0.0f
+				&& projDir[2] <= N-1 && projDir[2] >= 0.0f,
+				"Cube map sampling out of range"
+			);
+			// Get Integer coordinate [0,N-2]
+			Math::IVec3 voxel = Math::IVec3(projDir);
+			voxel[udir] = min(N-2, voxel[udir]);
+			voxel[vdir] = min(N-2, voxel[vdir]);
+
+			float fu = projDir[udir]-voxel[udir];
+			float fv = projDir[vdir]-voxel[vdir];
+			Assert( fu >= 0.0f && fu <= 1.0f, "Interpolation coordinate wrong" );
+			Assert( fv >= 0.0f && fv <= 1.0f, "Interpolation coordinate wrong" );
+
+			// Get 4 point samples and interpolate 
+			Math::IVec3 samplePos = voxel;
+			m_data[indexOf(samplePos)] += _value * (1-fu) * (1-fv);
+			++samplePos[udir];
+			m_data[indexOf(samplePos)] += _value * (fu) * (1-fv);
+			++samplePos[vdir];
+			m_data[indexOf(samplePos)] += _value * (fu) * (fv);
+			--samplePos[udir];
+			m_data[indexOf(samplePos)] += _value * (1-fu) * (fv);
 		}
 
 		// TODO: derivative

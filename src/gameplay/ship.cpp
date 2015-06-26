@@ -78,17 +78,22 @@ void Ship::Load( const Jo::Files::IFile& _file )
 void Ship::Simulate(float _deltaTime)
 {
 	Mechanics::SystemRequierements requirements;
+	// Get movement directions in object space
+	Vec3 deltaAngularVelMod = GetRotationMatrix() * (m_targetAngularVelocity - Model::m_angularVelocity);
+	//Vec3 x = GetRotationMatrix() * m_targetAngularVelocity;
+	//LOG_ERROR(std::to_string(x[2]));
+	Vec3 deltaVelMod = GetRotationMatrix() * (m_targetVelocity - Model::m_velocity);
 	// Estimate the required forces to reach the target velocities
-	requirements.torque = m_inertiaTensor * (m_targetAngularVelocity - Model::m_angularVelocity) / _deltaTime;
-	requirements.thrust = (m_mass / _deltaTime) * (m_targetVelocity - Model::m_velocity);
+	requirements.torque = m_inertiaTensor * deltaAngularVelMod / _deltaTime;
+	requirements.thrust = (m_mass / _deltaTime) * deltaVelMod;
 
 	// Do Energy management
 	m_primarySystem.Estimate(_deltaTime, requirements);
 	m_primarySystem.Process(_deltaTime, requirements);
 
 	// Accelerate dependent on available torque and force.
-	Model::m_angularVelocity += _deltaTime * (m_inertiaTensorInverse * requirements.torque);
-	Model::m_velocity += (_deltaTime / m_mass) * requirements.thrust;
+	Model::m_angularVelocity += (_deltaTime * (m_inertiaTensorInverse * requirements.torque)) * GetRotationMatrix();
+	Model::m_velocity += ((_deltaTime / m_mass) * requirements.thrust) * GetRotationMatrix();
 
 	// Also simulate the physics
 	Model::Simulate(_deltaTime);

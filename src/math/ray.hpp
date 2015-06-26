@@ -31,7 +31,9 @@ namespace Math {
 		{
 			float len = length(_direction);
 			m_direction = _direction / len;
-			m_directionInv = len / _direction;
+			m_directionInv[0] = len / (_direction[0] + 1e6f*sgn(_direction[0]));
+			m_directionInv[1] = len / (_direction[1] + 1e6f*sgn(_direction[1]));
+			m_directionInv[2] = len / (_direction[2] + 1e6f*sgn(_direction[2]));
 		}
 
 		/// \brief Create relative ray from world space ray
