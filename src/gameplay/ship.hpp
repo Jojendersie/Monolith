@@ -1,5 +1,6 @@
 #pragma once
 
+#include "predeclarations.hpp"
 #include "voxel/model.hpp"
 #include "componentsystems/computersystem.hpp"
 
@@ -36,7 +37,7 @@ public:
 
 	/// \brief Player or AI can set the velocity. The drives automatically try
 	///		to reach it.
-	void SetTargetVelocity( const Math::Vec3& _targetVelocity )	{ m_targetVelocity = _targetVelocity * m_rotationMatrix; }
+	void SetTargetVelocity( const Math::Vec3& _targetVelocity )	{ m_targetVelocity = _targetVelocity; }
 
 	/// \brief Player or AI can set the rotation. The drives automatically try
 	///		to reach it.
@@ -52,7 +53,7 @@ public:
 	unsigned AllocNewSystemID();
 	void ReleaseSystemID( unsigned _id );
 
-	Math::CubeMap<3> DebugGet() const {
+	const Math::SphericalFunction& DebugGet() const {
 		return m_primarySystem.m_drives.m_maxThrust;
 	}
 
@@ -70,6 +71,6 @@ protected:
 	const int COMPUTER_TICKS = 2;*/
 
 	// Controllable state
-	Math::Vec3 m_targetAngularVelocity;
-	Math::Vec3 m_targetVelocity;
+	Math::Vec3 m_targetAngularVelocity;		///< Model space angular velocity
+	Math::Vec3 m_targetVelocity;			///< Model space velocity
 };

@@ -60,17 +60,18 @@ void PlayerController::Process(float _deltaTime)
 	// Stop pushing the rotation keys always resets to zero.
 	Vec3 angularVel(0.0f);
 	if(glfwGetKey(Graphic::Device::GetWindow(), GLFW_KEY_E))
-		angularVel += m_ship->GetInverseRotationMatrix().ZAxis() * 0.5f;
+		angularVel += Vec3(0.0f, 0.0f, 0.5f);
 	else if(glfwGetKey(Graphic::Device::GetWindow(), GLFW_KEY_Q))
-		angularVel += m_ship->GetInverseRotationMatrix().ZAxis() * -0.5f;
+		angularVel += Vec3(0.0f, 0.0f, -0.5f);
 	// Rotate towards mouse cursor
 	if( m_mouseRotationEnabled )
 	{
 		Vec2 cursor = Input::Manager::GetCursorPosScreenSpace();
 		//cursor = Vec2(sgn(cursor[0]), sgn(cursor[1])) * max(Vec2(0.0f), abs(cursor) - 0.1f);
 		cursor = Vec2(sgn(cursor[0]), sgn(cursor[1])) * cursor * cursor;
-		angularVel += m_ship->GetInverseRotationMatrix().YAxis() * -cursor[0];
-		angularVel += m_ship->GetInverseRotationMatrix().XAxis() * cursor[1];
+		angularVel += Vec3(cursor[1], -cursor[0], 0.0f);
+		//angularVel += m_ship->GetInverseRotationMatrix().YAxis() * -cursor[0];
+		//angularVel += m_ship->GetInverseRotationMatrix().XAxis() * cursor[1];
 	}
 	m_ship->SetTargetAngularVelocity(angularVel);
 }

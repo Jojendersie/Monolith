@@ -45,15 +45,15 @@ namespace Marker {
 			sfVertex vertex;
 			// Add triangle now
 			// Pos, Normal, Skip Tex
-			float f = _function(_v1);
+			float f = _function(_v1)[0];
 			vertex.position = _v1 * f; //vertex.normal = normalize(vertex.position);
 			vertex.color = ValueToColor( f );
 			_out.Add( vertex );
-			f = _function(_v3);
+			f = _function(_v3)[0];
 			vertex.position = _v3 * f; //vertex.normal = normalize(vertex.position);
 			vertex.color = ValueToColor( f );
 			_out.Add( vertex );
-			f = _function(_v2);
+			f = _function(_v2)[0];
 			vertex.position = _v2 * f; //vertex.normal = normalize(vertex.position);
 			vertex.color = ValueToColor( f );
 			_out.Add( vertex );

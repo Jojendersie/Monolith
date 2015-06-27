@@ -6,6 +6,14 @@
 
 namespace Math {
 
+	/*Vec3 cubeMapIndexToDirection(int _res, uint _index)
+	{
+	}
+
+	uint cubeMapDirectionToIndex(int _res, const Vec3& _direction)
+	{
+	}*/
+
 	/// \brief Approximates a spherical function/map in form of a cube.
 	/// \details In contrast to a standard cube map this one shares the edge
 	///		pixels for all adjacent faces.
@@ -13,7 +21,7 @@ namespace Math {
 	///		samples. So there are 52 samples less!
 	///
 	///		The cube maps span a vector space: 'cm +' and 'scalar *'
-	template<int N>
+	template<int N, typename T>
 	class CubeMap
 	{
 		static_assert(N>1, "Are you sure you want to use a cube map for a single voxel?");
@@ -27,15 +35,15 @@ namespace Math {
 		CubeMap()
 		{
 			auto endit = end();
-			for( auto it = begin(); it != endit; ++it )
+			for( auto& it = begin(); it != endit; ++it )
 				it.value() = 0.0f;
 		}
 
-		/// \brief Create a cube map which discretizes an arbitrary function.
+		/// \brief Create a cube map which discretized an arbitrary function.
 		/// \details For each cube map sample the function is called once.
 		/// \param [in] _function A spherical function which maps a direction to
 		///		a value.
-		CubeMap( std::function<float(const Math::Vec3&)> _function )
+		/*CubeMap( std::function<T(const Math::Vec3&)> _function )
 		{
 			// Go over the whole cube and skip the inner parts
 			Math::IVec3 voxel;
@@ -46,10 +54,10 @@ namespace Math {
 				// evaluate and save sample
 				it.value() = _function(it.direction());
 			}
-		}
+		}*/
 
 		/// \brief Do a bilinear sample of the cube map
-		float operator () ( const Math::Vec3& _direction ) const
+		T operator () ( const Math::Vec3& _direction ) const
 		{
 			// Find the principal direction
 			Math::Vec3 absDir = abs(_direction);
@@ -72,13 +80,13 @@ namespace Math {
 
 			// Get 4 point samples and interpolate 
 			Math::IVec3 samplePos = voxel;
-			float s00 = m_data[indexOf(samplePos)];
+			T s00 = m_data[indexOf(samplePos)];
 			++samplePos[udir];
-			float s10 = m_data[indexOf(samplePos)];
+			T s10 = m_data[indexOf(samplePos)];
 			++samplePos[vdir];
-			float s11 = m_data[indexOf(samplePos)];
+			T s11 = m_data[indexOf(samplePos)];
 			--samplePos[udir];
-			float s01 = m_data[indexOf(samplePos)];
+			T s01 = m_data[indexOf(samplePos)];
 
 			float fu = projDir[udir]-voxel[udir];
 			float fv = projDir[vdir]-voxel[vdir];
@@ -87,8 +95,7 @@ namespace Math {
 			return lerp(lerp(s00, s10, fu), lerp(s01, s11, fu), fv);
 		}
 
-		/// \brief Project a value additive to the function
-		void splat ( const Math::Vec3& _direction, float _value )
+		int getSplatIndex( const Math::Vec3& _direction )
 		{
 			// Find the principal direction
 			Math::Vec3 absDir = abs(_direction);
@@ -118,19 +125,34 @@ namespace Math {
 
 			// Get 4 point samples and interpolate 
 			Math::IVec3 samplePos = voxel;
-			m_data[indexOf(samplePos)] += _value * (1-fu) * (1-fv);
+			/*m_data[indexOf(samplePos)] += _value * (1-fu) * (1-fv);
 			++samplePos[udir];
 			m_data[indexOf(samplePos)] += _value * (fu) * (1-fv);
 			++samplePos[vdir];
 			m_data[indexOf(samplePos)] += _value * (fu) * (fv);
 			--samplePos[udir];
-			m_data[indexOf(samplePos)] += _value * (1-fu) * (fv);
+			m_data[indexOf(samplePos)] += _value * (1-fu) * (fv);*/
+			// Splat to closest point
+			if(fu > 0.5f)
+			{
+				if(fv > 0.5f) {	++samplePos[udir];	++samplePos[vdir];	return indexOf(samplePos);}
+				else {			++samplePos[udir];						return indexOf(samplePos);}
+			} else {
+				if(fv > 0.5f) {						++samplePos[vdir];	return indexOf(samplePos);}
+				else {													return indexOf(samplePos);}
+			}
+		}
+
+		/// \brief Project a value additive to the function
+		void splat( const Math::Vec3& _direction, float _value )
+		{
+			m_data[getSplatIndex(_direction)] += _value;
 		}
 
 		// TODO: derivative
 
 		/// \brief Add two cube map functions
-		CubeMap& operator += (const CubeMap& _rhs)
+		/*CubeMap& operator += (const CubeMap& _rhs)
 		{
 			for( int n = 0; n < SAMPLE_COUNT; ++n )
 				m_data[n] += _rhs.m_data[n];
@@ -160,6 +182,11 @@ namespace Math {
 		friend CubeMap operator * (float _scalar, CubeMap _rhs)
 		{
 			return _rhs *= _scalar;
+		}*/
+
+		T& operator [] (int _index)
+		{
+			return m_data[_index];
 		}
 
 		/// \brief Iterate over all pixels of the map.
@@ -187,6 +214,7 @@ namespace Math {
 				{
 					m_position[2] += N - 2;
 				}
+				m_index = m_map->indexOf(m_position);
 				return *this;
 			}
 
@@ -201,24 +229,27 @@ namespace Math {
 
 			/// \brief Return the pixels value.
 			/// \details The index is recomputed each time.
-			float& value()
+			T& value()
 			{
-				return m_map->m_data[m_map->indexOf(m_position)];
+				return m_map->m_data[m_index];
 			}
-			float value() const
+			const T& value() const
 			{
-				return m_map->m_data[m_map->indexOf(m_position)];
+				return m_map->m_data[m_index];
 			}
+
+			int index() const { return m_index; }
 
 			bool operator == (const Iterator& _rhs) const { return m_position == _rhs.m_position; }
 			bool operator != (const Iterator& _rhs) const { return m_position != _rhs.m_position; }
 		private:
 			IVec3 m_position;
+			int m_index;
 			CubeMap* m_map;
 			friend class CubeMap;
 
-			Iterator(CubeMap* _map) : m_position(0,0,0), m_map(_map) {}
-			Iterator() : m_position(N,0,0), m_map(nullptr) {}
+			Iterator(CubeMap* _map) : m_position(0,0,0), m_index(0), m_map(_map) {}
+			Iterator() : m_position(N,0,0), m_index(SAMPLE_COUNT), m_map(nullptr) {}
 		};
 
 		Iterator begin() { return Iterator(this); }
@@ -226,7 +257,7 @@ namespace Math {
 		Iterator end() { return Iterator(); }
 
 	private:
-		float m_data[SAMPLE_COUNT];
+		T m_data[SAMPLE_COUNT];
 
 		/// \brief Compute the index of an voxel on the surface.
 		int indexOf( const Math::IVec3& _voxel ) const
