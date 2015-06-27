@@ -13,7 +13,6 @@ namespace Mechanics {
 	{
 	}
 
-	// TODO: Use Time!!!
 	void DriveSystem::Estimate(float _deltaTime, SystemRequierements& _requirements)
 	{
 		// Compute how much of the required force can by provided by this drive system?
@@ -23,7 +22,7 @@ namespace Mechanics {
 		m_currentThrustDir = _requirements.thrust / max(1e-6f, m_currentThrust);
 		m_currentTorqueDir = _requirements.torque / max(1e-6f, m_currentTorque);
 
-		if( m_currentThrust + m_currentTorque > 0.0f )
+		if( m_currentThrust + m_currentTorque > 1e-5f )
 		{
 			// Get maximal drive properties for current directions
 			float maxThrust = 0.0f, maxTorque = 0.0f;
@@ -42,7 +41,7 @@ namespace Mechanics {
 			// How large is a percentage of how much energy must be used now
 			m_energyDemand = m_maxEnergyDrain * (m_currentThrust + m_currentTorque) / max(1e-6f, sumMax);
 		} else 
-			m_energyDemand = 0.0f;
+			m_currentThrust = m_currentTorque = m_energyDemand = 0.0f;
 	}
 
 	void DriveSystem::Process(float _deltaTime, SystemRequierements& _provided)
@@ -83,19 +82,22 @@ namespace Mechanics {
 			ray.m_origin += ray.m_direction * 1.414213562f;
 			Voxel::Model::ModelData::HitResult hit;
 			// TODO: more fine grained sampling
-			if(!m_ship.GetVoxelTree().RayCast( ray, 0, hit, distance ))
-			{
-				// Only if nothing is visible the drive can fire into this direction.
-				iteng.value() += drain;
-				// Divide the force into a rotation and a forward thrust.
-				Vec3 axis = cross(centerDir, ray.m_direction);
-				float sinForce = length(axis);
-				float cosForce = sqrt( saturate( 1.0f - sinForce * sinForce ) );
-				itthr.value() = cosForce * thrust;
-				// Torque must be update by splatting.
-				if( sinForce > 1e-6f )
-					newTorque.splat(axis, centerDist * sinForce * thrust);
-			}
+			float force = thrust;
+			// In occluded directions there is thrust=0. Because this results in bad
+			// game play use 10% instead.
+			if(m_ship.GetVoxelTree().RayCast( ray, 0, hit, distance ))
+				force *= 0.1f;
+
+			// Only if nothing is visible the drive can fire into this direction.
+			iteng.value() += drain;
+			// Divide the force into a rotation and a forward thrust.
+			Vec3 axis = cross(centerDir, ray.m_direction);
+			float sinForce = length(axis);
+			float cosForce = sqrt( saturate( 1.0f - sinForce * sinForce ) );
+			itthr.value() = cosForce * force;
+			// Torque must be update by splatting.
+			if( sinForce > 1e-6f )
+				newTorque.splat(axis, centerDist * sinForce * force);
 		}
 		m_maxThrust += newThrust;
 		m_maxTorque += newTorque;

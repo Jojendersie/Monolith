@@ -53,7 +53,7 @@ public:
 	void ReleaseSystemID( unsigned _id );
 
 	Math::CubeMap<3> DebugGet() const {
-		return m_primarySystem.m_drives.m_maxTorque;
+		return m_primarySystem.m_drives.m_maxThrust;
 	}
 
 	/// \brief Compute complex informations if the underlying model changed

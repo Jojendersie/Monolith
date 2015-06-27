@@ -46,8 +46,8 @@ namespace Mechanics {
 	{
 		// Dummy implementation
 		// later this is done by the script
-		m_drives.m_energyIn = 100.0f;
-		m_weapons.m_energyIn = 100.0f;
+		m_drives.m_energyIn = Math::min(100.0f, m_drives.m_energyDemand);
+		m_weapons.m_energyIn = Math::min(100.0f, m_weapons.m_energyDemand);
 
 		m_batteries.Process(_deltaTime, _provided);
 		m_drives.Process(_deltaTime, _provided);
