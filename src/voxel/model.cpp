@@ -244,6 +244,9 @@ namespace Voxel {
 		deltaRot.k = theta[2] * s;
 
 		Rotate( deltaRot );
+		// Also rotate the velocity, while this is not physical plausible it increases
+		// the playability extreme.
+		m_velocity = m_velocity * Mat3x3::Rotation(deltaRot);
 	}
 
 	// ********************************************************************* //
@@ -409,6 +412,74 @@ namespace Voxel {
 		m_boundingBox.min = min(m_boundingBox.min, tvec); m_boundingBox.max = max(m_boundingBox.max, tvec);
 		tvec = TransformInverse(octMax);
 		m_boundingBox.min = min(m_boundingBox.min, tvec); m_boundingBox.max = max(m_boundingBox.max, tvec);
+	}
+
+	// ********************************************************************* //
+	void Model::ComputeInertia()
+	{
+		/*struct MassProcessor: public Model::ModelData::SVOProcessor
+		{
+			MassProcessor() : center(0.0f), mass(0.0f), n(0) {}
+
+			bool PreTraversal(const Math::IVec4& _position, const Model::ModelData::SVON* _node)
+			{
+				if( !_node->Children() )
+				{
+					// This is a component add it if it is a functional unit
+					float m = TypeInfo::GetMass(_node->Data().type);
+					center += m * (Vec3((float)_position[0], (float)_position[1], (float)_position[2]) + 0.5f);
+					mass += m;
+					++n;
+				}
+				return true;
+			}
+
+			Vec3 center;
+			float mass;
+			int n;
+		};
+
+		MassProcessor mproc;
+		m_voxelTree.Traverse( mproc );
+		m_mass = mproc.mass;
+		m_center = mproc.center / m_mass;*/
+
+		// https://de.wikipedia.org/wiki/Tr%C3%A4gheitstensor
+		// Iterate over the tree, compute values for each element and reassign to systems.
+		struct InertiaProcessor: public Model::ModelData::SVOProcessor
+		{
+			InertiaProcessor(const Vec3& _center) : newInertia(0.0f), center(_center) {}
+
+			bool PreTraversal(const Math::IVec4& _position, const Model::ModelData::SVON* _node)
+			{
+				if( !_node->Children() )
+				{
+					// This is a component add it if it is a functional unit
+					float m = TypeInfo::GetMass(_node->Data().type);
+					// TODO: optimize redundancy if compiler does not
+					Vec3 p = Vec3((float)_position[0], (float)_position[1], (float)_position[2]) - center + 0.5f;
+					// A voxel is handled as a single point and not as a box.
+					// If it is set at the origin the tensor would be 0. Therefore I added
+					// an regularization which is effectively the tensor of a box.
+					float regularization = m * 2.0f / 3.0f;
+					newInertia += m * Mat3x3(
+						p[1]*p[1] + p[2]*p[2], -p[0] * p[1], -p[0] * p[2],
+						-p[0] * p[1], p[0]*p[0] + p[2]*p[2], -p[1] * p[2],
+						-p[0] * p[2], -p[1] * p[2], p[0]*p[0] + p[1]*p[1]
+					);
+				}
+				return true;
+			}
+
+			Math::Mat3x3 newInertia;
+		private:
+			const Vec3& center;
+		};
+		
+		InertiaProcessor proc(m_center);
+		m_voxelTree.Traverse( proc );
+		m_inertiaTensor = proc.newInertia;
+		m_inertiaTensorInverse = proc.newInertia.Inverse();
 	}
 
 	// ********************************************************************* //

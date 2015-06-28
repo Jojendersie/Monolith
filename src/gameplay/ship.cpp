@@ -82,7 +82,7 @@ void Ship::Simulate(float _deltaTime)
 	Vec3 deltaAngularVelMod = m_targetAngularVelocity - GetRotationMatrix() * Model::m_angularVelocity;
 	Vec3 deltaVelMod = m_targetVelocity - GetRotationMatrix() * Model::m_velocity;
 	// Estimate the required forces to reach the target velocities
-	requirements.torque = (deltaAngularVelMod / _deltaTime) * m_inertiaTensor;
+	requirements.torque = m_inertiaTensor * (deltaAngularVelMod / _deltaTime);
 	requirements.thrust = (m_mass / _deltaTime) * deltaVelMod;
 
 	// Do Energy management
@@ -90,7 +90,7 @@ void Ship::Simulate(float _deltaTime)
 	m_primarySystem.Process(_deltaTime, requirements);
 
 	// Accelerate dependent on available torque and force.
-	AddAngularVelocity( (_deltaTime * (requirements.torque * m_inertiaTensorInverse)) * GetRotationMatrix() );
+	AddAngularVelocity( (_deltaTime * (m_inertiaTensorInverse * requirements.torque)) * GetRotationMatrix() );
 	AddVelocity( ((_deltaTime / m_mass) * requirements.thrust) * GetRotationMatrix() );
 
 	// Also simulate the physics
@@ -117,6 +117,7 @@ void Ship::ReleaseSystemID( unsigned _id )
 // ********************************************************************* //
 void Ship::ComputeParameters()
 {
+	ComputeInertia();
 	// Delete the old state.
 	m_primarySystem.ClearSystem();
 	// Iterate over the tree, compute values for each element and reassign to systems.

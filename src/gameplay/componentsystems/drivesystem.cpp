@@ -6,6 +6,12 @@ using namespace Math;
 
 namespace Mechanics {
 
+	// A coupling of 1 is physical correct, but less playable
+	const float TORQUE_FORCE_COUPLING = 0.7f;
+	const float DAMPING = 0.98f;
+	// Denoising should remove very small values which increase instability.
+	inline float denoise(float _x) { return int(_x * 128.0f) / 128.0f; }
+
 	DriveSystem::DriveSystem(class Ship& _theShip, unsigned _id) :
 		ComponentSystem(_theShip, "Drive", _id)
 	{
@@ -15,8 +21,8 @@ namespace Mechanics {
 	{
 		// Compute how much of the required force can by provided by this drive system?
 		// Decompose the vectors
-		float currentThrustAbs = length( _requirements.thrust );
-		float currentTorqueAbs = length( _requirements.torque );
+		float currentThrustAbs = denoise(DAMPING * length( _requirements.thrust ));
+		float currentTorqueAbs = denoise(DAMPING * length( _requirements.torque ));
 
 		if( currentThrustAbs + currentTorqueAbs > 1e-5f )
 		{
@@ -36,13 +42,13 @@ namespace Mechanics {
 			relTo /= sum;
 			// Apply what is remaining, additionally add the side effects from both components
 			m_currentThrust = maxThrust[0] * relTh * _requirements.thrust / max(1e-6f, currentThrustAbs);
-//			m_currentThrust[0] += maxTorque[1] * relTo;
-//			m_currentThrust[1] += maxTorque[2] * relTo;
-//			m_currentThrust[2] += maxTorque[3] * relTo;
+			m_currentThrust[0] += denoise(maxTorque[1] * relTo * TORQUE_FORCE_COUPLING);
+			m_currentThrust[1] += denoise(maxTorque[2] * relTo * TORQUE_FORCE_COUPLING);
+			m_currentThrust[2] += denoise(maxTorque[3] * relTo * TORQUE_FORCE_COUPLING);
 			m_currentTorque = maxTorque[0] * relTo * _requirements.torque / max(1e-6f, currentTorqueAbs);
-//			m_currentTorque[0] += maxThrust[1] * relTh;
-//			m_currentTorque[1] += maxThrust[2] * relTh;
-//			m_currentTorque[2] += maxThrust[3] * relTh;
+			m_currentTorque[0] += denoise(maxThrust[1] * relTh * TORQUE_FORCE_COUPLING);
+			m_currentTorque[1] += denoise(maxThrust[2] * relTh * TORQUE_FORCE_COUPLING);
+			m_currentTorque[2] += denoise(maxThrust[3] * relTh * TORQUE_FORCE_COUPLING);
 			// TODO: the current resulting Torque and thrust are not optimal. Iterative refinement might help!
 	
 			// How large is a percentage of how much energy must be used now
@@ -77,9 +83,11 @@ namespace Mechanics {
 		auto endit = directionGenerator.end();
 		Vec3 center = _position+Vec3(0.5f);
 		Vec3 centerDir = _position + 0.5f - m_ship.GetCenter();
+		float centerDistance = length(centerDir);
 		// Count number of samples per direction to normalize.
 		int thrustCount[26] = {0};
 		int torqueCount[26] = {0};
+		Voxel::Model::ModelData::HitResult hit; // Dummy
 		for(auto it = directionGenerator.begin(); it != endit; ++it)
 		{
 			// Do ray casts directly in model space
@@ -87,7 +95,7 @@ namespace Mechanics {
 			Math::Ray ray(center, -direction);
 			float distance = 100000.0f;
 			ray.m_origin += ray.m_direction * 1.414213562f;
-			Voxel::Model::ModelData::HitResult hit;
+			
 			float force = thrust;
 			// Only if nothing is visible the drive can fire into this direction.
 			// In occluded directions there is thrust=0. Because this results in bad
@@ -96,24 +104,28 @@ namespace Mechanics {
 				force *= 0.1f;
 
 			// Divide the force into a rotation and a forward thrust.
-			Vec3 axis = cross(centerDir, direction);
-			float torque = length(axis) * force;
-
+			Vec3 axis = -cross(centerDir, direction);
 			int idx = newThrust.getSplatIndex( direction );
-			newThrust[idx] += force;
-			newThrust[idx][1] += axis[0] * torque;
-			newThrust[idx][2] += axis[1] * torque;
-			newThrust[idx][3] += axis[2] * torque;
+			newThrust[idx][0] += force;
+			newThrust[idx][1] += axis[0] * force;
+			newThrust[idx][2] += axis[1] * force;
+			newThrust[idx][3] += axis[2] * force;
 			++thrustCount[idx];
-			// Torque must be update by splatting.
-			if( torque > 1e-6f ) {
-				idx = newTorque.getSplatIndex(axis);
-				newTorque[idx] += torque;
-				newTorque[idx][1] = force * direction[0];
-				newTorque[idx][2] = force * direction[1];
-				newTorque[idx][3] = force * direction[2];
-				++torqueCount[idx];
-			}
+
+			// Now assume direction is not the direction of force but the rotation axis.
+			// Inverting the relation means, that axis is the direction in which we get
+			// the most torque.
+			ray = Math::Ray(center, -axis);
+			distance = 100000.0f;
+			force = thrust;
+			if(m_ship.GetVoxelTree().RayCast( ray, 0, hit, distance ))
+				force *= 0.1f;
+			float torque = length(axis) * force;
+			newTorque[idx][0] += torque;
+			newTorque[idx][1] += force * axis[0];
+			newTorque[idx][2] += force * axis[1];
+			newTorque[idx][3] += force * axis[2];
+			++torqueCount[idx];
 		}
 		for(int i=0; i<26; ++i)
 		{
