@@ -271,7 +271,7 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 
 		Vec3 normal = normalize(m_hits[0].posOth - m_hits[0].posSlf);
 
-		float epsilon = 0.2f;
+		float epsilon = 0.3f;
 
 		float impulse = -(1 + epsilon) * dot((velocitySlf - velocityOth), normal);
 		impulse /= dot(normal, normal*(1 / massSlf + 1 / massOth))
@@ -284,6 +284,10 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 		//scaled to 1/10 because the rotation seems a little to fast
 		m_modelSlf->AddAngularVelocity(cross(radiusSlf, impulse*normal) * m_modelSlf->GetInertiaTensorInverse() * 0.1f);
 		m_modelOth->AddAngularVelocity(-cross(radiusOth, impulse*normal) * m_modelOth->GetInertiaTensorInverse() * 0.1f);
+
+		//trigger collision events
+		m_modelSlf->EvtCollision(*m_modelOth);
+		m_modelOth->EvtCollision(*m_modelSlf);
 
 		//set both back so that they dont intersect
 		normal *= 0.5f;

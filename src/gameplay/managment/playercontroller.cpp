@@ -82,5 +82,4 @@ void PlayerController::EvtCollision(Voxel::Model& _other)
 	//velocity is set to the current value to prevent any further actions
 	//before the player can react
 	m_ship->SetTargetVelocity(m_ship->GetVelocity());
-	m_ship->SetTargetAngularVelocity(Vec3(0.f));
 }
