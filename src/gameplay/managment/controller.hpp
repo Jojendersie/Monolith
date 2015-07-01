@@ -13,6 +13,7 @@ public:
 protected:
 	Ship* m_ship;
 	
+	virtual void EvtCollision(Voxel::Model& _other) {}; //not pure virtual because implemantation should be necesary
 private:
 	SOHandle m_shipHandle;
 	//events

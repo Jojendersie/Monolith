@@ -15,6 +15,8 @@ public:
 
 	virtual void Process(float _deltaTime) override;
 private:
+	virtual void EvtCollision(Voxel::Model& _other) override;
+
 	bool m_mouseRotationEnabled;
 	Math::Vec3 m_velocity; ///< Ship relative velocity
 

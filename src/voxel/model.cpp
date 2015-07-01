@@ -282,6 +282,13 @@ namespace Voxel {
 
 
 	// ********************************************************************* //
+	void Model::EvtCollision(Model& _other)
+	{
+		if (m_onCollision) m_onCollision(_other);
+	}
+
+
+	// ********************************************************************* //
 	struct StoreModelTree: public Model::ModelData::SVOProcessor
 	{
 		Jo::Files::IFile& file;

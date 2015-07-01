@@ -100,6 +100,11 @@ namespace Voxel {
 		/// \brief Remove all chunks which were not used or dirty.
 		void ClearChunkCache();
 
+
+		/// \brief Event triggered on collision with another model
+		void EvtCollision(Model& _other);
+		void SetOnCollision(std::function< void(Model&) > _function) { m_onCollision = _function; };
+
 		/// \brief Save to an opened file.
 		/// \details The model format is binary and compressed. The size is not
 		///		known in advance.
@@ -148,7 +153,8 @@ namespace Voxel {
 		friend class Chunk;
 		friend struct DecideToDraw;
 
-//	private:
+	private:
+		std::function< void( Model& ) > m_onCollision;
 		/// Recursive helper to find the current models bounding box
 //		void ComputeBoundingBox();
 	};
