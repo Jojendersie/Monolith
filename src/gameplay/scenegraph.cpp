@@ -290,9 +290,12 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 		m_modelOth->EvtCollision(*m_modelSlf);
 
 		//set both back so that they dont intersect
-		normal *= 0.5f;
-		m_modelSlf->Translate(-normal);
-		m_modelOth->Translate(normal);
+		float deltaDist = abs(length(m_modelSlf->GetVelocity() - m_modelOth->GetVelocity()));
+		float t = -0.5 / deltaDist;
+		//calculate the real intersection point
+		//normal *= 0.5f;
+		m_modelSlf->Translate(t * m_modelSlf->GetVelocity());//-normal
+		m_modelOth->Translate(t * m_modelOth->GetVelocity());//normal
 	//	for (auto& hit : m_hits)
 	//		m_modelOth->Set(IVec3(hit.gridPosOth), Voxel::ComponentType::UNDEFINED);
 
