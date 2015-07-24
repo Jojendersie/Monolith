@@ -296,8 +296,11 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 		//normal *= 0.5f;
 		m_modelSlf->Translate(t * m_modelSlf->GetVelocity());//-normal
 		m_modelOth->Translate(t * m_modelOth->GetVelocity());//normal
-	//	for (auto& hit : m_hits)
-	//		m_modelOth->Set(IVec3(hit.gridPosOth), Voxel::ComponentType::UNDEFINED);
+		for (auto& hit : m_hits)
+		{
+			m_modelSlf->Get(IVec3(hit.gridPosSlf));
+			m_modelOth->Set(IVec3(hit.gridPosOth), Voxel::ComponentType::UNDEFINED);
+		}
 
 		
 	}
