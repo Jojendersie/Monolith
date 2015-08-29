@@ -25,7 +25,8 @@ namespace RenderStat {
 	int g_numVoxels;
 	int g_numChunks;
 }
-
+Voxel::Model* collTest01;
+Voxel::Model* collTest02;
 // ************************************************************************* //
 GSPlay::GSPlay(Monolith* _game) : IGameState(_game)
 {
@@ -65,6 +66,35 @@ void GSPlay::OnBegin()
 {
 	if( m_scene.NumActiveObjects() == 0 )
 	{
+		collTest01 = new Voxel::Model();
+		collTest02 = new Voxel::Model();
+
+
+		//test case 1: linear movement into rotation
+
+	/*	collTest01->Load(Jo::Files::HDDFile("savegames/collision01.vmo"));
+		collTest01->SetPosition(FixVec3(Fix(10.0), Fix(0.0), Fix(0.0)));
+		collTest01->Rotate(0.f, 0.5f*PI, 0.0f*PI);
+		collTest01->AddVelocity(Vec3(0.f, 4.f, 0.f));
+		collTest02->Load(Jo::Files::HDDFile("savegames/collision01.vmo"));*/
+		
+		//test case 2: rotation into rotation
+		collTest01->Load(Jo::Files::HDDFile("savegames/collision02.vmo"));
+		collTest02->Load(Jo::Files::HDDFile("savegames/collision02.vmo"));
+		collTest01->AddAngularVelocity(Vec3(0.05f * PI, 0.0f*PI, 0.0f * PI));
+		collTest01->SetPosition(FixVec3(Fix(10.0), Fix(35.0), Fix(0.0)));
+		collTest01->Rotate(0.f, 1.5f*PI, 0.0f*PI);
+
+		//test case 3: shperes
+	/*	collTest01->Load(Jo::Files::HDDFile("savegames/sphere.vmo"));
+		collTest01->SetPosition(FixVec3(Fix(10.0), Fix(0.0), Fix(0.0)));
+		collTest01->AddVelocity(Vec3(0.f, 4.f, 0.f));
+		collTest02->Load(Jo::Files::HDDFile("savegames/sphere.vmo"));*/
+
+		collTest02->SetPosition(FixVec3(Fix(7.0), Fix(40.0), Fix(0.0)));
+		m_scene.AddObject(collTest01);
+		m_scene.AddObject(collTest02);
+
 		Ship* playerModel = new Ship();
 		playerModel->Load(Jo::Files::HDDFile("savegames/playership.vmo"));
 		//position to 0
@@ -73,7 +103,7 @@ void GSPlay::OnBegin()
 		m_camera->ZoomAt(*playerModel, Input::Camera::FOLLOW_AND_ROTATE);
 		m_player->Possess(shipHandle);
 
-		for( int i = 0; i < 25; ++i )
+		/*for( int i = 0; i < 25; ++i )
 		{
 			Generators::Random rnd(i*4+1);
 			auto model = new Generators::Asteroid( rnd.Uniform(10, 30), rnd.Uniform(10, 30), rnd.Uniform(10, 30), i );
@@ -82,7 +112,7 @@ void GSPlay::OnBegin()
 			model->Rotate(rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI));
 			m_scene.AddObject(model);
 		//	if(i==0) m_camera->ZoomAt( *model, Input::Camera::FOLLOW_AND_ROTATE );
-		}
+		}*/
 		/*Generators::Random rnd(484);
 		auto model = new Generators::Asteroid( 200, 200, 200, 846 );
 		model->SetPosition( FixVec3(Vec3(0.0f)) );

@@ -126,6 +126,7 @@ namespace Voxel {
 		float m_mass;					///< Mass (inertia) of the full model
 		Math::Mat3x3 m_inertiaTensor;	///< Mass (inertia) in relation to rotations
 		Math::Mat3x3 m_inertiaTensorInverse; ///< Inverted inertia tensor matrix
+		bool m_rotateVelocity;			///< Should a rotation also change the linear velocity
 
 		void ComputeInertia();			///< Recompute inertia tensor with respect to the current center of mass.
 		

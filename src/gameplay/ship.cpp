@@ -10,6 +10,8 @@ Ship::Ship() :
 	m_centralComputerPosition(2012, 2012, 2012)
 {
 	Model::Set(m_centralComputerPosition, Voxel::ComponentType::COMPUTER);
+
+	m_rotateVelocity = true;
 }
 
 // ********************************************************************* //

@@ -21,7 +21,8 @@ namespace Voxel {
 		m_center(0.0f),
 		m_boundingSphereRadius(0.0f),
 		m_voxelTree(this),
-		m_chunks()
+		m_chunks(),
+		m_rotateVelocity(false)
 	{
 		auto x = IVec3(3) * 0.5f;
 	}
@@ -215,7 +216,7 @@ namespace Voxel {
 
 		// TEMP: approximate a sphere; TODO Grow and shrink a real bounding volume
 		// TODO remove Math::Vector if replaced by template
-		m_boundingSphereRadius = Math::max(m_boundingSphereRadius, Math::length(Math::Vector<3,float>(m_center) - Math::Vector<3,int>(_position)) );
+		m_boundingSphereRadius = Math::max(m_boundingSphereRadius, 0.7f + Math::length(Math::Vector<3,float>(m_center) - Math::Vector<3,int>(_position)) );
 	}
 
 	// ********************************************************************* //
@@ -246,7 +247,7 @@ namespace Voxel {
 		Rotate( deltaRot );
 		// Also rotate the velocity, while this is not physical plausible it increases
 		// the playability extreme.
-		m_velocity = m_velocity * Mat3x3::Rotation(deltaRot);
+		if(m_rotateVelocity) m_velocity = m_velocity * Mat3x3::Rotation(deltaRot);
 	}
 
 	// ********************************************************************* //

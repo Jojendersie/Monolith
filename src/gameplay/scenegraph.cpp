@@ -238,7 +238,7 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 
 			std::swap(m_posSlf, m_posOth);
 
-			std::swap(m_rotSlf, m_rotOth); 
+			std::swap(m_rotSlf, m_rotOth);
 
 			TreeCollision(pos1, *node1, pos0, *node0);
 		}
@@ -257,52 +257,69 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 		float massSlf = m_modelSlf->GetMass();
 		float massOth = m_modelOth->GetMass();
 
+		//calculate an average position of all hits
+		Vec3 hitLocSlf(0.f);
+		Vec3 hitLocOth(0.f);
+		for (auto& hit : m_hits)
+		{
+			hitLocSlf += hit.posSlf;
+			hitLocOth += hit.posOth;
+		}
+		hitLocSlf /= (float)m_hits.size();
+		hitLocOth /= (float)m_hits.size();
+
 		//no more tree calcs take place
 		//actual center of mass positions are required
 		m_posSlf += m_modelSlf->GetCenter() * m_rotSlf;
 		m_posOth += m_modelOth->GetCenter() * m_rotOth;
 
-		Vec3 point = m_hits[0].posSlf + 0.5f*(m_hits[0].posOth - m_hits[0].posSlf);
-		Vec3 radiusSlf = point - m_posSlf;
-		Vec3 radiusOth = point - m_posOth;
+		Vec3 point = hitLocSlf + 0.5f*(hitLocOth - hitLocSlf);
+		Vec3 radiusSlf = -hitLocSlf + m_posSlf; //point
+		Vec3 radiusOth = -hitLocOth + m_posOth;
 
 		Vec3 velocitySlf = m_modelSlf->GetVelocity() + cross(m_modelSlf->GetAngularVelocity(), radiusSlf);
 		Vec3 velocityOth = m_modelOth->GetVelocity() + cross(m_modelOth->GetAngularVelocity(), radiusOth);
 
-		Vec3 normal = normalize(m_hits[0].posOth - m_hits[0].posSlf);
+		Vec3 normal = normalize(hitLocSlf - hitLocOth);
 
-		float epsilon = 0.3f;
+		if (dot((velocitySlf - velocityOth), normal) >= 0) return;
+
+		float epsilon = 0.04f;
 
 		float impulse = -(1 + epsilon) * dot((velocitySlf - velocityOth), normal);
-		impulse /= dot(normal, normal*(1 / massSlf + 1 / massOth))
+		impulse /= (1 / massSlf + 1 / massOth) + dot(normal, cross(m_modelSlf->GetInertiaTensorInverse()* cross(radiusSlf, normal), radiusSlf)
+			+ cross(m_modelOth->GetInertiaTensorInverse()* cross(radiusOth, normal), radiusOth));
+		/*	dot(normal, normal*(1 / massSlf + 1 / massOth))
 			+ dot(cross(m_modelSlf->GetInertiaTensorInverse()*cross(radiusSlf, normal), radiusSlf)
-			+ cross(m_modelOth->GetInertiaTensorInverse()*cross(radiusOth, normal), radiusOth),normal);
+			+ cross(m_modelOth->GetInertiaTensorInverse()*cross(radiusOth, normal), radiusOth), normal);*/
+
+		//set both back so that they dont intersect
+		//todo: pay attention to angular velocity
+		/*float deltaDist = abs(length(velocitySlf - velocityOth));//abs(length(m_modelSlf->GetVelocity() - m_modelOth->GetVelocity()));
+		float t = -0.5 / deltaDist;
+		//calculate the real intersection point
+		//distance is aproximated linearly
+		//normal *= 0.5f;
+		m_modelSlf->Translate(t * m_modelSlf->GetVelocity());//-normal
+		m_modelOth->Translate(t * m_modelOth->GetVelocity());//normal*/
 
 		m_modelSlf->AddVelocity(impulse / massSlf * normal);
-		m_modelOth->AddVelocity(impulse / massOth * -normal);
+		m_modelOth->AddVelocity(-impulse / massOth * normal);
 
 		//scaled to 1/10 because the rotation seems a little to fast
-		m_modelSlf->AddAngularVelocity(cross(radiusSlf, impulse*normal) * m_modelSlf->GetInertiaTensorInverse() * 0.1f);
-		m_modelOth->AddAngularVelocity(-cross(radiusOth, impulse*normal) * m_modelOth->GetInertiaTensorInverse() * 0.1f);
+		m_modelSlf->AddAngularVelocity(impulse*m_modelSlf->GetInertiaTensorInverse() * cross(radiusSlf, normal) * 1.f);
+		m_modelOth->AddAngularVelocity(impulse*m_modelOth->GetInertiaTensorInverse() * cross(radiusOth, normal) *-1.f);
 
 		//trigger collision events
 		m_modelSlf->EvtCollision(*m_modelOth);
 		m_modelOth->EvtCollision(*m_modelSlf);
 
-		//set both back so that they dont intersect
-		float deltaDist = abs(length(m_modelSlf->GetVelocity() - m_modelOth->GetVelocity()));
-		float t = -0.5 / deltaDist;
-		//calculate the real intersection point
-		//normal *= 0.5f;
-		m_modelSlf->Translate(t * m_modelSlf->GetVelocity());//-normal
-		m_modelOth->Translate(t * m_modelOth->GetVelocity());//normal
-		for (auto& hit : m_hits)
+/*		for (auto& hit : m_hits)
 		{
-			m_modelSlf->Get(IVec3(hit.gridPosSlf));
-			m_modelOth->Set(IVec3(hit.gridPosOth), Voxel::ComponentType::UNDEFINED);
+			//	m_modelSlf->Get(IVec3(hit.gridPosSlf));
+			m_modelSlf->Set(IVec3(hit.gridPosSlf), Voxel::ComponentType::UNDEFINED);
 		}
-
-		
+	*/
 	}
 }
 
