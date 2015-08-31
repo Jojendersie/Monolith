@@ -6,6 +6,9 @@
 #include "gameplay/ship.hpp"
 #include <hybridarray.hpp>
 
+namespace Graphic{
+	class HudGsEditor;
+}
 /// \brief Game state to edit voxel models.
 class GSEditor: public IGameState
 {
@@ -26,7 +29,7 @@ public:
 	virtual void KeyClick( int _key ) override;
 	virtual void KeyDoubleClick( int _key ) override;
 private:
-	Graphic::Hud* m_hud;
+	Graphic::HudGsEditor* m_hud;
 	Input::Camera* m_modelCamera;		///< Standard camera for the model view
 	Graphic::Marker::Box* m_redBox;		///< Marker for regions that can be deleted, or for invalid positions
 	Graphic::Marker::Box* m_greenBox;	///< Marker where the new voxel would be added
@@ -54,4 +57,7 @@ private:
 	/// \brief Check if the target position can be edited.
 	/// \details The result is saved in m_validPosition;
 	void ValidatePosition();
+
+	/// \brief Updates the information displayed about the currently edited model
+	void UpdateModelInformation();
 };

@@ -150,9 +150,10 @@ namespace Graphic
 	
 	// ************************************************************** //
 
-	ScreenModel::ScreenModel(Math::Vec2 _position, Math::Vec2 _size, Voxel::Model* _model ):
+	ScreenModel::ScreenModel(Math::Vec2 _position, Math::Vec2 _size, Voxel::Model* _model, float _scale ):
 		ScreenOverlay(_position, _size),
-		m_model(_model)
+		m_model(_model),
+		m_scale(_scale)
 	{
 		Center();
 	}
@@ -186,7 +187,7 @@ namespace Graphic
 	{
 		Math::WorldRay ray = _cam.GetRay(m_center);
 	//	Math::FixVec3 pos = ray.origin+35.f*ray.direction;
-		m_model->SetPosition(ray.origin+(Math::FixVec3)(42.f*ray.direction));
+		m_model->SetPosition(ray.origin+(Math::FixVec3)( 1.f / m_scale * 10.f*ray.direction));
 		m_model->Draw( _cam );
 	}
 
@@ -194,7 +195,7 @@ namespace Graphic
 
 
 	EditField::EditField(Jo::Files::MetaFileWrapper* _posMap, Font* _font, Math::Vec2 _position, Math::Vec2 _size, int _lines, float _fontSize) :
-		ScreenTexture(_posMap, "voxelBtnDefault", _position, _size, Graphic::no), 
+		ScreenTexture(_posMap, "componentBtnDefault", _position, _size, RealDimension::none),
 		m_linesMax(_lines),
 		m_font(_font),
 		m_fontSize(_fontSize),

@@ -61,6 +61,7 @@ namespace Graphic {
 
 		/// \brief Sets the Position on the screen.
 		void SetPos(Math::Vec2 _screenPos);
+		const Math::Vec2& GetPos() { return m_screenPos; };
 
 		/// \brief Sets the default size of the Textrender which gets used while no control char overrides it
 		void SetDefaultSize(float _size);

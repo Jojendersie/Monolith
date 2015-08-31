@@ -2,19 +2,17 @@
 
 
 namespace Graphic {
-
-	const int MAX_SCREENTEX = 64;
 	
 	/// \brief A class that handles (2d)graphic overlays.
 	class Hud : public ScreenOverlay
 	{
 	public:
 		/// \brief Creates an Hud object wich handles a 2d interface on the specfied screen rectangle
-		Hud( Monolith* _game, Math::Vec2 _pos=Math::Vec2(-1.f,-1.f) , Math::Vec2 _size=Math::Vec2(2.f,2.f), int _cursor = 1);
+		Hud( Monolith* _game, Math::Vec2 _pos=Math::Vec2(-1.f,-1.f) , Math::Vec2 _size=Math::Vec2(2.f,2.f), int _cursor = 1, bool _showDbg = true);
 
 		// functions intended do be used in gamestates to create a button with the specefied params
 		void CreateBtn(std::string _texName, std::string _desc, Math::Vec2 _position, Math::Vec2 _size,
-			RealDimension _rDim = no, std::function<void()> _OnMouseUp = [] () {return;},
+			RealDimension _rDim = RealDimension::none, std::function<void()> _OnMouseUp = []() {return; },
 			bool _autoX = true, bool _autoY = true,
 			Font* _font = &Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT));
 
@@ -23,12 +21,16 @@ namespace Graphic {
 
 		/// \brief Creates an screenModel
 		/// ScreenModels requiere a camera to be set first per SetCamera()
-		void CreateModel(Math::Vec2 _pos , Math::Vec2 _size, Voxel::Model* _model);
+		void CreateModel(Math::Vec2 _pos , Math::Vec2 _size, Voxel::Model* _model, float _scale);
 
 		/// \brief Creates an EditField
 		/// \details returns a reference to the field
 		/// which is valid until the hud is destroyed
 		EditField& CreateEditField(Math::Vec2 _pos, Math::Vec2 _size, int _lines = 1, float _fontSize = 1);
+
+		ScreenTexture& CreateScreenTexture(const Math::Vec2& _pos, const Math::Vec2& _size, const std::string& _name, RealDimension _rDim = RealDimension::none);
+
+		TextRender& CreateLabel(const Math::Vec2& _pos, const std::string& _text, float _scale = 1.f, Font& _font = Resources::GetFont(Graphic::Fonts::DEFAULT));
 
 		/// \brief Last call in every frame drawcall
 		void Draw(double _deltaTime);
@@ -97,7 +99,8 @@ namespace Graphic {
 		std::vector<std::unique_ptr <EditField> > m_editFields;
 		std::vector<std::unique_ptr <Hud> > m_containers;
 		std::vector<std::unique_ptr <ScreenModel> > m_screenModels;
-
+		std::vector<std::unique_ptr <ScreenTexture > > m_screenTextures;
+		std::vector<std::unique_ptr < TextRender > > m_labels; ///< The container of TextRenders that are not part of another element
 		//no ownership
 		std::vector<TextRender*> m_textRenders;
 		std::vector<ScreenOverlay*> m_screenOverlays;
@@ -117,5 +120,6 @@ namespace Graphic {
 		int m_showCursor;
 
 		bool m_scrollable; ///< wether mouse scrolling moves the elements
+		bool m_showDbg; ///< Should the debug label be displayed
 	};
 };

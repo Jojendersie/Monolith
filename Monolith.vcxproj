@@ -107,6 +107,7 @@
       <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</PreprocessToFile>
     </ClCompile>
     <ClCompile Include="src\gamestates\gseditorchoice.cpp" />
+    <ClCompile Include="src\gamestates\gseditorhud.cpp" />
     <ClCompile Include="src\gamestates\gsgameplayopt.cpp" />
     <ClCompile Include="src\gamestates\gsgraphicopt.cpp" />
     <ClCompile Include="src\gamestates\gsinputopt.cpp" />
@@ -203,6 +204,7 @@
     <ClInclude Include="src\gamestates\gamestatebase.hpp" />
     <ClInclude Include="src\gamestates\gseditor.hpp" />
     <ClInclude Include="src\gamestates\gseditorchoice.hpp" />
+    <ClInclude Include="src\gamestates\gseditorhud.hpp" />
     <ClInclude Include="src\gamestates\gsgameplayopt.hpp" />
     <ClInclude Include="src\gamestates\gsgraphicopt.hpp" />
     <ClInclude Include="src\gamestates\gsinputopt.hpp" />

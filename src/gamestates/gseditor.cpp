@@ -3,7 +3,7 @@
 #include "gseditor.hpp"
 #include "input/camera.hpp"
 #include "input/input.hpp"
-#include "graphic/interface/hud.hpp"
+#include "gseditorhud.hpp"
 #include "graphic/marker/box.hpp"
 #include "graphic/marker/sphericalfunciton.hpp"
 #include "graphic/content.hpp"
@@ -16,6 +16,25 @@
 
 using namespace Math;
 
+std::string constDigit(int _num, unsigned int _digits)
+{
+	std::string ret = std::to_string(_num);
+
+	auto i = ret.size();
+	ret.resize(_digits);
+
+	//copy string to the end
+	auto begin = _digits - i;
+	for (size_t j = begin; j < _digits; ++j)
+		ret[j] = ret[j - begin];
+
+	//fill begining with spaces
+	for (size_t j = 0; j < begin; ++j)
+		ret[j] = ' ';
+
+	return ret;
+}
+
 // ************************************************************************* //
 GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 	m_ship( nullptr ),
@@ -27,39 +46,41 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 {
 	LOG_LVL2("Starting to create game state Editor");
 
-	m_hud = new Graphic::Hud(_game);
-
-	Graphic::EditField& nameEdit = m_hud->CreateEditField(Vec2(-0.98f, 0.94f), Vec2(0.66f, 0.1f), 1, 0.f);
-
-	Graphic::Hud* voxelContainer = m_hud->CreateContainer(Vec2(-0.98f,-1.0f), Vec2(0.66f,1.8f));//Math::Vec2(0.6f,1.75f));
-	voxelContainer->SetScrollable(true);
+	m_hud = new Graphic::HudGsEditor(_game);
 
 	//add every (available) voxel to the list which fits the criteria
-	for(int i = 0; i < Voxel::TypeInfo::GetNumVoxels()-1; i++)
+	for (int i = 0; i < Voxel::TypeInfo::GetNumVoxels() - 1; i++)
 	{
-		Voxel::ComponentType type = (Voxel::ComponentType)(i+1);
+		Voxel::ComponentType type = (Voxel::ComponentType)(i + 1);
 		Voxel::Model* vox = new Voxel::Model;
-		vox->Set(Math::IVec3(0,0,0), type);
-		voxelContainer->CreateModel(Math::Vec2(-0.76f,0.9f-i*0.2f), Math::Vec2(0.f, 0.f), vox);
-		voxelContainer->CreateBtn("voxelBtn", "<s 022>       "+Voxel::TypeInfo::GetName(type)
-									+ " л:" + std::to_string(Voxel::TypeInfo::GetHydrogen(type))
-									+ " \n      м:" + std::to_string(Voxel::TypeInfo::GetCarbon(type))
-									+ " н:" + std::to_string(Voxel::TypeInfo::GetMetals(type))
-									+ " о:" + std::to_string(Voxel::TypeInfo::GetRareEarthElements(type))
-									+ " п:" + std::to_string(Voxel::TypeInfo::GetSemiconductors(type))
-									+ " я:" + std::to_string(Voxel::TypeInfo::GetHeisenbergium(type)), 
-									Math::Vec2(-1.f,1.f-i*0.2f), Math::Vec2(1.8f, 0.2f), Graphic::no,
-									[this,type](){m_currentType = type;}, false);
+		vox->Set(Math::IVec3(0, 0, 0), type);
+		m_hud->m_voxelContainer->CreateModel(Math::Vec2(-0.76f, 0.9f - i*0.2f), Math::Vec2(0.f, 0.f), vox, 0.2f);
+		//head:лмнопя
+		m_hud->m_voxelContainer->CreateBtn("componentBtn", "<s 018>        " + Voxel::TypeInfo::GetName(type)
+			+ "\n       " + constDigit(Voxel::TypeInfo::GetHydrogen(type), 2)
+			+ " " + constDigit(Voxel::TypeInfo::GetCarbon(type), 2)
+			+ " " + constDigit(Voxel::TypeInfo::GetMetals(type), 2)
+			+ " " + constDigit(Voxel::TypeInfo::GetRareEarthElements(type), 2)
+			+ " " + constDigit(Voxel::TypeInfo::GetSemiconductors(type), 2)
+			+ " " + constDigit(Voxel::TypeInfo::GetHeisenbergium(type), 2),
+			Math::Vec2(-1.f, 1.f - i*0.2f), Math::Vec2(1.8f, 0.2f), Graphic::RealDimension::width,
+			[this, type](){m_currentType = type; }, false);
+		/*		voxelContainer->CreateBtn("componentBtn", "<s 022>       "+Voxel::TypeInfo::GetName(type)
+		+ " л:" + std::to_string(Voxel::TypeInfo::GetHydrogen(type))
+		+ " \n      м:" + std::to_string(Voxel::TypeInfo::GetCarbon(type))
+		+ " н:" + std::to_string(Voxel::TypeInfo::GetMetals(type))
+		+ " о:" + std::to_string(Voxel::TypeInfo::GetRareEarthElements(type))
+		+ " п:" + std::to_string(Voxel::TypeInfo::GetSemiconductors(type))
+		+ " я:" + std::to_string(Voxel::TypeInfo::GetHeisenbergium(type)),
+		Math::Vec2(-1.f,1.f-i*0.2f), Math::Vec2(1.8f, 0.2f), Graphic::no,
+		[this,type](){m_currentType = type;}, false);*/
 	}
 
-	//box holding informations about the current model
-	Graphic::Hud* modelInfoContainer = m_hud->CreateContainer(Math::Vec2(0.2f,-0.9f), Math::Vec2(0.8f,0.6f));
-
-	modelInfoContainer->CreateBtn("menuBtn", "load", Vec2(-0.9f, 0.92f), Vec2(0.8f, 0.22f), Graphic::width, [&]()
+	m_hud->m_modelInfoContainer->CreateBtn("menuBtn", "load", Vec2(-0.9f, 0.90f), Vec2(0.8f, 0.22f), Graphic::RealDimension::width, [&]()
 	{
 		//copy and past from quick load
 		ScopedPtr<Ship> ship = new Ship;
-		ship->Load(Jo::Files::HDDFile("savegames/" + nameEdit.GetText() + ".vmo"));
+		ship->Load(Jo::Files::HDDFile("savegames/" + m_hud->m_nameEdit->GetText() + ".vmo"));
 		{
 			std::unique_lock<std::mutex> lock(m_criticalModelWork);
 			// TODO: REquest for the old model
@@ -70,9 +91,9 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 		}
 	});
 
-	modelInfoContainer->CreateBtn("menuBtn", "save", Vec2(0.0f, 0.92f), Vec2(0.8f, 0.22f), Graphic::width, [&]()
+	m_hud->m_modelInfoContainer->CreateBtn("menuBtn", "save", Vec2(0.0f, 0.90f), Vec2(0.8f, 0.22f), Graphic::RealDimension::width, [&]()
 	{
-		m_ship->Save(Jo::Files::HDDFile("savegames/" + nameEdit.GetText() + ".vmo", Jo::Files::HDDFile::OVERWRITE));
+		m_ship->Save(Jo::Files::HDDFile("savegames/" + m_hud->m_nameEdit->GetText() + ".vmo", Jo::Files::HDDFile::OVERWRITE));
 	});
 
 	// TODO: view port for this camera in the upper right corner
@@ -81,7 +102,7 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 		0.3f,
 		Graphic::Device::GetAspectRatio() );
 
-	voxelContainer->SetCamera(m_modelCamera);
+	m_hud->m_voxelContainer->SetCamera(m_modelCamera);
 
 	// Create boxes for change previews
 	m_redBox = new Graphic::Marker::Box( Vec3( 1.0002f, 1.0002f, 1.0002f ), 0.55f, Utils::Color32F(0.9f, 0.1f, 0.1f, 1.0f) );

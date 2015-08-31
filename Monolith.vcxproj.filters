@@ -272,6 +272,9 @@
     <ClCompile Include="src\gameplay\componentsystems\weaponsystem.cpp">
       <Filter>Source Files\gameplay\componentsystems</Filter>
     </ClCompile>
+    <ClCompile Include="src\gamestates\gseditorhud.cpp">
+      <Filter>Source Files\gamestates</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
@@ -758,6 +761,9 @@
     </ClInclude>
     <ClInclude Include="src\gameplay\componentsystems\batterysystem.hpp">
       <Filter>Source Files\gameplay\componentsystems</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gamestates\gseditorhud.hpp">
+      <Filter>Source Files\gamestates</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

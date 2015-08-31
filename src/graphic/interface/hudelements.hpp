@@ -16,11 +16,11 @@ namespace Graphic {
 
 	/// \brief Defines how an element should be scaled to fit the current screen ratio
 	/// \details The choosen dimension is displayed as defined, while the other gets scaled to preserve the size ratio
-	enum RealDimension
+	enum class RealDimension
 	{
 		width,
 		height,
-		no
+		none
 	};
 
 	/// \brief a basic class for 2d screen elements
@@ -85,7 +85,7 @@ namespace Graphic {
 	{
 	public:
 		ScreenTexture( Jo::Files::MetaFileWrapper* _posMap, std::string _name,
-			Math::Vec2 _position, Math::Vec2 _size = Math::Vec2(0.f,0.f), RealDimension _rDim = no,
+			Math::Vec2 _position, Math::Vec2 _size = Math::Vec2(0.f,0.f), RealDimension _rDim = RealDimension::none,
 			std::function<void()> _OnMouseUp = [] () {return;});
 		
 		TextureVertex m_vertex;
@@ -109,7 +109,7 @@ namespace Graphic {
 	public:
 		/// \brief creates a button
 		Button(Jo::Files::MetaFileWrapper* _posMap, std::string _name, Math::Vec2 _position, Math::Vec2 _size, 
-			RealDimension _rDim = no, Font* _font = &Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT),
+			RealDimension _rDim = RealDimension::none, Font* _font = &Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT),
 			std::function<void()> _OnMouseUp = [] () {return;} );
 
 		ScreenTexture m_btnDefault;
@@ -142,7 +142,7 @@ namespace Graphic {
 		/// \details param [in] the center of the model is in the center of the rectangle
 		/// _model The ScreenModel takes the ownership of the model
 	public:
-		ScreenModel( Math::Vec2 _position, Math::Vec2 _size, Voxel::Model* _model );
+		ScreenModel( Math::Vec2 _position, Math::Vec2 _size, Voxel::Model* _model, float _scale );
 		~ScreenModel();
 		virtual void SetPos(Math::Vec2 _pos) override;
 		virtual void SetSize(Math::Vec2 _size) override;
@@ -154,6 +154,7 @@ namespace Graphic {
 		void Center();
 
 		Math::Vec2 m_center;
+		float m_scale;
 
 		Voxel::Model* m_model;
 	};
