@@ -1,5 +1,5 @@
 #include "graphic\interface\hud.hpp"
-
+#include <array>
 
 namespace Graphic {
 	
@@ -14,6 +14,9 @@ namespace Graphic {
 
 		Hud* m_voxelContainer;
 		Hud* m_modelInfoContainer;
+
+		TextRender* m_mass;
+		std::array < TextRender*, 6 > m_resourceCosts;
 	private:
 		
 	};

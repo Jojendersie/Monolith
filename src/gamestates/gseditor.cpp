@@ -128,6 +128,8 @@ void GSEditor::OnBegin()
 	// TODO: do not always create the standard model: parameters: Model*, bool _copy
 	CreateNewModel();
 
+	UpdateModelInformation();
+
 	LOG_LVL2("Entered game state Editor");
 }
 
@@ -296,6 +298,8 @@ void GSEditor::KeyClick( int _key )
 		}
 		m_ship->ComputeParameters();
 		m_recreateThrustVis = true;
+
+		UpdateModelInformation();
 	}
 }
 
@@ -338,4 +342,44 @@ void GSEditor::ValidatePosition()
 	// Do not delete the last computer
 	if( m_lvl0Position == m_ship->GetCentralComputerPosition() )
 		m_validPosition = false;
+}
+
+// ************************************************************************* //
+void GSEditor::UpdateModelInformation()
+{
+	struct CostFetcher : public Voxel::Model::ModelData::SVOProcessor
+	{
+	public:
+		std::array < unsigned int, 6> costs;
+
+		CostFetcher() :
+			costs({ { 0, 0, 0, 0, 0, 0 } })
+		{
+		}
+
+		bool PreTraversal(const Math::IVec4& _position, const Voxel::Model::ModelData::SVON* _node)
+		{
+			if (_position[3] == 0)
+			{
+				costs[0] += Voxel::TypeInfo::GetHydrogen(_node->Data().type);
+				costs[1] += Voxel::TypeInfo::GetCarbon(_node->Data().type);
+				costs[2] += Voxel::TypeInfo::GetMetals(_node->Data().type);
+				costs[3] += Voxel::TypeInfo::GetRareEarthElements(_node->Data().type);
+				costs[4] += Voxel::TypeInfo::GetSemiconductors(_node->Data().type);
+				costs[5] += Voxel::TypeInfo::GetHeisenbergium(_node->Data().type);
+			}
+
+			return true;
+		}
+	};
+
+	CostFetcher costFetcher;
+	m_ship->GetVoxelTree().Traverse(costFetcher);
+
+	for (int i = 0; i < 6; ++i)
+	{
+		m_hud->m_resourceCosts[i]->SetText( constDigit( costFetcher.costs[i], 8 ) );
+	}
+
+	m_hud->m_mass->SetText(constDigit( (int)m_ship->GetMass(), 8 ));
 }

@@ -312,10 +312,10 @@ namespace Graphic
 	void Hud::AddTexture(ScreenTexture* _tex)
 	{
 		//adjustments to display the texture right in the window
-		_tex->m_vertex.size[0] -= 1.5f/m_texContainer.Width();
-	//	_tex->m_vertex.size[1] -= 1.f/m_texContainer.Height();
-		_tex->m_vertex.texCoord[0] += 0.5f/m_texContainer.Width();
-	//	_tex->m_vertex.texCoord[1] += 0.5f/m_texContainer.Height();
+	//	_tex->m_vertex.size[0] += 0.5f/m_texContainer.Width();
+		_tex->m_vertex.size[1] -= 1.5f/m_texContainer.Height();
+	//	_tex->m_vertex.texCoord[0] += 0.5f/m_texContainer.Width();
+	//	_tex->m_vertex.texCoord[1] -= 0.5f/m_texContainer.Height();
 		switch (_tex->m_realDimension)
 		{
 		case RealDimension::none:

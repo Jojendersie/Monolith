@@ -38,7 +38,7 @@ namespace Graphic
 		m_screenPos( 0.0f ),
 		m_sizeD(2.f),
 		m_colorD((uint8_t)255,(uint8_t)255,(uint8_t)255,(uint8_t)255),
-		m_thicknessD(0.5f),
+		m_thicknessD(0.7f),
 		m_active(true),
 		m_sizeMax(0)
 	{
