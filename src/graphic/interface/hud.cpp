@@ -42,8 +42,9 @@ namespace Graphic
 		ShowCursor(_cursor);
 		//make shure that the cursor occupies adress [0]
 
-		//editfield testing
-		//CreateEditField(Vec2(-1.f, 0.f), Vec2(0.4f, 0.1f), 1, 0.f);
+	/*	MessageBox& msgBox = CreateMessageBox(Vec2(-0.7f, 0.8f), Vec2(0.6f, 0.3));
+		msgBox.DisplayMsg("Test01...", 3.f);
+		msgBox.DisplayMsg("Test02...", 3.f);*/
 	}
 
 	// ************************************************************************* //
@@ -122,10 +123,24 @@ namespace Graphic
 
 		return *label;
 	}
+	// ************************************************************************* //
+	MessageBox& Hud::CreateMessageBox(const Math::Vec2& _pos, const Math::Vec2& _size)
+	{
+		MessageBox* msgBox = new MessageBox(m_texContainerMap, _pos, _size);
+
+		m_messageBoxes.emplace_back(msgBox);
+		AddTexture((ScreenTexture*)msgBox);
+		AddTextRender(&msgBox->m_textRender);
+
+		return *msgBox;
+	}
 
 	// ************************************************************************* //
 	void Hud::Draw(double _deltaTime)
 	{
+		for (auto& msgBox : m_messageBoxes)
+			msgBox->Process((float)_deltaTime);
+
 		ScissorRect scissor(m_pos[0], m_pos[1]-m_size[1], m_size[0], m_size[1]);
 		RenewBuffer();
 
@@ -134,10 +149,6 @@ namespace Graphic
 		//ignore cursor
 		Device::DrawVertices( m_characters, 0, m_characters.GetNumVertices()-1 );
 
-	/*	for(int i = 1; i < 256; i++)
-			bla += (i%10 == 0)?(std::to_string(i)+":"+(char)i+"\n"):(std::to_string(i)+":"+(char)i+"  ");
-		m_dbgLabel->SetText(bla);
-		m_dbgLabel->SetPos(Math::Vec2(-0.9f,0.9f));*/
 		for(int i = (int)m_textRenders.size() - 1; i >= 0; --i)
 			if(m_textRenders[i]->m_active) m_textRenders[i]->Draw();
 

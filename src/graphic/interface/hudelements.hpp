@@ -84,7 +84,7 @@ namespace Graphic {
 	class ScreenTexture : public ScreenOverlay
 	{
 	public:
-		ScreenTexture( Jo::Files::MetaFileWrapper* _posMap, std::string _name,
+		ScreenTexture( Jo::Files::MetaFileWrapper* _posMap, const std::string& _name,
 			Math::Vec2 _position, Math::Vec2 _size = Math::Vec2(0.f,0.f), RealDimension _rDim = RealDimension::none,
 			std::function<void()> _OnMouseUp = [] () {return;});
 		

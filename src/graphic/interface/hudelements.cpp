@@ -8,7 +8,7 @@ using namespace Math;
 
 namespace Graphic
 {
-	ScreenTexture::ScreenTexture(Jo::Files::MetaFileWrapper* _posMap, std::string _name, Math::Vec2 _position, Math::Vec2 _size,
+	ScreenTexture::ScreenTexture(Jo::Files::MetaFileWrapper* _posMap, const std::string& _name, Math::Vec2 _position, Math::Vec2 _size,
 		RealDimension _rDim, std::function<void()> _OnMouseUp):
 		ScreenOverlay(_position, _size, _OnMouseUp),
 		m_realDimension(_rDim), //sizes are calculated when added to a hud

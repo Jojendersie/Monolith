@@ -134,6 +134,7 @@
     <ClCompile Include="src\graphic\interface\font.cpp" />
     <ClCompile Include="src\graphic\interface\hud.cpp" />
     <ClCompile Include="src\graphic\interface\hudelements.cpp" />
+    <ClCompile Include="src\graphic\interface\messagebox.cpp" />
     <ClCompile Include="src\graphic\marker\box.cpp" />
     <ClCompile Include="src\graphic\marker\grid.cpp" />
     <ClCompile Include="src\graphic\marker\sphericalfunction.cpp" />
@@ -231,6 +232,7 @@
     <ClInclude Include="src\graphic\interface\font.hpp" />
     <ClInclude Include="src\graphic\interface\hud.hpp" />
     <ClInclude Include="src\graphic\interface\hudelements.hpp" />
+    <ClInclude Include="src\graphic\interface\messagebox.hpp" />
     <ClInclude Include="src\graphic\marker\box.hpp" />
     <ClInclude Include="src\graphic\marker\grid.hpp" />
     <ClInclude Include="src\graphic\marker\sphericalfunciton.hpp" />

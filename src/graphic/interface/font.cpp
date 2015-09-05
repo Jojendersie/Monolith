@@ -90,6 +90,38 @@ namespace Graphic
 		return m_expanse;
 	}
 
+	void TextRender::SetExpanse(const Math::Vec2& _expanse, bool _onlyScaleDown)
+	{
+		int len = (int)m_text.length();
+		int lineCount = 1;
+		int charCount = 0;
+		int charCountMax = 0;
+		for (int i = 0; i < len; i++)
+		{
+			charCount++;
+			if (m_text[i] == '\n')
+			{
+				if (charCountMax < charCount)
+					charCountMax = charCount;
+				charCount = 0;
+				lineCount++;
+			}
+		}
+
+		//if the text contains no linebreaks
+		if (!charCountMax) charCountMax = charCount;
+
+		Math::Vec2 captionDim = GetDim();
+
+		// in case that the text is to large in any direction scale it down
+		if (!_onlyScaleDown || (captionDim[0] * charCountMax * GetDefaultSize() >= _expanse[0] || captionDim[1] * lineCount >= _expanse[1]))
+		{
+			SetDefaultSize(Math::min((float)(_expanse[0] / (captionDim[0] * charCountMax)),
+				(float)(_expanse[1] / (captionDim[1] * lineCount))));
+		}
+
+	}
+
 	void TextRender::Draw()
 	{
 		Graphic::Device::SetEffect( m_font->m_effect );

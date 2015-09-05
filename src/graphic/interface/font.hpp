@@ -74,6 +74,9 @@ namespace Graphic {
 		/// \brief returns the size of the smallest rectangle in screen coords in wich the displayed text would fit in
 		Math::Vec2 GetExpanse();
 
+		/// \brief Scales the font size so that the text fills the area on the screen
+		void SetExpanse(const Math::Vec2& _expanse, bool _onlyScaleDown = false);
+
 		/// \brief returns the largest size the string contains(set per <s>)
 		float GetMaxSize(){return m_sizeMax;};
 

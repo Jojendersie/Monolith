@@ -1,5 +1,5 @@
-#include "hudelements.hpp"
-
+//#include "hudelements.hpp"
+#include "messagebox.hpp"
 
 namespace Graphic {
 	
@@ -32,17 +32,19 @@ namespace Graphic {
 
 		TextRender& CreateLabel(const Math::Vec2& _pos, const std::string& _text, float _scale = 1.f, Font& _font = Resources::GetFont(Graphic::Fonts::DEFAULT));
 
+		MessageBox& CreateMessageBox(const Math::Vec2& _pos, const Math::Vec2& _size);
+
 		/// \brief Last call in every frame drawcall
 		void Draw(double _deltaTime);
 
-		/// \brief Adds an ScreenOverlay to the managegement and takes ownership
+		/// \brief Adds an ScreenOverlay to the managegement
 		void AddScreenOverlay(ScreenOverlay* _screenOverlay);
 
 		/// \brief Adds an existing label(TextRender) to the auto draw managment and takes ownership
 		/// \details Size gets relativated to the hud it is member of
 		void AddTextRender(TextRender* _label);
 
-		/// \brief Adds an existing screenTex to the auto draw and collision managment and takes ownership
+		/// \brief Adds an existing screenTex to the auto draw and collision managment
 		void AddTexture(ScreenTexture* _tex);
 
 		/// \brief Adds an existing button to the auto draw managment and takes ownership
@@ -101,6 +103,7 @@ namespace Graphic {
 		std::vector<std::unique_ptr <ScreenModel> > m_screenModels;
 		std::vector<std::unique_ptr <ScreenTexture > > m_screenTextures;
 		std::vector<std::unique_ptr < TextRender > > m_labels; ///< The container of TextRenders that are not part of another element
+		std::vector<std::unique_ptr < MessageBox > > m_messageBoxes;
 		//no ownership
 		std::vector<TextRender*> m_textRenders;
 		std::vector<ScreenOverlay*> m_screenOverlays;

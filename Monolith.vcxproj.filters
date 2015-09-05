@@ -275,6 +275,9 @@
     <ClCompile Include="src\gamestates\gseditorhud.cpp">
       <Filter>Source Files\gamestates</Filter>
     </ClCompile>
+    <ClCompile Include="src\graphic\interface\messagebox.cpp">
+      <Filter>Source Files\graphic\interface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
@@ -764,6 +767,9 @@
     </ClInclude>
     <ClInclude Include="src\gamestates\gseditorhud.hpp">
       <Filter>Source Files\gamestates</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\interface\messagebox.hpp">
+      <Filter>Source Files\graphic\interface</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
