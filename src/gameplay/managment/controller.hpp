@@ -10,6 +10,8 @@ public:
 	void Possess(SOHandle _ship);
 
 	virtual void Process(float _deltaTime) = 0;
+
+	Ship* GetShip() { return m_ship; };
 protected:
 	Ship* m_ship;
 	

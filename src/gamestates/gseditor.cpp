@@ -10,30 +10,11 @@
 #include "GLFW/glfw3.h"
 #include "utilities/assert.hpp"
 #include "math/sphericalfunction.hpp"
-
+#include "utilities/stringutils.hpp"
 
 #include <jofilelib.hpp>
 
 using namespace Math;
-
-std::string constDigit(int _num, unsigned int _digits)
-{
-	std::string ret = std::to_string(_num);
-
-	auto i = ret.size();
-	ret.resize(_digits);
-
-	//copy string to the end
-	auto begin = _digits - i;
-	for (size_t j = begin; j < _digits; ++j)
-		ret[j] = ret[j - begin];
-
-	//fill begining with spaces
-	for (size_t j = 0; j < begin; ++j)
-		ret[j] = ' ';
-
-	return ret;
-}
 
 // ************************************************************************* //
 GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
@@ -57,12 +38,12 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 		m_hud->m_voxelContainer->CreateModel(Math::Vec2(-0.76f, 0.9f - i*0.2f), Math::Vec2(0.f, 0.f), vox, 0.2f);
 		//head:лмнопя
 		m_hud->m_voxelContainer->CreateBtn("componentBtn", "<s 018>        " + Voxel::TypeInfo::GetName(type)
-			+ "\n       " + constDigit(Voxel::TypeInfo::GetHydrogen(type), 2)
-			+ " " + constDigit(Voxel::TypeInfo::GetCarbon(type), 2)
-			+ " " + constDigit(Voxel::TypeInfo::GetMetals(type), 2)
-			+ " " + constDigit(Voxel::TypeInfo::GetRareEarthElements(type), 2)
-			+ " " + constDigit(Voxel::TypeInfo::GetSemiconductors(type), 2)
-			+ " " + constDigit(Voxel::TypeInfo::GetHeisenbergium(type), 2),
+			+ "\n       " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetHydrogen(type), 2)
+			+ " " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetCarbon(type), 2)
+			+ " " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetMetals(type), 2)
+			+ " " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetRareEarthElements(type), 2)
+			+ " " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetSemiconductors(type), 2)
+			+ " " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetHeisenbergium(type), 2),
 			Math::Vec2(-1.f, 1.f - i*0.2f), Math::Vec2(1.8f, 0.2f), Graphic::RealDimension::width,
 			[this, type](){m_currentType = type; }, false);
 		/*		voxelContainer->CreateBtn("componentBtn", "<s 022>       "+Voxel::TypeInfo::GetName(type)
@@ -378,8 +359,8 @@ void GSEditor::UpdateModelInformation()
 
 	for (int i = 0; i < 6; ++i)
 	{
-		m_hud->m_resourceCosts[i]->SetText( constDigit( costFetcher.costs[i], 8 ) );
+		m_hud->m_resourceCosts[i]->SetText( StringUtils::ToConstDigit( costFetcher.costs[i], 8 ) );
 	}
 
-	m_hud->m_mass->SetText(constDigit( (int)m_ship->GetMass(), 8 ));
+	m_hud->m_mass->SetText(StringUtils::ToConstDigit((int)m_ship->GetMass(), 8));
 }

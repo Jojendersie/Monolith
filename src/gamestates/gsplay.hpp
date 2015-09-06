@@ -6,6 +6,9 @@
 
 #include <memory>
 
+namespace Graphic{
+	class HudGsPlay;
+}
 /// \brief State for the main phase: in game.
 class GSPlay: public IGameState
 {
@@ -25,7 +28,7 @@ public:
 	virtual void KeyClick( int _key ) override;
 private:
 	Graphic::Marker::Grid* m_objectPlane;
-	Graphic::Hud* m_hud;
+	Graphic::HudGsPlay* m_hud;
 	Galaxy* m_galaxy;
 	Input::Camera* m_camera;
 	SceneGraph m_scene;

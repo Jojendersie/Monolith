@@ -10,6 +10,9 @@
 #include "utilities/assert.hpp"
 #include "generators/random.hpp"
 #include "gameplay/ship.hpp"
+#include "gsplayhud.hpp"
+#include "utilities/stringutils.hpp"
+
 using namespace Math;
 using namespace Graphic;
 
@@ -32,7 +35,7 @@ GSPlay::GSPlay(Monolith* _game) : IGameState(_game)
 {
 	LOG_LVL2("Starting to create game state Play");
 
-	m_hud = new Graphic::Hud(_game);
+	m_hud = new Graphic::HudGsPlay(_game);
 	
 	m_camera = new Input::Camera( FixVec3( Fix(0.0), Fix(0.0), Fix(0.0) ),
 		Quaternion( 0.0f, 0.0f, 0.0f ),
@@ -167,7 +170,9 @@ void GSPlay::Render( double _deltaTime )
 	if( m_selectedObject )
 		DrawReferenceGrid( m_selectedObjectModPtr );
 	
+	//update hud information
 	m_hud->m_dbgLabel->SetText("<s 024>" + std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(RenderStat::g_numVoxels) + "\n#Chunks: " + std::to_string(RenderStat::g_numChunks)+"</s>");
+	m_hud->m_velocityLabel->SetText(StringUtils::ToFixPoint(length(m_player->GetShip()->GetVelocity()), 1) + "m/s");
 	m_hud->Draw( _deltaTime );
 }
 

@@ -1,3 +1,5 @@
+#pragma once
+
 //#include "hudelements.hpp"
 #include "messagebox.hpp"
 
