@@ -10,6 +10,8 @@ namespace Graphic {
 		HudGsPlay(Monolith* _game);
 		
 		TextRender* m_velocityLabel;
+
+		MessageBox* m_mainMessageBox;
 	private:
 		
 	};

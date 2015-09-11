@@ -9,5 +9,7 @@ namespace Graphic
 		Hud(_game)
 	{
 		m_velocityLabel = &CreateLabel(Vec2(0.25f, -0.1f), "");
+
+		m_mainMessageBox = &CreateMessageBox(Vec2(-0.2f, 0.8f), Vec2(0.4f, 0.2f));
 	}
 }

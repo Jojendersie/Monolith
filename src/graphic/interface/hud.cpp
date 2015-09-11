@@ -41,10 +41,6 @@ namespace Graphic
 
 		ShowCursor(_cursor);
 		//make shure that the cursor occupies adress [0]
-
-	/*	MessageBox& msgBox = CreateMessageBox(Vec2(-0.7f, 0.8f), Vec2(0.6f, 0.3));
-		msgBox.DisplayMsg("Test01...", 3.f);
-		msgBox.DisplayMsg("Test02...", 3.f);*/
 	}
 
 	// ************************************************************************* //

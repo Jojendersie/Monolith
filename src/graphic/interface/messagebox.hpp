@@ -27,8 +27,11 @@ private:
 
 	std::list < std::pair < std::string, float > > m_messageQue;
 
+	Math::Vec2 m_sizeTextArea;
+
 	float m_timeToChange;
 
 	bool m_pause;
+	bool m_showPermanent;
 };
 

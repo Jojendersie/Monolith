@@ -106,6 +106,7 @@ void GSPlay::OnBegin()
 		m_camera->ZoomAt(*playerModel, Input::Camera::FOLLOW_AND_ROTATE);
 		m_player->Possess(shipHandle);
 
+		m_hud->m_mainMessageBox->DisplayMsg("Welcome to the Monolith \ntest-universe. ", 3.f);
 		/*for( int i = 0; i < 25; ++i )
 		{
 			Generators::Random rnd(i*4+1);

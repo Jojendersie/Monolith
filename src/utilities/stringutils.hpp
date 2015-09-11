@@ -25,6 +25,8 @@ namespace StringUtils
 		return ret;
 	}
 
+
+	/// \brief Returns _num as string with up to _digits after the point.
 	template < typename _T >
 	std::string ToFixPoint(_T _num, unsigned int _digits)
 	{
