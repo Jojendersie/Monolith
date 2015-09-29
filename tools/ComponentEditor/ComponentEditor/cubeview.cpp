@@ -18,7 +18,8 @@ CubeView::CubeView(QComboBox* _colorBox, int _res, QWidget *parent)
     : QGLView(),
 	m_object(nullptr),
 	m_colorBox(_colorBox),
-	m_selected(nullptr)
+	m_selected(nullptr),
+	m_operationAxis(0)
 {
 //	connect(_colorBox, SIGNAL(currentIndexChanged(QString &)),this, SLOT(colorChanged(QString &)));
 	//setup options
@@ -28,6 +29,8 @@ CubeView::CubeView(QComboBox* _colorBox, int _res, QWidget *parent)
 	
 	// Set up sizes
 	m_res = _res;
+	m_res_2 = m_res*m_res;
+	m_res_3 = m_res_2*m_res;
 
 	m_offset = (-m_res/5.0);// /2.5 to center it; /2 blocks only have a size of 0.5
 
@@ -42,19 +45,13 @@ CubeView::CubeView(QComboBox* _colorBox, int _res, QWidget *parent)
 		for (int j = 0; j < m_res; ++j)
 			m_cube[i][j].resize(m_res);
 	} 
-	m_cubeData.resize(m_res);
-	for (int i = 0; i < m_res; ++i) 
-	{
-		m_cubeData[i].resize(m_res);
-		for (int j = 0; j < m_res; ++j)
-			m_cubeData[i][j].resize(m_res);
-	}  
+	m_cubeData.resize(m_res_3);
+	m_cubeDataPrev.resize(m_res_3);
+
+	size_t index = 0;
 
     FOREACH
 	{
-		//build cube data first
-		m_cubeData[x][y][z] = new Cube();
-
 		//build cube
 		QGLBuilder builder;
 		builder << QGL::Faceted;
@@ -67,10 +64,12 @@ CubeView::CubeView(QComboBox* _colorBox, int _res, QWidget *parent)
 		//arrange
 		m_cube[x][y][z]->setPosition(QVector3D(m_offset+x*0.5, m_offset+y*0.5, m_offset+z*0.5));
 
-		m_cubeData[x][y][z]->setNode(m_cube[x][y][z]);
-		m_cubeData[x][y][z]->locX = x;
-		m_cubeData[x][y][z]->locY = y;
-		m_cubeData[x][y][z]->locZ = z;
+		m_cubeData[index].setNode(m_cube[x][y][z]);
+		m_cubeData[index].locX = x;
+		m_cubeData[index].locY = y;
+		m_cubeData[index].locZ = z;
+
+		index++;
 	}
 	m_pickScene.setPickable(true);
 	QList<QGLPickNode *>nodes = m_pickScene.pickNodes();
@@ -87,17 +86,19 @@ CubeView::~CubeView()
 	FOREACH 
 	{
 		delete m_cube[x][y][z];
-		delete m_cubeData[x][y][z];
 	}
 }
  
 void CubeView::setTex( unsigned int* _tex )
 {
+	size_t index = 0;
 	FOREACH
 	{
 		unsigned int col = _tex[x + y*m_res + z*m_res*m_res];
-		m_cubeData[x][y][z]->setColor(col);
-		m_cubeData[x][y][z]->setState(col);
+		m_cubeData[index].setColor(col);
+		m_cubeData[index].setState(col);
+
+		index++;
 	}
 }
 
@@ -132,13 +133,15 @@ void CubeView::paintGL(QGLPainter *painter)
 
 	painter->setStandardEffect(QGL::LitMaterial);
 
+	size_t index = 0;
+
 	FOREACH
 	{
 	//	QGLMaterial material;
 	//	material.setColor
 		
-		painter->setColor(m_cubeData[x][y][z]->m_color);
-		 painter->setFaceColor(QGL::AllFaces, m_cubeData[x][y][z]->m_color);
+		painter->setColor(m_cubeData[index].m_color);
+		 painter->setFaceColor(QGL::AllFaces, m_cubeData[index].m_color);
 	//	painter->setFaceColor(QGL::AllFaces, m_cubeData[x][y][z]->m_color);
 		m_cube[x][y][z]->draw(painter);
 
@@ -153,6 +156,7 @@ void CubeView::paintGL(QGLPainter *painter)
 			//turn back to normal
 			node->setDrawingMode(QGL::Triangles);
 		}*/
+		index++;
 	}
 }
 
@@ -167,15 +171,15 @@ Cube* CubeView::getMouseFocus(bool _real)
 	int locZ = (m_object->z()-m_offset)/0.5;
 	
 	//just return the direct pick
-	if(_real) return m_cubeData[locX][locY][locZ]; 
+	if(_real) return &m_cubeData[INDEX(locX, locY, locZ)]; 
 
 	//broadcast to all neighbours
-	if(locX+1 < m_res) m_cubeData[locX+1][locY][locZ]->setState(true);
-	if(locX-1 >= 0) m_cubeData[locX-1][locY][locZ]->setState(true);
-	if(locY+1 < m_res) m_cubeData[locX][locY+1][locZ]->setState(true);
-	if(locY-1 >= 0) m_cubeData[locX][locY-1][locZ]->setState(true);
-	if(locZ+1 < m_res) m_cubeData[locX][locY][locZ+1]->setState(true);
-	if(locZ-1 >= 0) m_cubeData[locX][locY][locZ-1]->setState(true);
+	if(locX+1 < m_res) m_cubeData[INDEX(locX+1, locY, locZ)].setState(true);
+	if(locX-1 >= 0) m_cubeData[INDEX(locX-1, locY, locZ)].setState(true);
+	if(locY+1 < m_res) m_cubeData[INDEX(locX, locY+1, locZ)].setState(true);
+	if(locY-1 >= 0) m_cubeData[INDEX(locX, locY-1, locZ)].setState(true);
+	if(locZ+1 < m_res) m_cubeData[INDEX(locX, locY, locZ+1)].setState(true);
+	if(locZ-1 >= 0) m_cubeData[INDEX(locX, locY, locZ-1)].setState(true);
 
 	//second try should pick the cube in the focus
 	pickNode = dynamic_cast<QGLPickNode*>(objectForPoint(m_mPos));
@@ -184,19 +188,19 @@ Cube* CubeView::getMouseFocus(bool _real)
 		m_object = (QGLSceneNode*)(pickNode->target()->parent());
 
 		//recover the old condition
-		if(locX+1 < m_res) m_cubeData[locX+1][locY][locZ]->recoverState();
-		if(locX-1 >= 0) m_cubeData[locX-1][locY][locZ]->recoverState();
-		if(locY+1 < m_res) m_cubeData[locX][locY+1][locZ]->recoverState();
-		if(locY-1 >= 0) m_cubeData[locX][locY-1][locZ]->recoverState();
-		if(locZ+1 < m_res) m_cubeData[locX][locY][locZ+1]->recoverState();
-		if(locZ-1 >= 0) m_cubeData[locX][locY][locZ-1]->recoverState();
+	if(locX+1 < m_res) m_cubeData[INDEX(locX+1, locY, locZ)].recoverState();
+	if(locX-1 >= 0) m_cubeData[INDEX(locX-1, locY, locZ)].recoverState();
+	if(locY+1 < m_res) m_cubeData[INDEX(locX, locY+1, locZ)].recoverState();
+	if(locY-1 >= 0) m_cubeData[INDEX(locX, locY-1, locZ)].recoverState();
+	if(locZ+1 < m_res) m_cubeData[INDEX(locX, locY, locZ+1)].recoverState();
+	if(locZ-1 >= 0) m_cubeData[INDEX(locX, locY, locZ-1)].recoverState();
 
 		//retrieve loc for choosen node
 		locX = (m_object->x()-m_offset)/0.5;
 		locY = (m_object->y()-m_offset)/0.5;
 		locZ = (m_object->z()-m_offset)/0.5;
 
-		return m_cubeData[locX][locY][locZ];
+		return &m_cubeData[INDEX(locX, locY, locZ)];
 	}
 	return nullptr;
 }
@@ -226,8 +230,11 @@ void CubeView::mouseReleaseEvent( QMouseEvent* _e )
 
 	Cube* focus = getMouseFocus(_e->button() == Qt::LeftButton);
 
-	//when their are not two selected do nothing
+	//when there are not two selected do nothing
 	if(!focus || !m_selected) return;
+
+	//save previous state
+	saveAsPrevious();
 
 	if(_e->button() == Qt::LeftButton)
 	{
@@ -250,7 +257,7 @@ void CubeView::mouseReleaseEvent( QMouseEvent* _e )
 	for(int ix = m_selected->locX; ix != focus->locX + dx; ix += dx)
 		for(int iy = m_selected->locY; iy != focus->locY + dy; iy += dy)
 			for(int iz = m_selected->locZ; iz != focus->locZ + dz; iz += dz)
-				processCube(*m_cubeData[ix][iy][iz]);
+				processCube(m_cubeData[INDEX(ix, iy, iz)]);
 /*	if(_e->button() == Qt::LeftButton)
 	{
 		
@@ -268,6 +275,68 @@ void CubeView::mouseReleaseEvent( QMouseEvent* _e )
 		}
 	}*/
 	update();
+}
+
+// ********************************************** //
+
+void CubeView::keyPressEvent(QKeyEvent* e)
+{
+	this->setTitle(QString::fromStdString(std::to_string(e->key())));
+	if(e->matches(QKeySequence::StandardKey::Undo))
+	{
+		//retrieve previous state
+		for(size_t i = 0; i < m_res*m_res*m_res; i++)
+		{
+			m_cubeData[i].setColor(m_cubeDataPrev[i].color);
+			m_cubeData[i].setState(m_cubeDataPrev[i].state);
+		}
+
+		//show changes
+		update();
+	}
+	else if( e->key() == 88)//x
+	{
+		m_operationAxis = 0;	
+	}
+	else if( e->key() == 89)//y
+	{
+		m_operationAxis = 1;	
+	}
+	else if( e->key() == 90)//z
+	{
+		m_operationAxis = 2;	
+	}
+	else if( e->key() == 16777235)//arrow up
+	{
+		shiftCubes( int(m_operationAxis == 0), int(m_operationAxis == 1), int(m_operationAxis == 2) );
+	}
+	else if( e->key() == 16777237)//arrow down
+	{
+		shiftCubes( - int(m_operationAxis == 0), - int(m_operationAxis == 1), - int(m_operationAxis == 2) );
+	}
+	else if( e->key() == 82)//r
+	{
+		rotateCubes(int(m_operationAxis == 0), int(m_operationAxis == 1), int(m_operationAxis == 2) );
+	}
+	else if(e->key() == 78) //n
+	{
+		saveAsPrevious();
+
+		int begin = (int)floor((float)m_res * 0.5f - 0.5f);
+		int end = (int)ceil((float)m_res * 0.5f + 0.5f);
+
+		colorChanged(m_colorBox->currentText());
+
+		for(int ix = begin; ix < end; ix++)
+			for(int iy = begin; iy < end; iy++)
+				for(int iz = begin; iz < end; iz++)
+				{
+					m_cubeData[INDEX(ix,iy,iz)].setColor(m_color);
+					m_cubeData[INDEX(ix,iy,iz)].setState(true);
+				}
+		// show
+		update();
+	}
 }
 
 
@@ -298,16 +367,99 @@ void CubeView::colorChanged(QString& _s)
 	m_color = s.toUInt(&ok,0);
 }
 
+// ***************************************************** //
+
 void CubeView::changeCubes(unsigned int _color, unsigned int _newColor, bool _state)
 {
+	size_t index = 0;
 	FOREACH
 	{
-		if(m_cubeData[x][y][z]->m_colorOrg == _color)
+		if(m_cubeData[index].m_colorOrg == _color)
 		{
-			m_cubeData[x][y][z]->setColor(_newColor);
-			m_cubeData[x][y][z]->setState(_state);
+			m_cubeData[index].setColor(_newColor);
+			m_cubeData[index].setState(_state);
 		}
+
+		index++;
 	}
 	//show changes
+	update();
+}
+
+// ***************************************************** //
+
+void CubeView::saveAsPrevious()
+{
+	for(size_t i = 0; i < m_res*m_res*m_res; ++i)
+	{
+		m_cubeDataPrev[i].color = m_cubeData[i].m_colorOrg;
+		m_cubeDataPrev[i].state = m_cubeData[i].getState();
+	}
+}
+
+// ***************************************************** //
+
+void CubeView::shiftCubes(int _x, int _y, int _z)
+{
+	saveAsPrevious();
+
+	int offset = INDEX(_x, _y, _z);
+
+	FOREACH
+	{
+		int i = INDEX(x, y, z);
+		int newInd = i - offset;
+		//origin is outside
+		int dx = x - _x;
+		int dy = y - _y;
+		int dz = z - _z;
+
+
+		if( dx < 0 || dx >= m_res || dy < 0 || dy >= m_res || dz < 0 || dz >= m_res )
+		{
+			m_cubeData[i].setState(false);
+		}
+		else
+		{
+			m_cubeData[i].setColor(m_cubeDataPrev[newInd].color);
+			m_cubeData[i].setState(m_cubeDataPrev[newInd].state);
+		}
+	}
+
+	update();
+}
+
+// ***************************************************** //
+
+int newVal(int _rot, int _old, int _new)
+	{
+		while(_rot < 0) _rot += 4;
+
+		switch (_rot)
+		{
+			case 0: return _old;
+			case 1: return _new;
+			case 2: return -_old;
+			case 3: return -_new;
+		}
+	}
+
+void CubeView::rotateCubes(int _x, int _y, int _z)
+{
+	saveAsPrevious();
+
+	size_t i = 0;
+
+	FOREACH
+	{
+		//every component value is changed by rotations around the two other axis 
+		int index = INDEX(newVal(_z, newVal(_y, x, z), y), newVal(_z, newVal(_x, y, z), x), newVal(_y, newVal(_x, z, y), x));
+
+		m_cubeData[i].setColor(m_cubeDataPrev[index].color);
+		m_cubeData[i].setState(m_cubeDataPrev[index].state);
+
+		i++;
+	}
+
 	update();
 }

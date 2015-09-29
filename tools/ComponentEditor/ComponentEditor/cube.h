@@ -6,7 +6,7 @@
 #include <qglscenenode>
 
 
-class Cube : public QObject
+class Cube// : public QObject
 {
 public:
 	Cube(void);
@@ -37,5 +37,12 @@ private:
 	bool m_state; //whether the block exists in the current voxel
 	bool m_statePre;
 	unsigned int m_material; //
+};
+
+//minimal datastructure to recover previous states of a cube
+struct CubeStateData 
+{
+	bool state;
+	unsigned int color;
 };
 

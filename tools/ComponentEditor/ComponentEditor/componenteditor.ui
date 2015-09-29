@@ -35,6 +35,9 @@
        <height>20</height>
       </rect>
      </property>
+     <property name="toolTip">
+      <string>color code in hex or decimal without prefix</string>
+     </property>
     </widget>
     <widget class="QPushButton" name="pushButton">
      <property name="geometry">
@@ -44,6 +47,9 @@
        <width>31</width>
        <height>23</height>
       </rect>
+     </property>
+     <property name="toolTip">
+      <string>add color to this palette</string>
      </property>
      <property name="text">
       <string>+</string>
@@ -67,6 +73,9 @@
        <width>31</width>
        <height>23</height>
       </rect>
+     </property>
+     <property name="toolTip">
+      <string>remove selected color</string>
      </property>
      <property name="text">
       <string>x</string>
@@ -385,6 +394,9 @@
        <width>111</width>
        <height>20</height>
       </rect>
+     </property>
+     <property name="toolTip">
+      <string/>
      </property>
      <property name="text">
       <string>additional attributes</string>

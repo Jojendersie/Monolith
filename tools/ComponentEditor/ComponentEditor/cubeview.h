@@ -17,6 +17,8 @@ const int COMPSIZE = 3;
 
 using namespace std;
 
+#define INDEX(x,y,z) (z)+m_res*(y)+m_res*m_res*(x)
+
 class CubeView : public QGLView
 {
     Q_OBJECT
@@ -29,8 +31,8 @@ public:
 	void setTex( unsigned int* _tex );
 
 	//returns the color of the cube as YCbCr
-	unsigned int getCol(int _x, int _y, int _z) {return m_cubeData[_x][_y][_z]->m_colorOrg;};
-	bool getState(int _x, int _y, int _z) {return m_cubeData[_x][_y][_z]->getState();};
+	unsigned int getCol(int _x, int _y, int _z) {return m_cubeData[INDEX(_x, _y, _z)].m_colorOrg;};
+	bool getState(int _x, int _y, int _z) {return m_cubeData[INDEX(_x, _y, _z)].getState();};
 
 	//changes the state and color of all cubes with the color _color
 	void changeCubes(unsigned int _color, unsigned int _newColor = 0, bool _state = false);
@@ -39,12 +41,21 @@ protected:
 	void mouseMoveEvent ( QMouseEvent * e );
 	void mousePressEvent ( QMouseEvent * e );
 	void mouseReleaseEvent ( QMouseEvent * e );
+	void keyPressEvent ( QKeyEvent* e);
 
 private:
 	//retrieves the cube focused by the mouse when _real == true
 	//otherwise returns the block in the direction of the face under the cursor
 	//when the face is a border of the voxel-cube that cube is returned instead
 	Cube* getMouseFocus(bool _real = false);
+
+	void saveAsPrevious();
+
+	// shifts all cubes by the specified offset
+	void shiftCubes(int _x, int _y, int _z);
+
+	// rotates all cubes by the amount * 90 degree around the related axis
+	void rotateCubes(int _x, int _y, int _z);
 
 	//offset so that the center of the voxel is in the cam center
 	float m_offset;
@@ -58,7 +69,9 @@ private:
 	//grafical representation
     vector<vector<vector<QGLSceneNode*> > > m_cube;
 	//data for single cubes
-	vector<vector<vector<Cube*> > > m_cubeData;
+	vector< Cube > m_cubeData;
+	//data of previous state
+	vector< CubeStateData > m_cubeDataPrev;
 
 	//position offset of the coordinate axis
 	QVector3D m_axisOffset;
@@ -66,7 +79,8 @@ private:
 	//the currently displayed voxel
 	Voxel* m_voxel;
 	//tex resolution of the current voxel
-	int m_res;
+	int m_res, m_res_2, m_res_3;
+
 	//requiered to allow picking
 	SceneManager  m_pickScene;
     
@@ -74,6 +88,8 @@ private:
 	unsigned int m_color;
 	QComboBox* m_colorBox;
 
+	//axis selected for shifting or rotating operations
+	int m_operationAxis;
 public slots:
 	void objectPicked();
 	void colorChanged(QString& _s);
