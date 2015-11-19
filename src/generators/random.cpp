@@ -252,6 +252,15 @@ namespace Generators {
 	}
 
 	// ********************************************************************* //
+	Vec3 Random::Direction()
+	{
+		float phi = 2 * PI* Uniform();
+		float cosTheta = 2.0f * Uniform() - 1.0f;
+		float sinTheta = sqrt((1.0f - cosTheta) * (1.0f + cosTheta));
+		return Vec3(sinTheta * sin(phi), sinTheta * cos(phi), cosTheta);
+	}
+
+	// ********************************************************************* //
 	uint32 Random::Xorshift128()
 	{
 		uint32 tmp = m_state[0] ^ (m_state[0] << 11);

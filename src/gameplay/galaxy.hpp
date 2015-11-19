@@ -14,7 +14,7 @@ public:
 	/// \brief Generates a galaxy at (0,0,0).
 	/// \param [in] _stars the amount of stars in the galaxy
 	/// \param [in] _size the approximate diameter
-	/// \param [in] _ambientStars the amount of stars in infinite distane
+	/// \param [in] _ambientStars the amount of stars in infinite distance
 	///				that will always be in the same direction
 	Galaxy(int _stars, float _size, int _ambientStars = 0);
 
@@ -23,8 +23,8 @@ public:
 
 private:
 	std::vector< StarSystem > m_starSystems;
-	std::vector< StarSystem > m_ambientStars;
 
 	Graphic::VertexBuffer m_starInfos;
+	Graphic::VertexBuffer m_ambientStars;
 };
 

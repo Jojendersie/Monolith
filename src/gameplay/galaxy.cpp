@@ -7,8 +7,9 @@
 
 using namespace ei;
 
-Galaxy::Galaxy(int _stars, float _size, int _ambientStars)
-	: m_starInfos ("3c1", Graphic::VertexBuffer::PrimitiveType::POINT)
+Galaxy::Galaxy(int _stars, float _size, int _ambientStars) :
+	m_starInfos("3c1", Graphic::VertexBuffer::PrimitiveType::POINT),
+	m_ambientStars("3c1", Graphic::VertexBuffer::PrimitiveType::POINT)
 {
 	//needs to be called to allow custom point size in the geometry shader
 	GL_CALL(glEnable, GL_PROGRAM_POINT_SIZE);
@@ -80,31 +81,24 @@ Galaxy::Galaxy(int _stars, float _size, int _ambientStars)
 		m_starSystems.emplace_back(
 			Math::FixVec3(pos),
 			rnd.Uniform(2000, 40000),
-			(float)rnd.Uniform(1,2)
+			rnd.Uniform(1.0f, 2.0f)
 			);
 	}
 	for (int i = 0; i < _ambientStars; ++i)
 	{
-		m_ambientStars.emplace_back(
-			Math::FixVec3(),
-			rnd.Uniform(2000, 40000),
-			(float)rnd.Uniform(1, 2),
-			Quaternion(rnd.Uniform(0.f, 2.f*PI), rnd.Uniform(0.f, 2.f*PI), 0.f),
-			true);
+		StarVertex star;
+		star.color = StarSystem::TemperatureToRGB(rnd.Uniform(2000, 40000)).RGBA();
+		star.position = rnd.Direction() * 10.0f;
+		star.size = rnd.Uniform(1.0f, 2.0f);
+
+		m_ambientStars.Add(star);
 	}
+	m_ambientStars.SetDirty();
 }
 
 void Galaxy::Draw(const Input::Camera& _camera)
 {
-	//Mat4x4 worldView = GetTransformation(_camera.RenderState());
 	m_starInfos.Clear();
-
-	for (auto& starSystem : m_ambientStars)
-	{
-		StarVertex& star = starSystem.ComputeVertex(_camera);
-		if (star.position[2] >= 0)
-			m_starInfos.Add(star);
-	}
 
 	for (auto& starSystem : m_starSystems)
 		m_starInfos.Add(starSystem.ComputeVertex(_camera));
@@ -113,6 +107,8 @@ void Galaxy::Draw(const Input::Camera& _camera)
 
 	Graphic::Effect& effect = Graphic::Resources::GetEffect(Graphic::Effects::BACKGROUNDSTAR);
 	Graphic::Device::SetEffect(effect);
+	effect.SetUniform(0, true);
+	Graphic::Device::DrawVertices(m_ambientStars, 0, m_ambientStars.GetNumVertices());
 	effect.SetUniform(0, false);
 	Graphic::Device::DrawVertices(m_starInfos, 0, m_starInfos.GetNumVertices());
 }

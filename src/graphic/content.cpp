@@ -95,9 +95,9 @@ namespace Graphic {
 			break; }
 		case UniformBuffers::CAMERA:
 			s_ubos[(int)_ubo] = new UniformBuffer( "Camera" );
-			s_ubos[(int)_ubo]->AddAttribute( "InverseCameraR0", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC3 );
-			s_ubos[(int)_ubo]->AddAttribute( "InverseCameraR1", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC3 );
-			s_ubos[(int)_ubo]->AddAttribute( "InverseCameraR2", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC3 );
+			s_ubos[(int)_ubo]->AddAttribute( "CameraR0", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC3 );
+			s_ubos[(int)_ubo]->AddAttribute( "CameraR1", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC3 );
+			s_ubos[(int)_ubo]->AddAttribute( "CameraR2", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC3 );
 			// The projection matrix is very sparse. That can be used
 			// explicitly to reduce constant buffer size and arithmetic
 			// instructions in shader:

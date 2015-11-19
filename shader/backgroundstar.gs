@@ -24,9 +24,9 @@ void main(void)
 	
 	// Transform background and galaxy stars differently
 	vec3 position;
-	//if(c_ambientStars)
-	//	position = c_mInverseView * vs_out_Position[0].xyz;
-	//else
+	if(c_ambientStars)
+		position = vs_out_Position[0].xyz * c_mCameraRotation;
+	else
 		// Positions are transformed before calling the shader
 		position = vs_out_Position[0].xyz;
 

@@ -9,9 +9,8 @@
 using namespace ei;
 using namespace Math;
 
-StarSystem::StarSystem(const FixVec3& _position, int _temperature, float _size, const Quaternion& _rotation, bool _ambient)
-	:Transformation(_position, _rotation),
-	m_ambient(_ambient)
+StarSystem::StarSystem(const FixVec3& _position, int _temperature, float _size, const Quaternion& _rotation)
+	:Transformation(_position, _rotation)
 {
 	m_vertex.color = TemperatureToRGB(_temperature).RGBA();
 	m_vertex.size = _size;
@@ -19,15 +18,7 @@ StarSystem::StarSystem(const FixVec3& _position, int _temperature, float _size, 
 
 StarVertex& StarSystem::ComputeVertex(const Input::Camera& _camera)
 {
-	if (m_ambient)
-	{
-		//combined rotation using _camera.RenderState().GetRotation() * m_rotation seems to produce different results...
-		m_vertex.position = m_rotationMatrix * Vec3(0.f, 0.f, 10.f);
-		m_vertex.position = _camera.RenderState().GetRotationMatrix() * m_vertex.position;
-	}
-	else
-		m_vertex.position = _camera.RenderState().Transform(m_position);
-
+	m_vertex.position = _camera.RenderState().Transform(m_position);
 	return m_vertex;
 }
 

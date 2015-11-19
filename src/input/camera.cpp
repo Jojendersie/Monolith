@@ -27,6 +27,9 @@ namespace Input {
 	// ********************************************************************* //
 	void Camera::Set( Graphic::UniformBuffer& _cameraUBO )
 	{
+		_cameraUBO["CameraR0"] = transpose(m_rotationMatrix(0));
+		_cameraUBO["CameraR1"] = transpose(m_rotationMatrix(1));
+		_cameraUBO["CameraR2"] = transpose(m_rotationMatrix(2));
 		_cameraUBO["Projection"] = Vec4(GetProjection()(0,0), GetProjection()(1,1), GetProjection()(2,2), GetProjection()(2,3));
 		_cameraUBO["ProjectionInverse"] = m_inverseProjection;
 		_cameraUBO["NearPlane"] = m_nearPlane;

@@ -59,6 +59,9 @@ namespace Generators {
 		float AtQ( float _position, int _iy=0, int _iz=0 );
 		float AtQ( const ei::Vec2& _position, int _iz=0 );
 		float AtQ( const ei::Vec3& _position );
+
+		/// \brief Create a random direction vector
+		ei::Vec3 Direction();
 	private:
 		/// \brief The real generator used in all sample functions.
 		uint32 Xorshift128();
