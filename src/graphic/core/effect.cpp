@@ -498,6 +498,12 @@ namespace Graphic {
 	}
 
 	// ********************************************************************* //
+	void Effect::SetUniform(unsigned _location, bool _value)
+	{
+		GL_CALL(glUniform1i, _location, _value ? 1 : 0);
+	}
+
+	// ********************************************************************* //
 	bool Effect::CheckShaderProgramError()
 	{
 		// Check of linking the shader program worked

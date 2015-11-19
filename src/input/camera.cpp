@@ -2,6 +2,7 @@
 #include "voxel/model.hpp"
 #include "graphic/core/uniformbuffer.hpp"
 
+using namespace ei;
 using namespace Math;
 
 namespace Input {
@@ -26,10 +27,11 @@ namespace Input {
 	// ********************************************************************* //
 	void Camera::Set( Graphic::UniformBuffer& _cameraUBO )
 	{
-		_cameraUBO["Projection"] = ei::Vec4(GetProjection()(0,0), GetProjection()(1,1), GetProjection()(2,2), GetProjection()(2,3));
+		_cameraUBO["Projection"] = Vec4(GetProjection()(0,0), GetProjection()(1,1), GetProjection()(2,2), GetProjection()(2,3));
 		_cameraUBO["ProjectionInverse"] = m_inverseProjection;
 		_cameraUBO["NearPlane"] = m_nearPlane;
 		_cameraUBO["FarPlane"] = m_farPlane;
+		_cameraUBO["CameraPosition"] = Vec3(m_renderTransformation.GetPosition());
 	}
 
 	// ********************************************************************* //
@@ -48,7 +50,7 @@ namespace Input {
 		m_projection = ei::perspectiveGL( m_fov, m_aspect, m_nearPlane, m_farPlane );
 		m_mutex.unlock();
 		// construct explicit invert-vector
-		m_inverseProjection = ei::Vec4(1.0f/GetProjection()(0,0), 1.0f/GetProjection()(1,1), 1.0f/GetProjection()(2,2), -GetProjection()(2,3) / GetProjection()(2,2));
+		m_inverseProjection = Vec4(1.0f/GetProjection()(0,0), 1.0f/GetProjection()(1,1), 1.0f/GetProjection()(2,2), -GetProjection()(2,3) / GetProjection()(2,2));
 
 		// Compute frustum planes from viewProjection
 		// http://www.cs.otago.ac.nz/postgrads/alexis/planeExtraction.pdf
@@ -165,9 +167,9 @@ namespace Input {
 	// ********************************************************************* //
 	void Camera::NormalizeReference()
 	{
-		// Transform by rotation inverse (which is multiplying from left for
+		// Transform by rotation inverse (which is multiplying from right for
 		// rotations)
-		m_latestTransformation.SetPosition( m_attachedTo->GetPosition() - FixVec3(m_rotationMatrix * m_referencePos) );
+		m_latestTransformation.SetPosition( m_attachedTo->GetPosition() - FixVec3(transpose(transpose(m_referencePos) * m_rotationMatrix)) );
 		// Object might be rotated -> 
 		if( m_attachMode == FOLLOW_AND_ROTATE )
 		{
@@ -197,7 +199,7 @@ namespace Input {
 	{
 		WorldRay ray;
 		// Compute view space position of a point on the near plane
-		ei::Vec3 nearPoint = ei::Vec3( m_inverseProjection[0] * _screenSpaceCoordinate[0],
+		Vec3 nearPoint = ei::Vec3( m_inverseProjection[0] * _screenSpaceCoordinate[0],
 							   m_inverseProjection[1] * _screenSpaceCoordinate[1],
 							   1.0f );	// 1.0 result of inverse project of any coordinate
 										// Division by 

@@ -43,8 +43,7 @@ namespace Math {
 	// Transform a relative position back to the global world space.
 	FixVec3 Transformation::TransformInverse( const Vec3& _position ) const
 	{
-		// TODO: potential optimization: precompute the matrix or use quaternion multiplication
-		Vec3 pos = transpose(m_rotationMatrix) * _position;
+		Vec3 pos = m_inverseRotationMatrix * _position;
 		return FixVec3(Fix(pos[0]) + m_position[0], Fix(pos[1]) + m_position[1], Fix(pos[2]) + m_position[2]);
 	}
 

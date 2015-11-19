@@ -12,9 +12,8 @@ out float vs_out_Size;
 void main()
 {
 	// Pass through everything
-	//color is overritten any way
+	// Color is overwritten any way
 	vs_out_Color = in_Color;
 	vs_out_Position = in_Position;
-	//vs_out_Position = in_Position;
 	vs_out_Size = in_Size;
 }

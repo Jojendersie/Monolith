@@ -111,6 +111,7 @@ namespace Graphic {
 			// The inverse projection vector contains (1/x, 1/y, 1/z, -w/z)
 			// Usage: pos.xyz * invProj.xyz + vec3(0,0,invProj.w)
 			s_ubos[(int)_ubo]->AddAttribute( "ProjectionInverse", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC4 );
+			s_ubos[(int)_ubo]->AddAttribute( "CameraPosition", Graphic::UniformBuffer::ATTRIBUTE_TYPE::VEC3 );
 			s_ubos[(int)_ubo]->AddAttribute( "NearPlane", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 			s_ubos[(int)_ubo]->AddAttribute( "FarPlane", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
 

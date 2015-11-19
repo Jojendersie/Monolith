@@ -96,6 +96,7 @@ Galaxy::Galaxy(int _stars, float _size, int _ambientStars)
 
 void Galaxy::Draw(const Input::Camera& _camera)
 {
+	//Mat4x4 worldView = GetTransformation(_camera.RenderState());
 	m_starInfos.Clear();
 
 	for (auto& starSystem : m_ambientStars)
@@ -110,7 +111,9 @@ void Galaxy::Draw(const Input::Camera& _camera)
 
 	m_starInfos.SetDirty();
 
-	Graphic::Device::SetEffect(Graphic::Resources::GetEffect(Graphic::Effects::BACKGROUNDSTAR));
+	Graphic::Effect& effect = Graphic::Resources::GetEffect(Graphic::Effects::BACKGROUNDSTAR);
+	Graphic::Device::SetEffect(effect);
+	effect.SetUniform(0, false);
 	Graphic::Device::DrawVertices(m_starInfos, 0, m_starInfos.GetNumVertices());
 }
 

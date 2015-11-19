@@ -71,6 +71,9 @@ namespace Graphic {
 		/// Triggers shader reloads for changed shaders.
 		static void UpdateShaderFileWatcher();
 #endif
+		/// \brief Set a uniform of known location (type layout(location = x) in the shader)
+		void SetUniform(unsigned _location, bool _value);
+		// .... TODO more of these
 
 	private:
 		/// Returns false if there is something wrong with the shader program.
