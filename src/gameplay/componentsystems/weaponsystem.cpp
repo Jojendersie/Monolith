@@ -1,7 +1,7 @@
 #include "weaponsystem.hpp"
 #include "gameplay\ship.hpp"
 
-using namespace Math;
+using namespace ei;
 
 namespace Mechanics {
 
@@ -14,7 +14,7 @@ namespace Mechanics {
 		weapon.cooldown = 0.f;
 		weapon.cooldownBase = 2.f;
 
-		//100% effiency
+		//100% efficiency
 		weapon.damage = 10;
 		weapon.cost = 10.f;
 
@@ -48,7 +48,7 @@ namespace Mechanics {
 		{
 			if (weapon.cooldown <= 0.f)
 			{
-				Math::Ray ray(weapon.position, m_ship.GetRotation().XAxis());
+				Ray ray(weapon.position, xaxis(m_ship.GetRotation()));
 				Voxel::Model::ModelData::HitResult hit;
 				float distance;
 
@@ -61,7 +61,7 @@ namespace Mechanics {
 	}
 
 
-	void WeaponSystem::OnAdd(const Math::IVec3& _position, Voxel::ComponentType _type, uint8_t _assignment) 
+	void WeaponSystem::OnAdd(const IVec3& _position, Voxel::ComponentType _type, uint8 _assignment) 
 	{
 		WeaponInformation weapon;
 		weapon.position = Vec3(_position) + 0.5f;

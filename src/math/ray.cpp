@@ -5,22 +5,20 @@ namespace Math {
 
 // ************************************************************************* //
 // Create relative ray from world space ray
-Ray::Ray( const WorldRay& _ray, const Transformation& _reference )
+ei::Ray WorldRay::getRelativeRay( const Transformation& _reference ) const
 {
-	Mat3x3 rotation = Mat3x3::Rotation(_reference.GetRotation());
+	const ei::Mat3x3& rotation = _reference.GetRotationMatrix();
 	// Get a relative start position
-	m_origin = Vec3(float(_ray.origin[0] - _reference.GetPosition()[0]),
-		float(_ray.origin[1] - _reference.GetPosition()[1]),
-		float(_ray.origin[2] - _reference.GetPosition()[2]) );
-	m_origin = rotation * m_origin;
+	ei::Vec3 newOrig = ei::Vec3(
+		float(origin[0] - _reference.GetPosition()[0]),
+		float(origin[1] - _reference.GetPosition()[1]),
+		float(origin[2] - _reference.GetPosition()[2]) );
+	newOrig = rotation * newOrig;//TODO: transpose?
 
 	// Rotate direction into relative system
-	m_direction = rotation * _ray.direction;
-
-	// Normalize and precompute inverse
-	float len = length(m_direction);
-	m_direction = m_direction / len;
-	m_directionInv = len / m_direction;
+	ei::Vec3 dir = rotation * direction;//TODO: transpose?
+	dir = normalize(direction);
+	return ei::Ray(newOrig, dir);
 }
 
 } // namespace Math

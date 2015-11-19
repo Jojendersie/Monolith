@@ -6,7 +6,7 @@
 class MessageBox : public Graphic::ScreenTexture
 {
 public:
-	MessageBox(Jo::Files::MetaFileWrapper* _posMap, Math::Vec2 _position, Math::Vec2 _size);
+	MessageBox(Jo::Files::MetaFileWrapper* _posMap, ei::Vec2 _position, ei::Vec2 _size);
 	~MessageBox();
 
 	void Process(float _deltaTime);
@@ -27,7 +27,7 @@ private:
 
 	std::list < std::pair < std::string, float > > m_messageQue;
 
-	Math::Vec2 m_sizeTextArea;
+	ei::Vec2 m_sizeTextArea;
 
 	float m_timeToChange;
 

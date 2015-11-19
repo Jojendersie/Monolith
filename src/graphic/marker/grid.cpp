@@ -31,8 +31,8 @@ namespace Marker {
 			float length = _spacing * (_resolutionY + 1) * 0.5f;
 			float xOff = x - (_resolutionX - 1) * 0.5f;
 			float zOff = z - (_resolutionZ - 1) * 0.5f;
-			m_renderer.AddLine( Math::Vec3(xOff * _spacing, -length, zOff * _spacing),
-				Math::Vec3(xOff * _spacing, length, zOff * _spacing),
+			m_renderer.AddLine( ei::Vec3(xOff * _spacing, -length, zOff * _spacing),
+				ei::Vec3(xOff * _spacing, length, zOff * _spacing),
 				1.0f );
 		}
 		m_renderer.Commit();
@@ -40,7 +40,7 @@ namespace Marker {
 
 	// ********************************************************************* //
 	// Draw all the lines with the glowing wireframe effect.
-	void Grid::Draw( const Math::Mat4x4& _worldViewProjection )
+	void Grid::Draw( const ei::Mat4x4& _worldViewProjection )
 	{
 		m_renderer.Draw( _worldViewProjection );
 	}
@@ -62,8 +62,8 @@ namespace Marker {
 				transparent = sqrt(1.0f - r*r);
 				length *= transparent;
 			}
-			m_renderer.AddLine( Math::Vec3(xOff * _spacing, _coordinateY, -length),
-				Math::Vec3(xOff * _spacing, _coordinateY, length),
+			m_renderer.AddLine( ei::Vec3(xOff * _spacing, _coordinateY, -length),
+				ei::Vec3(xOff * _spacing, _coordinateY, length),
 				transparent );
 		}
 
@@ -80,8 +80,8 @@ namespace Marker {
 				transparent = sqrt(1.0f - r*r);
 				length *= transparent;
 			}
-			m_renderer.AddLine( Math::Vec3(-length, _coordinateY, zOff * _spacing),
-				Math::Vec3(length, _coordinateY, zOff * _spacing),
+			m_renderer.AddLine( ei::Vec3(-length, _coordinateY, zOff * _spacing),
+				ei::Vec3(length, _coordinateY, zOff * _spacing),
 				transparent );
 		}
 	}

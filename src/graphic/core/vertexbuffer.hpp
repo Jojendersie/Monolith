@@ -1,7 +1,7 @@
 #pragma once
 
 #include "predeclarations.hpp"
-#include "math/mathbase.hpp"
+#include "ei/elementarytypes.hpp"
 #include "utilities/assert.hpp"
 
 #include <atomic>
@@ -124,12 +124,12 @@ namespace Graphic {
 		unsigned GetNormalOffset() const		{ return m_normalOffset; }
 		unsigned GetTangentOffset() const		{ return m_tangentOffset; }
 		
-		const Math::Vec3& GetPosition(unsigned _index) const	{ return *(Math::Vec3*)(m_data + _index*m_vertexSize + m_positionOffset); }
-		const Math::Vec3& GetNormal(unsigned _index) const		{ return *(Math::Vec3*)(m_data + _index*m_vertexSize + m_normalOffset); }
-		const Math::Vec3& GetTangent(unsigned _index) const		{ return *(Math::Vec3*)(m_data + _index*m_vertexSize + m_tangentOffset); }
+		const ei::Vec3& GetPosition(unsigned _index) const	{ return *(ei::Vec3*)(m_data + _index*m_vertexSize + m_positionOffset); }
+		const ei::Vec3& GetNormal(unsigned _index) const	{ return *(ei::Vec3*)(m_data + _index*m_vertexSize + m_normalOffset); }
+		const ei::Vec3& GetTangent(unsigned _index) const	{ return *(ei::Vec3*)(m_data + _index*m_vertexSize + m_tangentOffset); }
 
 	private:
-		uint8_t*	m_data;				///< A CPU copy of the data or nullptr for static buffers
+		uint8*	m_data;				///< A CPU copy of the data or nullptr for static buffers
 		unsigned	m_VBO;				///< Only one vertex buffer is used for the whole array
 		unsigned	m_VAO;				///< The OpenGL ID for the whole mesh-vertices
 		unsigned	m_maxNumVertices;	///< Maximum size set at construction
@@ -200,8 +200,8 @@ namespace Graphic {
 		}
 
 		// At least the vertex at the cursor is dirty now
-		m_firstDirtyIndex = Math::min((int)m_cursor, m_firstDirtyIndex);
-		m_lastDirtyIndex = Math::max((int)m_cursor, m_lastDirtyIndex);
+		m_firstDirtyIndex = ei::min((int)m_cursor, m_firstDirtyIndex);
+		m_lastDirtyIndex = ei::max((int)m_cursor, m_lastDirtyIndex);
 
 		memcpy(m_data + m_cursor * m_vertexSize, &_value, m_vertexSize);
 		++m_cursor;

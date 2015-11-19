@@ -1,7 +1,9 @@
 #include "scissor.hpp"
 #include "opengl.hpp"
 #include "device.hpp"
-#include "..\..\math\math.hpp"
+#include <ei/vector.hpp>
+
+using namespace ei;
 
 namespace Graphic {
 
@@ -12,7 +14,7 @@ ScissorRect::ScissorRect( float _x, float _y, float _w, float _h )
 	m_wasEnabled = GL_RET_CALL(glIsEnabled, GL_SCISSOR_TEST) == GL_TRUE;
 	GL_CALL(glGetIntegerv, GL_SCISSOR_BOX, m_previousRect); // TODO: Avoid glgetter
 
-	Math::IVec2 size = Device::GetBackbufferSize();
+	IVec2 size = Device::GetBackbufferSize();
 	// Translate coordinates to absolute pixel coordinates and set directly.
 	GL_CALL(glScissor, GLint((_x * 0.5f + 0.5f) * size[0]),
 			   GLint((_y * 0.5f + 0.5f) * size[1]),

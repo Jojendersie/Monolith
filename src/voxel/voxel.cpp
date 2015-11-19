@@ -173,28 +173,28 @@ namespace Voxel {
 	};*/
 	// A function to swap the surface bits in the same order as the access is done
 	// THIS IS CURRENTLY WRONG!
-	typedef uint8_t (*BorderSurfaceFunc)(uint8_t _surface);
+	typedef uint8 (*BorderSurfaceFunc)(uint8 _surface);
 	static BorderSurfaceFunc GetBorderSurface[6] = {
-		[](uint8_t _s) -> uint8_t { return 0x3f & ((_s << 2) | (_s >> 4)); },
-		[](uint8_t _s) -> uint8_t { return 0x3f & ((_s << 2) | ((_s >> 3) & 2) | (_s >> 5) ); },
-		[](uint8_t _s) -> uint8_t { return 0x3f & ((_s & 3) | ((_s << 2) & 0x30) | ((_s >> 2 ) & 0x0c) ); },
-		[](uint8_t _s) -> uint8_t { return 0x3f & ((_s & 3) | ((_s << 2) & 0x30) | ((_s >> 1 ) & 0x08) | ((_s >> 3 ) & 0x04) ); },
-		[](uint8_t _s) -> uint8_t { return _s; },
-		[](uint8_t _s) -> uint8_t { return 0x3f & ((_s & 0xf) | ((_s >> 1) & 0x10) | ((_s << 1) & 0x20)); },
+		[](uint8 _s) -> uint8 { return 0x3f & ((_s << 2) | (_s >> 4)); },
+		[](uint8 _s) -> uint8 { return 0x3f & ((_s << 2) | ((_s >> 3) & 2) | (_s >> 5) ); },
+		[](uint8 _s) -> uint8 { return 0x3f & ((_s & 3) | ((_s << 2) & 0x30) | ((_s >> 2 ) & 0x0c) ); },
+		[](uint8 _s) -> uint8 { return 0x3f & ((_s & 3) | ((_s << 2) & 0x30) | ((_s >> 1 ) & 0x08) | ((_s >> 3 ) & 0x04) ); },
+		[](uint8 _s) -> uint8 { return _s; },
+		[](uint8 _s) -> uint8 { return 0x3f & ((_s & 0xf) | ((_s >> 1) & 0x10) | ((_s << 1) & 0x20)); },
 	};
 
-	typedef int (*BorderIndexFunc)(const Math::IVec3& _position, int _e);
+	typedef int (*BorderIndexFunc)(const ei::IVec3& _position, int _e);
 	static BorderIndexFunc GetBorderIndex[6] = {
-		[](const Math::IVec3& _position, int _e) { return _position[1] + _e * (_position[0]          + _e * _position[2]); }, // Left
-		[](const Math::IVec3& _position, int _e) { return _position[1] + _e * (_e - _position[0] - 1 + _e * _position[2]); }, // Right
-		[](const Math::IVec3& _position, int _e) { return _position[0] + _e * (_position[1]          + _e * _position[2]); }, // Bottom
-		[](const Math::IVec3& _position, int _e) { return _position[0] + _e * (_e - _position[1] - 1 + _e * _position[2]); }, // Top
-		[](const Math::IVec3& _position, int _e) { return _position[0] + _e * (_position[2]          + _e * _position[1]); }, // Front
-		[](const Math::IVec3& _position, int _e) { return _position[0] + _e * (_e - _position[2] - 1 + _e * _position[1]); }  // Back
+		[](const ei::IVec3& _position, int _e) { return _position[1] + _e * (_position[0]          + _e * _position[2]); }, // Left
+		[](const ei::IVec3& _position, int _e) { return _position[1] + _e * (_e - _position[0] - 1 + _e * _position[2]); }, // Right
+		[](const ei::IVec3& _position, int _e) { return _position[0] + _e * (_position[1]          + _e * _position[2]); }, // Bottom
+		[](const ei::IVec3& _position, int _e) { return _position[0] + _e * (_e - _position[1] - 1 + _e * _position[2]); }, // Top
+		[](const ei::IVec3& _position, int _e) { return _position[0] + _e * (_position[2]          + _e * _position[1]); }, // Front
+		[](const ei::IVec3& _position, int _e) { return _position[0] + _e * (_e - _position[2] - 1 + _e * _position[1]); }  // Back
 	};
 
 	// ********************************************************************* //
-	int TypeInfo::SamplePos( ComponentType _type, Math::IVec3& _position, int _level, int& _edge, int& _offset )
+	int TypeInfo::SamplePos( ComponentType _type, ei::IVec3& _position, int _level, int& _edge, int& _offset )
 	{
 		// Compute level access values
 		int maxLevel = GetMaxLevel(_type);
@@ -215,7 +215,7 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	bool TypeInfo::Sample( ComponentType _type, Math::IVec3 _position, int _level, uint8_t _rootSurface, Material& _materialOut, uint8_t& _surfaceOut )
+	bool TypeInfo::Sample( ComponentType _type, ei::IVec3 _position, int _level, uint8 _rootSurface, Material& _materialOut, uint8& _surfaceOut )
 	{
 		int e, off;
 		int index = SamplePos(_type, _position, _level, e, off);
@@ -665,7 +665,7 @@ namespace Voxel {
 		Graphic::Texture::Format format(2, 32, Graphic::Texture::Format::ChannelType::UINT);
 		m_voxelTextures = new Graphic::Texture(maxRes, maxRes, maxRes, m_numVoxels, format, maxMipMapLevels);
 
-		ScopedPtr<uint32_t> buffer(new unsigned int[maxRes * maxRes * maxRes * 2]);
+		ScopedPtr<uint32> buffer(new unsigned int[maxRes * maxRes * maxRes * 2]);
 
 		// Fill with data
 		for( int i=0; i<m_numVoxels; ++i )
@@ -673,11 +673,11 @@ namespace Voxel {
 			int res = maxRes;
 			for( int l = 0; l < maxMipMapLevels; ++l )
 			{
-				Math::IVec3 pos(0);
+				ei::IVec3 pos(0);
 				for( ; pos[2] < res; ++pos[2] )
 					for( pos[1] = 0; pos[1] < res; ++pos[1] )
 						for( pos[0] = 0; pos[0] < res; ++pos[0] ) {
-							Math::IVec3 modPos = pos;
+							ei::IVec3 modPos = pos;
 							int e, off;
 							int index = SamplePos(ComponentType(i), modPos, maxMipMapLevels - l, e, off);
 							// Generate a single material code and a mask for which neighborhood

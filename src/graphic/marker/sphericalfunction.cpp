@@ -1,11 +1,11 @@
 #include "graphic/marker/sphericalfunciton.hpp"
 #include "graphic/core/device.hpp"
 #include "utilities/color.hpp"
-#include "math/vector.hpp"
+#include <ei/vector.hpp>
 #include "math/sphericalfunction.hpp"
 #include "graphic/content.hpp"
 
-using namespace Math;
+using namespace ei;
 
 namespace Graphic {
 namespace Marker {
@@ -17,11 +17,11 @@ namespace Marker {
 		Utils::Color8U color;
 	};
 
-	static const Math::Vec4 COLOR_GRADIENT[] = {
-		Math::Vec4(0.0f, 0.0f, 0.0f, 0.1f),
-		Math::Vec4(1.0f, 0.0f, 0.0f, 0.6f),
-		Math::Vec4(1.0f, 1.0f, 0.0f, 0.8f),
-		Math::Vec4(1.0f, 1.0f, 1.0f, 0.9f)
+	static const Vec4 COLOR_GRADIENT[] = {
+		Vec4(0.0f, 0.0f, 0.0f, 0.1f),
+		Vec4(1.0f, 0.0f, 0.0f, 0.6f),
+		Vec4(1.0f, 1.0f, 0.0f, 0.8f),
+		Vec4(1.0f, 1.0f, 1.0f, 0.9f)
 	};
 
 	static Utils::Color8U ValueToColor( float _value )
@@ -101,7 +101,7 @@ namespace Marker {
 
 	// ********************************************************************* //
 	// Draw the function visualization with an alpha rendering effect (without z-test).
-	void SphericalFunction::Draw( const Math::Mat4x4& _worldViewProjection )
+	void SphericalFunction::Draw( const ei::Mat4x4& _worldViewProjection )
 	{
 		// Setup pipeline
 		Resources::GetUBO(UniformBuffers::SIMPLE_OBJECT)["WorldViewProjection"] = _worldViewProjection;

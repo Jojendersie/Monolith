@@ -57,7 +57,7 @@ namespace Graphic {
 		// Cannot access unknown attribute!
 		Assert(m_attributes.find(_name) != m_attributes.end(), "Cannot access unknown attribute!");
 
-		return UniformVar((uint8_t*)m_memory + m_attributes[_name], this);
+		return UniformVar((uint8*)m_memory + m_attributes[_name], this);
 	}
 
 	const UniformBuffer::UniformVar UniformBuffer::operator [] ( const std::string& _name ) const
@@ -66,7 +66,7 @@ namespace Graphic {
 		Assert(m_attributes.find(_name) != m_attributes.end(), "Cannot access unknown attribute!");
 
 		// Give a nullptr instead of a buffer - it is only accessed during write
-		return UniformVar((uint8_t*)m_memory + m_attributes.at(_name), nullptr);
+		return UniformVar((uint8*)m_memory + m_attributes.at(_name), nullptr);
 	}
 
 

@@ -1,13 +1,13 @@
 #include "messagebox.hpp"
 
-using namespace Math;
+using namespace ei;
 
 MessageBox::MessageBox(Jo::Files::MetaFileWrapper* _posMap,
-	Math::Vec2 _position, Math::Vec2 _size) :
+	Vec2 _position, Vec2 _size) :
 ScreenTexture(_posMap, "simpleWindow", _position, _size),
 m_textRender(&Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT))
 {
-	Math::Vec2 captionDim = m_textRender.GetDim();
+	ei::Vec2 captionDim = m_textRender.GetDim();
 	m_textRender.SetDefaultSize(1.f);
 
 	m_textRender.SetPos(m_pos + Vec2(0.02f, -m_textRender.GetDim()[1]));

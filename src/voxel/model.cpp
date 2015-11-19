@@ -6,6 +6,7 @@
 #include "graphic/content.hpp"
 #include "exceptions.hpp"
 
+using namespace ei;
 using namespace Math;
 
 namespace RenderStat {
@@ -36,26 +37,26 @@ namespace Voxel {
 	{
 		const Input::Camera& camera;					// Required for culling and LOD
 		Model::ModelData* model;						// Operate on this data.
-		std::unordered_map<Math::IVec4, Chunk>* chunks;	// Create or find chunks here.
-		const Math::Mat4x4& modelView;
+		std::unordered_map<IVec4, Chunk>* chunks;	// Create or find chunks here.
+		const Mat4x4& modelView;
 
 		DecideToDraw(const Input::Camera& _camera,
 				Model::ModelData* _model,
-				std::unordered_map<Math::IVec4, Chunk>* _chunks,
-				const Math::Mat4x4& _modelView) :
+				std::unordered_map<IVec4, Chunk>* _chunks,
+				const Mat4x4& _modelView) :
 			camera(_camera), model(_model), chunks(_chunks),
 			modelView(_modelView)
 		{}
 
-		bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
+		bool PreTraversal(const IVec4& _position, Model::ModelData::SVON* _node)
 		{
 	//		if( !IsSolid( _type ) ) return false;
 
 			// Compute a world space position
 			float chunkLength = float(1 << _position[3]);
 			Sphere boundingSphere(Vec3(_position[0] * chunkLength, _position[1] * chunkLength, _position[2] * chunkLength), 0.87f * chunkLength);
-			boundingSphere.m_center += chunkLength * 0.5f;
-			boundingSphere.m_center = boundingSphere.m_center * modelView;
+			boundingSphere.center += chunkLength * 0.5f;
+			boundingSphere.center = transform( boundingSphere.center, modelView );
 
 			// View frustum culling
 			if( !camera.IsVisible( boundingSphere ) )
@@ -65,10 +66,10 @@ namespace Voxel {
 			// equal the target draw. Where targetLOD is the level of the
 			// required root node level. The resulting chunk will be up to 5
 			// levels more tessellated
-			//float detailResolution = 0.31f * log( lengthSq(boundingSphere.m_center - camera.GetPosition()) );
-			float detailResolution = 0.021f * sq(log( lengthSq(boundingSphere.m_center) ));
+			//float detailResolution = 0.31f * log( lensq(boundingSphere.center - camera.GetPosition()) );
+			float detailResolution = 0.021f * sq(log( lensq(boundingSphere.center) ));
 			//float detailResolution = 0.045f * pow(log( lengthSq(boundingSphere.m_center - camera.GetPosition()) ), 1.65f);
-			int targetLOD = max(LOG_CHUNK_SIZE, Math::ceil(detailResolution));
+			int targetLOD = max(LOG_CHUNK_SIZE, (int)ceil(detailResolution));
 			if( _position[3] <= targetLOD )
 			{
 				// For very far objects a chunk might be too detailed. In this case
@@ -108,7 +109,7 @@ namespace Voxel {
 		ClearChunkCache();
 
 		// Create a new model space transformation
-		Math::Mat4x4 modelView;
+		Mat4x4 modelView;
 		GetModelMatrix( modelView, _camera );
 
 		// Iterate through the octree and render chunks depending on the lod.
@@ -117,7 +118,7 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	ComponentType Model::Get( const Math::IVec3& _position ) const
+	ComponentType Model::Get( const IVec3& _position ) const
 	{
 		auto node = m_voxelTree.Get(_position, 0);
 		if( node ) return node->Data().type;
@@ -128,34 +129,34 @@ namespace Voxel {
 
 
 	// ********************************************************************* //
-	Math::Mat4x4& Model::GetModelMatrix( Math::Mat4x4& _out, const Math::Transformation& _reference ) const
+	Mat4x4& Model::GetModelMatrix( Mat4x4& _out, const Math::Transformation& _reference ) const
 	{
-		_out = Mat4x4::Translation(-m_center) * GetTransformation(_reference);
+		_out = GetTransformation(_reference) * translation(-m_center);
 		return _out;
 	}
 
-	Math::Mat4x4& Model::GetModelMatrix( Math::Mat4x4& _out, const Input::Camera& _reference ) const
+	Mat4x4& Model::GetModelMatrix( Mat4x4& _out, const Input::Camera& _reference ) const
 	{
 		if( this == _reference.GetAttachedModel() )
 		{
-			_out = Mat4x4::Translation(-m_center)
-				 * Mat4x4::Rotation(m_rotation)
-				 * Mat4x4::Translation(_reference.GetReferencePosition())
-				 * Mat4x4::Rotation(_reference.RenderState().GetRotation());
+			_out = rotationH(_reference.RenderState().GetRotation())
+				 * translation(_reference.GetReferencePosition())
+				 * rotationH(m_rotation)
+				 * translation(-m_center);
 		} else {
-			_out = Mat4x4::Translation(-m_center) * GetTransformation(_reference.RenderState());
+			_out = GetTransformation(_reference.RenderState()) * translation(-m_center);
 		}
 		return _out;
 	}
 
 
 	// ********************************************************************* //
-	void Model::Update( const Math::IVec4& _position, const Voxel& _oldType, const Voxel& _newType )
+	void Model::Update( const IVec4& _position, const Voxel& _oldType, const Voxel& _newType )
 	{
 		// Compute real volume from logarithmic size
 		int size = 1 << _position[3];
 		float voxelSurface = size * size / 6.0f;
-		Vec3 center = Math::IVec3(_position) * size + size * 0.5f;
+		Vec3 center = IVec3(_position) * size + size * 0.5f;
 		int volume = size * size * size;
 
 		// Remove the old voxel
@@ -212,11 +213,11 @@ namespace Voxel {
 		float I23 = -xym_xzm_yzm[2] + m_center[1]*m_inertiaX_Y_Z[2] + m_center[2]*m_inertiaX_Y_Z[1] - m_inertiaXY_XZ_YZ[2];
 
 		m_inertiaTensor = Mat3x3(I11,I12,I13,I12,I22,I23,I13,I23,I33);
-		m_inertiaTensorInverse = m_inertiaTensor.Inverse();
+		m_inertiaTensorInverse = invert(m_inertiaTensor);
 
 		// TEMP: approximate a sphere; TODO Grow and shrink a real bounding volume
 		// TODO remove Math::Vector if replaced by template
-		m_boundingSphereRadius = Math::max(m_boundingSphereRadius, 0.7f + Math::length(Math::Vector<3,float>(m_center) - Math::Vector<3,int>(_position)) );
+		m_boundingSphereRadius = max(m_boundingSphereRadius, 0.7f + len(Vec3(m_center) - Vec3(_position)) );
 	}
 
 	// ********************************************************************* //
@@ -227,7 +228,7 @@ namespace Voxel {
 		// http://physicsforgames.blogspot.de/2010/02/quaternions.html
 		Quaternion deltaRot;
 		Vec3 theta = m_angularVelocity * _deltaTime;
-		float thetaMagSq = lengthSq(theta);
+		float thetaMagSq = lensq(theta);
 		float s;
 		if(thetaMagSq * thetaMagSq / 24.0f < 1e-6f)
 		{
@@ -247,15 +248,15 @@ namespace Voxel {
 		Rotate( deltaRot );
 		// Also rotate the velocity, while this is not physical plausible it increases
 		// the playability extreme.
-		if(m_rotateVelocity) m_velocity = m_velocity * Mat3x3::Rotation(deltaRot);
+		if(m_rotateVelocity) m_velocity = rotation(deltaRot) * m_velocity;
 	}
 
 	// ********************************************************************* //
 	bool Model::RayCast( const Math::WorldRay& _ray, int _targetLevel, ModelData::HitResult& _hit, float& _distance ) const
 	{
 		// Convert ray to model space
-		Ray ray( _ray, *this );
-		ray.m_origin += GetCenter();
+		Ray ray = _ray.getRelativeRay(*this);
+		ray.origin += GetCenter();
 		// TODO: Mat4x4::Scaling(m_scale) translation relevant?
 		return m_voxelTree.RayCast(ray, _targetLevel, _hit, _distance);
 	}
@@ -298,12 +299,12 @@ namespace Voxel {
 			file(_file)
 		{}
 
-		bool PreTraversal(const Math::IVec4& _position, const Model::ModelData::SVON* _node)
+		bool PreTraversal(const IVec4& _position, const Model::ModelData::SVON* _node)
 		{
 			if( _node->Children() )
 			{
 				// Store in a mask which children are defined
-				uint8_t mask = 0;
+				uint8 mask = 0;
 				for( int i = 0; i < 8; ++i )
 					if( _node->GetChild(i) )
 						mask |= 1 << i;
@@ -314,13 +315,13 @@ namespace Voxel {
 				// This is a leaf and contains a component
 				// First store the mask byte with all 0 (no children)
 				file.WriteU8( 0 );
-				file.WriteU8( (uint8_t)_node->Data().type );
+				file.WriteU8( (uint8)_node->Data().type );
 			}
 			return true;
 		}
 	};
 
-	enum struct ModelChunkTypes: uint8_t {
+	enum struct ModelChunkTypes: uint8 {
 		END_MODEL,
 		WORLD_LOCATION,
 		COMPONENT_TREE
@@ -331,23 +332,23 @@ namespace Voxel {
 	{
 		if(!_file.CanWrite()) throw InvalidSaveGame( _file, "To save a model the file must be opened for writing!" );
 
-		_file.WriteU8( (uint8_t)ModelChunkTypes::WORLD_LOCATION );
+		_file.WriteU8( (uint8)ModelChunkTypes::WORLD_LOCATION );
 			_file.Write( &m_position, sizeof(FixVec3) );
 			_file.Write( &m_rotation, sizeof(Quaternion) );
 
-		_file.WriteU8( (uint8_t)ModelChunkTypes::COMPONENT_TREE );
+		_file.WriteU8( (uint8)ModelChunkTypes::COMPONENT_TREE );
 			_file.Write( &m_voxelTree.GetRootPosition(), sizeof(IVec3) );
 			_file.WriteI32( m_voxelTree.GetRootSize() );
 			StoreModelTree proc( _file );
 			m_voxelTree.Traverse( proc );
 
-		_file.WriteU8( (uint8_t)ModelChunkTypes::END_MODEL );
+		_file.WriteU8( (uint8)ModelChunkTypes::END_MODEL );
 	}
 
 	// ********************************************************************* //
 	void recursiveLoad( Model* _model, const Jo::Files::IFile& _file, const IVec3& _position, int _level )
 	{
-		uint8_t mask;
+		uint8 mask;
 		_file.Read( 1, &mask );
 		if( mask )
 		{
@@ -458,7 +459,7 @@ namespace Voxel {
 		{
 			InertiaProcessor(const Vec3& _center) : newInertia(0.0f), center(_center) {}
 
-			bool PreTraversal(const Math::IVec4& _position, const Model::ModelData::SVON* _node)
+			bool PreTraversal(const IVec4& _position, const Model::ModelData::SVON* _node)
 			{
 				if( !_node->Children() )
 				{
@@ -479,7 +480,7 @@ namespace Voxel {
 				return true;
 			}
 
-			Math::Mat3x3 newInertia;
+			Mat3x3 newInertia;
 		private:
 			const Vec3& center;
 		};
@@ -487,7 +488,7 @@ namespace Voxel {
 		InertiaProcessor proc(m_center);
 		m_voxelTree.Traverse( proc );
 		m_inertiaTensor = proc.newInertia;
-		m_inertiaTensorInverse = proc.newInertia.Inverse();
+		m_inertiaTensorInverse = invert(proc.newInertia);
 	}
 
 	// ********************************************************************* //
@@ -504,7 +505,7 @@ namespace Voxel {
 			{
 			}
 
-			bool PreTraversal(const Math::IVec4& _position, ModelData::SVON* _node,
+			bool PreTraversal(const IVec4& _position, ModelData::SVON* _node,
 				const ModelData::SVON* _left, const ModelData::SVON* _right, const ModelData::SVON* _bottom,
 				const ModelData::SVON* _top, const ModelData::SVON* _front, const ModelData::SVON* _back)
 				//bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)

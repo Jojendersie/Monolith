@@ -1,10 +1,12 @@
 #include "starsystem.hpp"
 #include "input/camera.hpp"
+#include "math/fixedpoint.hpp"
 #include "../graphic/core/uniformbuffer.hpp"
 
 
 #include <math.h>
 
+using namespace ei;
 using namespace Math;
 
 StarSystem::StarSystem(const FixVec3& _position, int _temperature, float _size, const Quaternion& _rotation, bool _ambient)
@@ -21,7 +23,7 @@ StarVertex& StarSystem::ComputeVertex(const Input::Camera& _camera)
 	{
 		//combined rotation using _camera.RenderState().GetRotation() * m_rotation seems to produce different results...
 		m_vertex.position = m_rotationMatrix * Vec3(0.f, 0.f, 10.f);
-		m_vertex.position = m_vertex.position * _camera.RenderState().GetRotationMatrix();
+		m_vertex.position = _camera.RenderState().GetRotationMatrix() * m_vertex.position;
 	}
 	else
 		m_vertex.position = _camera.RenderState().Transform(m_position);
@@ -78,6 +80,6 @@ Utils::Color8U StarSystem::TemperatureToRGB(int _temperature)
 		if (blue > 255) blue = 255;
 	}
 
-	return Utils::Color8U((uint8_t)red, (uint8_t)green, (uint8_t)blue);
+	return Utils::Color8U((uint8)red, (uint8)green, (uint8)blue);
 
 }

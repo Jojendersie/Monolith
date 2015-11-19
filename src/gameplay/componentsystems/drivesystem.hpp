@@ -11,11 +11,11 @@ namespace Mechanics {
 		DriveSystem(class Ship& _theShip, unsigned _id);
 		virtual void Estimate(float _deltaTime, SystemRequierements& _requirements) override;
 		virtual void Process(float _deltaTime, SystemRequierements& _provided) override;
-		virtual void OnAdd(const Math::IVec3& _position, Voxel::ComponentType _type, uint8_t _assignment) override;
+		virtual void OnAdd(const ei::IVec3& _position, Voxel::ComponentType _type, uint8 _assignment) override;
 		virtual void ClearSystem() override;
 	private:
-		Math::Vec3 m_currentThrust;
-		Math::Vec3 m_currentTorque;
+		ei::Vec3 m_currentThrust;
+		ei::Vec3 m_currentTorque;
 
 		/// Precomputed system parameters
 		Math::SphericalFunction m_maxThrust;	///< Amplitude of thrust into a direction [kN], and yzw = how does this influence torque?

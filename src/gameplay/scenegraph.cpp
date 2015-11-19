@@ -3,6 +3,7 @@
 #include "voxel/sparseoctree.hpp"
 #include <algorithm>
 
+using namespace ei;
 using namespace Math;
 
 // ************************************************************************* //
@@ -203,14 +204,14 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 
 	m_posSlf = Vec3(0.f);
 	//manual translation to a local space
-	//because transform rotates aswell
+	//because transform rotates as well
 	FixVec3 fixPos0 = _model0.GetPosition();
 	FixVec3 fixPos1 = _model1.GetPosition(); 
 	m_posOth = Vec3(float(fixPos1[0] - fixPos0[0]),
 		float(fixPos1[1] - fixPos0[1]),
 		float(fixPos1[2] - fixPos0[2])); 
 
-	float dist = lengthSq(m_posOth - m_posSlf);
+	float dist = lensq(m_posOth - m_posSlf);
 
 	if (dist < r0 + r1)
 	{
@@ -219,18 +220,18 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 		const Voxel::Model::ModelData::SVON* node0 = tree0.Get(tree0.GetRootPosition(), tree0.GetRootSize());
 		const Voxel::Model::ModelData::SVON* node1 = tree1.Get(tree1.GetRootPosition(), tree1.GetRootSize());
 
-		IVec4 pos0 = IVec4(tree0.GetRootPosition());
+		IVec4 pos0 = IVec4(tree0.GetRootPosition(), 0);
 		pos0[3] = tree0.GetRootSize();
-		IVec4 pos1 = IVec4(tree1.GetRootPosition());
+		IVec4 pos1 = IVec4(tree1.GetRootPosition(), 0);
 		pos1[3] = tree1.GetRootSize();
 
-		m_rotSlf = Mat3x3::Rotation(_model0.GetRotation());
-		m_rotOth = Mat3x3::Rotation(_model1.GetRotation());
+		m_rotSlf = rotation(_model0.GetRotation());
+		m_rotOth = rotation(_model1.GetRotation());
 
-		m_posSlf -= _model0.GetCenter() * m_rotSlf;
-		m_posOth -= _model1.GetCenter() * m_rotOth;
+		m_posSlf -= m_rotSlf * _model0.GetCenter();
+		m_posOth -= m_rotOth * _model1.GetCenter();
 
-		//make shure that the bigger one is slf
+		//make sure that the bigger one is slf
 		if (pos0[3] < pos1[3])
 		{
 			m_modelSlf = &_model1;
@@ -270,12 +271,12 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 
 		//no more tree calcs take place
 		//actual center of mass positions are required
-		m_posSlf += m_modelSlf->GetCenter() * m_rotSlf;
-		m_posOth += m_modelOth->GetCenter() * m_rotOth;
+		m_posSlf += m_rotSlf * m_modelSlf->GetCenter();
+		m_posOth += m_rotOth * m_modelOth->GetCenter();
 
 		Vec3 point = hitLocSlf + 0.5f*(hitLocOth - hitLocSlf);
 		Vec3 radiusSlf = -hitLocSlf + m_posSlf; //point
-		Vec3 radiusOth = -hitLocOth + m_posOth;
+		Vec3 radiusOth = -hitLocOth + m_posOth; //// EI-CHECK signs might be wrong
 
 		Vec3 velocitySlf = m_modelSlf->GetVelocity() + cross(m_modelSlf->GetAngularVelocity(), radiusSlf);
 		Vec3 velocityOth = m_modelOth->GetVelocity() + cross(m_modelOth->GetAngularVelocity(), radiusOth);
@@ -324,21 +325,21 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 }
 
 // ************************************************************************* //
-void SceneGraph::CollisionCheck::TreeCollision(const Math::IVec4& _position0, const Voxel::Model::ModelData::SVON& _node0, const Math::IVec4& _position1, const Voxel::Model::ModelData::SVON& _node1)
+void SceneGraph::CollisionCheck::TreeCollision(const IVec4& _position0, const Voxel::Model::ModelData::SVON& _node0, const IVec4& _position1, const Voxel::Model::ModelData::SVON& _node1)
 {
 	int sizeSlf = 1 << _position0[3];
 	int sizeOth = 1 << _position1[3];
 	Vec3 posSlf = Vec3(IVec3(_position0) * sizeSlf);
 	posSlf += sizeSlf*0.5f;
-	posSlf = posSlf * m_rotSlf + m_posSlf;
+	posSlf = m_rotSlf * posSlf + m_posSlf;
 	Vec3 posOth = Vec3(IVec3(_position1) * sizeOth);
 	posOth += sizeOth*0.5f;
-	posOth = posOth * m_rotOth + m_posOth;
+	posOth = m_rotOth * posOth + m_posOth;
 
 	int sizeSq = sizeSlf + sizeOth;
 	sizeSq *= sizeSq;
-	float lenSq = lengthSq(posOth - posSlf);
-	//diameter of the outer shpere
+	float lenSq = lensq(posOth - posSlf);
+	//diameter of the outer sphere
 	// (sqrt(3)/2)^2
 	if (0.7499993 * sizeSq > lenSq)
 	{
@@ -355,7 +356,7 @@ void SceneGraph::CollisionCheck::TreeCollision(const Math::IVec4& _position0, co
 		//recursive call with higher resolution
 		else
 		{
-			Math::IVec4 position0(_position0[0] << 1, _position0[1] << 1, _position0[2] << 1, _position0[3]);
+			IVec4 position0(_position0[0] << 1, _position0[1] << 1, _position0[2] << 1, _position0[3]);
 			
 			//when they are not on the same resolution level decrease only the bigger one
 			if (_position0[3] > _position1[3])
@@ -368,7 +369,7 @@ void SceneGraph::CollisionCheck::TreeCollision(const Math::IVec4& _position0, co
 			}
 			else
 			{
-				Math::IVec4 position1(_position1[0] << 1, _position1[1] << 1, _position1[2] << 1, _position1[3]);
+				IVec4 position1(_position1[0] << 1, _position1[1] << 1, _position1[2] << 1, _position1[3]);
 
 				for (int i = 0; i < 8; ++i)
 				{

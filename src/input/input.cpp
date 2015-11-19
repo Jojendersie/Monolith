@@ -1,7 +1,7 @@
 #include "input.hpp"
 #include "gamestates/gamestatebase.hpp"
 #include "timer.hpp"
-#include "math/vector.hpp"
+#include <ei/vector.hpp>
 #include "graphic/core/device.hpp"
 #include "utilities/assert.hpp"
 #include "GLFW/glfw3.h"
@@ -168,13 +168,13 @@ namespace Input {
 				auto& keyInfo = InputManagerInstance.m_keyInfos[_key];
 				if( now - keyInfo.lastDown < 0.15f )
 				{
-					Math::Vec2 mousePosition = GetCursorPos();
+					ei::Vec2 mousePosition = GetCursorPos();
 					// Simple or double click?
 					if( now - keyInfo.lastRelease < 0.25f
-						&& Math::lengthSq(InputManagerInstance.m_lastClickedPosition - mousePosition) < 5.0f )
+						&& ei::lensq(InputManagerInstance.m_lastClickedPosition - mousePosition) < 5.0f )
 					{
 						gameState->KeyDoubleClick( _key );
-						keyInfo.lastRelease = -1.0f;	// Break tripple clicks
+						keyInfo.lastRelease = -1.0f;	// Break triple clicks
 					} else {
 						gameState->KeyClick( _key );
 						keyInfo.lastRelease = now;
@@ -186,15 +186,15 @@ namespace Input {
 	}
 
 	// ********************************************************************* //
-	Math::Vec2 Manager::GetCursorPos()
+	ei::Vec2 Manager::GetCursorPos()
 	{
-		return Math::Vec2( (float)InputManagerInstance.m_cursorX, (float)InputManagerInstance.m_cursorY );
+		return ei::Vec2( (float)InputManagerInstance.m_cursorX, (float)InputManagerInstance.m_cursorY );
 	}
 
-	Math::Vec2 Manager::GetCursorPosScreenSpace()
+	ei::Vec2 Manager::GetCursorPosScreenSpace()
 	{
 		// Get cursor converted to screen coordinates
-		Math::Vec2 cursorPos = 2.0f * Input::Manager::GetCursorPos() / Graphic::Device::GetBackbufferSize() - 1.0f;
+		ei::Vec2 cursorPos = 2.0f * Input::Manager::GetCursorPos() / Graphic::Device::GetBackbufferSize() - 1.0f;
 		cursorPos[1] = -cursorPos[1];
 		return cursorPos;
 	}

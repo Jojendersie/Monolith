@@ -1,9 +1,9 @@
-#include <cstdint>
 #include <jofilelib.hpp>
 #include "texture.hpp"
 #include "opengl.hpp"
-#include "math/math.hpp"
+#include <ei/elementarytypes.hpp>
 #include "utilities/assert.hpp"
+#include "utilities/logger.hpp"
 
 namespace Graphic {
 
@@ -16,11 +16,11 @@ Texture::Format::Format(unsigned int _numChannels, unsigned int _bitDepth, Forma
 	if (_formatType == FormatType::COLOR)
 	{
 		--_numChannels;
-		static const uint32_t FLOAT_FORMATS[2][4] = { { GL_R16F, GL_RG16F, GL_RGB16F, GL_RGBA16F },
+		static const uint32 FLOAT_FORMATS[2][4] = { { GL_R16F, GL_RG16F, GL_RGB16F, GL_RGBA16F },
 		{ GL_R32F, GL_RG32F, GL_RGB32F, GL_RGBA32F } };
-		static const uint32_t INT_FORMATS[2][4] = { { GL_R8_SNORM, GL_RG8_SNORM, GL_RGB8_SNORM, GL_RGBA8_SNORM },
+		static const uint32 INT_FORMATS[2][4] = { { GL_R8_SNORM, GL_RG8_SNORM, GL_RGB8_SNORM, GL_RGBA8_SNORM },
 		{ GL_R16_SNORM, GL_RG16_SNORM, GL_RGB16_SNORM, GL_RGBA16_SNORM } };
-		static const uint32_t UINT_FORMATS[4][4] = { { GL_R8, GL_RG8, GL_RGB8, GL_RGBA8 },
+		static const uint32 UINT_FORMATS[4][4] = { { GL_R8, GL_RG8, GL_RGB8, GL_RGBA8 },
 		{ GL_R16, GL_RG16, GL_RGB16, GL_RGBA16 }, {0, 0, 0}, { GL_R32UI, GL_RG32UI, GL_RGB32UI, GL_RGBA32UI } };
 
 
@@ -47,10 +47,10 @@ Texture::Format::Format(unsigned int _numChannels, unsigned int _bitDepth, Forma
 		// The array dimension is numChannels
 		if(_bitDepth == 8)
 		{
-			const uint32_t FORMAT[4] = { GL_RED, GL_RG, GL_RGB, GL_RGBA };
+			const uint32 FORMAT[4] = { GL_RED, GL_RG, GL_RGB, GL_RGBA };
 			format = FORMAT[_numChannels];
 		} else {
-			const uint32_t FORMAT[][4] = { { GL_RED_INTEGER, GL_RG_INTEGER, GL_RGB_INTEGER, GL_RGBA_INTEGER },
+			const uint32 FORMAT[][4] = { { GL_RED_INTEGER, GL_RG_INTEGER, GL_RGB_INTEGER, GL_RGBA_INTEGER },
 										   { GL_RED_INTEGER, GL_RG_INTEGER, GL_RGB_INTEGER, GL_RGBA_INTEGER },
 										   { GL_RED, GL_RG, GL_RGB, GL_RGBA }
 			};
@@ -80,7 +80,7 @@ Texture::Format::Format(unsigned int _numChannels, unsigned int _bitDepth, Forma
 	}
 
 	// The inner array dimension depends on bitDepth, the outer on the ChannelType
-	const uint32_t TYPE[][4] = { { GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, 0, GL_UNSIGNED_INT },
+	const uint32 TYPE[][4] = { { GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT, 0, GL_UNSIGNED_INT },
 					             { GL_BYTE, GL_SHORT, 0, GL_INT },
                                  { 0, GL_FLOAT, 0, GL_FLOAT } };
 	type = TYPE[int(_type)][_bitDepth / 8 - 1];
@@ -140,8 +140,8 @@ Texture::Texture( const std::string& _fileName ) :
 	int height = image.Height() * 2;
 	int level = 0;
 	do {
-		width = Math::max(1, (width / 2));
-		height = Math::max(1, (height / 2));
+		width = ei::max(1, (width / 2));
+		height = ei::max(1, (height / 2));
 		GL_CALL(glTexImage2D, m_bindingPoint, level, m_format.internalFormat, width, height, 0,
 								m_format.format, m_format.type, level==0? image.GetBuffer() : nullptr);
 		++level;
@@ -181,8 +181,8 @@ Texture::Texture( const std::vector<std::string>& _fileNames ) :
 	int height = firstImage.Height() * 2;
 	int level = 0;
 	do {
-        width = Math::max(1, (width / 2));
-        height = Math::max(1, (height / 2));
+        width = ei::max(1, (width / 2));
+        height = ei::max(1, (height / 2));
 		GL_CALL(glTexImage3D, m_bindingPoint, level, m_format.internalFormat, width, height, (int)_fileNames.size(),
 							  0, m_format.format, m_format.type, nullptr);
 		++level;
@@ -240,8 +240,8 @@ Texture::Texture( unsigned int _width, unsigned int _height, unsigned int _depth
 	//int depth = _depth * 2;
 	int level = 0;
 	do {
-        width = Math::max(1, (width / 2));
-        height = Math::max(1, (height / 2));
+        width = ei::max(1, (width / 2));
+        height = ei::max(1, (height / 2));
 		//depth = Math::max(1, (depth / 2));
 		GL_CALL(glTexImage3D, m_bindingPoint, level, _format.internalFormat, width, height, _layers,
 							  0, _format.format, _format.type, nullptr);
@@ -257,9 +257,9 @@ Texture::Texture( unsigned int _width, unsigned int _height, unsigned int _depth
 void Texture::UploadData(unsigned _layer, unsigned _mipLevel, const void* _buffer)
 {
 	// Get size of target level
-	unsigned width = Math::max(1u, m_width >> _mipLevel);
-	unsigned height = Math::max(1u, m_height >> _mipLevel);
-	unsigned depth = Math::max(1u, m_depth >> _mipLevel);
+	unsigned width = ei::max(1u, m_width >> _mipLevel);
+	unsigned height = ei::max(1u, m_height >> _mipLevel);
+	unsigned depth = ei::max(1u, m_depth >> _mipLevel);
 	// Bind (TODO: only if not done)
 	GL_CALL(glBindTexture, GL_TEXTURE_2D_ARRAY, m_textureID);
 	// Upload now

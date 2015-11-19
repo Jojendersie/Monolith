@@ -8,7 +8,7 @@
 #include <cstdlib>
 #include <cstring>
 
-using namespace Math;
+using namespace ei;
 
 namespace Voxel {
 
@@ -16,7 +16,7 @@ namespace Voxel {
 #	define INDEX2(X,Y,Z, L)	(LEVEL_OFFSETS[L] + (X) + (1<<(L))*((Y) + (1<<(L))*(Z)))
 
 
-	Chunk::Chunk(Model::ModelData* _modelData, const Math::IVec4& _nodePostion, int _depth) :
+	Chunk::Chunk(Model::ModelData* _modelData, const IVec4& _nodePostion, int _depth) :
 		m_modelData( _modelData ),
 		m_scale( pow(2.0f, _nodePostion[3]-_depth) ),//float(1<<(_nodePostion[3]-_depth)) ),
 		m_depth( _depth ),
@@ -45,29 +45,29 @@ namespace Voxel {
 	}
 
 
-	void Chunk::Draw( const Math::Mat4x4& _modelView, const Math::Mat4x4& _projection )
+	void Chunk::Draw( const Mat4x4& _modelView, const Mat4x4& _projection )
 	{
 		Graphic::UniformBuffer& objectConstants = Graphic::Resources::GetUBO(Graphic::UniformBuffers::OBJECT_VOXEL);
 		// Translation to center the chunks
-		Math::Mat4x4 modelView = Mat4x4::Translation(m_position) * Mat4x4::Scaling(m_scale) * _modelView;
+		Mat4x4 modelView = _modelView * scalingH(m_scale) * translation(m_position);
 		objectConstants["WorldView"] = modelView;
-		objectConstants["InverseWorldView"] = modelView.Inverse();
-		Math::Mat4x4 modelViewProjection = modelView * _projection;
+		objectConstants["InverseWorldView"] = invert(modelView);
+		Mat4x4 modelViewProjection = _projection * modelView;
 
 		float halfScale = m_scale * 0.5f;
-		Vec4 c000 = Vec4( -0.5f, -0.5f, -0.5f, 0.0f ) * modelViewProjection;
-		Vec4 c001 = Vec4( -0.5f, -0.5f,  0.5f, 0.0f ) * modelViewProjection;
-		Vec4 c010 = Vec4( -0.5f,  0.5f, -0.5f, 0.0f ) * modelViewProjection;
-		Vec4 c011 = Vec4( -0.5f,  0.5f,  0.5f, 0.0f ) * modelViewProjection;
+		Vec4 c000 = modelViewProjection * Vec4( -0.5f, -0.5f, -0.5f, 0.0f );
+		Vec4 c001 = modelViewProjection * Vec4( -0.5f, -0.5f,  0.5f, 0.0f );
+		Vec4 c010 = modelViewProjection * Vec4( -0.5f,  0.5f, -0.5f, 0.0f );
+		Vec4 c011 = modelViewProjection * Vec4( -0.5f,  0.5f,  0.5f, 0.0f );
 		objectConstants["Corner000"] = c000;
 		objectConstants["Corner001"] = c001;
 		objectConstants["Corner010"] = c010;
 		objectConstants["Corner011"] = c011;
-		objectConstants["Corner100"] = Vec4(  0.5f, -0.5f, -0.5f, 0.0f ) * modelViewProjection;
-		objectConstants["Corner101"] = Vec4(  0.5f, -0.5f,  0.5f, 0.0f ) * modelViewProjection;
-		objectConstants["Corner110"] = Vec4(  0.5f,  0.5f, -0.5f, 0.0f ) * modelViewProjection;
-		objectConstants["Corner111"] = Vec4(  0.5f,  0.5f,  0.5f, 0.0f ) * modelViewProjection;
-		objectConstants["MaxOffset"] = max(max(length(c000), length(c001)), max(length(c010), length(c011)));
+		objectConstants["Corner100"] = modelViewProjection * Vec4(  0.5f, -0.5f, -0.5f, 0.0f );
+		objectConstants["Corner101"] = modelViewProjection * Vec4(  0.5f, -0.5f,  0.5f, 0.0f );
+		objectConstants["Corner110"] = modelViewProjection * Vec4(  0.5f,  0.5f, -0.5f, 0.0f );
+		objectConstants["Corner111"] = modelViewProjection * Vec4(  0.5f,  0.5f,  0.5f, 0.0f );
+		objectConstants["MaxOffset"] = max(len(c000), len(c001), len(c010), len(c011));
 
 		Graphic::Device::DrawVertices( m_voxels, 0, m_voxels.GetNumVertices() );
 
@@ -90,14 +90,14 @@ namespace Voxel {
 	{
 		/// \brief If the current voxel is not dirty its whole subtree is
 		///		clean too. Then stop.
-		bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
+		bool PreTraversal(const ei::IVec4& _position, Model::ModelData::SVON* _node)
 		{
 			return _node->Data().IsDirty();
 		}
 
 		/// \brief Do an update: mix the materials of all children and choose
 		///		type randomly
-		void PostTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
+		void PostTraversal(const ei::IVec4& _position, Model::ModelData::SVON* _node)
 		{
 			if( !_node->Data().IsDirty() ) return;
 
@@ -123,7 +123,7 @@ namespace Voxel {
 	{
 		/// \brief If the current voxel is not dirty its whole subtree is
 		///		clean too. Then stop.
-		bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node,
+		bool PreTraversal(const ei::IVec4& _position, Model::ModelData::SVON* _node,
 			const Model::ModelData::SVON* _left, const Model::ModelData::SVON* _right, const Model::ModelData::SVON* _bottom,
 			const Model::ModelData::SVON* _top, const Model::ModelData::SVON* _front, const Model::ModelData::SVON* _back)
 		{
@@ -132,7 +132,7 @@ namespace Voxel {
 
 		/// \brief Do an update: mix the materials of all children and choose
 		///		type randomly
-		void PostTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node,
+		void PostTraversal(const ei::IVec4& _position, Model::ModelData::SVON* _node,
 			const Model::ModelData::SVON* _left, const Model::ModelData::SVON* _right, const Model::ModelData::SVON* _bottom,
 			const Model::ModelData::SVON* _top, const Model::ModelData::SVON* _front, const Model::ModelData::SVON* _back)
 		{
@@ -176,7 +176,7 @@ namespace Voxel {
 
 		/// \brief Traverse over the surface only and copy all the vertices
 		///		which are in the correct depth.
-		bool PreTraversal(const Math::IVec4& _position, Model::ModelData::SVON* _node)
+		bool PreTraversal(const ei::IVec4& _position, Model::ModelData::SVON* _node)
 		{
 			// Take a LOD of the material
 			if( _position[3] == level && _node->Data().surface )

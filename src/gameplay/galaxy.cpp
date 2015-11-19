@@ -5,7 +5,7 @@
 #include "../graphic/core/opengl.hpp"
 
 
-using namespace Math;
+using namespace ei;
 
 Galaxy::Galaxy(int _stars, float _size, int _ambientStars)
 	: m_starInfos ("3c1", Graphic::VertexBuffer::PrimitiveType::POINT)
@@ -78,7 +78,7 @@ Galaxy::Galaxy(int _stars, float _size, int _ambientStars)
 		pos[2] = rnd.Uniform(-f*height, f*height);*/
 
 		m_starSystems.emplace_back(
-			FixVec3(pos),
+			Math::FixVec3(pos),
 			rnd.Uniform(2000, 40000),
 			(float)rnd.Uniform(1,2)
 			);
@@ -86,7 +86,7 @@ Galaxy::Galaxy(int _stars, float _size, int _ambientStars)
 	for (int i = 0; i < _ambientStars; ++i)
 	{
 		m_ambientStars.emplace_back(
-			FixVec3(),
+			Math::FixVec3(),
 			rnd.Uniform(2000, 40000),
 			(float)rnd.Uniform(1, 2),
 			Quaternion(rnd.Uniform(0.f, 2.f*PI), rnd.Uniform(0.f, 2.f*PI), 0.f),

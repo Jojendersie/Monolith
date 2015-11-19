@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <cstdint>
+#include "ei/elementarytypes.hpp"
 
 #include "utilities/logger.hpp"
 
@@ -67,28 +67,34 @@ namespace Input {
 	enum struct VirtualKey;
 } // namespace Input
 
-namespace Math {
-	class Mat4x4;
-	class Mat3x3;
-	class Quaternion;
-	class Plane;
+namespace ei {
+	template<typename T, uint M, uint N>
+	class Matrix;
+	typedef Matrix<int32, 2, 1> IVec2;
+	typedef Matrix<int32, 3, 1> IVec3;
+	typedef Matrix<int32, 4, 1> IVec4;
+	typedef Matrix<float, 2, 1> Vec2;
+	typedef Matrix<float, 3, 1> Vec3;
+	typedef Matrix<float, 4, 1> Vec4;
+	typedef Matrix<float, 4, 4> Mat4x4;
+	typedef Matrix<float, 3, 3> Mat3x3;
+
+	template<typename T>
+	class TQuaternion;
+	typedef TQuaternion<float> Quaternion;
 	struct Sphere;
 	struct Ray;
+} // namespace
+
+namespace Math {
+	class Plane;
 	struct WorldRay;
-	template<int n, class Data>	class Vector;
-//	template<int n>	class FixedPoint;
-//	typedef FixedPoint<30> Fix;
-	typedef Vector<2,int> IVec2;
-	typedef Vector<3,int> IVec3;
-	typedef Vector<4,int> IVec4;
-	typedef Vector<2,float> Vec2;
-	typedef Vector<3,float> Vec3;
-	typedef Vector<4,float> Vec4;
+
 //	typedef Vector<3,FixedPoint<30>> FixVec3;
 	class Transformation;
 	template<int N, typename T> class CubeMap;
 	/// A typedef to have global control about the tessellation refinement
-	typedef CubeMap<3, Vec4> SphericalFunction;
+	typedef CubeMap<3, ei::Vec4> SphericalFunction;
 } // namespace Math
 
 namespace Utils {
@@ -100,7 +106,7 @@ namespace Utils {
 namespace Voxel {
 	class Chunk;
 	class Model;
-	enum struct ComponentType: uint8_t;
+	enum struct ComponentType: uint8;
 	struct VoxelVertex;
 	struct Material;
 	struct Voxel;

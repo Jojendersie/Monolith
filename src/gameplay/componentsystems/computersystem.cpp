@@ -1,6 +1,8 @@
 #include "computersystem.hpp"
 #include "gameplay/ship.hpp"
 
+using namespace ei;
+
 namespace Mechanics {
 
 	ComputerSystem::ComputerSystem(Ship& _theShip, const std::string& _name) :
@@ -46,8 +48,8 @@ namespace Mechanics {
 	{
 		// Dummy implementation
 		// later this is done by the script
-		m_drives.m_energyIn = Math::min(100.0f, m_drives.m_energyDemand);
-		m_weapons.m_energyIn = Math::min(100.0f, m_weapons.m_energyDemand);
+		m_drives.m_energyIn = min(100.0f, m_drives.m_energyDemand);
+		m_weapons.m_energyIn = min(100.0f, m_weapons.m_energyDemand);
 
 		m_batteries.Process(_deltaTime, _provided);
 		m_drives.Process(_deltaTime, _provided);
@@ -60,7 +62,7 @@ namespace Mechanics {
 			sys.Process(_deltaTime, _provided);
 	}
 
-	void ComputerSystem::OnAdd(const Math::IVec3& _position, Voxel::ComponentType _type, uint8_t _assignment)
+	void ComputerSystem::OnAdd(const IVec3& _position, Voxel::ComponentType _type, uint8 _assignment)
 	{
 		if(m_id == _assignment) {
 			if(Voxel::TypeInfo::IsComputer(_type)) m_enabled = true;

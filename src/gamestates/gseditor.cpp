@@ -11,9 +11,12 @@
 #include "utilities/assert.hpp"
 #include "math/sphericalfunction.hpp"
 #include "utilities/stringutils.hpp"
+#include "math/fixedpoint.hpp"
+#include "math/ray.hpp"
 
 #include <jofilelib.hpp>
 
+using namespace ei;
 using namespace Math;
 
 // ************************************************************************* //
@@ -34,8 +37,8 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 	{
 		Voxel::ComponentType type = (Voxel::ComponentType)(i + 1);
 		Voxel::Model* vox = new Voxel::Model;
-		vox->Set(Math::IVec3(0, 0, 0), type);
-		m_hud->m_voxelContainer->CreateModel(Math::Vec2(-0.76f, 0.9f - i*0.2f), Math::Vec2(0.f, 0.f), vox, 0.2f);
+		vox->Set(IVec3(0, 0, 0), type);
+		m_hud->m_voxelContainer->CreateModel(Vec2(-0.76f, 0.9f - i*0.2f), Vec2(0.f, 0.f), vox, 0.2f);
 		//head:лмнопя
 		m_hud->m_voxelContainer->CreateBtn("componentBtn", "<s 018>        " + Voxel::TypeInfo::GetName(type)
 			+ "\n       " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetHydrogen(type), 2)
@@ -44,7 +47,7 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 			+ " " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetRareEarthElements(type), 2)
 			+ " " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetSemiconductors(type), 2)
 			+ " " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetHeisenbergium(type), 2),
-			Math::Vec2(-1.f, 1.f - i*0.2f), Math::Vec2(1.8f, 0.2f), Graphic::RealDimension::width,
+			Vec2(-1.f, 1.f - i*0.2f), Vec2(1.8f, 0.2f), Graphic::RealDimension::width,
 			[this, type](){m_currentType = type; }, false);
 		/*		voxelContainer->CreateBtn("componentBtn", "<s 022>       "+Voxel::TypeInfo::GetName(type)
 		+ " л:" + std::to_string(Voxel::TypeInfo::GetHydrogen(type))
@@ -140,12 +143,12 @@ void GSEditor::Simulate( double _deltaTime )
 			// Use offsetting in direction of the hit side when adding voxels.
 			switch( hit.side )
 			{
-			case Intersect::Side::LEFT: m_lvl0Position[0] -= 1; break;
-			case Intersect::Side::RIGHT: m_lvl0Position[0] += 1; break;
-			case Intersect::Side::BOTTOM: m_lvl0Position[1] -= 1; break;
-			case Intersect::Side::TOP: m_lvl0Position[1] += 1; break;
-			case Intersect::Side::FRONT: m_lvl0Position[2] -= 1; break;
-			case Intersect::Side::BACK: m_lvl0Position[2] += 1; break;
+			case HitSide::X_NEG: m_lvl0Position[0] -= 1; break;
+			case HitSide::X_POS: m_lvl0Position[0] += 1; break;
+			case HitSide::Y_NEG: m_lvl0Position[1] -= 1; break;
+			case HitSide::Y_POS: m_lvl0Position[1] += 1; break;
+			case HitSide::Z_NEG: m_lvl0Position[2] -= 1; break;
+			case HitSide::Z_POS: m_lvl0Position[2] += 1; break;
 			}
 		}
 
@@ -175,7 +178,7 @@ void GSEditor::Render( double _deltaTime )
 
 		// Draw the thrust function
 		if( m_recreateThrustVis ) { m_thrustFunction = new Graphic::Marker::SphericalFunction( m_ship->DebugGet() ); m_recreateThrustVis = false; }
-		m_thrustFunction->Draw( Mat4x4::Translation(m_ship->GetCenter()) * modelViewProjection );
+		m_thrustFunction->Draw( modelViewProjection * translation(m_ship->GetCenter()) );
 
 		m_deleteList.Clear();
 		m_criticalModelWork.unlock();
@@ -186,11 +189,11 @@ void GSEditor::Render( double _deltaTime )
 	{
 		// Use model coordinate system
 		// Compute position of edited voxel.
-		Math::Vec3 voxelPos = m_lvl0Position + 0.50001f;
+		Vec3 voxelPos = m_lvl0Position + 0.50001f;
 		if( m_deletionMode || !m_validPosition )
-			m_redBox->Draw( Math::Mat4x4::Translation( voxelPos ) * Math::Mat4x4::Scaling( 1.0f, 1.0f, 1.0f ) * modelViewProjection );
+			m_redBox->Draw( modelViewProjection * scalingH( 1.0f ) * translation( voxelPos ) );
 		else 
-			m_greenBox->Draw( Math::Mat4x4::Translation( voxelPos ) * Math::Mat4x4::Scaling( 1.0f, 1.0f, 1.0f ) * modelViewProjection );
+			m_greenBox->Draw( modelViewProjection * scalingH( 1.0f ) * translation( voxelPos ) );
 	}
 
 	// Draw hud and components in another view
@@ -321,7 +324,7 @@ void GSEditor::ValidatePosition()
 		m_validPosition = false;
 
 	// Do not delete the last computer
-	if( m_lvl0Position == m_ship->GetCentralComputerPosition() )
+	if( all(m_lvl0Position == m_ship->GetCentralComputerPosition()) )
 		m_validPosition = false;
 }
 
@@ -338,7 +341,7 @@ void GSEditor::UpdateModelInformation()
 		{
 		}
 
-		bool PreTraversal(const Math::IVec4& _position, const Voxel::Model::ModelData::SVON* _node)
+		bool PreTraversal(const IVec4& _position, const Voxel::Model::ModelData::SVON* _node)
 		{
 			if (_position[3] == 0)
 			{

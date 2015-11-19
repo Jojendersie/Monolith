@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <string>
 #include "material.hpp"
-#include "math/vector.hpp"
+#include "ei/vector.hpp"
 
 namespace Graphic {
 	class Texture;
@@ -11,7 +11,7 @@ namespace Graphic {
 
 namespace Voxel {
 
-	enum struct ComponentType: uint8_t {
+	enum struct ComponentType: uint8 {
 		UNDEFINED,
 		WATER,
 		COMPUTER,
@@ -71,7 +71,7 @@ namespace Voxel {
 		///	\param [out] _surfaceOut The surface properties at the target
 		///		position.
 		///	\return The voxel is valid (defined and surface voxel).
-		static bool Sample( ComponentType _type, Math::IVec3 _position, int _level, uint8_t _rootSurface, Material& _materialOut, uint8_t& _surfaceOut );
+		static bool Sample( ComponentType _type, ei::IVec3 _position, int _level, uint8 _rootSurface, Material& _materialOut, uint8& _surfaceOut );
 
 		/// \brief Returns the number of mip maps for the given type's materials.
 		static int GetMaxLevel( ComponentType _type );
@@ -165,7 +165,7 @@ namespace Voxel {
 		struct MatSample
 		{
 			Material material;
-			uint8_t surface;
+			uint8 surface;
 
 			MatSample() : material(Material::UNDEFINED), surface(0)	{}
 		};
@@ -200,7 +200,7 @@ namespace Voxel {
 			float projectileSpeed;		///< Speed of any kind of shots in [/s]
 			float thrust; 				///< [kN] at maximum energy supply.
 			float shieldRegeneration;	///< [hit points/s]
-			uint8_t shieldComponentType;///< The component which is spawned and regenerate by the shield.
+			uint8 shieldComponentType;///< The component which is spawned and regenerate by the shield.
 			float lifeSupport;			///< Number of supportable storage components [#vox]
 
 			std::string name;			///< The name of this voxel type
@@ -234,7 +234,7 @@ namespace Voxel {
 		/// \param [out] _edge Length of a single edge.
 		/// \param [out] _offset Offset for the mip map level.
 		/// \return The full index of the voxel or an upsampled voxel position.
-		static int SamplePos( ComponentType _type, Math::IVec3& _position, int _level, int& _edge, int& _offset );
+		static int SamplePos( ComponentType _type, ei::IVec3& _position, int _level, int& _edge, int& _offset );
 
 		/// \brief Bake all the voxels inclusive mip-maps in the texture array.
 		void GenerateTexture();
@@ -255,7 +255,7 @@ namespace Voxel {
 		int alloys;					///< Amount of resource "alloy" required to build this voxel or dropped by mining.
 		int polymeres;				///< Amount of resource "polymere" required to build this voxel or dropped by mining.
 
-		uint32_t material;
+		uint32 material;
 	};
 	
 	/// \brief The mass if the voxel type in kg
@@ -278,16 +278,16 @@ namespace Voxel {
 		Material material;		///< Graphical representation
 		uint16_t health;		///< Hit points until destruction (0 and less). One hit point is approximating 30kJ
 		ComponentType type;		///< The type of the voxel
-		uint8_t dirty: 1;		///< Somebody changed a child or this node
-		uint8_t solid: 1;		///< This node and all its children are defined
-		uint8_t surface: 6;		///< One flag for each direction if there is no solid neighborhood
-		uint8_t sysAssignment;	///< Used from outside to determine an assignment to different ship systems.
+		uint8 dirty: 1;		///< Somebody changed a child or this node
+		uint8 solid: 1;		///< This node and all its children are defined
+		uint8 surface: 6;		///< One flag for each direction if there is no solid neighborhood
+		uint8 sysAssignment;	///< Used from outside to determine an assignment to different ship systems.
 
 		/// \brief Standard constructor creates undefined element
 		Voxel() : material(Material::UNDEFINED), type(ComponentType::UNDEFINED), dirty(0), solid(0), surface(0), health(0), sysAssignment(0)	{}
 
 		/// \brief Construct a component with a defined type and undefined material
-		Voxel(ComponentType _type) : type(_type), dirty(1), solid(TypeInfo::IsSolid(_type)?1:0), surface(0), sysAssignment(0) { uint8_t dummy; TypeInfo::Sample(_type, Math::IVec3(0), 0, 0, material, dummy); }
+		Voxel(ComponentType _type) : type(_type), dirty(1), solid(TypeInfo::IsSolid(_type)?1:0), surface(0), sysAssignment(0) { uint8 dummy; TypeInfo::Sample(_type, ei::IVec3(0), 0, 0, material, dummy); }
 
 		/// \brief Mark this component as outdated (it is set to undefined)
 		void Touch()			{ dirty = 1; }

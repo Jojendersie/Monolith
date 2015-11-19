@@ -1,15 +1,16 @@
 #pragma once
 
 #include <string>
-#include "math/matrix.hpp"
+#include <ei/vector.hpp>
+#include "predeclarations.hpp"
 
 namespace Mechanics {
 
 	/// \brief A collection of data which is communicated through all systems.
 	struct SystemRequierements
 	{
-		Math::Vec3 thrust;	///< Required force to accelerate the ship
-		Math::Vec3 torque;	///< Required torque to rotate the ship
+		ei::Vec3 thrust;	///< Required force to accelerate the ship
+		ei::Vec3 torque;	///< Required torque to rotate the ship
 	};
 
 	/// \brief Base class for all different acting component types / groups.
@@ -53,7 +54,7 @@ namespace Mechanics {
 		/// \param [in] _position Voxel position in the ship model.
 		/// \param [in] _type Type of the attached component.
 		/// \param [in] _assignment The assignment to the responsible system.
-		virtual void OnAdd(const Math::IVec3& _position, Voxel::ComponentType _type, uint8_t _assignment) {}
+		virtual void OnAdd(const ei::IVec3& _position, Voxel::ComponentType _type, uint8 _assignment) {}
 
 		/// \brief Recursively clear the system state. This is done if everything is recomputed.
 		virtual void ClearSystem() {}

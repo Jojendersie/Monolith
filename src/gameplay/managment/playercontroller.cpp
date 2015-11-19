@@ -3,7 +3,7 @@
 #include "graphic/core/device.hpp"
 #include "graphic/core/opengl.hpp"
 
-using namespace Math;
+using namespace ei;
 
 PlayerController::PlayerController(SOHandle _ship, Input::Camera* _camera)
 	: Controller(_ship),
@@ -41,7 +41,7 @@ void PlayerController::Process(float _deltaTime)
 	// In other directions stop pushing resets the velocity
 	m_velocity[0] = 0.0f;
 	// Do not increase the target velocity much further than the real velocity.
-	float realVelZ = (m_ship->GetRotation() * m_ship->GetVelocity())[2];
+	float realVelZ = transform(m_ship->GetVelocity(), m_ship->GetRotation())[2];
 	if( realVelZ > 0.0f ) m_velocity[2] = max(0.0f, min(m_velocity[2], realVelZ));
 	else m_velocity[2] = min(0.0f, max(m_velocity[2], realVelZ));
 	if(glfwGetKey(Graphic::Device::GetWindow(), GLFW_KEY_W))

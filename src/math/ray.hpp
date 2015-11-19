@@ -1,7 +1,8 @@
 #pragma once
 
-#include "vector.hpp"
-#include "matrix.hpp"
+#include <ei/3dtypes.hpp>
+#include "math/fixedpoint.hpp"
+#include "math/transformation.hpp"
 
 namespace Math {
 
@@ -12,9 +13,12 @@ namespace Math {
 	struct WorldRay
 	{
 		FixVec3 origin;
-		Vec3 direction;
+		ei::Vec3 direction;
+
+		/// \brief Create relative ray from world space ray
+		ei::Ray getRelativeRay(const Transformation& _reference) const;
 	};
-	
+	/*
 
 	/// \brief A ray class for analytical geometry computations.
 	struct Ray
@@ -45,5 +49,5 @@ namespace Math {
 	{
 		return Ray( _ray.m_origin * _A, _A.TransformDirection( _ray.m_direction ) );
 	}
-
+	*/
 } // namespace Math

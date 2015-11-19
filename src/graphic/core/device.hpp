@@ -25,7 +25,7 @@ namespace Graphic {
 		static void Exit();
 
 		static GLFWwindow* GetWindow();
-		static Math::IVec2 GetBackbufferSize();
+		static ei::IVec2 GetBackbufferSize();
 
 		/// \brief FramebufferWidth / FramebufferHeight
 		static float GetAspectRatio();

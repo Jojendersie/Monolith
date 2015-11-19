@@ -5,12 +5,12 @@
 #include "GLFW/glfw3.h"
 
 
-using namespace Math;
+using namespace ei;
 
 namespace Graphic
 {
-	Hud::Hud(Monolith* _game, Math::Vec2 _pos, Math::Vec2 _size, int _cursor, bool _showDbg) :
-		ScreenOverlay(Math::Vec2(_pos[0],_pos[1] + _size[1]), _size),
+	Hud::Hud(Monolith* _game, Vec2 _pos, Vec2 _size, int _cursor, bool _showDbg) :
+		ScreenOverlay(ei::Vec2(_pos[0],_pos[1] + _size[1]), _size),
 		m_game(_game),
 		m_characters( "2222", VertexBuffer::PrimitiveType::POINT ),
 		m_texContainer("texture/combined.png"),
@@ -25,7 +25,7 @@ namespace Graphic
 		if (m_showDbg)
 		{
 			m_dbgLabel = new TextRender(&Graphic::Resources::GetFont(Graphic::Fonts::DEFAULT));//DEFAULT
-			m_dbgLabel->SetPos(Math::Vec2(0.5f, 0.8f));
+			m_dbgLabel->SetPos(Vec2(0.5f, 0.8f));
 			AddTextRender(m_dbgLabel);
 		}
 
@@ -34,13 +34,13 @@ namespace Graphic
 		m_texContainerMap = new Jo::Files::MetaFileWrapper( file, Jo::Files::Format::SRAW );
 		
 		m_cursors.emplace_back(m_texContainerMap, "cursor");
-		m_cursors.emplace_back(m_texContainerMap, "cursorAlt", Math::Vec2(0.07f, 0.07f), Vec2(-0.035f, 0.035f));
+		m_cursors.emplace_back(m_texContainerMap, "cursorAlt", Vec2(0.07f, 0.07f), Vec2(-0.035f, 0.035f));
 
 		//cursor occupies adress [0]
 		m_screenOverlays.push_back(&m_cursors[0].texture);
 
 		ShowCursor(_cursor);
-		//make shure that the cursor occupies adress [0]
+		//make sure that the cursor occupies address [0]
 	}
 
 	// ************************************************************************* //
@@ -54,7 +54,7 @@ namespace Graphic
 	}
 
 	// ************************************************************************* //
-	 void Hud::CreateBtn(std::string _texName, std::string _desc, Math::Vec2 _position, Math::Vec2 _size, RealDimension _rDim, 
+	 void Hud::CreateBtn(std::string _texName, std::string _desc, Vec2 _position, Vec2 _size, RealDimension _rDim, 
 		std::function<void()> _OnMouseUp, bool _autoX, bool _autoY, Font* _font)
 	{
 		 Button* btn = new Button(m_texContainerMap, _texName, _position, _size, RealDimension::none, &Resources::GetFont(Fonts::GAME_FONT), _OnMouseUp);
@@ -65,7 +65,7 @@ namespace Graphic
 	}
 
 	// ************************************************************************* //
-	Hud* Hud::CreateContainer(Math::Vec2 _pos, Math::Vec2 _size) 
+	Hud* Hud::CreateContainer(Vec2 _pos, Vec2 _size) 
 	{
 		Hud* hud = new Hud(m_game, _pos, _size, false, false);
 		m_containers.push_back(std::unique_ptr<Hud>(hud));
@@ -74,7 +74,7 @@ namespace Graphic
 	};
 
 	// ************************************************************************* //
-	void Hud::CreateModel(Math::Vec2 _pos , Math::Vec2 _size, Voxel::Model* _model, float _scale)
+	void Hud::CreateModel(Vec2 _pos , Vec2 _size, Voxel::Model* _model, float _scale)
 	{
 		ScreenModel* screenModel = new ScreenModel(_pos, _size, _model, _scale);
 		AddScreenOverlay(screenModel);
@@ -82,7 +82,7 @@ namespace Graphic
 	};
 
 	// ************************************************************************* //
-	EditField& Hud::CreateEditField(Math::Vec2 _pos, Math::Vec2 _size, int _lines, float _fontSize)
+	EditField& Hud::CreateEditField(Vec2 _pos, Vec2 _size, int _lines, float _fontSize)
 	{
 		EditField* editField = new EditField(m_texContainerMap, &Resources::GetFont(Fonts::GAME_FONT), _pos, _size, _lines, _fontSize);
 
@@ -94,7 +94,7 @@ namespace Graphic
 	}
 
 	// ************************************************************************* //
-	ScreenTexture& Hud::CreateScreenTexture(const Math::Vec2& _pos, const Math::Vec2& _size, const std::string& _name, RealDimension _rDim)
+	ScreenTexture& Hud::CreateScreenTexture(const Vec2& _pos, const Vec2& _size, const std::string& _name, RealDimension _rDim)
 	{
 		auto screenTex = new ScreenTexture(m_texContainerMap, _name, _pos, _size, _rDim);
 		m_screenTextures.emplace_back(screenTex);
@@ -104,7 +104,7 @@ namespace Graphic
 	}
 
 	// ************************************************************************* //
-	TextRender& Hud::CreateLabel(const Math::Vec2& _pos, const std::string& _text, float _scale, Font& _font)
+	TextRender& Hud::CreateLabel(const Vec2& _pos, const std::string& _text, float _scale, Font& _font)
 	{
 		TextRender* label = new TextRender(&_font);
 
@@ -120,7 +120,7 @@ namespace Graphic
 		return *label;
 	}
 	// ************************************************************************* //
-	MessageBox& Hud::CreateMessageBox(const Math::Vec2& _pos, const Math::Vec2& _size)
+	MessageBox& Hud::CreateMessageBox(const Vec2& _pos, const Vec2& _size)
 	{
 		MessageBox* msgBox = new MessageBox(m_texContainerMap, _pos, _size);
 
@@ -200,7 +200,7 @@ namespace Graphic
 	void Hud::MouseMove( double _dx, double _dy )
 	{
 		// Get cursor converted to screen coordinates
-		Math::Vec2 cursorPos = Input::Manager::GetCursorPosScreenSpace();
+		Vec2 cursorPos = Input::Manager::GetCursorPosScreenSpace();
 		if (m_cursor)	m_cursor->texture.m_vertex.position = cursorPos + m_cursor->offset;
 
 		//todo: include mousespeed in config  
@@ -209,7 +209,7 @@ namespace Graphic
 		for(size_t i = m_screenOverlays.size(); i-- > 0; )
 		{
 			ScreenOverlay* screenOverlay = m_screenOverlays[i]; 
-			Math::Vec2 loc2;
+			Vec2 loc2;
 			loc2[0] = screenOverlay->m_pos[0] + screenOverlay->m_size[0];
 			loc2[1] = screenOverlay->m_pos[1] - screenOverlay->m_size[1];
 
@@ -234,7 +234,7 @@ namespace Graphic
 	}
 
 	// ************************************************************************* //
-	bool Hud::KeyDown( int _key, int _modifiers, Math::Vec2 _pos )
+	bool Hud::KeyDown( int _key, int _modifiers, Vec2 _pos )
 	{
 		//clicking on a screenOverlay
 		if(_key == GLFW_MOUSE_BUTTON_LEFT && m_preElem != nullptr)
@@ -251,7 +251,7 @@ namespace Graphic
 		return false;
 	}
 
-	bool Hud::KeyUp( int _key, int _modifiers, Math::Vec2 _pos )
+	bool Hud::KeyUp( int _key, int _modifiers, Vec2 _pos )
 	{
 		if(_key == GLFW_MOUSE_BUTTON_LEFT && m_preElem != nullptr)
 		{
@@ -277,7 +277,7 @@ namespace Graphic
 		{
 			for(size_t i = m_screenOverlays.size(); i-- > 0; )
 			{
-				m_screenOverlays[i]->SetPos(Math::Vec2(m_screenOverlays[i]->m_pos[0]+(float)_dx * 0.1f, m_screenOverlays[i]->m_pos[1]+(float)_dy * 0.1f));
+				m_screenOverlays[i]->SetPos(Vec2(m_screenOverlays[i]->m_pos[0]+(float)_dx * 0.1f, m_screenOverlays[i]->m_pos[1]+(float)_dy * 0.1f));
 			}
 			return true;
 		}
@@ -306,13 +306,13 @@ namespace Graphic
 	{
 		_screenOverlay->SetSize(_screenOverlay->m_size * (m_size * 0.5f));
 		//calculate the offset, add one so that -1 means no offset; mul with size because thats the relative space the overlay is in
-		_screenOverlay->SetPos((_screenOverlay->m_pos + Math::Vec2(1.f,-1.f)) * m_size * 0.5f + m_pos);// + Math::Vec2(1.f, -1.f)
+		_screenOverlay->SetPos((_screenOverlay->m_pos + Vec2(1.f,-1.f)) * m_size * 0.5f + m_pos);// + Math::Vec2(1.f, -1.f)
 		m_screenOverlays.push_back(_screenOverlay);
 	}
 
 	void Hud::AddTextRender(TextRender* _label)
 	{
-		_label->SetPos((_label->GetPos() + Math::Vec2(1.f, -1.f)) * m_size * 0.5f + m_pos);
+		_label->SetPos((_label->GetPos() + Vec2(1.f, -1.f)) * m_size * 0.5f + m_pos);
 		m_textRenders.push_back(_label);
 	}
 
@@ -329,10 +329,10 @@ namespace Graphic
 			_tex->SetSize(_tex->m_sizeDef);
 			break;
 		case RealDimension::width:
-			_tex->SetSize(Math::Vec2(_tex->m_sizeDef[0], _tex->m_sizeDef[1] / Device::GetAspectRatio()));
+			_tex->SetSize(Vec2(_tex->m_sizeDef[0], _tex->m_sizeDef[1] / Device::GetAspectRatio()));
 			break;
 		case RealDimension::height:
-			_tex->SetSize(Math::Vec2(_tex->m_sizeDef[0] / Device::GetAspectRatio(), _tex->m_sizeDef[1] ));
+			_tex->SetSize(Vec2(_tex->m_sizeDef[0] / Device::GetAspectRatio(), _tex->m_sizeDef[1] ));
 			break;
 		default:
 			break;
@@ -370,12 +370,12 @@ namespace Graphic
 	}
 
 	Hud::CursorData::CursorData(Jo::Files::MetaFileWrapper* _posMap, std::string _name,
-		Math::Vec2 _size, Math::Vec2 _off)
-		: texture(_posMap, _name, Math::Vec2(0.f), _size, RealDimension::height),
+		Vec2 _size, Vec2 _off)
+		: texture(_posMap, _name, Vec2(0.f), _size, RealDimension::height),
 		offset(_off)
 	{
 		//rescaling to fit the screen
-		texture.SetSize(Math::Vec2(texture.m_sizeDef[0] / Device::GetAspectRatio(), texture.m_sizeDef[1]));
+		texture.SetSize(Vec2(texture.m_sizeDef[0] / Device::GetAspectRatio(), texture.m_sizeDef[1]));
 		offset[0] /= Device::GetAspectRatio();
 	};
 

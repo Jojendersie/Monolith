@@ -3,7 +3,7 @@
 #include <cstdint>
 #include "utilities/assert.hpp"
 #include "../predeclarations.hpp"
-#include "../math/vector.hpp"
+#include "ei/vector.hpp"
 #include "../graphic/core/vertexbuffer.hpp"
 #include "voxel.hpp"
 #include "sparseoctree.hpp"
@@ -30,7 +30,7 @@ namespace Voxel {
 		///		18-23: Z coordinate of voxel relative to the grid corner of the
 		///			 respective size-dimension (2^s).
 		///		24-31: 256 texture indices / voxel types.
-		uint32_t flags;
+		uint32 flags;
 		Material material;
 
 		VoxelVertex() : flags(0)	{}
@@ -38,7 +38,7 @@ namespace Voxel {
 		void SetVisibility( int _l, int _r, int _bo, int _t, int _f, int _ba )	{ flags = (flags & 0xffffffc0) | _l | _r<<1 | _bo<<2 | _t<<3 | _f<<4 | _ba<<5; }
 		void SetVisibility( int _flags )					{ Assert(_flags < 64, "Invalid visiblity flag."); flags = (flags & 0xffffffc0) | _flags; }
 // DEPRECATED		void SetSize( int _level )							{ Assert(0<=_level && _level<=5); flags = (flags & 0xfffffe3f) | (_level<<6); }
-		void SetPosition( const Math::IVec3& _position )	{ flags = (flags & 0xff00003f) | (_position[0] << 6) | (_position[1] << 12) | (_position[2] << 18); }
+		void SetPosition( const ei::IVec3& _position )	    { flags = (flags & 0xff00003f) | (_position[0] << 6) | (_position[1] << 12) | (_position[2] << 18); }
  		void SetTexture( int _textureIndex )				{ flags = (flags & 0x00ffffff) | (_textureIndex << 24); }
 //		void SetHasChildren( bool _bHasChildren )			{ flags = (flags & 0x7fffffff) | (_bHasChildren?0x80000000:0); }
 
@@ -59,7 +59,7 @@ namespace Voxel {
 		///	\param [in] _depth Detail depth respective to the _nodePosition.
 		///		The maximum is 5 which means that _nodePosition is the root
 		///		of a 32^3 chunk.
-		Chunk(Model::ModelData* _modelData, const Math::IVec4& _nodePostion, int _depth);
+		Chunk(Model::ModelData* _modelData, const ei::IVec4& _nodePostion, int _depth);
 
 		/// \brief Move construction
 		Chunk(Chunk&& _chunk);
@@ -74,12 +74,12 @@ namespace Voxel {
 		///	\param [in] _projection The projection matrix to precompute the
 		///		corner vectors.
 		/// \param [in] _time Current game time.
-		void Draw( const Math::Mat4x4& _modelView, const Math::Mat4x4& _projection );
+		void Draw( const ei::Mat4x4& _modelView, const ei::Mat4x4& _projection );
 
 		/// \brief Set position relative to the model.
 		//void SetPosition( const Math::Vec3& _position )	{ m_position = _position; }
 
-		Math::Vec3 GetPosition()		{ return m_position; }
+		ei::Vec3 GetPosition()			{ return m_position; }
 
 		/// \brief Get the number of voxels in this chunk
 		int NumVoxels() const			{ return m_voxels.GetNumVertices(); }
@@ -93,11 +93,11 @@ namespace Voxel {
 
 		float m_scale;					///< Rendering parameter derived from Octree node size
 		int m_depth;					///< The depth in the octree respective to this chunk's root. Maximum is 5.
-		Math::IVec4 m_root;				///< Position of the root node from this chunk in the model's octree.
+		ei::IVec4 m_root;				///< Position of the root node from this chunk in the model's octree.
 
 		Graphic::VertexBuffer m_voxels;	///< One VoxelVertex value per surface voxel.
 
-		Math::Vec3 m_position;			///< Relative position of the chunk respective to the model.
+		ei::Vec3 m_position;			///< Relative position of the chunk respective to the model.
 
 		double m_lastRendered;			///< Point in time where this chunk was rendered the last time.
 
@@ -108,7 +108,7 @@ namespace Voxel {
 		/// \details TODO: This can be done parallel to the render thread because it
 		///		only fills the VB and does not upload it.
 		///		CURRENTLY IT COMMITS THE BUFFER
-		void ComputeVertexBuffer( const Math::IVec3& _nodePostion, int _level );
+		void ComputeVertexBuffer( const ei::IVec3& _nodePostion, int _level );
 
 		// Prevent copy constructor and operator = being generated.
 		Chunk(const Chunk&);

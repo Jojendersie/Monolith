@@ -86,7 +86,7 @@ namespace Graphic {
 			s_ubos[(int)_ubo]->AddAttribute( "InvWidth", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT);
 			s_ubos[(int)_ubo]->AddAttribute( "InvHeight", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT);
 			s_ubos[(int)_ubo]->AddAttribute( "Time", Graphic::UniformBuffer::ATTRIBUTE_TYPE::FLOAT );
-			Math::IVec2 size = Graphic::Device::GetBackbufferSize();
+			ei::IVec2 size = Graphic::Device::GetBackbufferSize();
 			(*s_ubos[(int)_ubo])["Aspect"] = Graphic::Device::GetAspectRatio();
 			(*s_ubos[(int)_ubo])["Width"] = (float)size[0];
 			(*s_ubos[(int)_ubo])["Height"] = (float)size[1];

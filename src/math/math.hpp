@@ -1,8 +1,5 @@
 #pragma once
 
-#include "mathbase.hpp"
-#include "vector.hpp"
-#include "matrix.hpp"
-#include "quaternion.hpp"
-#include "sphere.hpp"
+#include "ei/3dintersection.hpp"
 #include "plane.hpp"
+#include "ray.hpp"

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "gamestatebase.hpp"
-#include "math/vector.hpp"
+#include <ei/vector.hpp>
 #include "utilities/scopedpointer.hpp"
 #include "gameplay/ship.hpp"
 #include <hybridarray.hpp>
@@ -44,7 +44,7 @@ private:
 	bool m_rayHits;						///< The hit information is up to date and filled
 	bool m_deletionMode;				///< Deletion mode for the selected voxel
 	bool m_validPosition;				///< False if the target voxel cannot be edited (coordinates or other conditions)
-	Math::IVec3 m_lvl0Position;			///< Information about the current target voxel
+	ei::IVec3 m_lvl0Position;			///< Information about the current target voxel
 
 	/// \brief Method to create a new model as copy or from scratch.
 	/// TODO: Pool for object templates

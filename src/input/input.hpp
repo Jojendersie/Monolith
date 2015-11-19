@@ -1,7 +1,7 @@
 #pragma once
 
 #include "predeclarations.hpp"
-#include "math/vector.hpp"
+#include <ei/vector.hpp>
 //#include "../../dependencies/glfw-3.0.3/include/GLFW/glfw3.h"
 #include <jofilelib.hpp>
 #include <unordered_map>
@@ -36,10 +36,10 @@ namespace Input {
 		static bool IsVirtualKey( int _key, VirtualKey _vkey );
 
 		/// \brief The cursors position in pixels inside the window.
-		static Math::Vec2 GetCursorPos();
+		static ei::Vec2 GetCursorPos();
 
 		/// \brief The cursors position in screen space coordinates [-1,1]² inside the window.
-		static Math::Vec2 GetCursorPosScreenSpace();
+		static ei::Vec2 GetCursorPosScreenSpace();
 	private:
 		IGameState* m_gameState;
 		GLFWwindow* m_window;		///< The one reference window
@@ -47,7 +47,7 @@ namespace Input {
 
 		double m_cursorX;	///< Last known position of the cursor
 		double m_cursorY;	///< Last known position of the cursor
-		Math::Vec2 m_lastClickedPosition;	///< Used for double click detection for mouse buttons
+		ei::Vec2 m_lastClickedPosition;	///< Used for double click detection for mouse buttons
 		bool m_justEntered;	///< Has the cursor (re)entered the window since last mouse move.
 
 		static void CursorPosFun(GLFWwindow *, double, double);
@@ -80,7 +80,7 @@ namespace Input {
 
 	/// \brief Takes the glfw input and converts it to a printable character
 	///		if possible.
-	///	\details Currently this is a german keyboard implementation. As soon as
+	///	\details Currently this is a German keyboard implementation. As soon as
 	///		glfw supports converting keys this will be used instead.
 	/// \return The ASCII character for the pressed key+modifiers or 0 if it
 	///		was a function key.

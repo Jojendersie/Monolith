@@ -2,6 +2,7 @@
 #include "math/ray.hpp"
 #include "gameplay/ship.hpp"
 
+using namespace ei;
 using namespace Math;
 
 namespace Mechanics {
@@ -21,8 +22,8 @@ namespace Mechanics {
 	{
 		// Compute how much of the required force can by provided by this drive system?
 		// Decompose the vectors
-		float currentThrustAbs = denoise(DAMPING * length( _requirements.thrust ));
-		float currentTorqueAbs = denoise(DAMPING * length( _requirements.torque ));
+		float currentThrustAbs = denoise(DAMPING * len( _requirements.thrust ));
+		float currentTorqueAbs = denoise(DAMPING * len( _requirements.torque ));
 
 		if( currentThrustAbs + currentTorqueAbs > 1e-5f )
 		{
@@ -53,8 +54,10 @@ namespace Mechanics {
 	
 			// How large is a percentage of how much energy must be used now
 			m_energyDemand = m_maxEnergyDrain * (relTh + relTo);
-		} else 
-			m_currentThrust = m_currentTorque = m_energyDemand = 0.0f;
+		} else {
+			m_currentThrust = m_currentTorque = Vec3(0.0f);
+			m_energyDemand = 0.0f;
+		}
 	}
 
 	void DriveSystem::Process(float _deltaTime, SystemRequierements& _provided)
@@ -69,7 +72,7 @@ namespace Mechanics {
 		}
 	}
 
-	void DriveSystem::OnAdd(const Math::IVec3& _position, Voxel::ComponentType _type, uint8_t _assignment)
+	void DriveSystem::OnAdd(const IVec3& _position, Voxel::ComponentType _type, uint8 _assignment)
 	{
 		// Do not need to test the assignment (computer checks this for us)
 		Assert(_assignment == m_id, "Component added to the wrong drive system");
@@ -83,7 +86,7 @@ namespace Mechanics {
 		auto endit = directionGenerator.end();
 		Vec3 center = _position+Vec3(0.5f);
 		Vec3 centerDir = _position + 0.5f - m_ship.GetCenter();
-		float centerDistance = length(centerDir);
+		float centerDistance = len(centerDir);
 		// Count number of samples per direction to normalize.
 		int thrustCount[26] = {0};
 		int torqueCount[26] = {0};
@@ -92,9 +95,9 @@ namespace Mechanics {
 		{
 			// Do ray casts directly in model space
 			Vec3 direction = it.direction();
-			Math::Ray ray(center, -direction);
+			Ray ray(center, -direction);
 			float distance = 100000.0f;
-			ray.m_origin += ray.m_direction * 1.414213562f;
+			ray.origin += ray.direction * 1.414213562f;
 			
 			float force = thrust;
 			// Only if nothing is visible the drive can fire into this direction.
@@ -104,7 +107,7 @@ namespace Mechanics {
 				force *= 0.1f;
 
 			// Divide the force into a rotation and a forward thrust.
-			Vec3 axis = -cross(centerDir, direction);
+			Vec3 axis = -normalize(cross(centerDir, direction));	//// EI-CHECK normalize here could be wrong
 			int idx = newThrust.getSplatIndex( direction );
 			newThrust[idx][0] += force;
 			newThrust[idx][1] += axis[0] * force;
@@ -115,12 +118,12 @@ namespace Mechanics {
 			// Now assume direction is not the direction of force but the rotation axis.
 			// Inverting the relation means, that axis is the direction in which we get
 			// the most torque.
-			ray = Math::Ray(center, -axis);
+			ray = Ray(center, -axis);
 			distance = 100000.0f;
 			force = thrust;
 			if(m_ship.GetVoxelTree().RayCast( ray, 0, hit, distance ))
 				force *= 0.1f;
-			float torque = length(axis) * force;
+			float torque = len(axis) * force;
 			newTorque[idx][0] += torque;
 			newTorque[idx][1] += force * axis[0];
 			newTorque[idx][2] += force * axis[1];

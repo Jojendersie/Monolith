@@ -1,7 +1,7 @@
 #include "gsplayhud.hpp"
 
 
-using namespace Math;
+using namespace ei;
 
 namespace Graphic
 {

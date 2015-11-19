@@ -1,7 +1,6 @@
 #include "game.hpp"
 #include "gsplay.hpp"
 #include "graphic/core/device.hpp"
-#include "math/math.hpp"
 #include "input/camera.hpp"
 #include "input/input.hpp"
 #include "graphic/interface/hud.hpp"
@@ -12,7 +11,11 @@
 #include "gameplay/ship.hpp"
 #include "gsplayhud.hpp"
 #include "utilities/stringutils.hpp"
+#include "math/fixedpoint.hpp"
+#include "math/ray.hpp"
+#include <ei/vector.hpp>
 
+using namespace ei;
 using namespace Math;
 using namespace Graphic;
 
@@ -75,18 +78,18 @@ void GSPlay::OnBegin()
 
 		//test case 1: linear movement into rotation
 
-	/*	collTest01->Load(Jo::Files::HDDFile("savegames/collision01.vmo"));
+		collTest01->Load(Jo::Files::HDDFile("savegames/collision01.vmo"));
 		collTest01->SetPosition(FixVec3(Fix(10.0), Fix(0.0), Fix(0.0)));
 		collTest01->Rotate(0.f, 0.5f*PI, 0.0f*PI);
 		collTest01->AddVelocity(Vec3(0.f, 4.f, 0.f));
-		collTest02->Load(Jo::Files::HDDFile("savegames/collision01.vmo"));*/
+		collTest02->Load(Jo::Files::HDDFile("savegames/collision01.vmo"));
 		
 		//test case 2: rotation into rotation
-		collTest01->Load(Jo::Files::HDDFile("savegames/collision02.vmo"));
+		/*collTest01->Load(Jo::Files::HDDFile("savegames/collision02.vmo"));
 		collTest02->Load(Jo::Files::HDDFile("savegames/collision02.vmo"));
 		collTest01->AddAngularVelocity(Vec3(0.05f * PI, 0.0f*PI, 0.0f * PI));
 		collTest01->SetPosition(FixVec3(Fix(10.0), Fix(35.0), Fix(0.0)));
-		collTest01->Rotate(0.f, 1.5f*PI, 0.0f*PI);
+		collTest01->Rotate(0.f, 1.5f*PI, 0.0f*PI);*/
 
 		//test case 3: shperes
 	/*	collTest01->Load(Jo::Files::HDDFile("savegames/sphere.vmo"));
@@ -173,7 +176,7 @@ void GSPlay::Render( double _deltaTime )
 	
 	//update hud information
 	m_hud->m_dbgLabel->SetText("<s 024>" + std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(RenderStat::g_numVoxels) + "\n#Chunks: " + std::to_string(RenderStat::g_numChunks)+"</s>");
-	m_hud->m_velocityLabel->SetText(StringUtils::ToFixPoint(length(m_player->GetShip()->GetVelocity()), 1) + "m/s");
+	m_hud->m_velocityLabel->SetText(StringUtils::ToFixPoint(len(m_player->GetShip()->GetVelocity()), 1) + "m/s");
 	m_hud->Draw( _deltaTime );
 }
 
@@ -236,21 +239,21 @@ void GSPlay::DrawReferenceGrid(const Voxel::Model* _model) const
 		{
 			// Compute relative to the model position
 			position = m_camera->GetReferencePosition();
-			modelView =  Mat4x4::Rotation(_model->GetRotation()) * Mat4x4::Translation(position) * Mat4x4(m_camera->RenderState().GetRotation());
+			modelView = details::incrementDims(m_camera->RenderState().GetRotationMatrix()) * translation(position) * details::incrementDims(_model->GetRotationMatrix());
 			//_model->GetModelMatrix( modelView, *m_camera );
 		} else {
 			position = _model->GetCenter();
 			_model->GetModelMatrix( modelView, *m_camera );
-			modelView = Mat4x4::Translation(position) * modelView;
+			modelView = modelView * translation(position);
 		}
 	} else {
 		// Compute relative to the camera
 		position[0] = 150.0f * sin(m_camera->GetYRotation());
 		position[1] = -120.0f;
 		position[2] = 150.0f * cos(m_camera->GetYRotation());
-		modelView = Mat4x4::Translation(position)
-			* Mat4x4::RotationY(-m_camera->GetYRotation())
-			* Mat4x4::RotationX(-0.4f);
+		modelView = rotationXH(-0.4f)
+			* rotationYH(-m_camera->GetYRotation())
+			* translation(position);
 		// TODO: toggle the plane one on and off
 	}
 	m_objectPlane->Draw( modelView * m_camera->GetProjection() );

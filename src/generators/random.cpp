@@ -1,13 +1,15 @@
 #include "random.hpp"
-#include "../math/math.hpp"
+#include <ei/vector.hpp>
 #include "utilities/assert.hpp"
 #include <cmath>
 #include <algorithm>
 
+using namespace ei;
+
 namespace Generators {
 
 	// Xorshift32 as integer hashing - very bad
-	/*static uint32_t HashInt( uint32_t _a )
+	/*static uint32 HashInt( uint32 _a )
 	{
 		_a ^= _a << 13;
 		_a ^= _a >> 17;
@@ -15,7 +17,7 @@ namespace Generators {
 		return _a;
 	}*/
 
-	/*static uint32_t HashInt( uint32_t _a )
+	/*static uint32 HashInt( uint32 _a )
 	{
 		_a *= _a << 13;
 		_a ^= _a >> 17;
@@ -23,13 +25,13 @@ namespace Generators {
 		return _a;
 	}*/
 
-	/*static uint32_t HashInt( uint32_t _a )
+	/*static uint32 HashInt( uint32 _a )
 	{
 		_a *= 2654435761;
 		return _a;
 	}*/
 
-	/*static uint32_t HashInt( uint32_t _a )
+	/*static uint32 HashInt( uint32 _a )
 	{
 		_a += ~(_a<<15);
 		_a ^=  (_a>>10);
@@ -40,7 +42,7 @@ namespace Generators {
 		return _a;
 	}*/
 
-	/*static uint32_t HashInt( uint32_t _a )
+	/*static uint32 HashInt( uint32 _a )
 	{
 		_a -= _a << 6;
 		_a ^= _a >> 17;
@@ -54,7 +56,7 @@ namespace Generators {
 
 
 	// ********************************************************************* //
-	Random::Random( uint32_t _seed )
+	Random::Random( uint32 _seed )
 	{
 		m_state[0] = 0xaffeaffe ^ _seed;
 		m_state[1] = 0xf9b2a750 ^ (_seed * 0x804c8a24 + 0x68f699be);
@@ -77,11 +79,11 @@ namespace Generators {
 	// ********************************************************************* //
 	int32_t Random::Uniform( int32_t _min, int32_t _max )
 	{
-		uint32_t interval = uint32_t(_max - _min + 1);
+		uint32 interval = uint32(_max - _min + 1);
 		// Do not use integer maximum bounds!
 		Assert(interval != 0, "Do not use integer maximum bounds!");
 
-		uint32_t value = Xorshift128();
+		uint32 value = Xorshift128();
 		return _min + value % interval;
 	}
 
@@ -127,14 +129,14 @@ namespace Generators {
 		// Use states of xorshift to apply seeding
 		_x ^= m_state[0]; _y ^= m_state[1]; _z ^= m_state[2];
 
-		//uint32_t value = HashInt(_x) ^ HashInt(_y) ^ HashInt(_z);
-		/*uint32_t value = _x ^ (_y << 11);
+		//uint32 value = HashInt(_x) ^ HashInt(_y) ^ HashInt(_z);
+		/*uint32 value = _x ^ (_y << 11);
 		m_state[0] = m_state[1];
 		m_state[1] = m_state[2];
 		m_state[2] = m_state[3];
 		value = _z ^ ((_y >> 19) ^ value ^ (value >> 8));*/
 
-		uint32_t value =
+		uint32 value =
 			  (_x * 0x9E3719B1 - (_z >> 17))
 			^ (_y * 0xAFFE3141 - (_x >> 17))
 			^ (_z * 0x27f161e8 - (_y >> 17));
@@ -145,35 +147,35 @@ namespace Generators {
 	// ********************************************************************* //
 	float Random::At( float _position )
 	{
-		int ix = Math::floor(_position);	float fx = Math::smooth(_position - ix);
+		int ix = ei::floor(_position);	float fx = smoothstep(_position - ix);
 
 		float s0 = (float)At(ix,   0, 0);
 		float s1 = (float)At(ix+1, 0, 0);
 
-		return Math::lerp( s0, s1, fx );
+		return lerp( s0, s1, fx );
 	}
 
 	// ********************************************************************* //
-	float Random::At( const Math::Vec2& _position )
+	float Random::At( const Vec2& _position )
 	{
-		int ix = Math::floor(_position[0]);		float fx = Math::smooth(_position[0] - ix);
-		int iy = Math::floor(_position[1]);		float fy = Math::smooth(_position[1] - iy);
+		int ix = ei::floor(_position[0]);		float fx = smoothstep(_position[0] - ix);
+		int iy = ei::floor(_position[1]);		float fy = smoothstep(_position[1] - iy);
 
 		float s00 = (float)At(ix,   iy,   0);
 		float s10 = (float)At(ix+1, iy,   0);
 		float s01 = (float)At(ix,   iy+1, 0);
 		float s11 = (float)At(ix+1, iy+1, 0);
 
-		return Math::lerp(Math::lerp( s00, s10, fx ),
-			              Math::lerp( s01, s11, fx ), fy);
+		return lerp(lerp( s00, s10, fx ),
+			        lerp( s01, s11, fx ), fy);
 	}
 
 	// ********************************************************************* //
-	float Random::At( const Math::Vec3& _position )
+	float Random::At( const Vec3& _position )
 	{
-		int ix = Math::floor(_position[0]);		float fx = Math::smooth(_position[0] - ix);
-		int iy = Math::floor(_position[1]);		float fy = Math::smooth(_position[1] - iy);
-		int iz = Math::floor(_position[2]);		float fz = Math::smooth(_position[2] - iz);
+		int ix = ei::floor(_position[0]);		float fx = smoothstep(_position[0] - ix);
+		int iy = ei::floor(_position[1]);		float fy = smoothstep(_position[1] - iy);
+		int iz = ei::floor(_position[2]);		float fz = smoothstep(_position[2] - iz);
 
 		float s000 = (float)At(ix,   iy,   iz  );
 		float s100 = (float)At(ix+1, iy,   iz  );
@@ -184,15 +186,15 @@ namespace Generators {
 		float s011 = (float)At(ix,   iy+1, iz+1);
 		float s111 = (float)At(ix+1, iy+1, iz+1);
 
-		return Math::lerp(
-			Math::bilerp(s000, s100, s010, s110, fx , fy),
-			Math::bilerp(s001, s101, s011, s111, fx , fy), fz );
+		return lerp(
+			bilerp(s000, s100, s010, s110, fx , fy),
+			bilerp(s001, s101, s011, s111, fx , fy), fz );
 	}
 
 	// ********************************************************************* //
 	float Random::AtQ( float _position, int _iy, int _iz )
 	{
-		int ix = Math::floor(_position);	float fx = _position - ix;
+		int ix = ei::floor(_position);	float fx = _position - ix;
 
 		float s0 = At(ix,   _iy, _iz);
 		float s1 = At(ix+1, _iy, _iz);
@@ -209,9 +211,9 @@ namespace Generators {
 	}
 
 	// ********************************************************************* //
-	float Random::AtQ( const Math::Vec2& _position, int _iz )
+	float Random::AtQ( const Vec2& _position, int _iz )
 	{
-		int iy = Math::floor(_position[1]);	float fy = _position[1] - iy;
+		int iy = ei::floor(_position[1]);	float fy = _position[1] - iy;
 
 		float s0 = AtQ(_position[0], iy,   _iz);
 		float s1 = AtQ(_position[0], iy+1, _iz);
@@ -229,12 +231,12 @@ namespace Generators {
 
 
 	// ********************************************************************* //
-	float Random::AtQ( const Math::Vec3& _position )
+	float Random::AtQ( const Vec3& _position )
 	{
-		int iz = Math::floor(_position[2]);		float fz = Math::smooth(_position[2] - iz);
+		int iz = ei::floor(_position[2]);		float fz = smoothstep(_position[2] - iz);
 
 		// Prune vector
-		Math::Vec2 position(_position);
+		Vec2 position(_position);
 		float s0 = AtQ(position, iz);
 		float s1 = AtQ(position, iz+1);
 		float s2 = AtQ(position, iz+2);
@@ -250,9 +252,9 @@ namespace Generators {
 	}
 
 	// ********************************************************************* //
-	uint32_t Random::Xorshift128()
+	uint32 Random::Xorshift128()
 	{
-		uint32_t tmp = m_state[0] ^ (m_state[0] << 11);
+		uint32 tmp = m_state[0] ^ (m_state[0] << 11);
 		m_state[0] = m_state[1];
 		m_state[1] = m_state[2];
 		m_state[2] = m_state[3];

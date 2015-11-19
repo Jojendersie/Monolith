@@ -18,7 +18,7 @@ private:
 	virtual void EvtCollision(Voxel::Model& _other) override;
 
 	bool m_mouseRotationEnabled;
-	Math::Vec3 m_velocity; ///< Ship relative velocity
+	ei::Vec3 m_velocity; ///< Ship relative velocity
 
 	Input::Camera* m_camera;
 };

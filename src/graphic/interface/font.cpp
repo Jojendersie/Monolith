@@ -1,6 +1,9 @@
 #include "font.hpp"
 #include "../content.hpp"
 
+using namespace ei;
+
+
 //#define </cm(r,g,b,a) "</c + (char)r + (char)g + (char)b + (char)a"
 
 namespace Graphic
@@ -24,11 +27,11 @@ namespace Graphic
 		//get values
 		for(int i = 0; i < 256; i++)
 		{
-			m_sizeTable[i] = Math::Vec2(sizeX[i],sizeY[i]);
+			m_sizeTable[i] = Vec2(sizeX[i],sizeY[i]);
 			// Half pixel offset necessary - otherwise rounding errors in shader
-			m_coordTable[i] = Math::Vec2(float(PosX[i]) + 0.5f/m_texture.Width(),PosY[i]);
-		//	m_sizeTable[i] = Math::Vec2(1-0.01f*i,i*0.01f);//0.1; 0.25
-		//	m_coordTable[i] = Math::Vec2(0.f,0.25f);
+			m_coordTable[i] = Vec2(float(PosX[i]) + 0.5f/m_texture.Width(),PosY[i]);
+		//	m_sizeTable[i] = Vec2(1-0.01f*i,i*0.01f);//0.1; 0.25
+		//	m_coordTable[i] = Vec2(0.f,0.25f);
 		}
 	}
 
@@ -37,7 +40,7 @@ namespace Graphic
 		m_characters( "222c11", VertexBuffer::PrimitiveType::POINT ),//222c11
 		m_screenPos( 0.0f ),
 		m_sizeD(2.f),
-		m_colorD((uint8_t)255,(uint8_t)255,(uint8_t)255,(uint8_t)255),
+		m_colorD((uint8)255,(uint8)255,(uint8)255,(uint8)255),
 		m_thicknessD(0.7f),
 		m_active(true),
 		m_sizeMax(0)
@@ -59,7 +62,7 @@ namespace Graphic
 	}
 
 
-	void TextRender::SetPos(Math::Vec2 _screenPos)
+	void TextRender::SetPos(Vec2 _screenPos)
 	{ 
 		m_screenPos = _screenPos;
 		RenewBuffer();
@@ -76,21 +79,21 @@ namespace Graphic
 		RenewBuffer();
 	}
 
-	Math::Vec2 TextRender::GetDim()
+	Vec2 TextRender::GetDim()
 	{
-		m_charSize = Math::Vec2(m_font->m_sizeTable[0][0],
+		m_charSize = Vec2(m_font->m_sizeTable[0][0],
 								   m_font->m_sizeTable[0][1] * (m_font->m_texture.Height()
 								   / (float)m_font->m_texture.Width()) * Device::GetAspectRatio());
 		return m_charSize;
 	}
 
 
-	Math::Vec2 TextRender::GetExpanse()
+	Vec2 TextRender::GetExpanse()
 	{
 		return m_expanse;
 	}
 
-	void TextRender::SetExpanse(const Math::Vec2& _expanse, bool _onlyScaleDown)
+	void TextRender::SetExpanse(const Vec2& _expanse, bool _onlyScaleDown)
 	{
 		int len = (int)m_text.length();
 		int lineCount = 1;
@@ -111,12 +114,12 @@ namespace Graphic
 		//if the text contains no linebreaks
 		if (!charCountMax) charCountMax = charCount;
 
-		Math::Vec2 captionDim = GetDim();
+		Vec2 captionDim = GetDim();
 
 		// in case that the text is to large in any direction scale it down
 		if (!_onlyScaleDown || (captionDim[0] * charCountMax * GetDefaultSize() >= _expanse[0] || captionDim[1] * lineCount >= _expanse[1]))
 		{
-			SetDefaultSize(Math::min((float)(_expanse[0] / (captionDim[0] * charCountMax)),
+			SetDefaultSize(min((float)(_expanse[0] / (captionDim[0] * charCountMax)),
 				(float)(_expanse[1] / (captionDim[1] * lineCount))));
 		}
 
@@ -134,18 +137,18 @@ namespace Graphic
 		int jmpCount = 0;
 		switch (m_text[_i+1])
 		{
-		case 's': m_size = (uint8_t)(m_text[_i+3]*100+m_text[_i+4]*10+m_text[_i+5]-208) * 12.5f / 255.f;
+		case 's': m_size = (uint8)(m_text[_i+3]*100+m_text[_i+4]*10+m_text[_i+5]-208) * 12.5f / 255.f;
 			jmpCount = 5;
 			break;
-		case 't': m_thickness =(uint8_t) (m_text[_i+3]*100+m_text[_i+4]*10+m_text[_i+5]-208) * 6.25f / 255.f;
+		case 't': m_thickness =(uint8) (m_text[_i+3]*100+m_text[_i+4]*10+m_text[_i+5]-208) * 6.25f / 255.f;
 			jmpCount = 5;
 			break;
-		case 'c': //m_color = Utils::Color32F((uint8_t)m_text[_i+2],(uint8_t)m_text[_i+3],(uint8_t)m_text[_i+4],(uint8_t)m_text[_i+5]));
+		case 'c': //m_color = Utils::Color32F((uint8)m_text[_i+2],(uint8)m_text[_i+3],(uint8)m_text[_i+4],(uint8)m_text[_i+5]));
 			m_color = Utils::Color8U(
-				(uint8_t)(m_text[_i+3]*100+m_text[_i+4]*10+m_text[_i+5]-208), //offset: '0'(0x30) -> 0x00 5328 % 256
-				(uint8_t)(m_text[_i+7]*100+m_text[_i+8]*10+m_text[_i+9]-208),
-				(uint8_t)(m_text[_i+11]*100+m_text[_i+12]*10+m_text[_i+13]-208),
-				(uint8_t)(m_text[_i+15]*100+m_text[_i+16]*10+m_text[_i+17]-208));
+				(uint8)(m_text[_i+3]*100+m_text[_i+4]*10+m_text[_i+5]-208), //offset: '0'(0x30) -> 0x00 5328 % 256
+				(uint8)(m_text[_i+7]*100+m_text[_i+8]*10+m_text[_i+9]-208),
+				(uint8)(m_text[_i+11]*100+m_text[_i+12]*10+m_text[_i+13]-208),
+				(uint8)(m_text[_i+15]*100+m_text[_i+16]*10+m_text[_i+17]-208));
 			jmpCount = 17;
 			break;
 		case '/': switch (m_text[_i+2]) //statement closed, return to default values
@@ -160,7 +163,7 @@ namespace Graphic
 			jmpCount = 2;
 			break;
 		}
-		//count chars til the formating end: '>'
+		//count chars till the formating end: '>'
 		while(m_text[_i+(jmpCount++)] != '>');
 		return jmpCount;
 	}
@@ -170,7 +173,7 @@ namespace Graphic
 		//reset the previous build
 		m_characters.Clear();
 		m_sizeMax = m_size / 2.0f;
-		Math::Vec2 currentPos = m_screenPos;
+		Vec2 currentPos = m_screenPos;
 
 		float maxExpanseX = currentPos[0];
 
@@ -206,6 +209,6 @@ namespace Graphic
 		//when no line break happened
 		if (currentPos[0] > maxExpanseX) maxExpanseX = currentPos[0];
 		//calculate size using the start and end point; the points are always the lower left of the char
-		m_expanse = Math::abs((m_screenPos + Math::Vec2(-maxExpanseX, m_charSize[1] * m_sizeMax - currentPos[1])));
+		m_expanse = abs((m_screenPos + Vec2(-maxExpanseX, m_charSize[1] * m_sizeMax - currentPos[1])));
 	}
 }; 

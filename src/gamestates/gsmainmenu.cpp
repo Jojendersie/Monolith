@@ -11,7 +11,7 @@
 #include "resources.hpp"
 #include "GLFW/glfw3.h"
 
-using namespace Math;
+using namespace ei;
 
 // ************************************************************************* //
 GSMainMenu::GSMainMenu(Monolith* _game) : IGameState(_game)
@@ -20,10 +20,10 @@ GSMainMenu::GSMainMenu(Monolith* _game) : IGameState(_game)
 
 	m_hud = new Graphic::Hud(_game);
 	//some bsp buttons
-	m_hud->CreateBtn("menuBtn", Resources::GetText("continue"), Math::Vec2(-0.25f,0.4f), Math::Vec2(0.5f, 0.15f), Graphic::RealDimension::width, [&] () { m_game->PushState( m_game->GetPlayState() ); });
-	m_hud->CreateBtn("menuBtn", Resources::GetText("editor"), Math::Vec2(-0.25f, 0.22f), Math::Vec2(0.5f, 0.15f), Graphic::RealDimension::width, [&]() { m_game->PushState(m_game->GetEditorState()); });
-	m_hud->CreateBtn("menuBtn", Resources::GetText("options"), Math::Vec2(-0.25f, 0.04f), Math::Vec2(0.5f, 0.15f), Graphic::RealDimension::width, [&]() { m_finished = true; });
-	m_hud->CreateBtn("menuBtn", Resources::GetText("end"), Math::Vec2(-0.25f, -0.14f), Math::Vec2(0.5f, 0.15f), Graphic::RealDimension::width, [&]() { m_finished = true; });
+	m_hud->CreateBtn("menuBtn", Resources::GetText("continue"), Vec2(-0.25f,0.4f), Vec2(0.5f, 0.15f), Graphic::RealDimension::width, [&] () { m_game->PushState( m_game->GetPlayState() ); });
+	m_hud->CreateBtn("menuBtn", Resources::GetText("editor"), Vec2(-0.25f, 0.22f), Vec2(0.5f, 0.15f), Graphic::RealDimension::width, [&]() { m_game->PushState(m_game->GetEditorState()); });
+	m_hud->CreateBtn("menuBtn", Resources::GetText("options"), Vec2(-0.25f, 0.04f), Vec2(0.5f, 0.15f), Graphic::RealDimension::width, [&]() { m_finished = true; });
+	m_hud->CreateBtn("menuBtn", Resources::GetText("end"), Vec2(-0.25f, -0.14f), Vec2(0.5f, 0.15f), Graphic::RealDimension::width, [&]() { m_finished = true; });
 
 	LOG_LVL2("Created game state MainMenu");
 }

@@ -1,7 +1,6 @@
 #include "framebuffer.hpp"
 #include "texture.hpp"
 #include "opengl.hpp"
-#include "math/vector.hpp"
 #include "device.hpp"
 
 #include "utilities/assert.hpp"

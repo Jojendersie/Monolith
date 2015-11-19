@@ -2,7 +2,7 @@
 #include "../voxel/chunk.hpp"
 #include "random.hpp"
 
-using namespace Math;
+using namespace ei;
 
 namespace Generators {
 
@@ -16,7 +16,7 @@ namespace Generators {
 			// Build ellipsoid base form
 			Vec3 position(float(x)/_sizeX, float(y)/_sizeY, float(z)/_sizeZ);
 			// (x-sx/2)/sx
-			float d = lengthSq(position - 0.5f) - 0.25f;
+			float d = lensq(position - 0.5f) - 0.25f;
 			// Add noise
 			for( int i=0; i<h; ++i )
 				d += 0.15f * Noise.At( position * (4.0f * (1<<i)) ) / (1<<i);

@@ -1,7 +1,7 @@
 #include "gseditorhud.hpp"
 
 
-using namespace Math;
+using namespace ei;
 
 namespace Graphic
 {
@@ -18,7 +18,7 @@ namespace Graphic
 
 		
 		//box holding informations about the current model
-		m_modelInfoContainer = CreateContainer(Math::Vec2(0.55f, -0.9f), Math::Vec2(0.4f, 0.6f));
+		m_modelInfoContainer = CreateContainer(Vec2(0.55f, -0.9f), Vec2(0.4f, 0.6f));
 
 		m_modelInfoContainer->CreateScreenTexture(Vec2(-1.f, 1.f), Vec2(2.f, 2.f), "simpleWindow");
 

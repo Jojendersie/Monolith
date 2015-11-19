@@ -1,5 +1,5 @@
 #include "vertexbuffer.hpp"
-#include "math/vector.hpp"
+#include <ei/vector.hpp>
 #include "opengl.hpp"
 #include <cstdlib>
 #include <cstring>
@@ -165,7 +165,7 @@ VertexBuffer::VertexBuffer( const char* _vertexDeclaration, PrimitiveType _type 
 	GL_CALL(glBufferData, GL_ARRAY_BUFFER, m_vertexSize * m_maxNumVertices, nullptr, GL_DYNAMIC_DRAW);
 	GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
 	// Data on CPU side
-	m_data = (uint8_t*)malloc( m_vertexSize * m_maxNumVertices );
+	m_data = (uint8*)malloc( m_vertexSize * m_maxNumVertices );
 }
 
 // ************************************************************************* //
@@ -222,7 +222,7 @@ void VertexBuffer::Resize(unsigned _numVertices)
 	GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, m_VBO);
 	GL_CALL(glBufferData, GL_ARRAY_BUFFER, m_vertexSize * _numVertices, nullptr, GL_DYNAMIC_DRAW);
 	GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
-	m_data = (uint8_t*)realloc(m_data, _numVertices * m_vertexSize);
+	m_data = (uint8*)realloc(m_data, _numVertices * m_vertexSize);
 }
 
 
@@ -291,7 +291,7 @@ void VertexBuffer::Commit(void*& _data, int _size)
 
 	// Take data for later commit
 	free(m_data);
-	m_data = (uint8_t*)_data;
+	m_data = (uint8*)_data;
 	_data = nullptr;
 
 	// Derive the statistic data
@@ -321,7 +321,7 @@ void VertexBuffer::FlipNormals()
 	if(m_normalOffset == 0xffffffff) return;
 	for(unsigned i=0; i<GetNumVertices(); ++i)
 	{
-		Math::Vec3* pN = (Math::Vec3*)(((uint8_t*)m_data)+i*m_vertexSize+m_normalOffset);
+		ei::Vec3* pN = (ei::Vec3*)(((uint8*)m_data)+i*m_vertexSize+m_normalOffset);
 		(*pN) = -(*pN);
 	}
 }

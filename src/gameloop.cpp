@@ -1,9 +1,9 @@
 #include "gameloop.hpp"
 #include "utilities/logger.hpp"
-#include "math/mathbase.hpp"
+#include <ei/elementarytypes.hpp>
 #include <thread>
 
-using namespace Math;
+using namespace ei;
 
 static bool g_stopLoops = false;
 

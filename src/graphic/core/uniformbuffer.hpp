@@ -41,32 +41,32 @@ namespace Graphic {
 
 			/// \brief Assign a matrix to the uniform location.
 			/// \details This will not check for type validity!
-			void operator=(const Math::Mat4x4& _m)	{ *(Math::Mat4x4*)bufferPosition = _m; buffer->m_isDirty = true; }
+			void operator=(const ei::Mat4x4& _m)	{ *(ei::Mat4x4*)bufferPosition = _m; buffer->m_isDirty = true; }
 
 			/// \brief Assign a 4D vector to the uniform location.
 			/// \details This will not check for type validity!
-			void operator=(const Math::Vec4& _v)	{ *(Math::Vec4*)bufferPosition = _v; buffer->m_isDirty = true; }
+			void operator=(const ei::Vec4& _v)		{ *(ei::Vec4*)bufferPosition = _v; buffer->m_isDirty = true; }
 
 			/// \brief Assign a 3D vector to the uniform location.
 			/// \details This will not check for type validity!
-			void operator=(const Math::Vec3& _v)	{ *(Math::Vec3*)bufferPosition = _v; buffer->m_isDirty = true; }
+			void operator=(const ei::Vec3& _v)		{ *(ei::Vec3*)bufferPosition = _v; buffer->m_isDirty = true; }
 
 			/// \brief Assign a 2D vector to the uniform location.
 			/// \details This will not check for type validity!
-			void operator=(const Math::Vec2& _v)	{ *(Math::Vec2*)bufferPosition = _v; buffer->m_isDirty = true; }
+			void operator=(const ei::Vec2& _v)		{ *(ei::Vec2*)bufferPosition = _v; buffer->m_isDirty = true; }
 
 			/// \brief Assign a float value to the uniform location.
 			/// \details This will not check for type validity!
 			void operator=(const float _f)			{ *(float*)bufferPosition = _f; buffer->m_isDirty = true; }
 
 			/// \brief Cast to matrix without type check.
-			operator Math::Mat4x4 () const { return *(Math::Mat4x4*)bufferPosition; }
+			operator ei::Mat4x4 () const { return *(ei::Mat4x4*)bufferPosition; }
 			/// \brief Cast to vector 4 without type check.
-			operator const Math::Vec4& () const { return *(Math::Vec4*)bufferPosition; }
+			operator const ei::Vec4& () const { return *(ei::Vec4*)bufferPosition; }
 			/// \brief Cast to vector 3 without type check.
-			operator const Math::Vec3& () const { return *(Math::Vec3*)bufferPosition; }
+			operator const ei::Vec3& () const { return *(ei::Vec3*)bufferPosition; }
 			/// \brief Cast to vector 2 without type check.
-			operator const Math::Vec2& () const { return *(Math::Vec2*)bufferPosition; }
+			operator const ei::Vec2& () const { return *(ei::Vec2*)bufferPosition; }
 			/// \brief Cast to float without type check.
 			operator float () const				{ return *(float*)bufferPosition; }
 		};

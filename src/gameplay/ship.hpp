@@ -24,10 +24,10 @@ public:
 	~Ship();
 
 	/// \brief Add a new component to the ship.
-	void AddComponent(const Math::IVec3& _position, Voxel::ComponentType _type);
+	void AddComponent(const ei::IVec3& _position, Voxel::ComponentType _type);
 
 	/// \brief Remove a component because it is destroyed or in editor...
-	void RemoveComponent(const Math::IVec3& _position);
+	void RemoveComponent(const ei::IVec3& _position);
 
 	/// \brief Store this ship to a file.
 	void Save( Jo::Files::IFile& _file ) const;
@@ -37,15 +37,15 @@ public:
 
 	/// \brief Player or AI can set the velocity. The drives automatically try
 	///		to reach it.
-	void SetTargetVelocity( const Math::Vec3& _targetVelocity )	{ m_targetVelocity = _targetVelocity; }
+	void SetTargetVelocity( const ei::Vec3& _targetVelocity )	{ m_targetVelocity = _targetVelocity; }
 
 	/// \brief Player or AI can set the rotation. The drives automatically try
 	///		to reach it.
-	void SetTargetAngularVelocity( const Math::Vec3& _rotation )	{ m_targetAngularVelocity = _rotation; }
+	void SetTargetAngularVelocity( const ei::Vec3& _rotation )	{ m_targetAngularVelocity = _rotation; }
 
 	/// \brief Get current ship rotation.
-	const Math::Quaternion& GetRotation() const { return Model::GetRotation(); }
-	const Math::IVec3& GetCentralComputerPosition() const { return m_centralComputerPosition; }
+	const ei::Quaternion& GetRotation() const { return Model::GetRotation(); }
+	const ei::IVec3& GetCentralComputerPosition() const { return m_centralComputerPosition; }
 
 	/// \brief Simulate ship logic
 	virtual void Simulate(float _deltaTime) override;
@@ -62,7 +62,7 @@ public:
 protected:
 	std::vector<bool> m_computerSystemAllocation;	///< One ship can have up to 256 computer systems. The primary system is 0. true means the system id is used.
 	Mechanics::ComputerSystem m_primarySystem;
-	Math::IVec3 m_centralComputerPosition;
+	ei::IVec3 m_centralComputerPosition;
 	/*int m_ticks;		///< Simulation counter which reduces the number of specific simulation steps. Is reset to 0 when it reaches WEAPON_TICKS * THRUSTER_TICKS * ....
 	// individual systems every n ticks. This list defines the number of frames
 	// between each simulation call. One means every frame.
@@ -71,6 +71,6 @@ protected:
 	const int COMPUTER_TICKS = 2;*/
 
 	// Controllable state
-	Math::Vec3 m_targetAngularVelocity;		///< Model space angular velocity
-	Math::Vec3 m_targetVelocity;			///< Model space velocity
+	ei::Vec3 m_targetAngularVelocity;		///< Model space angular velocity
+	ei::Vec3 m_targetVelocity;			///< Model space velocity
 };

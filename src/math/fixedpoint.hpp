@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include "ei/vector.hpp"
 
 namespace Math {
 
@@ -14,7 +14,7 @@ namespace Math {
 		static_assert( FracDigits < 64, "You cannot have more digits after the point than there are digits!" );
 
 		/// \brief Create uninitialized
-		TFix() {}
+		TFix() = default;
 		/// \brief Copy construction
 		//explicit TFix( int64_t _fixed ) : m_data(_fixed) {}
 		/// \brief Implicit generation too dangerous.
@@ -47,21 +47,21 @@ namespace Math {
 		bool operator >= (TFix _rhs) const;
 		bool operator == (TFix _rhs) const;
 	private:
-		typename int64_t m_data;
+		typename int64 m_data;
 	};
 
 	// ************************************************************************* //
 	template<int FracDigits>
 	TFix<FracDigits>::TFix( double _float )
 	{
-		m_data = int64_t(_float * double(1 << FracDigits));
+		m_data = int64(_float * double(1 << FracDigits));
 	}
 
 	// ************************************************************************* //
 	template<int FracDigits>
 	TFix<FracDigits>::TFix( float _float )
 	{
-		m_data = int64_t(_float * float(1 << FracDigits));
+		m_data = int64(_float * float(1 << FracDigits));
 	}
 
 	// ************************************************************************* //
@@ -228,5 +228,6 @@ namespace Math {
 
 
 	typedef TFix<30> Fix;
+	typedef ei::Vec<Fix, 3> FixVec3;
 
 } // namespace Math

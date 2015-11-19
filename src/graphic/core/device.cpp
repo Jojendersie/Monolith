@@ -100,9 +100,9 @@ namespace Graphic {
 		return g_Device.m_window;
 	}
 
-	Math::IVec2 Device::GetBackbufferSize()
+	ei::IVec2 Device::GetBackbufferSize()
 	{
-		Math::IVec2 size;
+		ei::IVec2 size;
 		glfwGetFramebufferSize( g_Device.m_window, &size[0], &size[1] );
 		return size;
 	}
@@ -266,7 +266,7 @@ namespace Graphic {
 						pSizeSource = &_framebuffer->m_colorAttachments[0];
 
 					// Due to asserts on creation, pSizeSource should be now non zero!
-					Math::IVec2 size = pSizeSource->pTexture->Size2D();
+					ei::IVec2 size = pSizeSource->pTexture->Size2D();
 					for (unsigned int mipLevel = 0; mipLevel < pSizeSource->mipLevel; ++mipLevel)
 					{
 						size[0] /= 2;

@@ -2,7 +2,7 @@
 #include "../core/device.hpp"
 #include "../content.hpp"
 
-using namespace Math;
+using namespace ei;
 
 namespace Graphic {
 namespace Marker {
@@ -43,7 +43,7 @@ namespace Marker {
 	}
 
 	// ********************************************************************* //
-	void WireframeRenderer::AddLine( const Math::Vec3& _start, const Math::Vec3& _end, float _transparencyA, float _transparencyB )
+	void WireframeRenderer::AddLine( const Vec3& _start, const Vec3& _end, float _transparencyA, float _transparencyB )
 	{
 		Utils::Color32F colorA(m_color.R(), m_color.G(), m_color.B(), _transparencyA * m_color.A());
 		Utils::Color32F colorB(m_color.R(), m_color.G(), m_color.B(), _transparencyB * m_color.A());
@@ -64,7 +64,7 @@ namespace Marker {
 	}
 
 	// ********************************************************************* //
-	void WireframeRenderer::Draw( const Math::Mat4x4& _worldViewProjection )
+	void WireframeRenderer::Draw( const Mat4x4& _worldViewProjection )
 	{
 		// Setup pipeline
 		Device::SetEffect( Resources::GetEffect(Effects::BEAM) );

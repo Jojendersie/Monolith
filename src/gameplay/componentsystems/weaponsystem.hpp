@@ -11,13 +11,13 @@ namespace Mechanics {
 		//type to identify on change
 		Voxel::ComponentType type;
 
-		float cooldown; ///< cooldown until next shot is avialable
+		float cooldown; ///< cooldown until next shot is available
 		float cooldownBase; ///< cooldown after a shot
 		int damage; ///< damage that one shot deals
 
 		float cost; ///< energy requirement for one shot
 
-		Math::Vec3 position; ///< relative position
+		ei::Vec3 position; ///< relative position
 	};
 
 	class WeaponSystem: public ComponentSystem
@@ -29,14 +29,14 @@ namespace Mechanics {
 
 		virtual void Process(float _deltaTime, SystemRequierements& _provided) override;
 
-		virtual void OnAdd(const Math::IVec3& _position, Voxel::ComponentType _type, uint8_t _assignment) override;
+		virtual void OnAdd(const ei::IVec3& _position, Voxel::ComponentType _type, uint8 _assignment) override;
 
-		void SetTarget(Math::Vec3& _target) { m_target = _target; };
+		void SetTarget(ei::Vec3& _target) { m_target = _target; };
 
 		void SetFiring(bool _firing) { m_firing = _firing; };
 	private:
 
-		Math::Vec3 m_target; ///< target in local space
+		ei::Vec3 m_target; ///< target in local space
 		bool m_firing;		///< should the weapons fire when loaded
 
 		std::vector < WeaponInformation > m_weapons;

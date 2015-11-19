@@ -54,17 +54,17 @@ private:
 
 	struct HitResult
 	{
-		HitResult(Math::IVec3 _gridPosSlf, Math::IVec3 _gridPosOth, Math::Vec3 _posSlf, Math::Vec3 _posOth)
+		HitResult(ei::IVec3 _gridPosSlf, ei::IVec3 _gridPosOth, ei::Vec3 _posSlf, ei::Vec3 _posOth)
 			: gridPosSlf(_gridPosSlf),
 			gridPosOth(_gridPosOth),
 			posSlf(_posSlf),
 			posOth(_posOth) {};
 
-		Math::IVec3 gridPosSlf;
-		Math::IVec3 gridPosOth;
+		ei::IVec3 gridPosSlf;
+		ei::IVec3 gridPosOth;
 
-		Math::Vec3 posSlf;
-		Math::Vec3 posOth;
+		ei::Vec3 posSlf;
+		ei::Vec3 posOth;
 	};
 
 	class CollisionCheck
@@ -79,20 +79,20 @@ private:
 		Voxel::Model* m_modelOth;
 
 		//position of the octree
-		Math::Vec3 m_posSlf;
-		Math::Vec3 m_posOth;
+		ei::Vec3 m_posSlf;
+		ei::Vec3 m_posOth;
 
 		//rotation of the models
-		Math::Mat3x3 m_rotSlf;
-		Math::Mat3x3 m_rotOth;
+		ei::Mat3x3 m_rotSlf;
+		ei::Mat3x3 m_rotOth;
 
-		std::vector < HitResult> m_hits;
+		std::vector <HitResult> m_hits;
 
 		/// \brief Solves the collision of two octrees
 		/// \details Expects the larger one as first param. 
-		///			 Successfull matches are stored in m_hits
+		///			 Successfully matches are stored in m_hits
 		/// \param [in] _position Position in the grid of the current node
 		/// \param [in] _node The nodes that are checked against
-		void TreeCollision(const Math::IVec4& _position0, const Voxel::Model::ModelData::SVON& _node0, const Math::IVec4& _position1, const Voxel::Model::ModelData::SVON& _node1);
+		void TreeCollision(const ei::IVec4& _position0, const Voxel::Model::ModelData::SVON& _node0, const ei::IVec4& _position1, const Voxel::Model::ModelData::SVON& _node1);
 	};
 };

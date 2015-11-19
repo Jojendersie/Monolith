@@ -35,7 +35,7 @@ namespace Jo {
 		///	\param [in] _capacity Minimum capacity which should be allocated.
 		///		The allocated capacity must be ´max(_capacity, n)´. So there is
 		///		never less than the already existing internal memory block.
-		HybridArray(uint32_t _capacity);
+		HybridArray(uint32 _capacity);
 
 		/// \brief Copy construction (deep).
 		HybridArray(const HybridArray<T,N>& _other);
@@ -50,9 +50,9 @@ namespace Jo {
 		HybridArray<ElemType,N>& operator = (const HybridArray<T,N>& _other);
 
 		/// \brief Write-array access.
-		T& operator [] (uint32_t _index);
+		T& operator [] (uint32 _index);
 		/// \brief Read-array access.
-		const T& operator [] (uint32_t _index) const;
+		const T& operator [] (uint32 _index) const;
 
 		/// \brief Enlarge or prune the memory.
 		/// \param [in] _capacity New capacity/size. If _capacity is below n
@@ -62,7 +62,7 @@ namespace Jo {
 		///		
 		///		The size changes if _capacity is below the current size and
 		///		unequal 0 (prune). The omitted elements are deleted.
-		void Resize(uint32_t _capacity = 0);
+		void Resize(uint32 _capacity = 0);
 
 		/// \brief Insert an element copy at the end of the array.
 		/// \details This might cause a resize with costs O(n).
@@ -77,11 +77,11 @@ namespace Jo {
 
 		/// \brief Insert an element copy at the given index of the array.
 		/// \details This might cause a resize with costs O(n).
-		const ElemType& Insert(uint32_t _where, const ElemType& _element);
+		const ElemType& Insert(uint32 _where, const ElemType& _element);
 
 		/// \brief Insert an element at the given index of the array.
 		/// \details This might cause a resize with costs O(n).
-		ElemType& Insert(uint32_t _where, ElemType&& _element);
+		ElemType& Insert(uint32 _where, ElemType&& _element);
 
 		/// \brief Delete an element in O(1). This operation changes the
 		///		element order by replacing the deleted with the last element.
@@ -94,8 +94,8 @@ namespace Jo {
 		/// \brief Delete all elements.
 		void Clear();
 
-		uint32_t Size() const		{ return m_size; }
-		uint32_t Capacity() const	{ return m_capacity; }
+		uint32 Size() const		{ return m_size; }
+		uint32 Capacity() const	{ return m_capacity; }
 
 		/// \brief Access first element
 		ElemType& First()				{ assert(m_size>0); return *m_data; }
@@ -105,11 +105,11 @@ namespace Jo {
 		ElemType& Last()				{ assert(m_size>0); return m_data[m_size-1]; }
 		const ElemType& Last() const	{ assert(m_size>0); return m_data[m_size-1]; }
 	protected:
-		uint32_t m_capacity;	///< Maximum number of elements
-		uint32_t m_size;		///< Current number of elements
+		uint32 m_capacity;	///< Maximum number of elements
+		uint32 m_size;		///< Current number of elements
 		ElemType* m_data;		///< Pointer to array memory block. Might be on stack or heap.
 
-		uint8_t m_localStorage[sizeof(ElemType)*N];	///< The local storage on stack or in object heap space.
+		uint8 m_localStorage[sizeof(ElemType)*N];	///< The local storage on stack or in object heap space.
 	};
 
 
@@ -131,7 +131,7 @@ namespace Jo {
 
 	// ********************************************************************* //
 	template<typename T, unsigned N>
-	HybridArray<T,N>::HybridArray(uint32_t _capacity) :
+	HybridArray<T,N>::HybridArray(uint32 _capacity) :
 		m_capacity(_capacity < N ? N : _capacity),
 		m_size(0)
 	{
@@ -205,7 +205,7 @@ namespace Jo {
 
 	// ********************************************************************* //
 	template<typename T, unsigned N>
-	typename HybridArray<T,N>::ElemType& HybridArray<T,N>::operator [] (uint32_t _index)
+	typename HybridArray<T,N>::ElemType& HybridArray<T,N>::operator [] (uint32 _index)
 	{
 		// TODO: logging system
 		assert(m_size > _index);
@@ -214,7 +214,7 @@ namespace Jo {
 	}
 
 	template<typename T, unsigned N>
-	const typename HybridArray<T,N>::ElemType& HybridArray<T,N>::operator [] (uint32_t _index) const
+	const typename HybridArray<T,N>::ElemType& HybridArray<T,N>::operator [] (uint32 _index) const
 	{
 		// TODO: logging system
 		assert(m_size > _index);
@@ -224,7 +224,7 @@ namespace Jo {
 
 	// ********************************************************************* //
 	template<typename T, unsigned N>
-	void HybridArray<T,N>::Resize(uint32_t _capacity)
+	void HybridArray<T,N>::Resize(uint32 _capacity)
 	{
 		// Resizing without change. Bad Performance!
 		// TODO: logging system
@@ -233,7 +233,7 @@ namespace Jo {
 		// Prune as much as possible
 		if( _capacity == 0 ) _capacity = m_size;
 
-		uint32_t oldCapacity = m_capacity;
+		uint32 oldCapacity = m_capacity;
 		m_capacity = _capacity < N ? N : _capacity;
 		// If both old and new capacity are <= N nothing happens otherwise
 		// a realloc or copy is necessary
@@ -292,7 +292,7 @@ namespace Jo {
 
 	// ********************************************************************* //
 	template<typename T, unsigned N>
-	const T& HybridArray<T,N>::Insert(uint32_t _where, const ElemType& _element)
+	const T& HybridArray<T,N>::Insert(uint32 _where, const ElemType& _element)
 	{
 		// Exponential growth if necessary
 		if( m_size == m_capacity ) Resize(m_capacity * 2);
@@ -305,7 +305,7 @@ namespace Jo {
 	}
 
 	template<typename T, unsigned N>
-	T& HybridArray<T,N>::Insert(uint32_t _where, ElemType&& _element)
+	T& HybridArray<T,N>::Insert(uint32 _where, ElemType&& _element)
 	{
 		// Exponential growth if necessary
 		if( m_size == m_capacity ) Resize(m_capacity * 2);

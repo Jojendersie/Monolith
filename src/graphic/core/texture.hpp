@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include "math/vector.hpp"
+#include "ei/vector.hpp"
 
 namespace Graphic {
 
@@ -88,7 +88,7 @@ namespace Graphic {
 		unsigned int MipLevels()	{ return m_numMipLevels; }
 
 		/// \brief Returns the 2d size of the texture as Vector2
-		Math::IVec2 Size2D() { return Math::IVec2(m_width, m_height); }
+		ei::IVec2 Size2D() { return ei::IVec2(m_width, m_height); }
 
 		/// \brief Fill a texture with data.
 		/// \details This calls glTexSubImage3D with the width and height for the

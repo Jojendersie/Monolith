@@ -13,7 +13,7 @@ namespace Generators {
 	class Random {
 	public:
 		/// \brief Create a new independent random number generator with a seed.
-		Random( uint32_t _seed );
+		Random( uint32 _seed );
 
 		/// \brief Create the next uniform distributed sample in the given
 		///		range (inclusive both boundaries). Default is [0,1].
@@ -47,22 +47,22 @@ namespace Generators {
 		///		next sample functions is called. Do not use the same generator
 		///		for static space filling noise and random sampling.
 		float At( float _position );
-		float At( const Math::Vec2& _position );
-		float At( const Math::Vec3& _position );
+		float At( const ei::Vec2& _position );
+		float At( const ei::Vec3& _position );
 
 		/// \brief Compute a spline interpolated value in the static white
-		///		noise space with a higher continous differentiability.
+		///		noise space with a higher continuous differentiability.
 		/// \details Sampling the same position will return the same value.
 		/// \warning The white noise space will change if one of the create
 		///		next sample functions is called. Do not use the same generator
 		///		for static space filling noise and random sampling.
 		float AtQ( float _position, int _iy=0, int _iz=0 );
-		float AtQ( const Math::Vec2& _position, int _iz=0 );
-		float AtQ( const Math::Vec3& _position );
+		float AtQ( const ei::Vec2& _position, int _iz=0 );
+		float AtQ( const ei::Vec3& _position );
 	private:
 		/// \brief The real generator used in all sample functions.
-		uint32_t Xorshift128();
-		uint32_t m_state[4];	///< Internal state of the generator
+		uint32 Xorshift128();
+		uint32 m_state[4];	///< Internal state of the generator
 	};
 
 	// Is there a need for real randomness?

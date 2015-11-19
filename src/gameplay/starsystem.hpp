@@ -6,8 +6,8 @@
 /// \brief Information required by shader to draw a single star
 struct StarVertex
 {
-	Math::Vec3 position; ///< position in viewspac
-	uint32_t color;
+	ei::Vec3 position; ///< position in viewspac
+	uint32 color;
 	float size;
 };
 
@@ -17,7 +17,7 @@ class StarSystem : public Math::Transformation
 {
 public:
 	StarSystem(const Math::FixVec3& _position, int _temperature, 
-		float _size = 1.f, const Math::Quaternion& _rotation = Math::Quaternion(), bool _ambient = false);
+		float _size = 1.f, const ei::Quaternion& _rotation = ei::Quaternion(), bool _ambient = false);
 
 	StarVertex& ComputeVertex(const Input::Camera& _camera);
 private:

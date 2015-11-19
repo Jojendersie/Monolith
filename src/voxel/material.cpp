@@ -2,14 +2,14 @@
 #include "voxel.hpp"
 #include "utilities/assert.hpp"
 #include <cmath>
-#include "..\math\mathbase.hpp"
+#include "ei/elementarytypes.hpp"
 
 namespace Voxel {
 
 	const Material Material::UNDEFINED = 0x0;
 	const Voxel Voxel::UNDEFINED;
 
-	Material::Material( uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _specular, uint8_t _shininess, bool _emissive, uint8_t _variance )
+	Material::Material( uint8 _r, uint8 _g, uint8 _b, uint8 _specular, uint8 _shininess, bool _emissive, uint8 _variance )
 	{
 		SetTransparent(false);
 		SetEmissive(_emissive);
@@ -18,13 +18,13 @@ namespace Voxel {
 		SetVar(_variance);				Assert(_variance < 16, "Variance is out of range.");
 
 		// Encode color to YPbPr:855 discretization.
-		SetY( uint8_t((_r * 299000 + _g * 587000 + _b * 114000) / 1000000) );
-		SetPb( uint8_t((- _r * 20513 - _g * 40271 + _b * 60784 + 15500000) / 1000000) );
-		SetPr( uint8_t((_r * 60784 - _g * 50899 - _b * 9885 + 15500000) / 1000000) );
+		SetY( uint8((_r * 299000 + _g * 587000 + _b * 114000) / 1000000) );
+		SetPb( uint8((- _r * 20513 - _g * 40271 + _b * 60784 + 15500000) / 1000000) );
+		SetPr( uint8((_r * 60784 - _g * 50899 - _b * 9885 + 15500000) / 1000000) );
 	}
 
 
-	Material::Material( uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a, uint8_t _specular, uint8_t _shininess, bool _emissive )
+	Material::Material( uint8 _r, uint8 _g, uint8 _b, uint8 _a, uint8 _specular, uint8 _shininess, bool _emissive )
 	{
 		SetTransparent(true);
 		SetEmissive(_emissive);
@@ -33,9 +33,9 @@ namespace Voxel {
 		SetVar(_a);						Assert(_a < 16, "Variance is out of range.");
 
 		// Encode color to YPbPr:855 discretization.
-		SetY( uint8_t((_r * 299000 + _g * 587000 + _b * 114000) / 1000000) );
-		SetPb( uint8_t((- _r * 20513 - _g * 40271 + _b * 60784 + 15500000) / 1000000) );
-		SetPr( uint8_t((_r * 60784 - _g * 50899 - _b * 9885 + 15500000) / 1000000) );
+		SetY( uint8((_r * 299000 + _g * 587000 + _b * 114000) / 1000000) );
+		SetPb( uint8((- _r * 20513 - _g * 40271 + _b * 60784 + 15500000) / 1000000) );
+		SetPr( uint8((_r * 60784 - _g * 50899 - _b * 9885 + 15500000) / 1000000) );
 	}
 
 
@@ -60,7 +60,7 @@ namespace Voxel {
 		else SetY( tmp );
 
 		tmp = 0;
-		for( int i=0; i<_num; ++i ) tmp = Math::max(tmp, _materials[i].GetSpecular());
+		for( int i=0; i<_num; ++i ) tmp = ei::max(tmp, _materials[i].GetSpecular());
 		SetSpecular( tmp );
 
 		tmp = 0;

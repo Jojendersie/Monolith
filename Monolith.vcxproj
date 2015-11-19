@@ -40,11 +40,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>dependencies\glfw-3.1.1\lib;dependencies\glew-1.10.0\lib\Release\x64;dependencies\JoFileLib\lib\Debug;$(LibraryPath)</LibraryPath>
-    <IncludePath>dependencies\JoFileLib\include;dependencies\glfw-3.1.1\include;$(SolutionDir)\src;$(IncludePath)</IncludePath>
+    <IncludePath>dependencies\JoFileLib\include;dependencies\glfw-3.1.1\include;dependencies\epsilon\include;$(SolutionDir)\src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LibraryPath>dependencies\glfw-3.1.1\lib;dependencies\glew-1.10.0\lib\Release\x64;dependencies\JoFileLib\lib\Release;$(LibraryPath)</LibraryPath>
-    <IncludePath>dependencies\JoFileLib\include;dependencies\glfw-3.1.1\include;$(SolutionDir)\src;$(IncludePath)</IncludePath>
+    <IncludePath>dependencies\JoFileLib\include;dependencies\glfw-3.1.1\include;dependencies\epsilon\include;$(SolutionDir)\src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -84,6 +84,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="dependencies\epsilon\src\2dfunctions.cpp" />
+    <ClCompile Include="dependencies\epsilon\src\2dintersection.cpp" />
+    <ClCompile Include="dependencies\epsilon\src\2dtypes.cpp" />
+    <ClCompile Include="dependencies\epsilon\src\3dfunctions.cpp" />
+    <ClCompile Include="dependencies\epsilon\src\3dintersection.cpp" />
+    <ClCompile Include="dependencies\epsilon\src\3dtypes.cpp" />
+    <ClCompile Include="dependencies\epsilon\src\elementary.cpp" />
     <ClCompile Include="dependencies\FileWatcher\FileWatcher.cpp" />
     <ClCompile Include="dependencies\FileWatcher\FileWatcherLinux.cpp" />
     <ClCompile Include="dependencies\FileWatcher\FileWatcherOSX.cpp" />
@@ -143,11 +150,7 @@
     <ClCompile Include="src\input\camera.cpp" />
     <ClCompile Include="src\input\input.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\math\intersection.cpp" />
-    <ClCompile Include="src\math\matrix.cpp" />
-    <ClCompile Include="src\math\quaternion.cpp" />
     <ClCompile Include="src\math\ray.cpp" />
-    <ClCompile Include="src\math\sphere.cpp" />
     <ClCompile Include="src\math\transformation.cpp" />
     <ClCompile Include="src\resources.cpp" />
     <ClCompile Include="src\timer.cpp" />
@@ -243,14 +246,10 @@
     <ClInclude Include="src\input\input.hpp" />
     <ClInclude Include="src\math\box.hpp" />
     <ClInclude Include="src\math\fixedpoint.hpp" />
-    <ClInclude Include="src\math\intersection.hpp" />
     <ClInclude Include="src\math\math.hpp" />
     <ClInclude Include="src\math\mathbase.hpp" />
-    <ClInclude Include="src\math\matrix.hpp" />
     <ClInclude Include="src\math\plane.hpp" />
-    <ClInclude Include="src\math\quaternion.hpp" />
     <ClInclude Include="src\math\ray.hpp" />
-    <ClInclude Include="src\math\sphere.hpp" />
     <ClInclude Include="src\math\sphericalfunction.hpp" />
     <ClInclude Include="src\math\transformation.hpp" />
     <ClInclude Include="src\math\vector.hpp" />

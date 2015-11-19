@@ -7,7 +7,7 @@ using namespace Math;
 namespace Input {
 
 	// ********************************************************************* //
-	Camera::Camera( const Math::FixVec3& _position, const Math::Quaternion& _rotation,
+	Camera::Camera( const Math::FixVec3& _position, const ei::Quaternion& _rotation,
 				float _fov, float _aspect ) :
 		m_renderTransformation( _position, _rotation ),
 		m_latestTransformation( _position, _rotation ),
@@ -19,24 +19,24 @@ namespace Input {
 		m_nearPlane(5.0f),
 		m_farPlane(50000.0f)
 	{
-		m_rotationMatrix = Mat3x3::Rotation(m_latestTransformation.GetRotation());
+		m_rotationMatrix = m_latestTransformation.GetRotationMatrix();
 		UpdateMatrices();
 	}
 
 	// ********************************************************************* //
 	void Camera::Set( Graphic::UniformBuffer& _cameraUBO )
 	{
-		_cameraUBO["Projection"] = Vec4(GetProjection()(0,0), GetProjection()(1,1), GetProjection()(2,2), GetProjection()(3,2));
+		_cameraUBO["Projection"] = ei::Vec4(GetProjection()(0,0), GetProjection()(1,1), GetProjection()(2,2), GetProjection()(2,3));
 		_cameraUBO["ProjectionInverse"] = m_inverseProjection;
 		_cameraUBO["NearPlane"] = m_nearPlane;
 		_cameraUBO["FarPlane"] = m_farPlane;
 	}
 
 	// ********************************************************************* //
-	Vec3 Camera::GetReferencePosition() const
+	ei::Vec3 Camera::GetReferencePosition() const
 	{
-		if( m_attachMode != REFERENCE_ONLY ) return Mat3x3::Rotation(m_renderTransformation.GetRotation()) * m_referencePos;
-		return Vec3(m_attachedTo->GetPosition() - m_renderTransformation.GetPosition());
+		if( m_attachMode != REFERENCE_ONLY ) return m_renderTransformation.GetInverseRotationMatrix() * m_referencePos;
+		return ei::Vec3(m_attachedTo->GetPosition() - m_renderTransformation.GetPosition());
 	}
 
 	// ********************************************************************* //
@@ -45,19 +45,19 @@ namespace Input {
 		m_mutex.lock();
 		if( m_attachMode != REFERENCE_ONLY ) NormalizeReference();
 		m_renderTransformation = m_latestTransformation;
-		m_projection = Math::Mat4x4::Projection( m_fov, m_aspect, m_nearPlane, m_farPlane );
+		m_projection = ei::perspectiveGL( m_fov, m_aspect, m_nearPlane, m_farPlane );
 		m_mutex.unlock();
 		// construct explicit invert-vector
-		m_inverseProjection = Vec4(1.0f/GetProjection()(0,0), 1.0f/GetProjection()(1,1), 1.0f/GetProjection()(2,2), -GetProjection()(3,2) / GetProjection()(2,2));
+		m_inverseProjection = ei::Vec4(1.0f/GetProjection()(0,0), 1.0f/GetProjection()(1,1), 1.0f/GetProjection()(2,2), -GetProjection()(2,3) / GetProjection()(2,2));
 
 		// Compute frustum planes from viewProjection
 		// http://www.cs.otago.ac.nz/postgrads/alexis/planeExtraction.pdf
-		m_frustum[0] = m_projection.Column(3) + m_projection.Column(0);
-		m_frustum[1] = m_projection.Column(3) - m_projection.Column(0);
-		m_frustum[2] = m_projection.Column(3) + m_projection.Column(1);
-		m_frustum[3] = m_projection.Column(3) - m_projection.Column(1);
-		m_frustum[4] = m_projection.Column(3) + m_projection.Column(2);
-		m_frustum[5] = m_projection.Column(3) - m_projection.Column(2);
+		m_frustum[0] = transpose(m_projection(3) + m_projection(0));
+		m_frustum[1] = transpose(m_projection(3) - m_projection(0));
+		m_frustum[2] = transpose(m_projection(3) + m_projection(1));
+		m_frustum[3] = transpose(m_projection(3) - m_projection(1));
+		m_frustum[4] = transpose(m_projection(3) + m_projection(2));
+		m_frustum[5] = transpose(m_projection(3) - m_projection(2));
 	}
 
 
@@ -74,18 +74,18 @@ namespace Input {
 			if( m_attachMode == REFERENCE_ONLY )
 				m_referencePos = m_latestTransformation.Transform( m_attachedTo->GetPosition() );
 			// Additionally the rotation is either relative to the world or to the object.
-			m_worldRotation = Quaternion( 0.0f, m_phi, 0.0f ) * Quaternion( -m_theta, 0.0f, 0.0f );
+			m_worldRotation = ei::Quaternion( 0.0f, -m_phi, 0.0f ) * ei::Quaternion( -m_theta, 0.0f, 0.0f );
 			if( m_attachMode != FOLLOW_AND_ROTATE )
 			{
 				m_latestTransformation.SetRotation( m_worldRotation );
-				m_rotationMatrix = Mat3x3::Rotation( m_latestTransformation.GetRotation() );
+				m_rotationMatrix = m_latestTransformation.GetRotationMatrix();
 			}
 			NormalizeReference();
 		} else {
 			//m_worldRotation *= ~Math::Quaternion( _theta, _phi, 0.0f );
-			m_worldRotation = Quaternion( 0.0f, m_phi, 0.0f ) * Quaternion( -m_theta, 0.0f, 0.0f );
+			m_worldRotation = ei::Quaternion( 0.0f, -m_phi, 0.0f ) * ei::Quaternion( -m_theta, 0.0f, 0.0f );
 			m_latestTransformation.SetRotation( m_worldRotation );
-			m_rotationMatrix = Mat3x3::Rotation( m_latestTransformation.GetRotation() );
+			m_rotationMatrix = m_latestTransformation.GetRotationMatrix();
 		}
 		m_mutex.unlock();
 	}
@@ -100,7 +100,7 @@ namespace Input {
 			_dy *= m_referencePos[2] * m_fov;
 		}
 		// Compute actual xy directions in camera space
-		m_latestTransformation.Translate( m_rotationMatrix.YAxis() * _dy - m_rotationMatrix.XAxis() * _dx );
+		m_latestTransformation.Translate( transpose(m_rotationMatrix(1) * _dy - m_rotationMatrix(0) * _dx) );
 		// Make soft attachment
 		m_attachMode = REFERENCE_ONLY;
 	}
@@ -113,10 +113,10 @@ namespace Input {
 			// Increasing scroll speed with increasing distance.
 			_dz = m_referencePos[2] * _dz * 0.01f;
 			// Avoid scrolling into the object
-			_dz = Math::min( _dz, -m_attachedTo->GetRadius() * 0.75f + m_referencePos[2] );
+			_dz = ei::min( _dz, -m_attachedTo->GetRadius() * 0.75f + m_referencePos[2] );
 		} // Linear movement otherwise
 
-		m_latestTransformation.Translate( m_rotationMatrix.ZAxis() * _dz );
+		m_latestTransformation.Translate( transpose(m_rotationMatrix(2) * _dz) );
 		m_referencePos[2] -= _dz;
 	}
 
@@ -172,12 +172,12 @@ namespace Input {
 		if( m_attachMode == FOLLOW_AND_ROTATE )
 		{
 			m_latestTransformation.SetRotation( ~m_attachedTo->GetRotation() * m_worldRotation );
-			m_rotationMatrix = Mat3x3::Rotation( m_latestTransformation.GetRotation() );
+			m_rotationMatrix = m_latestTransformation.GetRotationMatrix();
 		}
 	}
 
 	// ********************************************************************* //
-	bool Camera::IsVisible( const Math::Sphere& _S ) const
+	bool Camera::IsVisible( const ei::Sphere& _S ) const
 	{
 		// TODO: potential optimization: Dot-Product-Culling
 
@@ -185,7 +185,7 @@ namespace Input {
 		// it is outside of the whole volume.
 		for( int i=0; i<6; ++i )
 		{
-			if( m_frustum[i].DotCoords( _S.m_center ) <= -_S.m_radius )
+			if( m_frustum[i].DotCoords( _S.center ) <= -_S.radius )
 				return false;
 		}
 
@@ -193,11 +193,11 @@ namespace Input {
 	}
 
 	// ********************************************************************* //
-	WorldRay Camera::GetRay(const Vec2& _screenSpaceCoordinate) const
+	WorldRay Camera::GetRay(const ei::Vec2& _screenSpaceCoordinate) const
 	{
 		WorldRay ray;
 		// Compute view space position of a point on the near plane
-		Vec3 nearPoint = Vec3( m_inverseProjection[0] * _screenSpaceCoordinate[0],
+		ei::Vec3 nearPoint = ei::Vec3( m_inverseProjection[0] * _screenSpaceCoordinate[0],
 							   m_inverseProjection[1] * _screenSpaceCoordinate[1],
 							   1.0f );	// 1.0 result of inverse project of any coordinate
 										// Division by 

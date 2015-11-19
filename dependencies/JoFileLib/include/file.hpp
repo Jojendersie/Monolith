@@ -64,11 +64,11 @@ namespace Files {
 
 		bool IsEof() const				{ assert(m_size >= m_cursor); return m_size == m_cursor; }
 
-		/// \brief Write a single uint8_t to the file.
+		/// \brief Write a single uint8 to the file.
 		void WriteU8( uint8_t _what )		{ Write(&_what, 1); }
 		/// \brief Write a single uint16_t to the file.
 		void WriteU16( uint16_t _what )		{ Write(&_what, 2); }
-		/// \brief Write a single uint32_t to the file.
+		/// \brief Write a single uint32 to the file.
 		void WriteU32( uint32_t _what )		{ Write(&_what, 4); }
 		/// \brief Write a single uint64_t to the file.
 		void WriteU64( uint64_t _what )		{ Write(&_what, 8); }

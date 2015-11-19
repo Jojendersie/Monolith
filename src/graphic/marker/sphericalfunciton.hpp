@@ -13,7 +13,7 @@ namespace Marker {
 
 		/// \brief Draw the function visualization with an alpha rendering
 		///		effect (without z-test).
-		void Draw( const Math::Mat4x4& _worldViewProjection );
+		void Draw( const ei::Mat4x4& _worldViewProjection );
 	private:
 
 		VertexBuffer m_mesh;

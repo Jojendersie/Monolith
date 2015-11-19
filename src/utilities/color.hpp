@@ -1,19 +1,19 @@
 #pragma once
 
-#include "../math/vector.hpp"
+#include "ei/vector.hpp"
 #include "../predeclarations.hpp"
 #include <cstdint>
 
 namespace Utils {
 
-	struct HSV: public Math::Vec3 {};
-	struct HSL: public Math::Vec3 {};
-	struct sRGB: public Math::Vec3 {};
-	struct YPbPr: public Math::Vec3 {};
+	struct HSV: public ei::Vec3 {};
+	struct HSL: public ei::Vec3 {};
+	struct sRGB: public ei::Vec3 {};
+	struct YPbPr: public ei::Vec3 {};
 
 	/// \brief Main RGBA color class used for all computations.
 	/// \brief Inherits many operators from 4D vectors.
-	class Color32F: public Math::Vec4
+	class Color32F: public ei::Vec4
 	{
 	public:
 		/// \brief Default: Uninitialized for speed
@@ -23,7 +23,7 @@ namespace Utils {
 		Color32F(const Color8U& _color)								{ *this = static_cast<Color32F>(_color); }
 
 		/// \brief From single bytes
-		Color32F(uint8_t r, uint8_t g, uint8_t b, uint8_t a=255)	{ R() = r*(1.0f/255.0f); G() = g*(1.0f/255.0f); B() = b*(1.0f/255.0f); A() = a*(1.0f/255.0f); }
+		Color32F(uint8 r, uint8 g, uint8 b, uint8 a=255)	{ R() = r*(1.0f/255.0f); G() = g*(1.0f/255.0f); B() = b*(1.0f/255.0f); A() = a*(1.0f/255.0f); }
 
 		/// \brief From bytes in the range [0,255].
 		/// \details This constructor exists to avoid the 'ambiguous' error
@@ -111,41 +111,41 @@ namespace Utils {
 	{
 	public:
 		/// \brief From main color class
-		Color8U(const Color32F& _color)							{ m_color = 0; for(int i=0; i<4; ++i) { m_color<<=8; m_color |= uint8_t(Math::saturate(_color[3-i]) * 255); } }
+		Color8U(const Color32F& _color)							{ m_color = 0; for(int i=0; i<4; ++i) { m_color<<=8; m_color |= uint8(ei::saturate(_color[3-i]) * 255); } }
 
 		/// \brief From main vector class
-		Color8U(const Math::Vec4& _color)						{ m_color = 0; for(int i=0; i<4; ++i) { m_color<<=8; m_color |= uint8_t(Math::saturate(_color[3-i]) * 255); } }
+		Color8U(const ei::Vec4& _color)							{ m_color = 0; for(int i=0; i<4; ++i) { m_color<<=8; m_color |= uint8(ei::saturate(_color[3-i]) * 255); } }
 
 		/// \brief From single RGBA 32 bit integer
-		Color8U(const uint32_t& _color) : m_color(_color)		{}
+		Color8U(const uint32& _color) : m_color(_color)		{}
 
 		/// \brief Default: Uninitialized for speed
 		Color8U()												{}
 
 		/// \brief From single bytes
-		Color8U(uint8_t r, uint8_t g, uint8_t b, uint8_t a=255)	{ m_color = r | (g<<8) | (b<<16) | (a<<24); }
+		Color8U(uint8 r, uint8 g, uint8 b, uint8 a=255)	{ m_color = r | (g<<8) | (b<<16) | (a<<24); }
 
 		/// \brief From single floats
-		Color8U(float r, float g, float b, float a=1.0f)		{ m_color = uint8_t(Math::saturate(r)*255.0f) | (uint8_t(Math::saturate(g)*255.0f)<<8) | (uint8_t(Math::saturate(b)*255.0f)<<16) | (uint8_t(Math::saturate(a)*255.0f)<<24); }
+		Color8U(float r, float g, float b, float a=1.0f)		{ m_color = uint8(ei::saturate(r)*255.0f) | (uint8(ei::saturate(g)*255.0f)<<8) | (uint8(ei::saturate(b)*255.0f)<<16) | (uint8(ei::saturate(a)*255.0f)<<24); }
 
 		/// \brief Conversion to main color class
 		operator Color32F() const								{ return Color32F(R(), G(), B(), A()); }
 
 		/// \brief Access single color component: Red
-		uint8_t R() const										{ return m_color; }
+		uint8 R() const										{ return m_color; }
 
 		/// \brief Access single color component: Green
-		uint8_t G() const										{ return m_color >> 8; }
+		uint8 G() const										{ return m_color >> 8; }
 
 		/// \brief Access single color component: Blue
-		uint8_t B() const										{ return m_color >> 16; }
+		uint8 B() const										{ return m_color >> 16; }
 
 		/// \brief Access single color component: Alpha
-		uint8_t A() const										{ return m_color >> 24; }
+		uint8 A() const										{ return m_color >> 24; }
 
 		
 		/// \brief Access all components in vertex shader direction
-		uint32_t RGBA() const {return m_color;}		
+		uint32 RGBA() const {return m_color;}		
 
 		/// \brief Returns true, if both colors are identical in all components.
 		bool operator==( const Color8U& _c) const				{ return m_color == _c.m_color; }
@@ -154,7 +154,7 @@ namespace Utils {
 		bool operator!=( const Color8U& _c) const				{ return m_color != _c.m_color; }
 
 	protected:
-		uint32_t m_color;		///< The RGBA bytes
+		uint32 m_color;		///< The RGBA bytes
 	};
 
 } // namespace Utils 

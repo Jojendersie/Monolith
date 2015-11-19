@@ -23,25 +23,25 @@ namespace Marker {
 		///		not change the outcome.
 		///	\param [in] _end The other end of the line.
 		///	\param [in] _transparency Use color transparency * _transparency.
-		void AddLine( const Math::Vec3& _start, const Math::Vec3& _end, float _transparency );
+		void AddLine( const ei::Vec3& _start, const ei::Vec3& _end, float _transparency );
 
 		/// \copydoc AddLine
 		/// \param [in] _transparencyA Use color transparency * _transparency at start point.
 		/// \param [in] _transparencyB Use color transparency * _transparency at end point.
-		void AddLine( const Math::Vec3& _start, const Math::Vec3& _end, float _transparencyA, float _transparencyB );
+		void AddLine( const ei::Vec3& _start, const ei::Vec3& _end, float _transparencyA, float _transparencyB );
 
 		/// \brief Add a circular line.
 		/// \param [in] _center The center of the circle
 		/// \param [in] _periphery One arbitrary point on the circle.
 		/// \param [in] _numPoints The number of points on the circle - the
 		///		more the smoother.
-		void AddCircle( const Math::Vec3& _center, const Math::Vec3& _periphery, int _numPoints );
+		void AddCircle( const ei::Vec3& _center, const ei::Vec3& _periphery, int _numPoints );
 
 		/// \brief Upload changes.
 		void Commit();
 
 		/// \brief Draw all the lines with the glowing wire frame effect.
-		void Draw( const Math::Mat4x4& _worldViewProjection );
+		void Draw( const ei::Mat4x4& _worldViewProjection );
 
 		void SetLineWidth( float _width )	{ m_lineWidth = _width; }
 		float GetLineWidth() const			{ return m_lineWidth; }
@@ -54,7 +54,7 @@ namespace Marker {
 		float m_lineWidth;				// Thickness of the beam
 
 		/// \brief Creates a line segment in the vertex buffer.
-		void AddSegment( const Math::Vec3& _v1, const Math::Vec3& _v2, const Utils::Color32F& _color1, const Utils::Color32F& _color2 );
+		void AddSegment( const ei::Vec3& _v1, const ei::Vec3& _v2, const Utils::Color32F& _color1, const Utils::Color32F& _color2 );
 	};
 
 } // namespace Marker

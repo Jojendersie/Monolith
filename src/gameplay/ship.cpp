@@ -1,6 +1,6 @@
 #include "ship.hpp"
 
-using namespace Math;
+using namespace ei;
 
 
 Ship::Ship() :
@@ -34,7 +34,7 @@ Ship::~Ship()
 }
 
 // ********************************************************************* //
-void Ship::AddComponent(const Math::IVec3& _position, Voxel::ComponentType _type)
+void Ship::AddComponent(const IVec3& _position, Voxel::ComponentType _type)
 {
 	Model::Set(_position, _type);
 	// Add to systems after insertion
@@ -44,9 +44,9 @@ void Ship::AddComponent(const Math::IVec3& _position, Voxel::ComponentType _type
 }
 
 // ********************************************************************* //
-void Ship::RemoveComponent(const Math::IVec3& _position)
+void Ship::RemoveComponent(const IVec3& _position)
 {
-	if( _position == m_centralComputerPosition )
+	if( all(_position == m_centralComputerPosition) )
 		throw "You cant remove the central computer! This leads to unimplemented handling (conversion to model/game over...)";
 	Voxel::ComponentType type = Model::Get(_position);
 	Model::Set(_position, Voxel::ComponentType::UNDEFINED);
@@ -60,8 +60,8 @@ void Ship::Save( Jo::Files::IFile& _file ) const
 {
 	Model::Save(_file);
 	// Store ship state
-	_file.Write(&m_targetVelocity, sizeof(Math::Vec3));
-	_file.Write(&m_targetAngularVelocity, sizeof(Math::Vec3));
+	_file.Write(&m_targetVelocity, sizeof(Vec3));
+	_file.Write(&m_targetAngularVelocity, sizeof(Vec3));
 	// TODO: store precomputed system data
 }
 
@@ -71,7 +71,7 @@ void Ship::Load( const Jo::Files::IFile& _file )
 	Model::Load(_file);
 	// Load ship state
 	_file.Read(sizeof(float), &m_targetVelocity);
-	_file.Read(sizeof(Math::Vec3), &m_targetAngularVelocity);
+	_file.Read(sizeof(Vec3), &m_targetAngularVelocity);
 	// Compute system data
 	ComputeParameters();
 }
@@ -92,8 +92,8 @@ void Ship::Simulate(float _deltaTime)
 	m_primarySystem.Process(_deltaTime, requirements);
 
 	// Accelerate dependent on available torque and force.
-	AddAngularVelocity( (_deltaTime * (m_inertiaTensorInverse * requirements.torque)) * GetRotationMatrix() );
-	AddVelocity( ((_deltaTime / m_mass) * requirements.thrust) * GetRotationMatrix() );
+	AddAngularVelocity( GetRotationMatrix() * (_deltaTime * (m_inertiaTensorInverse * requirements.torque)) );
+	AddVelocity( GetRotationMatrix() * ((_deltaTime / m_mass) * requirements.thrust) );
 
 	// Also simulate the physics
 	Model::Simulate(_deltaTime);
@@ -130,7 +130,7 @@ void Ship::ComputeParameters()
 		{
 		}
 
-		bool PreTraversal(const Math::IVec4& _position, const Model::ModelData::SVON* _node)
+		bool PreTraversal(const IVec4& _position, const Model::ModelData::SVON* _node)
 		{
 			if( !_node->Children() )
 			{
@@ -143,7 +143,7 @@ void Ship::ComputeParameters()
 					|| Voxel::TypeInfo::IsWeapon(_node->Data().type)
 					|| Voxel::TypeInfo::IsShield(_node->Data().type)
 					|| Voxel::TypeInfo::IsSensor(_node->Data().type))
-					m_system.OnAdd(Math::IVec3(_position), _node->Data().type, _node->Data().sysAssignment);
+					m_system.OnAdd(IVec3(_position), _node->Data().type, _node->Data().sysAssignment);
 			}
 			return true;
 		}

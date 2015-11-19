@@ -4,11 +4,11 @@
 #include "../../voxel/model.hpp"
 #include "GLFW/glfw3.h"
 
-using namespace Math;
+using namespace ei;
 
 namespace Graphic
 {
-	ScreenTexture::ScreenTexture(Jo::Files::MetaFileWrapper* _posMap, const std::string& _name, Math::Vec2 _position, Math::Vec2 _size,
+	ScreenTexture::ScreenTexture(Jo::Files::MetaFileWrapper* _posMap, const std::string& _name, Vec2 _position, Vec2 _size,
 		RealDimension _rDim, std::function<void()> _OnMouseUp):
 		ScreenOverlay(_position, _size, _OnMouseUp),
 		m_realDimension(_rDim), //sizes are calculated when added to a hud
@@ -16,12 +16,12 @@ namespace Graphic
 		m_sizeDef(_size)
 	{
 		m_vertex.position = _position;
-		m_vertex.texCoord = Math::Vec2(_posMap->RootNode[_name][std::string("positionX")],_posMap->RootNode[_name][std::string("positionY")]);
-		m_vertex.size = Math::Vec2(_posMap->RootNode[_name][std::string("sizeX")],_posMap->RootNode[_name][std::string("sizeY")]);
-		m_vertex.screenSize = Math::Vec2(0.f,0.f) == _size ? m_vertex.size : _size ;
+		m_vertex.texCoord = Vec2(_posMap->RootNode[_name][std::string("positionX")],_posMap->RootNode[_name][std::string("positionY")]);
+		m_vertex.size = Vec2(_posMap->RootNode[_name][std::string("sizeX")],_posMap->RootNode[_name][std::string("sizeY")]);
+		m_vertex.screenSize = all(Vec2(0.f,0.f) == _size) ? m_vertex.size : _size ;
 	}
 
-	void ScreenTexture::SetPos(Math::Vec2 _pos)
+	void ScreenTexture::SetPos(Vec2 _pos)
 	{
 		ScreenOverlay::SetPos(_pos);
 		m_vertex.position = _pos;// + Math::Vec2(0.f, m_vertex.screenSize[1]/2.f);
@@ -29,7 +29,7 @@ namespace Graphic
 
 	// ************************************************************************ //
 
-	void ScreenTexture::SetSize(Math::Vec2 _size)
+	void ScreenTexture::SetSize(Vec2 _size)
 	{
 		ScreenOverlay::SetSize(_size);
 		m_vertex.screenSize = _size;
@@ -37,7 +37,7 @@ namespace Graphic
 
 	// ************************************************************************ //
 
-	Button::Button(Jo::Files::MetaFileWrapper* _posMap, std::string _name, Math::Vec2 _position, Math::Vec2 _size,
+	Button::Button(Jo::Files::MetaFileWrapper* _posMap, std::string _name, Vec2 _position, Vec2 _size,
 		 RealDimension _rDim, Font* _font, std::function<void()> _OnMouseUp ):
 		ScreenTexture(_posMap, _name+"Default", _position, _size, _rDim, _OnMouseUp),
 		m_btnDefault(_posMap, _name+"Default", _position, _size, _rDim),
@@ -56,7 +56,7 @@ namespace Graphic
 	}
 
 	// ************************************************************************ //
-	void Button::SetPos(Math::Vec2 _pos)
+	void Button::SetPos(Vec2 _pos)
 	{
 		ScreenOverlay::SetPos(_pos);
 /*		m_btnDefault.SetPos(_pos);
@@ -67,7 +67,7 @@ namespace Graphic
 	}
 
 	// ************************************************************************ //
-	void Button::SetSize(Math::Vec2 _size)
+	void Button::SetSize(Vec2 _size)
 	{
 		ScreenOverlay::SetSize(_size);
 		m_btnDefault.SetSize(_size);
@@ -97,12 +97,12 @@ namespace Graphic
 		//if the text contains no linebreaks
 		if(!charCountMax) charCountMax = charCount;
 
-		Math::Vec2 captionDim = m_caption.GetDim();
+		Vec2 captionDim = m_caption.GetDim();
 
 		// in case that the text is to large in any direction scale it down
 		if(captionDim[0] * charCountMax * m_caption.GetDefaultSize() >= m_size[0] || captionDim[1] * lineCount >= m_size[1])
 		{
-			m_caption.SetDefaultSize(Math::min( (float)(m_size[0] / (captionDim[0] * charCountMax)),
+			m_caption.SetDefaultSize(min( (float)(m_size[0] / (captionDim[0] * charCountMax)),
 												(float)(m_size[1] / (captionDim[1] * lineCount))) );
 		}
 
@@ -110,7 +110,7 @@ namespace Graphic
 		m_caption.SetText(_caption);
 
 		// center in both directions
-		m_caption.SetPos(m_pos+Math::Vec2(!m_autoCenter[0] ? 0.f : ((m_size[0] - captionDim[0] * charCountMax * m_caption.GetDefaultSize()) / 2.f),
+		m_caption.SetPos(m_pos+Vec2(!m_autoCenter[0] ? 0.f : ((m_size[0] - captionDim[0] * charCountMax * m_caption.GetDefaultSize()) / 2.f),
 							!m_autoCenter[1] ? 0.f : (- m_size[1] / (float)lineCount * 0.5f	- captionDim[1] * m_caption.GetMaxSize() * 0.45f )));//0.5f
 
 	}
@@ -128,7 +128,7 @@ namespace Graphic
 		m_btnOver.SetVisibility(false);
 		m_btnDown.SetVisibility(false);
 	}
-	bool Button::KeyDown(int _key, int _modifiers, Math::Vec2 _pos)
+	bool Button::KeyDown(int _key, int _modifiers, Vec2 _pos)
 	{
 		ScreenOverlay::KeyDown(_key, _modifiers, _pos);
 		m_btnDefault.SetVisibility(false);
@@ -138,7 +138,7 @@ namespace Graphic
 		return true;
 	}
 
-	bool Button::KeyUp(int _key, int _modifiers, Math::Vec2 _pos)
+	bool Button::KeyUp(int _key, int _modifiers, Vec2 _pos)
 	{
 		ScreenOverlay::KeyUp(_key, _modifiers, _pos);
 		m_btnDefault.SetVisibility(true);
@@ -150,7 +150,7 @@ namespace Graphic
 	
 	// ************************************************************** //
 
-	ScreenModel::ScreenModel(Math::Vec2 _position, Math::Vec2 _size, Voxel::Model* _model, float _scale ):
+	ScreenModel::ScreenModel(Vec2 _position, Vec2 _size, Voxel::Model* _model, float _scale ):
 		ScreenOverlay(_position, _size),
 		m_model(_model),
 		m_scale(_scale)
@@ -163,7 +163,7 @@ namespace Graphic
 		delete m_model;
 	}
 
-	void ScreenModel::SetPos(Math::Vec2 _pos)
+	void ScreenModel::SetPos(Vec2 _pos)
 	{
 		ScreenOverlay::SetPos(_pos);
 		Center();
@@ -171,7 +171,7 @@ namespace Graphic
 
 	// ************************************************************************ //
 
-	void ScreenModel::SetSize(Math::Vec2 _size)
+	void ScreenModel::SetSize(Vec2 _size)
 	{
 		ScreenOverlay::SetSize(_size);
 		Center();
@@ -194,7 +194,7 @@ namespace Graphic
 	// ************************************************************** //
 
 
-	EditField::EditField(Jo::Files::MetaFileWrapper* _posMap, Font* _font, Math::Vec2 _position, Math::Vec2 _size, int _lines, float _fontSize) :
+	EditField::EditField(Jo::Files::MetaFileWrapper* _posMap, Font* _font, Vec2 _position, Vec2 _size, int _lines, float _fontSize) :
 		ScreenTexture(_posMap, "componentBtnDefault", _position, _size, RealDimension::none),
 		m_linesMax(_lines),
 		m_font(_font),
@@ -217,7 +217,7 @@ namespace Graphic
 		}
 
 		//offset of an half char in x direction ;center in y direction
-		m_textRender.SetPos(m_pos + Math::Vec2(m_fontSize * m_textRender.GetDim()[0] * 0.5f, -m_size[1] * 0.5f - m_textRender.GetExpanse()[1] * 0.5f));
+		m_textRender.SetPos(m_pos + Vec2(m_fontSize * m_textRender.GetDim()[0] * 0.5f, -m_size[1] * 0.5f - m_textRender.GetExpanse()[1] * 0.5f));
 	}
 
 	void EditField::AddLine(int _preLine)
@@ -232,7 +232,7 @@ namespace Graphic
 		*/
 	}
 
-	bool EditField::KeyDown(int _key, int _modifiers, Math::Vec2 _pos)
+	bool EditField::KeyDown(int _key, int _modifiers, Vec2 _pos)
 	{
 		//mouse click -> set cursor
 		if (_key == GLFW_MOUSE_BUTTON_LEFT)
@@ -287,7 +287,7 @@ namespace Graphic
 		return true;
 	}
 
-	bool EditField::KeyUp(int _key, int _modifiers, Math::Vec2 _pos)
+	bool EditField::KeyUp(int _key, int _modifiers, Vec2 _pos)
 	{
 		return true;
 	}

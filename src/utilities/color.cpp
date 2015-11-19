@@ -58,14 +58,14 @@ namespace Utils {
 		HSV hsv;
 
 		// Value
-		hsv[2] = Math::max(R(), Math::max(G(), B()));
+		hsv[2] = ei::max(R(), G(), B());
 		// Black?
-		if(fabs(hsv[2]) < Math::EPSILON) {hsv[0] = hsv[1] = 0.0f; return hsv;}
+		if(ei::approx(hsv[2], 0.0f)) {hsv[0] = hsv[1] = 0.0f; return hsv;}
 
 		// Compute non-normalized saturation
-		float cmin = Math::min(R(), Math::min(G(), B()));
+		float cmin = ei::min(R(), G(), B());
 		hsv[1] = hsv[2] - cmin;
-		if(fabs(hsv[1]) < Math::EPSILON) {hsv[0] = 0.0f; return hsv;}
+		if(ei::approx(hsv[1], 0.0f)) {hsv[0] = 0.0f; return hsv;}
 
 		// Normalize saturation
 		hsv[1] /= hsv[2];
@@ -89,15 +89,15 @@ namespace Utils {
 		HSL hsl;
 
 		// Lightness
-		float cmax = Math::max(R(), Math::max(G(), B()));
-		float cmin = Math::min(R(), Math::min(G(), B()));
+		float cmax = ei::max(R(), G(), B());
+		float cmin = ei::min(R(), G(), B());
 		hsl[2] = 0.5f * (cmin + cmax);
 		// Black?
-		if(fabs(cmax) < Math::EPSILON) {hsl[0] = hsl[1] = 0.0f; return hsl;}
+		if(ei::approx(fabs(cmax), 0.0f)) {hsl[0] = hsl[1] = 0.0f; return hsl;}
 
 		// Compute non-normalized saturation
 		hsl[1] = cmax - cmin;
-		if(fabs(hsl[1]) < Math::EPSILON) {hsl[0] = 0.0f; return hsl;}
+		if(ei::approx(hsl[1], 0.0f)) {hsl[0] = 0.0f; return hsl;}
 
 		// Normalize saturation
 		hsl[1] /= 1.0f - fabs(2.0f * hsl[2] - 1.0f);

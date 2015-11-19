@@ -1,8 +1,7 @@
 #pragma once
 
-#include "math/vector.hpp"
 #include "math/ray.hpp"
-#include "math/intersection.hpp"
+#include "ei/3dintersection.hpp"
 #include "algorithm/smallsort.hpp"
 #include <hybridarray.hpp>
 #include <poolallocator.hpp>
@@ -38,7 +37,7 @@ namespace Voxel {
 		///		length of voxels (2^0, 2^1, ...).
 		/// \param [in] _type Voxel to be set. A voxel equal to _defaultData can
 		///		delete a voxel.
-		void Set( const Math::IVec3& _position, int _level, T _type );
+		void Set( const ei::IVec3& _position, int _level, T _type );
 
 		/// \brief Getter which returns a node reference.
 		///	\param [in] _position Target position inside the _level.
@@ -46,11 +45,11 @@ namespace Voxel {
 		///		resolution of the voxel grid. The level is the logarithmic edge
 		///		length of voxels (2^0, 2^1, ...).
 		/// \return nullptr if the node is not in the tree otherwise the node.
-		const SVON* Get( const Math::IVec3& _position, int _level ) const;
-		SVON* Get( const Math::IVec3& _position, int _level );
+		const SVON* Get( const ei::IVec3& _position, int _level ) const;
+		SVON* Get( const ei::IVec3& _position, int _level );
 
 		int GetRootSize() const { return m_rootSize; }
-		const Math::IVec3& GetRootPosition() const { return m_rootPosition; }
+		const ei::IVec3& GetRootPosition() const { return m_rootPosition; }
 
 		/// \brief Traverse through the whole tree.
 		/// \param [in] _processor An arbitrary implementation of the
@@ -80,13 +79,13 @@ namespace Voxel {
 		/// \brief Full collision information in local coordinates
 		struct HitResult
 		{
-			Math::IVec3 position;
+			ei::IVec3 position;
 			T voxel;
 			
 			/// \brief The side on which the returned voxel was hit.
 			///	\details Left, Bottom and Front mean that the ray came from a smaller
 			///		coordinate in x, y or z respective.
-			Math::Intersect::Side side;
+			ei::HitSide side;
 		};
 
 		/// \brief Determine which voxel is hit first on which side from
@@ -101,7 +100,7 @@ namespace Voxel {
 		/// \param [in,out] _distance Maximum allowed ray distance. Outputs the
 		///		new (smaller) distance on hit.
 		///	\return true if there is a collision.
-		bool RayCast( const Math::Ray& _ray, int _targetLevel, HitResult& _hit, float& _distance ) const;
+		bool RayCast( const ei::Ray& _ray, int _targetLevel, HitResult& _hit, float& _distance ) const;
 
 
 
@@ -116,9 +115,9 @@ namespace Voxel {
 			/// \param [in] _processor An arbitrary implementation of the
 			///		SVOProcessor concept.
 			template<class Processor>
-			void Traverse( const Math::IVec4& _position, Processor& _processor );
+			void Traverse( const ei::IVec4& _position, Processor& _processor );
 			template<class Processor>
-			void Traverse( const Math::IVec4& _position, Processor& _processor ) const;
+			void Traverse( const ei::IVec4& _position, Processor& _processor ) const;
 
 			/// \brief Recursive traverse with neighborhood information.
 			/// \see SparseVoxelOctree::TraverseEx
@@ -127,12 +126,12 @@ namespace Voxel {
 			/// \param [in] _processor An arbitrary implementation of the
 			///		SVONeighborProcessor concept.
 			template<class Processor>
-			void TraverseEx( const Math::IVec4& _position, Processor& _processor,
+			void TraverseEx( const ei::IVec4& _position, Processor& _processor,
 				const SVON* _left, const SVON* _right, const SVON* _bottom,
 				const SVON* _top, const SVON* _front, const SVON* _back );
 
 			/// \copydoc SparseVoxelOctree::RayCast
-			bool RayCast( const Math::Ray& _ray, Math::IVec3& _position, int _level,
+			bool RayCast( const ei::Ray& _ray, ei::IVec3& _position, int _level,
 				int _targetLevel, HitResult& _hit, float& _distance ) const;
 
 			T& Data()						{ return m_data; }
@@ -159,7 +158,7 @@ namespace Voxel {
 			///	\param [in] _type The new type.
 			/// \param [in] _parent The model for all update steps if voxels are
 			///		overwritten.
-			static void Set(SVON* _this, int _currentSize, const Math::IVec4& _position,
+			static void Set(SVON* _this, int _currentSize, const ei::IVec4& _position,
 				T _type, SparseVoxelOctree* _parent);
 
 			/// \brief Set all children to _defaultData to do an correct update and than
@@ -167,11 +166,11 @@ namespace Voxel {
 			/// \param [in] _parent The model for all update steps if voxels are
 			///		overwritten.
 			///	\param [in] _removePhysicaly Call the model update for each deleted voxel or not? 
-			void RemoveSubTree(const Math::IVec4& _position, SparseVoxelOctree* _parent, bool _removePhysically);
+			void RemoveSubTree(const ei::IVec4& _position, SparseVoxelOctree* _parent, bool _removePhysically);
 
 			/// \brief Computes the child array index [0,7] assuming that the
 			///		target position is within the current voxels children
-			static int ComputeChildIndex(const Math::IVec4& _targetPosition, int _childSize);
+			static int ComputeChildIndex(const ei::IVec4& _targetPosition, int _childSize);
 
 			friend class SparseVoxelOctree;
 		};
@@ -189,14 +188,14 @@ namespace Voxel {
 			/// \param [inout] _node Read and write access to the current
 			///		node's data. Inclusive read access to its children.
 			/// \return false if traversal should stop here and do not go deeper.
-			bool PreTraversal(const Math::IVec4& _position, SVON* _node)	{}
-			bool PreTraversal(const Math::IVec4& _position, const SVON* _node)	{}
+			bool PreTraversal(const ei::IVec4& _position, SVON* _node)	{}
+			bool PreTraversal(const ei::IVec4& _position, const SVON* _node)	{}
 
 			/// \brief Called after returning from recursion.
 			/// \details If there are no children or recursion is canceled due
 			///		to PreTraversal's return value PostTraversal is also called.
-			void PostTraversal(const Math::IVec4& _position, SVON* _node)	{}
-			void PostTraversal(const Math::IVec4& _position, const SVON* _node)	{}
+			void PostTraversal(const ei::IVec4& _position, SVON* _node)	{}
+			void PostTraversal(const ei::IVec4& _position, const SVON* _node)	{}
 		protected:
 			/// \brief This is a concept - do not use instances of this type
 			SVOProcessor()						{}
@@ -211,12 +210,12 @@ namespace Voxel {
 			/// \copydoc SVOProcessor::PreTraversal
 			/// \param [in] _left Read access to the neighbor in negative x
 			///		direction or nullptr (no neighbor).
-			bool PreTraversal(const Math::IVec4& _position, SVON* _node,
+			bool PreTraversal(const ei::IVec4& _position, SVON* _node,
 				const SVON* _left, const SVON* _right, const SVON* _bottom,
 				const SVON* _top, const SVON* _front, const SVON* _back)	{}
 
 			/// \copydoc SVOProcessor::PostTraversal
-			void PostTraversal(const Math::IVec4& _position, SVON* _node,
+			void PostTraversal(const ei::IVec4& _position, SVON* _node,
 				const SVON* _left, const SVON* _right, const SVON* _bottom,
 				const SVON* _top, const SVON* _front, const SVON* _back)	{}
 		protected:
@@ -240,7 +239,7 @@ namespace Voxel {
 		/// \brief A sparse voxel octree root.
 		///	\details Each pointer points to a set of 8 children. So on root level there
 		///		are always 8 nodes.		
-		Math::IVec3 m_rootPosition;	///< Position of the root node in grid space of the node which covers all 8 roots.
+		ei::IVec3 m_rootPosition;	///< Position of the root node in grid space of the node which covers all 8 roots.
 		int m_rootSize;				///< Level of the node which contains the 8 roots where 0 is the highest possible resolution.
 		SVON m_root;				///< The single top level root node
 
@@ -249,7 +248,7 @@ namespace Voxel {
 		///	\param [in] _level Depth in the grid hierarchy. 0 is the maximum
 		///		resolution of the voxel grid. The level is the logarithmic edge
 		///		length of voxels (2^0, 2^1, ...).
-		void SetDirty( const Math::IVec3& _position, int _level );
+		void SetDirty( const ei::IVec3& _position, int _level );
 
 		/// \brief Used to sort children after a floating point number
 		struct TmpCollisionEntry
@@ -272,8 +271,8 @@ namespace Voxel {
 
 
 	// ********************************************************************* //
-	static const Math::IVec4 CHILD_OFFSETS[8] = { Math::IVec4(0,0,0,-1), Math::IVec4(1,0,0,-1), Math::IVec4(0,1,0,-1), Math::IVec4(1,1,0,-1),
-		Math::IVec4(0,0,1,-1), Math::IVec4(1,0,1,-1), Math::IVec4(0,1,1,-1), Math::IVec4(1,1,1,-1) };
+	static const ei::IVec4 CHILD_OFFSETS[8] = { ei::IVec4(0,0,0,-1), ei::IVec4(1,0,0,-1), ei::IVec4(0,1,0,-1), ei::IVec4(1,1,0,-1),
+		ei::IVec4(0,0,1,-1), ei::IVec4(1,0,1,-1), ei::IVec4(0,1,1,-1), ei::IVec4(1,1,1,-1) };
 
 	// ********************************************************************* //
 	template<typename T, typename Listener>
@@ -298,7 +297,7 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	template<typename T, typename Listener>
-	void SparseVoxelOctree<T,Listener>::Set( const Math::IVec3& _position, int _level, T _type )
+	void SparseVoxelOctree<T,Listener>::Set( const ei::IVec3& _position, int _level, T _type )
 	{
 		// Compute if the position is inside the current tree
 		if(m_rootSize == -1)
@@ -308,9 +307,9 @@ namespace Voxel {
 			m_rootPosition = _position;
 		}
 		int scale = m_rootSize-_level;
-		Math::IVec3 position = _position>>scale;
+		ei::IVec3 position = _position>>scale;
 		while( (scale < 0)
-			|| ((position-m_rootPosition) != Math::IVec3(0)) )
+			|| any((position-m_rootPosition) != ei::IVec3(0)) )
 		{
 			// scale < 0: Obviously the target voxel is larger than the
 			//	current root -> create new larger root(set)
@@ -332,20 +331,20 @@ namespace Voxel {
 		}
 
 		// One of the eight children must contain the target position.
-		SVON::Set(&m_root, m_rootSize, Math::IVec4(_position, _level), _type, this);
+		SVON::Set(&m_root, m_rootSize, ei::IVec4(_position, _level), _type, this);
 
 		// Make all 6 neighbors dirty - their neighborhood changed
-		SetDirty( Math::IVec3(_position[0]+1, _position[1], _position[2]), _level );
-		SetDirty( Math::IVec3(_position[0]-1, _position[1], _position[2]), _level );
-		SetDirty( Math::IVec3(_position[0], _position[1]+1, _position[2]), _level );
-		SetDirty( Math::IVec3(_position[0], _position[1]-1, _position[2]), _level );
-		SetDirty( Math::IVec3(_position[0], _position[1], _position[2]+1), _level );
-		SetDirty( Math::IVec3(_position[0], _position[1], _position[2]-1), _level );
+		SetDirty( ei::IVec3(_position[0]+1, _position[1], _position[2]), _level );
+		SetDirty( ei::IVec3(_position[0]-1, _position[1], _position[2]), _level );
+		SetDirty( ei::IVec3(_position[0], _position[1]+1, _position[2]), _level );
+		SetDirty( ei::IVec3(_position[0], _position[1]-1, _position[2]), _level );
+		SetDirty( ei::IVec3(_position[0], _position[1], _position[2]+1), _level );
+		SetDirty( ei::IVec3(_position[0], _position[1], _position[2]-1), _level );
 	}
 
 	// ********************************************************************* //
 	template<typename T, typename Listener>
-	void SparseVoxelOctree<T,Listener>::SetDirty( const Math::IVec3& _position, int _level )
+	void SparseVoxelOctree<T,Listener>::SetDirty( const ei::IVec3& _position, int _level )
 	{
 		// Get on an empty model? Would be better if this never happens ->
 		// better performance because no 'if' on m_rootSize required.
@@ -354,8 +353,8 @@ namespace Voxel {
 		// Special cases: not inside octree
 		int scale = m_rootSize-_level;
 		if( scale < 0 ) return;
-		Math::IVec3 position = _position >> scale;
-		if((position-m_rootPosition) != Math::IVec3(0))
+		ei::IVec3 position = _position >> scale;
+		if(any((position-m_rootPosition) != ei::IVec3(0)))
 			return;
 
 		// Search in the octree (while not on target level or tree ends)
@@ -373,7 +372,7 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	template<typename T, typename Listener>
-	typename const SparseVoxelOctree<T,Listener>::SVON* SparseVoxelOctree<T,Listener>::Get( const Math::IVec3& _position, int _level ) const
+	typename const SparseVoxelOctree<T,Listener>::SVON* SparseVoxelOctree<T,Listener>::Get( const ei::IVec3& _position, int _level ) const
 	{
 		// Get on an empty model? Would be better if this never happens ->
 		// better performance because no 'if' on m_rootSize required.
@@ -382,8 +381,8 @@ namespace Voxel {
 		// Special cases: not inside octree
 		int scale = m_rootSize-_level;
 		if( scale < 0 ) return nullptr;
-		Math::IVec3 position = _position >> scale;
-		if((position-m_rootPosition) != Math::IVec3(0))
+		ei::IVec3 position = _position >> scale;
+		if(any((position-m_rootPosition) != ei::IVec3(0)))
 			return nullptr;
 
 		// Search in the octree (while not on target level or tree ends)
@@ -402,7 +401,7 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	template<typename T, typename Listener>
-	typename SparseVoxelOctree<T,Listener>::SVON* SparseVoxelOctree<T,Listener>::Get( const Math::IVec3& _position, int _level )
+	typename SparseVoxelOctree<T,Listener>::SVON* SparseVoxelOctree<T,Listener>::Get( const ei::IVec3& _position, int _level )
 	{
 		// Use the constant getter and allow write access to the element afterwards
 		return const_cast<SparseVoxelOctree<T,Listener>::SVON*>(const_cast<const SparseVoxelOctree<T,Listener>*>(this)->Get(_position, _level));
@@ -438,7 +437,7 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	template<typename T, typename Listener>
-	bool SparseVoxelOctree<T,Listener>::RayCast( const Math::Ray& _ray, int _targetLevel, HitResult& _hit, float& _distance ) const
+	bool SparseVoxelOctree<T,Listener>::RayCast( const ei::Ray& _ray, int _targetLevel, HitResult& _hit, float& _distance ) const
 	{
 		Assert(m_rootSize != -1, "Octree not yet initialized!");
 
@@ -446,8 +445,12 @@ namespace Voxel {
 		if( m_rootSize < _targetLevel )
 		{
 			IVec3 position = m_rootPosition << (_targetLevel - m_rootSize);
-			if( Math::Intersect::RayAACube( _ray, position, (1<<_targetLevel), _distance, _hit.side ) )
+			int edgeLength = 1 << _targetLevel;
+			ei::Box box(Vec3(position), Vec3(position + edgeLength));
+			float d;
+			if( ei::intersects( _ray, box, d, _hit.side ) && d < _distance )
 			{
+				_distance = d;
 				_hit.position = position;
 				_hit.voxel = T::UNDEFINED;
 				return true;
@@ -455,7 +458,7 @@ namespace Voxel {
 				return false;
 		} else 
 			// Use recursive algorithm.
-			return m_root.RayCast( _ray, Math::IVec3(m_rootPosition), m_rootSize, _targetLevel, _hit, _distance );
+			return m_root.RayCast( _ray, ei::IVec3(m_rootPosition), m_rootSize, _targetLevel, _hit, _distance );
 	}
 
 	// ********************************************************************* //
@@ -472,7 +475,7 @@ namespace Voxel {
 	// ********************************************************************* //
 	template<typename T, typename Listener>
 	void SparseVoxelOctree<T,Listener>::SVON::Set(SVON* _this, int _currentSize,
-		const Math::IVec4& _position,
+		const ei::IVec4& _position,
 		T _data, SparseVoxelOctree* _parent)
 	{
 		// A stack with 'this' pointers for recursion. The recursion is unrolled
@@ -538,7 +541,7 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	template<typename T, typename Listener>
-	void SparseVoxelOctree<T,Listener>::SVON::RemoveSubTree(const Math::IVec4& _position, SparseVoxelOctree* _parent, bool _removePhysically)
+	void SparseVoxelOctree<T,Listener>::SVON::RemoveSubTree(const ei::IVec4& _position, SparseVoxelOctree* _parent, bool _removePhysically)
 	{
 		Assert(_position[3] >= 0, "Negative positions are not allowed.");
 		Assert(m_children, "Tree has no children.");
@@ -557,11 +560,11 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	template<typename T, typename Listener> template<class Processor>
-	void SparseVoxelOctree<T,Listener>::SVON::Traverse( const Math::IVec4& _position, Processor& _processor )
+	void SparseVoxelOctree<T,Listener>::SVON::Traverse( const ei::IVec4& _position, Processor& _processor )
 	{
 		if( _processor.PreTraversal(_position, this) && m_children )
 		{
-			Math::IVec4 position(_position[0]<<1, _position[1]<<1, _position[2]<<1, _position[3]);
+			ei::IVec4 position(_position[0]<<1, _position[1]<<1, _position[2]<<1, _position[3]);
 			for( int i=0; i<8; ++i )
 			{
 				// Is the voxel outside the tree/really empty?
@@ -574,11 +577,11 @@ namespace Voxel {
 	}
 
 	template<typename T, typename Listener> template<class Processor>
-	void SparseVoxelOctree<T,Listener>::SVON::Traverse( const Math::IVec4& _position, Processor& _processor ) const
+	void SparseVoxelOctree<T,Listener>::SVON::Traverse( const ei::IVec4& _position, Processor& _processor ) const
 	{
 		if( _processor.PreTraversal(_position, this) && m_children )
 		{
-			Math::IVec4 position(_position[0]<<1, _position[1]<<1, _position[2]<<1, _position[3]);
+			ei::IVec4 position(_position[0]<<1, _position[1]<<1, _position[2]<<1, _position[3]);
 			for( int i=0; i<8; ++i )
 			{
 				// Is the voxel outside the tree/really empty?
@@ -592,7 +595,7 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	template<typename T, typename Listener> template<class Processor>
-	void SparseVoxelOctree<T,Listener>::SVON::TraverseEx( const Math::IVec4& _position, Processor& _processor,
+	void SparseVoxelOctree<T,Listener>::SVON::TraverseEx( const ei::IVec4& _position, Processor& _processor,
 		const SVON* _left, const SVON* _right, const SVON* _bottom,
 		const SVON* _top, const SVON* _front, const SVON* _back )
 	{
@@ -608,7 +611,7 @@ namespace Voxel {
 					children[i] = m_children + i;
 				else children[i] = nullptr;
 			}
-			Math::IVec4 p(_position[0]<<1, _position[1]<<1, _position[2]<<1, _position[3]-1);
+			ei::IVec4 p(_position[0]<<1, _position[1]<<1, _position[2]<<1, _position[3]-1);
 			// Manually call traversal for each child due to complex neighborhood construction
 			if( children[0] ) children[0]->TraverseEx( p                                  , _processor, _left->GetChild( 1 ),         children[ 1 ], _bottom->GetChild( 2 ),       children[ 2 ], _front->GetChild( 4 ),        children[ 4 ] );
 			if( children[1] ) children[1]->TraverseEx( IVec4(p[0]+1, p[1]  , p[2]  , p[3]), _processor,        children[ 0 ], _right->GetChild( 0 ), _bottom->GetChild( 3 ),       children[ 3 ], _front->GetChild( 5 ),        children[ 5 ] );
@@ -625,7 +628,7 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	template<typename T, typename Listener>
-	int SparseVoxelOctree<T,Listener>::SVON::ComputeChildIndex(const Math::IVec4& _targetPosition, int _childSize)
+	int SparseVoxelOctree<T,Listener>::SVON::ComputeChildIndex(const ei::IVec4& _targetPosition, int _childSize)
 	{
 		// Find out the correct position
 		int scale = _childSize-_targetPosition[3];
@@ -639,7 +642,7 @@ namespace Voxel {
 
 	// ********************************************************************* //
 	template<typename T, typename Listener>
-	bool SparseVoxelOctree<T,Listener>::SVON::RayCast( const Math::Ray& _ray, Math::IVec3& _position, int _level,
+	bool SparseVoxelOctree<T,Listener>::SVON::RayCast( const ei::Ray& _ray, ei::IVec3& _position, int _level,
 		int _targetLevel, HitResult& _hit, float& _distance ) const
 	{
 		// Test the current cube
@@ -647,8 +650,10 @@ namespace Voxel {
 		{
 			// Recursion required. We can user fast test without side detection.
 			int edgeLength = 1<<_level;
-			float _maxRange = _distance;
-			if( Math::Intersect::RayAACube( _ray, _position * edgeLength, edgeLength, _maxRange ) )
+			Vec3 position(_position * edgeLength);
+			ei::Box box(position, position + edgeLength);
+			float dist;
+			if( ei::intersects( _ray, box, dist ) && dist < _distance )
 			{
 				// Ray passes the current node. Make a sphere test for each
 				// child.
@@ -664,9 +669,8 @@ namespace Voxel {
 					if( m_children[i].m_children || m_children[i].m_data != T::UNDEFINED )
 					{
 						// Create spheres centered at the box centers
-						if( Math::Intersect::RaySphere( _ray,
-							Math::Sphere( (_position + Math::IVec3(CHILD_OFFSETS[i]))*edgeLength + centerOffset, r ),
-							list[num].value ) && (list[num].value < _distance) )
+						ei::Sphere sphere((_position + ei::IVec3(CHILD_OFFSETS[i]))*edgeLength + centerOffset, r);
+						if( ei::intersects( _ray, sphere, list[num].value ) && (list[num].value < _distance) )
 							list[num++].index = i;
 					}
 				}
@@ -676,7 +680,7 @@ namespace Voxel {
 
 				// Test them sequentially and stop immediately if something was hit.
 				for( int i=0; i<num; ++i )
-					if( m_children[list[i].index].RayCast( _ray, _position + Math::IVec3(CHILD_OFFSETS[list[i].index]), _level-1, _targetLevel, _hit, _distance ) )
+					if( m_children[list[i].index].RayCast( _ray, _position + ei::IVec3(CHILD_OFFSETS[list[i].index]), _level-1, _targetLevel, _hit, _distance ) )
 						return true;
 
 				// No child collides
@@ -685,8 +689,12 @@ namespace Voxel {
 		} else {
 			// This is a leaf - if we hit we wanna know the side.
 			int edgeLength = 1<<_level;
-			if( Math::Intersect::RayAACube( _ray, _position * edgeLength, edgeLength, _distance, _hit.side ) )
+			Vec3 position(_position * edgeLength);
+			ei::Box box(position, position + edgeLength);
+			float dist;
+			if( ei::intersects( _ray, box, dist, _hit.side ) && dist < _distance )
 			{
+				_distance = dist;
 				_hit.position = _position;
 				_hit.voxel = m_data;
 				return true;

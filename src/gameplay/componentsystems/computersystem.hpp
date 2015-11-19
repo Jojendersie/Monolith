@@ -20,7 +20,7 @@ namespace Mechanics {
 
 		virtual void Estimate(float _deltaTime, SystemRequierements& _requirements) override;
 		virtual void Process(float _deltaTime, SystemRequierements& _provided) override;
-		virtual void OnAdd(const Math::IVec3& _position, Voxel::ComponentType _type, uint8_t _assignment) override;
+		virtual void OnAdd(const ei::IVec3& _position, Voxel::ComponentType _type, uint8 _assignment) override;
 		virtual void ClearSystem() override;
 	private:
 		std::vector<ComputerSystem> m_subSystems;	///< May contain more computers

@@ -8,6 +8,7 @@
 #include "material.hpp"
 #include "math/transformation.hpp"
 #include "gameplay/sceneobject.hpp"
+#include "ei/stdextensions.hpp"
 
 namespace Voxel {
 
@@ -39,13 +40,13 @@ namespace Voxel {
 
 		/// \brief Set a voxel in the model and update mass properties.
 		/// \see SparseVoxelOctree::Set.
-		void Set( const Math::IVec3& _position, ComponentType _type )	{ m_voxelTree.Set( _position, 0, Voxel(_type) ); }
+		void Set( const ei::IVec3& _position, ComponentType _type )	{ m_voxelTree.Set( _position, 0, Voxel(_type) ); }
 
 		/// \brief Returns the type of a voxel on a finest grid level.
 		///	\details If the position is outside the return value is UNDEFINED. For
 		///		levels other than 0 the returned value will be some
 		///		approximating LOD (majority) of the children.
-		ComponentType Get( const Math::IVec3& _position ) const;
+		ComponentType Get( const ei::IVec3& _position ) const;
 
 		int GetNumVoxels() const { return m_numVoxels; }
 
@@ -54,20 +55,20 @@ namespace Voxel {
 		/// \brief Set the position of the model based on its current center of gravity
 		void SetPosition(const Math::FixVec3& _position)	{ m_position = _position; ComputeBoundingBox(); }
 		/// \brief Get the center of gravity (mass center) in object space
-		const Math::Vec3& GetCenter() const					{ return m_center; }
+		const ei::Vec3& GetCenter() const					{ return m_center; }
 
 		/// \brief Get the mass of the model
 		float GetMass()										{ return m_mass; };
 		/// \brief Get the current velocity of the model
-		const Math::Vec3& GetVelocity() const				{ return m_velocity; }
-		void AddVelocity(const Math::Vec3& _velocity)		{ m_velocity += _velocity; }
+		const ei::Vec3& GetVelocity() const					{ return m_velocity; }
+		void AddVelocity(const ei::Vec3& _velocity)			{ m_velocity += _velocity; }
 
 		/// \brief Get the angular velocity of the model
-		const Math::Vec3& GetAngularVelocity() const		{ return m_angularVelocity; }
-		void AddAngularVelocity(const Math::Vec3& _velocity){ m_angularVelocity += _velocity; }
+		const ei::Vec3& GetAngularVelocity() const			{ return m_angularVelocity; }
+		void AddAngularVelocity(const ei::Vec3& _velocity)	{ m_angularVelocity += _velocity; }
 
-		const Math::Mat3x3& GetInertiaTensor() const		{ return m_inertiaTensor; }
-		const Math::Mat3x3& GetInertiaTensorInverse() const		{ return m_inertiaTensorInverse; }
+		const ei::Mat3x3& GetInertiaTensor() const			{ return m_inertiaTensor; }
+		const ei::Mat3x3& GetInertiaTensorInverse() const	{ return m_inertiaTensorInverse; }
 
 		/// \brief Get the bounding u of the sphere centered at the center
 		///		of gravity.
@@ -76,8 +77,8 @@ namespace Voxel {
 		/// \brief Get the model transformation matrix
 		/// \param [out] _out A space where the matrix can be stored.
 		/// \return The reference to _out
-		Math::Mat4x4& GetModelMatrix( Math::Mat4x4& _out, const Math::Transformation& _reference ) const;
-		Math::Mat4x4& GetModelMatrix( Math::Mat4x4& _out, const Input::Camera& _reference ) const;
+		ei::Mat4x4& GetModelMatrix( ei::Mat4x4& _out, const Math::Transformation& _reference ) const;
+		ei::Mat4x4& GetModelMatrix( ei::Mat4x4& _out, const Input::Camera& _reference ) const;
 
 		/// \brief Do an update of physical properties.
 		/// \details If a voxel is deleted _newType is NONE. If a new voxel
@@ -87,7 +88,7 @@ namespace Voxel {
 		///		component is the size with logarithmic scale of the voxel.
 		///		0 denotes the highest detail 2^0.
 		///	\param [in] _oldType The type of the voxel which was before.
-		void Update( const Math::IVec4& _position, const Voxel& _oldType, const Voxel& _newType );
+		void Update( const ei::IVec4& _position, const Voxel& _oldType, const Voxel& _newType );
 
 		/// Recompute the bounding box in world space (O(1)).
 		virtual void UpdateBoundingBox() override;
@@ -116,16 +117,16 @@ namespace Voxel {
 
 		const ModelData& GetVoxelTree() { return m_voxelTree; };
 	protected:
-		std::unordered_map<Math::IVec4, Chunk> m_chunks;
+		std::unordered_map<ei::IVec4, Chunk> m_chunks;
 		int m_numVoxels;				///< Count the number of voxels for statistical issues
 
-		Math::Vec3 m_center;			///< The center of gravity (relative to the model).
+		ei::Vec3 m_center;				///< The center of gravity (relative to the model).
 
-		Math::Vec3 m_angularVelocity;	///< Current change of rotation per second
-		Math::Vec3 m_velocity;			///< Velocity in m/s (vector length)
+		ei::Vec3 m_angularVelocity;		///< Current change of rotation per second
+		ei::Vec3 m_velocity;			///< Velocity in m/s (vector length)
 		float m_mass;					///< Mass (inertia) of the full model
-		Math::Mat3x3 m_inertiaTensor;	///< Mass (inertia) in relation to rotations
-		Math::Mat3x3 m_inertiaTensorInverse; ///< Inverted inertia tensor matrix
+		ei::Mat3x3 m_inertiaTensor;	///< Mass (inertia) in relation to rotations
+		ei::Mat3x3 m_inertiaTensorInverse; ///< Inverted inertia tensor matrix
 		bool m_rotateVelocity;			///< Should a rotation also change the linear velocity
 
 		void ComputeInertia();			///< Recompute inertia tensor with respect to the current center of mass.
@@ -134,13 +135,13 @@ namespace Voxel {
 		/// sum of voxel masses see "momentOfInertia.tex" for more information.
 		/// This is necessary because removing a voxel moves the center too,
 		/// which invalidates the whole matrix.
-		Math::Vec3 m_inertiaX_Y_Z;
-		Math::Vec3 m_inertiaXY_XZ_YZ;
-		Math::Vec3 m_inertiaXYR_XZR_YZR;
+		ei::Vec3 m_inertiaX_Y_Z;
+		ei::Vec3 m_inertiaXY_XZ_YZ;
+		ei::Vec3 m_inertiaXYR_XZR_YZR;
 
 		float m_boundingSphereRadius;	///< Bounding sphere radius (to the center of gravity) for culling etc.
-		Math::IVec3 m_objectBBmin;		///< Minimum position of voxels in this model
-		Math::IVec3 m_objectBBmax;		///< Maximum position of voxels in this model
+		ei::IVec3 m_objectBBmin;		///< Minimum position of voxels in this model
+		ei::IVec3 m_objectBBmax;		///< Maximum position of voxels in this model
 		void ComputeBoundingBox();		///< Recompute the bounding box of the model in object space
 
 		ModelData m_voxelTree;

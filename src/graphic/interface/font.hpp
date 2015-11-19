@@ -17,20 +17,20 @@ namespace Graphic {
 	///		character tile.
 	struct CharacterVertex
 	{
-		Math::Vec2 position;	///< Position on the screen in [-1,1]x[-1,1] where (-1,-1) is the lower left corner
-		Math::Vec2 texCoord;	///< Texture position (XY = [0,1]x[0,1]) relative to the lower left corner (0,0)
-		Math::Vec2 size;		///< Width and height relative to the texture size [0,1]x[0,1]
-		uint32_t color;
-		float thickness;		///< A number in [0,1] to modify character thickness.
-		float scale;			///< Something like the font size.
+		ei::Vec2 position;	///< Position on the screen in [-1,1]x[-1,1] where (-1,-1) is the lower left corner
+		ei::Vec2 texCoord;	///< Texture position (XY = [0,1]x[0,1]) relative to the lower left corner (0,0)
+		ei::Vec2 size;		///< Width and height relative to the texture size [0,1]x[0,1]
+		uint32 color;
+		float thickness;	///< A number in [0,1] to modify character thickness.
+		float scale;		///< Something like the font size.
 	};
 
 	/// \brief A class to load and render a bitmap font.
 	class Font
 	{
 	public:
-		Math::Vec2 m_sizeTable[256];
-		Math::Vec2 m_coordTable[256];
+		ei::Vec2 m_sizeTable[256];
+		ei::Vec2 m_coordTable[256];
 		Effect m_effect;
 		Texture m_texture;
 		/// \brief Load a bitmap font and initialize the render effect.
@@ -60,8 +60,8 @@ namespace Graphic {
 		const std::string& GetText() {return m_text;};
 
 		/// \brief Sets the Position on the screen.
-		void SetPos(Math::Vec2 _screenPos);
-		const Math::Vec2& GetPos() { return m_screenPos; };
+		void SetPos(ei::Vec2 _screenPos);
+		const ei::Vec2& GetPos() { return m_screenPos; };
 
 		/// \brief Sets the default size of the Textrender which gets used while no control char overrides it
 		void SetDefaultSize(float _size);
@@ -69,13 +69,13 @@ namespace Graphic {
 
 		/// \brief returns the real dimensions the chars are drawn in
 		/// \details chars are stretched to preserve the right view on the screen
-		Math::Vec2 GetDim();
+		ei::Vec2 GetDim();
 
 		/// \brief returns the size of the smallest rectangle in screen coords in wich the displayed text would fit in
-		Math::Vec2 GetExpanse();
+		ei::Vec2 GetExpanse();
 
 		/// \brief Scales the font size so that the text fills the area on the screen
-		void SetExpanse(const Math::Vec2& _expanse, bool _onlyScaleDown = false);
+		void SetExpanse(const ei::Vec2& _expanse, bool _onlyScaleDown = false);
 
 		/// \brief returns the largest size the string contains(set per <s>)
 		float GetMaxSize(){return m_sizeMax;};
@@ -89,7 +89,7 @@ namespace Graphic {
 		int CntrlChr(int _i);
 		Font* m_font;	///< Reference to the used font.
 		std::string m_text;
-		Math::Vec2 m_screenPos;
+		ei::Vec2 m_screenPos;
 
 
 		VertexBuffer m_characters;
@@ -99,8 +99,8 @@ namespace Graphic {
 
 		float m_sizeMax;
 
-		int m_lineCount; ///< Amount of linebreaks m_text contains
-		Math::Vec2 m_expanse; ///< size of the area the string posesses on the screen
-		Math::Vec2 m_charSize; //< real x/y size a char is drawn in; x is not reliable since most fonts have differing widths
+		int m_lineCount;		///< Amount of linebreaks m_text contains
+		ei::Vec2 m_expanse;		///< size of the area the string posesses on the screen
+		ei::Vec2 m_charSize;	///< real x/y size a char is drawn in; x is not reliable since most fonts have differing widths
 	};
 };

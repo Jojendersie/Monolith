@@ -31,7 +31,7 @@ namespace Marker {
 		Grid( int _resolutionX, int _resolutionY, int _resolutionZ, float _spacing, const Utils::Color32F& _color );
 
 		/// \brief Draw all the lines with the glowing wireframe effect.
-		void Draw( const Math::Mat4x4& _worldViewProjection );
+		void Draw( const ei::Mat4x4& _worldViewProjection );
 	private:
 		WireframeRenderer m_renderer;
 

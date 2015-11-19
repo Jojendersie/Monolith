@@ -18,7 +18,7 @@ namespace Jo {
 	inline bool IsLittleEndian()
 	{
 		static const uint16_t EndianCheck(0x00ff);
-		return ( *((uint8_t*)&EndianCheck) == 0xff);
+		return ( *((uint8*)&EndianCheck) == 0xff);
 	}
 
 	/// \brief A class template to enable partial specialization for the types
@@ -33,7 +33,7 @@ namespace Jo {
 	};
 	template<typename T> struct EndianConverter<T,4> {
 		static T Convert( T i )	{
-			uint32_t r = *reinterpret_cast<uint32_t*>(&i);
+			uint32 r = *reinterpret_cast<uint32*>(&i);
 			r = (r&0xff00ff00)>>8 | (r&0x00ff00ff)<<8;
 			r = r>>16 | r<<16;
 			return *reinterpret_cast<T*>(&r);

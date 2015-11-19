@@ -25,7 +25,7 @@ namespace Input {
 		/// \param [in] _rotation Initial rotation.
 		/// \param [in] _fov Field of view in Y-direction in radiants.
 		/// \param [in] _aspect View port width/height.
-		Camera( const Math::FixVec3& _position, const Math::Quaternion& _rotation,
+		Camera( const Math::FixVec3& _position, const ei::Quaternion& _rotation,
 				float _fov, float _aspect );
 
 		/// \brief Returns the x-axis of the camera from the current matrix
@@ -68,7 +68,7 @@ namespace Input {
 		const Voxel::Model* GetAttachedModel() const	{ return m_attachedTo; }
 
 		/// \brief What is the position of the attached model in the camera system.
-		Math::Vec3 GetReferencePosition() const;
+		ei::Vec3 GetReferencePosition() const;
 
 		/// \brief Recompute all the matrices.
 		/// \details Standard input does not change one of the matrices
@@ -77,25 +77,25 @@ namespace Input {
 		void UpdateMatrices();
 		const Math::Transformation& RenderState() const { return m_renderTransformation; }
 
-		const Math::Mat4x4& GetProjection() const			{ return m_projection; }			///< Return projection matrix
-		//const Math::Mat4x4& GetRotation() const				{ return m_rotationMatrix; }		///< Return inverse (view * projection) matrix
+		const ei::Mat4x4& GetProjection() const			{ return m_projection; }			///< Return projection matrix
+		//const ei::Mat4x4& GetRotation() const				{ return m_rotationMatrix; }		///< Return inverse (view * projection) matrix
 
 		/// \brief Checks a sphere against the frustum and returns true if any
 		///		point of the sphere is inside.
-		bool IsVisible( const Math::Sphere& _S ) const;
+		bool IsVisible( const ei::Sphere& _S ) const;
 
 		/// \brief Determines the ray starting at camera's near plane in world space.
-		Math::WorldRay GetRay(const Math::Vec2& _screenSpaceCoordinate) const;
+		Math::WorldRay GetRay(const ei::Vec2& _screenSpaceCoordinate) const;
 
 		/// \brief Get the angle (radiant) of the camera rotation around Y-axis.
 		float GetYRotation() const { return m_phi; }
 	private:
 		// Computed matrices used in rendering
-		Math::Mat4x4 m_projection;
+		ei::Mat4x4 m_projection;
 		Math::Transformation m_latestTransformation;
 		Math::Transformation m_renderTransformation;
-		Math::Vec4 m_inverseProjection;		///< A vector to invert projection calculations: (1/p(0,0), 1/p(1,1), 1/p(2,2), -p(3,2)/p(2,2); Usage: pos.xyz * invProj.xyz + vec3(0,0,invProj.w)
-		Math::Mat3x3 m_rotationMatrix;		///< Precomputed matrix from quaternion
+		ei::Vec4 m_inverseProjection;		///< A vector to invert projection calculations: (1/p(0,0), 1/p(1,1), 1/p(2,2), -p(3,2)/p(2,2); Usage: pos.xyz * invProj.xyz + vec3(0,0,invProj.w)
+		ei::Mat3x3 m_rotationMatrix;		///< Precomputed matrix from quaternion
 		Math::Plane m_frustum[6];			///< Left, Right, Bottom, Top, Near, Far all showing inwards in view space
 
 		std::mutex m_mutex;					///< mutex between all update methods
@@ -109,8 +109,8 @@ namespace Input {
 		float m_theta;
 
 		const Voxel::Model* m_attachedTo;	///< The camera can track this object and uses it as reference system
-		Math::Vec3 m_referencePos;			///< Object position in view space. This reference frame is kept for a tracked object.
-		Math::Quaternion m_worldRotation;	///< World space rotation of the camera. This is equal to the rotation if not attached with FOLLOW_AND_ROTATE.
+		ei::Vec3 m_referencePos;			///< Object position in view space. This reference frame is kept for a tracked object.
+		ei::Quaternion m_worldRotation;		///< World space rotation of the camera. This is equal to the rotation if not attached with FOLLOW_AND_ROTATE.
 		AttachMode m_attachMode;			///< If the object is hard attached the camera position follows the object. If it is soft attached rotations are relative to the object.
 
 		/// \brief Reset camera position such that the original object

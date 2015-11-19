@@ -10,31 +10,31 @@ namespace Graphic {
 	{
 	public:
 		/// \brief Creates an Hud object wich handles a 2d interface on the specfied screen rectangle
-		Hud( Monolith* _game, Math::Vec2 _pos=Math::Vec2(-1.f,-1.f) , Math::Vec2 _size=Math::Vec2(2.f,2.f), int _cursor = 1, bool _showDbg = true);
+		Hud( Monolith* _game, ei::Vec2 _pos=ei::Vec2(-1.f,-1.f) , ei::Vec2 _size=ei::Vec2(2.f,2.f), int _cursor = 1, bool _showDbg = true);
 
 		// functions intended do be used in gamestates to create a button with the specefied params
-		void CreateBtn(std::string _texName, std::string _desc, Math::Vec2 _position, Math::Vec2 _size,
+		void CreateBtn(std::string _texName, std::string _desc, ei::Vec2 _position, ei::Vec2 _size,
 			RealDimension _rDim = RealDimension::none, std::function<void()> _OnMouseUp = []() {return; },
 			bool _autoX = true, bool _autoY = true,
 			Font* _font = &Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT));
 
 		/// \brief Creates an container in the current Hud and returns it as Hud* to fill it with elements 
-		Hud* CreateContainer(Math::Vec2 _pos=Math::Vec2(-1.f,-1.f) , Math::Vec2 _size=Math::Vec2(2.f,2.f));
+		Hud* CreateContainer(ei::Vec2 _pos=ei::Vec2(-1.f,-1.f) , ei::Vec2 _size=ei::Vec2(2.f,2.f));
 
 		/// \brief Creates an screenModel
 		/// ScreenModels requiere a camera to be set first per SetCamera()
-		void CreateModel(Math::Vec2 _pos , Math::Vec2 _size, Voxel::Model* _model, float _scale);
+		void CreateModel(ei::Vec2 _pos , ei::Vec2 _size, Voxel::Model* _model, float _scale);
 
 		/// \brief Creates an EditField
 		/// \details returns a reference to the field
 		/// which is valid until the hud is destroyed
-		EditField& CreateEditField(Math::Vec2 _pos, Math::Vec2 _size, int _lines = 1, float _fontSize = 1);
+		EditField& CreateEditField(ei::Vec2 _pos, ei::Vec2 _size, int _lines = 1, float _fontSize = 1);
 
-		ScreenTexture& CreateScreenTexture(const Math::Vec2& _pos, const Math::Vec2& _size, const std::string& _name, RealDimension _rDim = RealDimension::none);
+		ScreenTexture& CreateScreenTexture(const ei::Vec2& _pos, const ei::Vec2& _size, const std::string& _name, RealDimension _rDim = RealDimension::none);
 
-		TextRender& CreateLabel(const Math::Vec2& _pos, const std::string& _text, float _scale = 1.f, Font& _font = Resources::GetFont(Graphic::Fonts::DEFAULT));
+		TextRender& CreateLabel(const ei::Vec2& _pos, const std::string& _text, float _scale = 1.f, Font& _font = Resources::GetFont(Graphic::Fonts::DEFAULT));
 
-		MessageBox& CreateMessageBox(const Math::Vec2& _pos, const Math::Vec2& _size);
+		MessageBox& CreateMessageBox(const ei::Vec2& _pos, const ei::Vec2& _size);
 
 		/// \brief Last call in every frame drawcall
 		void Draw(double _deltaTime);
@@ -65,8 +65,8 @@ namespace Graphic {
 		//atleast one is important so that dynamic_cast can work
 		virtual void MouseEnter() override;
 		virtual void MouseLeave() override;
-		virtual bool KeyDown( int _key, int _modifiers, Math::Vec2 _pos = Math::Vec2(0.f,0.f)) override;
-		virtual bool KeyUp(int _key, int _modifiers, Math::Vec2 _pos = Math::Vec2(0.f,0.f)) override;
+		virtual bool KeyDown( int _key, int _modifiers, ei::Vec2 _pos = ei::Vec2(0.f,0.f)) override;
+		virtual bool KeyUp(int _key, int _modifiers, ei::Vec2 _pos = ei::Vec2(0.f,0.f)) override;
 
 		/// \brief called by the current gamestate to update mouseinput
 		virtual void MouseMove( double _dx, double _dy )override;
@@ -115,9 +115,9 @@ namespace Graphic {
 		struct CursorData
 		{
 			CursorData(Jo::Files::MetaFileWrapper* _posMap, std::string _name,
-				Math::Vec2 _size = Math::Vec2(0.07f, 0.07f), Math::Vec2 _off = Math::Vec2(0.f));
+				ei::Vec2 _size = ei::Vec2(0.07f, 0.07f), ei::Vec2 _off = ei::Vec2(0.f));
 			ScreenTexture texture;
-			Math::Vec2 offset;
+			ei::Vec2 offset;
 		};
 
 		std::vector < CursorData > m_cursors; ///< all available cursors
