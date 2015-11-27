@@ -67,7 +67,7 @@ void Controller::Process(float _deltaTime)
 {
 	if (!m_autoPilot) return;
 
-	Vec3 dirSlf = zaxis(m_ship->GetRotation());//m_ship->GetRotationMatrix() * Vec3(0.f, 0.f, -1.f);//-m_ship->GetRotation().ZAxis();
+	Vec3 dirSlf = m_ship->GetRotationMatrix() * Vec3(0.f, 0.f, 1.f);//zaxis(m_ship->GetRotation());
 
 	float angle = acos(dot(m_targetDirection, dirSlf));
 	if (abs(angle) > 0.02f)
@@ -75,7 +75,8 @@ void Controller::Process(float _deltaTime)
 		Vec3 axis = cross(m_targetDirection, dirSlf);
 		Vec3 temp = cross(axis, dirSlf);
 		if (dot(temp, m_targetDirection) < 0) angle = -angle;
-		m_ship->Rotate(Quaternion(dirSlf, m_targetDirection));
+		m_ship->SetRotation(Quaternion(Vec3(0.f, 0.f, 1.f), m_targetDirection));
+	//	m_ship->Rotate(Quaternion(dirSlf, m_targetDirection));
 	//	m_ship->SetRotation(Quaternion(normalize(axis), angle) * m_ship->GetRotation());
 	//	m_ship->Rotate(normalize(axis), angle);
 	//	m_ship->SetTargetAngularVelocity(angle * 0.5f * normalize(axis));
