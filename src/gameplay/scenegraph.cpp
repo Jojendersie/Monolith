@@ -283,6 +283,7 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 
 		Vec3 normal = normalize(hitLocSlf - hitLocOth);
 
+		//check that they are really closing and not just intersecting from a previous crash
 		if (dot((velocitySlf - velocityOth), normal) >= 0) return;
 
 		float epsilon = 0.04f;
@@ -307,7 +308,6 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 		m_modelSlf->AddVelocity(impulse / massSlf * normal);
 		m_modelOth->AddVelocity(-impulse / massOth * normal);
 
-		//scaled to 1/10 because the rotation seems a little to fast
 		m_modelSlf->AddAngularVelocity(impulse*m_modelSlf->GetInertiaTensorInverse() * cross(radiusSlf, normal) * 1.f);
 		m_modelOth->AddAngularVelocity(impulse*m_modelOth->GetInertiaTensorInverse() * cross(radiusOth, normal) *-1.f);
 

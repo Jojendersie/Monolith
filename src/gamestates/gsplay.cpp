@@ -31,6 +31,8 @@ namespace RenderStat {
 	int g_numVoxels;
 	int g_numChunks;
 }
+Controller* aiTest01;
+Ship* aiTestShip;
 Voxel::Model* collTest01;
 Voxel::Model* collTest02;
 // ************************************************************************* //
@@ -64,6 +66,9 @@ GSPlay::~GSPlay()
 
 	delete m_galaxy;
 
+	//test stuff
+	delete aiTest01;
+
 	LOG_LVL2("Deleted game state Play");
 }
 
@@ -79,27 +84,38 @@ void GSPlay::OnBegin()
 		//test case 1: linear movement into rotation
 
 		collTest01->Load(Jo::Files::HDDFile("savegames/collision01.vmo"));
-		collTest01->SetPosition(FixVec3(Fix(10.0), Fix(0.0), Fix(0.0)));
+		collTest01->SetPosition(FixVec3(Fix(20.0), Fix(0.0), Fix(0.0)));//
 		collTest01->Rotate(0.f, 0.5f*PI, 0.0f*PI);
-		collTest01->AddVelocity(Vec3(0.f, 4.f, 0.f));
+//		collTest01->AddVelocity(Vec3(0.f, 4.f, 0.f));
 		collTest02->Load(Jo::Files::HDDFile("savegames/collision01.vmo"));
+		collTest02->Rotate(0.25f*PI, 0.0f*PI, 1.0f*PI);
 		
 		//test case 2: rotation into rotation
-		/*collTest01->Load(Jo::Files::HDDFile("savegames/collision02.vmo"));
+	/*	collTest01->Load(Jo::Files::HDDFile("savegames/collision02.vmo"));
 		collTest02->Load(Jo::Files::HDDFile("savegames/collision02.vmo"));
 		collTest01->AddAngularVelocity(Vec3(0.05f * PI, 0.0f*PI, 0.0f * PI));
 		collTest01->SetPosition(FixVec3(Fix(10.0), Fix(35.0), Fix(0.0)));
 		collTest01->Rotate(0.f, 1.5f*PI, 0.0f*PI);*/
 
 		//test case 3: shperes
-	/*	collTest01->Load(Jo::Files::HDDFile("savegames/sphere.vmo"));
-		collTest01->SetPosition(FixVec3(Fix(10.0), Fix(0.0), Fix(0.0)));
-		collTest01->AddVelocity(Vec3(0.f, 4.f, 0.f));
-		collTest02->Load(Jo::Files::HDDFile("savegames/sphere.vmo"));*/
+	//	collTest01->Load(Jo::Files::HDDFile("savegames/sphere.vmo"));
+	//	collTest01->SetPosition(FixVec3(Fix(10.0), Fix(0.0), Fix(0.0)));
+	//	collTest01->AddVelocity(Vec3(0.f, 4.f, 0.f));
+	//	collTest02->Load(Jo::Files::HDDFile("savegames/sphere.vmo"));
 
-		collTest02->SetPosition(FixVec3(Fix(7.0), Fix(40.0), Fix(0.0)));
+		collTest02->SetPosition(FixVec3(Fix(7.0), Fix(40.0), Fix(0.0)));//7,40
 		m_scene.AddObject(collTest01);
 		m_scene.AddObject(collTest02);
+
+		aiTestShip = new Ship();
+		aiTestShip->Load(Jo::Files::HDDFile("savegames/playership.vmo"));
+		aiTestShip->SetPosition(FixVec3(Fix(7.0), Fix(0.0), Fix(0.0)));
+		aiTestShip->SetRotation(Quaternion(0.f, 0.f, 0.f));
+		SOHandle hndl = m_scene.AddObject(aiTestShip);
+		aiTest01 = new Controller(hndl);
+	//	aiTest01->FlyToPosition(collTest02->GetPosition());
+
+	//	collTest02->AddVelocity(Vec3(0.f, 1.f, 0.f));
 
 		Ship* playerModel = new Ship();
 		playerModel->Load(Jo::Files::HDDFile("savegames/playership.vmo"));
@@ -108,6 +124,7 @@ void GSPlay::OnBegin()
 		SOHandle shipHandle = m_scene.AddObject(playerModel);
 		m_camera->ZoomAt(*playerModel, Input::Camera::FOLLOW_AND_ROTATE);
 		m_player->Possess(shipHandle);
+	//	playerModel->SetRotation(aiTestShip->GetRotation());
 
 		m_hud->m_mainMessageBox->DisplayMsg("Welcome to the Monolith \ntest-universe. ", 3.f);
 		/*for( int i = 0; i < 25; ++i )
@@ -143,6 +160,20 @@ void GSPlay::Simulate( double _deltaTime )
 	m_scene.Simulate((float)_deltaTime);
 	m_scene.UpdateGraph();
 	m_player->Process( (float)_deltaTime );
+	aiTest01->Process((float)_deltaTime);
+
+	static int testTimer = 0;
+	static bool testSwitch = true;
+	testTimer++;
+	if (testTimer > 300)
+	{
+		aiTest01->FlyToPosition(testSwitch ? collTest02->GetPosition() : collTest01->GetPosition());
+		testSwitch = !testSwitch;
+		testTimer = 0;
+	}
+	//collTest01->SetPosition(aiTestShip->GetPosition());
+	//collTest01->Translate(aiTestShip->GetRotation().ZAxis() * 5.f);
+
 	/*static Generators::Random Rnd(1435461);
 	for( int i = 0; i < 100; ++i )
 		m_astTest->Set( IVec3(Rnd.Uniform(0,79), Rnd.Uniform(0,49), Rnd.Uniform(0,29)), 0, Voxel::VoxelType::UNDEFINED );//*/
@@ -223,6 +254,7 @@ void GSPlay::KeyClick( int _key )
 		m_selectedObject = m_scene.RayQuery(ray, hit);
 		if( m_selectedObject ) {
 			m_selectedObjectModPtr = dynamic_cast<Voxel::Model*>(&m_selectedObject);
+			m_player->SetTarget(m_selectedObjectModPtr);
 		//	m_selectedObjectModPtr->Set( hit.position, 0, Voxel::VoxelType::UNDEFINED );
 		}
 	}

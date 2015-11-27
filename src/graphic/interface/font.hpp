@@ -67,6 +67,8 @@ namespace Graphic {
 		void SetDefaultSize(float _size);
 		float GetDefaultSize() {return m_sizeD;};
 
+		void SetDefaultColor(Utils::Color8U _color) { m_colorD = _color; RenewBuffer(); };
+
 		/// \brief returns the real dimensions the chars are drawn in
 		/// \details chars are stretched to preserve the right view on the screen
 		ei::Vec2 GetDim();

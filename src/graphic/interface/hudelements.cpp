@@ -120,6 +120,8 @@ namespace Graphic
 		ScreenOverlay::MouseEnter();
 		m_btnDefault.SetVisibility(false);
 		m_btnOver.SetVisibility(true);
+
+		m_caption.SetDefaultColor(Utils::Color8U((uint8_t)210, 210, 210));
 	}
 	void Button::MouseLeave()
 	{
@@ -127,6 +129,8 @@ namespace Graphic
 		m_btnDefault.SetVisibility(true);
 		m_btnOver.SetVisibility(false);
 		m_btnDown.SetVisibility(false);
+
+		m_caption.SetDefaultColor(Utils::Color8U((uint8_t)255, 255, 255));
 	}
 	bool Button::KeyDown(int _key, int _modifiers, Vec2 _pos)
 	{

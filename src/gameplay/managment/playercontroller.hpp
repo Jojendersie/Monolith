@@ -12,6 +12,7 @@ public:
 	void KeyUp(int _key, int _modifiers);
 
 	void SetMouseRotation(bool _enable) { m_mouseRotationEnabled = _enable; }
+	void SetTarget(Voxel::Model* _newTarget) { m_target = _newTarget; };
 
 	virtual void Process(float _deltaTime) override;
 private:
@@ -19,6 +20,8 @@ private:
 
 	bool m_mouseRotationEnabled;
 	ei::Vec3 m_velocity; ///< Ship relative velocity
+
+	Voxel::Model* m_target; ///< selected target
 
 	Input::Camera* m_camera;
 };

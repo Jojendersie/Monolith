@@ -98,6 +98,7 @@
     <ClCompile Include="src\exceptions.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\gameloop.cpp" />
+    <ClCompile Include="src\gameplay\communication\dialog.cpp" />
     <ClCompile Include="src\gameplay\componentsystems\componentsystem.cpp" />
     <ClCompile Include="src\gameplay\componentsystems\computersystem.cpp" />
     <ClCompile Include="src\gameplay\componentsystems\drivesystem.cpp" />
@@ -190,6 +191,7 @@
     <ClInclude Include="src\exceptions.hpp" />
     <ClInclude Include="src\game.hpp" />
     <ClInclude Include="src\gameloop.hpp" />
+    <ClInclude Include="src\gameplay\communication\dialog.hpp" />
     <ClInclude Include="src\gameplay\componentsystems\batterysystem.hpp" />
     <ClInclude Include="src\gameplay\componentsystems\componentsystem.hpp" />
     <ClInclude Include="src\gameplay\componentsystems\computersystem.hpp" />

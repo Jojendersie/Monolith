@@ -48,7 +48,6 @@ namespace Graphic
 		m_size = m_sizeD;
 		m_color = m_colorD;
 		m_thickness = m_thicknessD;
-		SetText("no input");
 
 		//calculates the screen ratio
 		GetDim();
@@ -173,6 +172,8 @@ namespace Graphic
 		//reset the previous build
 		m_characters.Clear();
 		m_sizeMax = m_size / 2.0f;
+		m_color = m_colorD;
+		m_size = m_sizeD;
 		Vec2 currentPos = m_screenPos;
 
 		float maxExpanseX = currentPos[0];

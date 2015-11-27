@@ -245,6 +245,7 @@ namespace Voxel {
 		deltaRot.j = theta[1] * s;
 		deltaRot.k = theta[2] * s;
 
+	//	SetRotation(deltaRot * m_rotation);
 		Rotate( deltaRot );
 		// Also rotate the velocity, while this is not physical plausible it increases
 		// the playability extreme.

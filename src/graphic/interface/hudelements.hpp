@@ -103,7 +103,7 @@ namespace Graphic {
 	private:
 	};
 
-	/// \brief A 2d screen overlay texture 
+	/// \brief A pressable button with mouseover indication
 	class Button : public ScreenTexture
 	{
 	public:
@@ -121,6 +121,8 @@ namespace Graphic {
 
 		virtual void SetPos(ei::Vec2 _pos) override;
 		virtual void SetSize(ei::Vec2 _size) override;
+
+	//	void SetMouseOverColor(Utils::Color8U _color)
 
 		void SetAutoCenterX(bool _autoCenter) {m_autoCenter[0] = _autoCenter;};
 		void SetAutoCenterY(bool _autoCenter) {m_autoCenter[1] = _autoCenter;};

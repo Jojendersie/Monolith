@@ -30,7 +30,7 @@ void PlayerController::KeyDown(int _key, int _modifiers)
 
 void PlayerController::KeyUp(int _key, int _modifiers)
 {
-
+//	if (_key = GLFW_KEY_Y) 
 }
 
 
