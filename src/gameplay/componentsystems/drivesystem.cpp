@@ -42,11 +42,11 @@ namespace Mechanics {
 			relTh /= sum;
 			relTo /= sum;
 			// Apply what is remaining, additionally add the side effects from both components
-			m_currentThrust = maxThrust[0] * relTh * _requirements.thrust / max(1e-6f, currentThrustAbs);
+			m_currentThrust = maxThrust[0] * _requirements.thrust * (relTh / max(1e-6f, currentThrustAbs));
 			m_currentThrust[0] += denoise(maxTorque[1] * relTo * TORQUE_FORCE_COUPLING);
 			m_currentThrust[1] += denoise(maxTorque[2] * relTo * TORQUE_FORCE_COUPLING);
 			m_currentThrust[2] += denoise(maxTorque[3] * relTo * TORQUE_FORCE_COUPLING);
-			m_currentTorque = maxTorque[0] * relTo * _requirements.torque / max(1e-6f, currentTorqueAbs);
+			m_currentTorque = maxTorque[0] * _requirements.torque * (relTo / max(1e-6f, currentTorqueAbs));
 			m_currentTorque[0] += denoise(maxThrust[1] * relTh * TORQUE_FORCE_COUPLING);
 			m_currentTorque[1] += denoise(maxThrust[2] * relTh * TORQUE_FORCE_COUPLING);
 			m_currentTorque[2] += denoise(maxThrust[3] * relTh * TORQUE_FORCE_COUPLING);

@@ -29,9 +29,9 @@ namespace Math {
 		/// \brief Move the object.
 		void Translate( const ei::Vec3& _vector )				{ m_position[0] += Fix(_vector[0]); m_position[1] += Fix(_vector[1]); m_position[2] += Fix(_vector[2]); }
 
-		void Rotate( const ei::Quaternion& _rotation )			{ m_rotation *= _rotation; UpdateMatrices(); }
-		void Rotate( float _yaw, float _pitch, float _roll )	{ m_rotation *= ei::Quaternion( _yaw, _pitch, _roll ); UpdateMatrices(); }
-		void Rotate( const ei::Vec3& _axis, float _angle )		{ m_rotation *= ei::Quaternion( _axis, _angle ); UpdateMatrices(); }
+		void Rotate( const ei::Quaternion& _rotation )			{ m_rotation = _rotation * m_rotation; UpdateMatrices(); }
+		void Rotate( float _yaw, float _pitch, float _roll )	{ m_rotation = ei::Quaternion( _yaw, _pitch, _roll ) * m_rotation; UpdateMatrices(); }
+		void Rotate( const ei::Vec3& _axis, float _angle )		{ m_rotation = ei::Quaternion( _axis, _angle ) * m_rotation; UpdateMatrices(); }
 
 		/// \brief Get an approximated floating point transformation.
 		ei::Mat4x4 GetTransformation() const;
@@ -55,8 +55,8 @@ namespace Math {
 	protected:
 		Math::FixVec3 m_position;				///< World-position
 		ei::Quaternion m_rotation;				///< Standard rotation component
-		ei::Mat3x3 m_rotationMatrix;			///< Same rotation in matrix form (read only): World -> Model
-		ei::Mat3x3 m_inverseRotationMatrix;		///< Inverse rotation matrix (read only): Model -> World
+		ei::Mat3x3 m_rotationMatrix;			///< Same rotation in matrix form (read only): Model -> World
+		ei::Mat3x3 m_inverseRotationMatrix;		///< Inverse rotation matrix (read only): World -> Model
 
 		// Recompute the two matrices based on the quaternion
 		void UpdateMatrices();
