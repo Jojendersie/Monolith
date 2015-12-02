@@ -14,6 +14,7 @@ namespace Input {
 		m_latestTransformation( _position, _rotation ),
 		m_fov( _fov ),
 		m_aspect( _aspect ),
+		m_worldRotation( _rotation ),
 		m_attachMode( REFERENCE_ONLY ),
 		m_phi(0.0f),
 		m_theta(0.0f),

@@ -17,7 +17,7 @@ class StarSystem : public Math::Transformation
 {
 public:
 	StarSystem(const Math::FixVec3& _position, int _temperature, 
-		float _size = 1.f, const ei::Quaternion& _rotation = ei::Quaternion());
+		float _size = 1.f, const ei::Quaternion& _rotation = ei::qidentity() );
 
 	StarVertex& ComputeVertex(const Input::Camera& _camera);
 
