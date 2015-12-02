@@ -107,12 +107,12 @@ void GSPlay::OnBegin()
 		m_scene.AddObject(collTest01);
 		m_scene.AddObject(collTest02);
 
-		aiTestShip = new Ship();
+		/*aiTestShip = new Ship();
 		aiTestShip->Load(Jo::Files::HDDFile("savegames/playership.vmo"));
 		aiTestShip->SetPosition(FixVec3(Fix(7.0), Fix(0.0), Fix(0.0)));
 		aiTestShip->SetRotation(Quaternion(0.f, 0.f, 0.f));
 		SOHandle hndl = m_scene.AddObject(aiTestShip);
-		aiTest01 = new Controller(hndl);
+		aiTest01 = new Controller(hndl);*/
 	//	aiTest01->FlyToPosition(collTest02->GetPosition());
 
 	//	collTest02->AddVelocity(Vec3(0.f, 1.f, 0.f));
@@ -121,6 +121,7 @@ void GSPlay::OnBegin()
 		playerModel->Load(Jo::Files::HDDFile("savegames/playership.vmo"));
 		//position to 0
 		playerModel->SetPosition(FixVec3(Fix(0.f)));
+		//playerModel->SetRotation(qidentity());
 		SOHandle shipHandle = m_scene.AddObject(playerModel);
 		m_camera->ZoomAt(*playerModel, Input::Camera::FOLLOW_AND_ROTATE);
 		m_player->Possess(shipHandle);
@@ -160,7 +161,7 @@ void GSPlay::Simulate( double _deltaTime )
 	m_scene.Simulate((float)_deltaTime);
 	m_scene.UpdateGraph();
 	m_player->Process( (float)_deltaTime );
-	aiTest01->Process((float)_deltaTime);
+	/*aiTest01->Process((float)_deltaTime);
 
 	static int testTimer = 0;
 	static bool testSwitch = true;
@@ -170,7 +171,7 @@ void GSPlay::Simulate( double _deltaTime )
 		aiTest01->FlyToPosition(testSwitch ? collTest02->GetPosition() : collTest01->GetPosition());
 		testSwitch = !testSwitch;
 		testTimer = 0;
-	}
+	}*/
 	//collTest01->SetPosition(aiTestShip->GetPosition());
 	//collTest01->Translate(aiTestShip->GetRotation().ZAxis() * 5.f);
 

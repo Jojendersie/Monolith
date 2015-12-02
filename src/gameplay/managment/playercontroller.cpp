@@ -41,7 +41,7 @@ void PlayerController::Process(float _deltaTime)
 	// In other directions stop pushing resets the velocity
 	m_velocity[0] = 0.0f;
 	// Do not increase the target velocity much further than the real velocity.
-	float realVelZ = transform(m_ship->GetVelocity(), m_ship->GetRotation())[2];
+	float realVelZ = (m_ship->GetInverseRotationMatrix() * m_ship->GetVelocity())[2];
 	if( realVelZ > 0.0f ) m_velocity[2] = max(0.0f, min(m_velocity[2], realVelZ));
 	else m_velocity[2] = min(0.0f, max(m_velocity[2], realVelZ));
 	if(glfwGetKey(Graphic::Device::GetWindow(), GLFW_KEY_W))
@@ -69,7 +69,7 @@ void PlayerController::Process(float _deltaTime)
 		Vec2 cursor = Input::Manager::GetCursorPosScreenSpace();
 		//cursor = Vec2(sgn(cursor[0]), sgn(cursor[1])) * max(Vec2(0.0f), abs(cursor) - 0.1f);
 		cursor = Vec2(sgn(cursor[0]), sgn(cursor[1])) * cursor * cursor;
-		angularVel += Vec3(cursor[1], -cursor[0], 0.0f);
+		angularVel += Vec3(-cursor[1], cursor[0], 0.0f);
 		//angularVel += m_ship->GetInverseRotationMatrix().YAxis() * -cursor[0];
 		//angularVel += m_ship->GetInverseRotationMatrix().XAxis() * cursor[1];
 	}

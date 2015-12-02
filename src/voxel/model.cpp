@@ -249,7 +249,7 @@ namespace Voxel {
 		Rotate( deltaRot );
 		// Also rotate the velocity, while this is not physical plausible it increases
 		// the playability extreme.
-		if(m_rotateVelocity) m_velocity = rotation(deltaRot) * m_velocity;
+		if(m_rotateVelocity) m_velocity = transform(m_velocity, deltaRot);
 	}
 
 	// ********************************************************************* //

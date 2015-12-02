@@ -55,8 +55,8 @@ namespace Math {
 	protected:
 		Math::FixVec3 m_position;				///< World-position
 		ei::Quaternion m_rotation;				///< Standard rotation component
-		ei::Mat3x3 m_rotationMatrix;			///< Same rotation in matrix form (read only)
-		ei::Mat3x3 m_inverseRotationMatrix;		///< Inverse rotation matrix (read only)
+		ei::Mat3x3 m_rotationMatrix;			///< Same rotation in matrix form (read only): World -> Model
+		ei::Mat3x3 m_inverseRotationMatrix;		///< Inverse rotation matrix (read only): Model -> World
 
 		// Recompute the two matrices based on the quaternion
 		void UpdateMatrices();

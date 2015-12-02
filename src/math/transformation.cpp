@@ -68,7 +68,8 @@ namespace Math {
 	// ********************************************************************* //
 	void Transformation::UpdateMatrices()
 	{
-		m_rotationMatrix = ei::rotation(m_rotation);
+		m_rotation = normalize(m_rotation);
+		m_rotationMatrix = rotation(m_rotation);
 		m_inverseRotationMatrix = transpose(m_rotationMatrix);
 	}
 
