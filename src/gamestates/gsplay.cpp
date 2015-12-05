@@ -166,7 +166,7 @@ void GSPlay::Simulate( double _deltaTime )
 	static int testTimer = 0;
 	static bool testSwitch = true;
 	testTimer++;
-	if (testTimer > 300)
+	if (testTimer > 600)
 	{
 		aiTest01->FlyToPosition(testSwitch ? collTest02->GetPosition() : collTest01->GetPosition());
 		testSwitch = !testSwitch;

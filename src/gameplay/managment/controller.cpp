@@ -42,22 +42,8 @@ void Controller::FlyToPosition(const Math::FixVec3& _pos, float _maxVelocity, bo
 
 	FaceDirection(direction);//m_ship->Transform(_pos)
 
+	m_autoMaxSpeed = _maxVelocity == 0 ? 64.f : _maxVelocity;//FLT_MAX
 	m_autoPilot = true;
-
-/*	Vec3 slfDir = m_ship->GetRotationMatrix() * Vec3(0.f, 0.f, -1.f);//-m_ship->GetRotation().ZAxis();
-	float angle = acos(dot(m_targetDirection, slfDir));
-	if (abs(angle) > 0.02f)
-	{
-		Vec3 axis = cross(m_targetDirection, slfDir);
-		Vec3 temp = cross(axis, slfDir);
-		if (dot(temp, m_targetDirection) < 0) angle = -angle;
-//		m_ship->SetRotation(Quaternion(normalize(axis), angle) * m_ship->GetRotation());
-	//	m_ship->Rotate(normalize(axis), angle);
-		slfDir = Mat3x3::Rotation(Quaternion(normalize(axis), angle)) * slfDir;
-		m_ship->SetTargetAngularVelocity(angle * 0.5f * normalize(axis));
-	}
-	Vec3 test = m_ship->GetRotationMatrix() * Vec3(0.f, 0.f, -1.f);*/
-	//	float a
 //	m_ship->SetTargetVelocity(Vec3(0.f, 0.f, 2.f));
 }
 
@@ -67,23 +53,25 @@ void Controller::Process(float _deltaTime)
 {
 	if (!m_autoPilot) return;
 
-	Vec3 dirSlf = m_ship->GetRotationMatrix() * Vec3(0.f, 0.f, 1.f);//zaxis(m_ship->GetRotation());
-
-	float angle = acos(dot(m_targetDirection, dirSlf));
-	if (abs(angle) > 0.02f)
+	//adjust rotation
+	Vec3 dirSlf = Vec3(0.f, 0.f, 1.f);
+	Vec3 targetDirection = m_ship->GetInverseRotationMatrix() * m_targetDirection;
+	float angle = acos(dot(targetDirection, dirSlf));
+//	if (abs(angle) < 0.02f) m_ship->SetTargetAngularVelocity(Vec3(0.f));
+//	else
+	//todo pay attention to inertia
+	if (abs(angle) > 0.03f)
 	{
-		Vec3 axis = cross(m_targetDirection, dirSlf);
+		Vec3 axis = cross(targetDirection, dirSlf);
 		Vec3 temp = cross(axis, dirSlf);
-		if (dot(temp, m_targetDirection) < 0) angle = -angle;
-		m_ship->SetRotation(Quaternion(Vec3(0.f, 0.f, 1.f), m_targetDirection));
-	//	m_ship->Rotate(Quaternion(dirSlf, m_targetDirection));
-	//	m_ship->SetRotation(Quaternion(normalize(axis), angle) * m_ship->GetRotation());
-	//	m_ship->Rotate(normalize(axis), angle);
-	//	m_ship->SetTargetAngularVelocity(angle * 0.5f * normalize(axis));
+		if (dot(temp, targetDirection) < 0) angle = -angle;
+	//	m_ship->SetRotation(Quaternion(Vec3(0.f, 0.f, 1.f), m_targetDirection));
+		m_ship->SetTargetAngularVelocity(normalize(axis) *  angle * 1.2f);
 	}
-//	float angularDist = length(direction - m_ship->GetRotation().ZAxis());
-/*	Vec3 axis = cross(m_targetDirection, dirSlf);
-	Vec3 temp = cross(axis, dirSlf);
-	if (dot(temp, m_targetDirection) < 0) angle = -angle;*/
-
+	//reached the right rotation -> start accelerating
+	else
+	{
+		//adjust velocity
+		m_ship->SetTargetVelocity(Vec3(0.f, 0.f, m_autoMaxSpeed));
+	}
 }

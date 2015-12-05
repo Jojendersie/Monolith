@@ -28,9 +28,10 @@ private:
 	std::string m_name; ///< The name of the intelligent entity
 	//events
 
-	//intern information
+	//intern information for the autopilot
 	Math::FixVec3 m_targetPosition;
 	ei::Vec3 m_targetDirection;
 
+	float m_autoMaxSpeed;
 	bool m_autoPilot;
 };
