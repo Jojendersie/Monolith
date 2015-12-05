@@ -86,16 +86,16 @@ void GSPlay::OnBegin()
 		collTest01->Load(Jo::Files::HDDFile("savegames/collision01.vmo"));
 		collTest01->SetPosition(FixVec3(Fix(20.0), Fix(0.0), Fix(0.0)));//
 		collTest01->Rotate(0.f, 0.5f*PI, 0.0f*PI);
-//		collTest01->AddVelocity(Vec3(0.f, 4.f, 0.f));
+		collTest01->AddVelocity(Vec3(0.f, 2.f, 0.f));
 		collTest02->Load(Jo::Files::HDDFile("savegames/collision01.vmo"));
-		collTest02->Rotate(0.25f*PI, 0.0f*PI, 1.0f*PI);
+	//	collTest02->Rotate(0.25f*PI, 0.0f*PI, 1.0f*PI);
 		
 		//test case 2: rotation into rotation
 	/*	collTest01->Load(Jo::Files::HDDFile("savegames/collision02.vmo"));
 		collTest02->Load(Jo::Files::HDDFile("savegames/collision02.vmo"));
 		collTest01->AddAngularVelocity(Vec3(0.05f * PI, 0.0f*PI, 0.0f * PI));
-		collTest01->SetPosition(FixVec3(Fix(10.0), Fix(35.0), Fix(0.0)));
-		collTest01->Rotate(0.f, 1.5f*PI, 0.0f*PI);*/
+		collTest01->SetPosition(FixVec3(Fix(10.0), Fix(20.0), Fix(0.0)));
+		collTest01->Rotate(0.f, 0.5f*PI, 0.0f*PI);*/
 
 		//test case 3: shperes
 	//	collTest01->Load(Jo::Files::HDDFile("savegames/sphere.vmo"));
@@ -103,13 +103,13 @@ void GSPlay::OnBegin()
 	//	collTest01->AddVelocity(Vec3(0.f, 4.f, 0.f));
 	//	collTest02->Load(Jo::Files::HDDFile("savegames/sphere.vmo"));
 
-		collTest02->SetPosition(FixVec3(Fix(7.0), Fix(40.0), Fix(0.0)));//7,40
+		collTest02->SetPosition(FixVec3(Fix(14.0), Fix(20.0), Fix(0.0)));//7,40
 		m_scene.AddObject(collTest01);
 		m_scene.AddObject(collTest02);
 
 		aiTestShip = new Ship();
 		aiTestShip->Load(Jo::Files::HDDFile("savegames/playership.vmo"));
-		aiTestShip->SetPosition(FixVec3(Fix(7.0), Fix(0.0), Fix(0.0)));
+		aiTestShip->SetPosition(FixVec3(Fix(5.0), Fix(0.0), Fix(0.0)));
 		aiTestShip->SetRotation(Quaternion(0.f, 0.f, 0.f));
 		SOHandle hndl = m_scene.AddObject(aiTestShip);
 		aiTest01 = new Controller(hndl);
@@ -168,12 +168,10 @@ void GSPlay::Simulate( double _deltaTime )
 	testTimer++;
 	if (testTimer > 600)
 	{
-		aiTest01->FlyToPosition(testSwitch ? collTest02->GetPosition() : collTest01->GetPosition());
+	//	aiTest01->FlyToPosition(testSwitch ? collTest02->GetPosition() : collTest01->GetPosition());
 		testSwitch = !testSwitch;
 		testTimer = 0;
 	}
-	//collTest01->SetPosition(aiTestShip->GetPosition());
-	//collTest01->Translate(aiTestShip->GetRotation().ZAxis() * 5.f);
 
 	/*static Generators::Random Rnd(1435461);
 	for( int i = 0; i < 100; ++i )

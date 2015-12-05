@@ -24,8 +24,6 @@ void Controller::Possess(SOHandle _ship)
 void Controller::FaceDirection(const ei::Vec3& _targetDirection)
 {
 	m_targetDirection = normalize(_targetDirection);
-	//fuck quaternion magic(for now).
-//	m_ship->SetRotation(_targetDirection);
 }
 
 // *************************************************** //
@@ -40,11 +38,10 @@ void Controller::FlyToPosition(const Math::FixVec3& _pos, float _maxVelocity, bo
 	direction[1] = float(double(dirFix[1]));
 	direction[2] = float(double(dirFix[2]));
 
-	FaceDirection(direction);//m_ship->Transform(_pos)
+	FaceDirection(direction);
 
 	m_autoMaxSpeed = _maxVelocity == 0 ? 64.f : _maxVelocity;//FLT_MAX
 	m_autoPilot = true;
-//	m_ship->SetTargetVelocity(Vec3(0.f, 0.f, 2.f));
 }
 
 // *************************************************** //

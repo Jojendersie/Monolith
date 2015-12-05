@@ -275,8 +275,8 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 		m_posOth += m_rotOth * m_modelOth->GetCenter();
 
 		Vec3 point = hitLocSlf + 0.5f*(hitLocOth - hitLocSlf);
-		Vec3 radiusSlf = -hitLocSlf + m_posSlf; //point
-		Vec3 radiusOth = -hitLocOth + m_posOth; //// EI-CHECK signs might be wrong
+		Vec3 radiusSlf = hitLocSlf - m_posSlf; //point
+		Vec3 radiusOth = hitLocOth - m_posOth; //// EI-CHECK signs might be wrong
 
 		Vec3 velocitySlf = m_modelSlf->GetVelocity() + cross(m_modelSlf->GetAngularVelocity(), radiusSlf);
 		Vec3 velocityOth = m_modelOth->GetVelocity() + cross(m_modelOth->GetAngularVelocity(), radiusOth);

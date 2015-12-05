@@ -9,8 +9,10 @@ public:
 	///\details Any former ownership of this controller is discarded
 	void Possess(SOHandle _ship);
 
+	///\brief The ship rotates to face the given rotation.
 	void FaceDirection(const ei::Vec3& _targetDirection);
 
+	///\brief The controlled ship flies to the given position.
 	void FlyToPosition(const Math::FixVec3& _pos, float _maxVelocity = 0.f, bool _stopAtGoal = true);
 
 	virtual void Process(float _deltaTime);
