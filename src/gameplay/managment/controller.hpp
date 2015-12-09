@@ -11,6 +11,8 @@ public:
 
 	///\brief The ship rotates to face the given rotation.
 	void FaceDirection(const ei::Vec3& _targetDirection);
+	///\brief Updates the target direction to face the position again.
+	void UpdateTargetDirection();
 
 	///\brief The controlled ship flies to the given position.
 	void FlyToPosition(const Math::FixVec3& _pos, float _maxVelocity = 0.f, bool _stopAtGoal = true);
@@ -36,4 +38,5 @@ private:
 
 	float m_autoMaxSpeed;
 	bool m_autoPilot;
+	bool m_stopAtGoal;
 };
