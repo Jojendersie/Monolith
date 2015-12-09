@@ -385,6 +385,7 @@ namespace Voxel {
 			case ModelChunkTypes::WORLD_LOCATION:
 				_file.Read( sizeof(FixVec3), &m_position );
 				_file.Read( sizeof(Quaternion), &m_rotation );
+				UpdateMatrices();
 				break;
 			case ModelChunkTypes::COMPONENT_TREE:
 				IVec3 root; int level;

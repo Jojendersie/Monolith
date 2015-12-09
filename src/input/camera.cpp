@@ -170,11 +170,12 @@ namespace Input {
 	{
 		// Transform by rotation inverse (which is multiplying from right for
 		// rotations)
-		m_latestTransformation.SetPosition( m_attachedTo->GetPosition() - FixVec3(transpose(transpose(m_referencePos) * m_latestTransformation.GetRotationMatrix())) );
+		//m_latestTransformation.SetPosition( m_attachedTo->GetPosition() - FixVec3(transpose(transpose(m_referencePos) * m_latestTransformation.GetRotationMatrix())) );
+		m_latestTransformation.SetPosition( m_attachedTo->GetPosition() - FixVec3(m_latestTransformation.GetInverseRotationMatrix() * m_referencePos) );
 		// Object might be rotated -> 
 		if( m_attachMode == FOLLOW_AND_ROTATE )
 		{
-			m_latestTransformation.SetRotation( ~m_attachedTo->GetRotation() * m_worldRotation );
+			m_latestTransformation.SetRotation( m_worldRotation * ~m_attachedTo->GetRotation() );
 		}
 	}
 
