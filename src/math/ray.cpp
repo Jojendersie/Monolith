@@ -13,10 +13,10 @@ ei::Ray WorldRay::GetRelativeRay( const Transformation& _reference ) const
 		float(origin[0] - _reference.GetPosition()[0]),
 		float(origin[1] - _reference.GetPosition()[1]),
 		float(origin[2] - _reference.GetPosition()[2]) );
-	newOrig = rotation * newOrig;//TODO: transpose?
+	newOrig = rotation * newOrig;
 
 	// Rotate direction into relative system
-	ei::Vec3 dir = rotation * direction;//TODO: transpose?
+	ei::Vec3 dir = rotation * direction;
 	dir = normalize(dir);
 	return ei::Ray(newOrig, dir);
 }

@@ -287,5 +287,5 @@ void GSPlay::DrawReferenceGrid(const Voxel::Model* _model) const
 			* translation(position);
 		// TODO: toggle the plane one on and off
 	}
-	m_objectPlane->Draw( modelView * m_camera->GetProjection() );
+	m_objectPlane->Draw( m_camera->GetProjection() * modelView );
 }

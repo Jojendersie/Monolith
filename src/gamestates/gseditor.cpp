@@ -173,12 +173,11 @@ void GSEditor::Render( double _deltaTime )
 		Graphic::Device::SetEffect(	Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
 		m_ship->Draw( *m_modelCamera );
 		m_ship->GetModelMatrix( modelViewProjection, *m_modelCamera );
-		//modelViewProjection = Mat4x4::Translation(m_ship->GetModel().GetCenter()) * modelViewProjection;
-		modelViewProjection *= m_modelCamera->GetProjection();
+		modelViewProjection = m_modelCamera->GetProjection() * modelViewProjection;
 
 		// Draw the thrust function
-		if( m_recreateThrustVis ) { m_thrustFunction = new Graphic::Marker::SphericalFunction( m_ship->DebugGet() ); m_recreateThrustVis = false; }
-		m_thrustFunction->Draw( modelViewProjection * translation(m_ship->GetCenter()) );
+//		if( m_recreateThrustVis ) { m_thrustFunction = new Graphic::Marker::SphericalFunction( m_ship->DebugGet() ); m_recreateThrustVis = false; }
+//		m_thrustFunction->Draw( modelViewProjection * translation(m_ship->GetCenter()) );
 
 		m_deleteList.Clear();
 		m_criticalModelWork.unlock();
