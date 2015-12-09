@@ -225,11 +225,11 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 		IVec4 pos1 = IVec4(tree1.GetRootPosition(), 0);
 		pos1[3] = tree1.GetRootSize();
 
-		m_rotSlf = rotation(_model0.GetRotation());
-		m_rotOth = rotation(_model1.GetRotation());
+		m_rotSlf = &_model0.GetRotationMatrix();
+		m_rotOth = &_model1.GetRotationMatrix();
 
-		m_posSlf -= m_rotSlf * _model0.GetCenter();
-		m_posOth -= m_rotOth * _model1.GetCenter();
+		m_posSlf -= *m_rotSlf * _model0.GetCenter();
+		m_posOth -= *m_rotOth * _model1.GetCenter();
 
 		//make sure that the bigger one is slf
 		if (pos0[3] < pos1[3])
@@ -271,8 +271,8 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 
 		//no more tree calcs take place
 		//actual center of mass positions are required
-		m_posSlf += m_rotSlf * m_modelSlf->GetCenter();
-		m_posOth += m_rotOth * m_modelOth->GetCenter();
+		m_posSlf += *m_rotSlf * m_modelSlf->GetCenter();
+		m_posOth += *m_rotOth * m_modelOth->GetCenter();
 
 		Vec3 point = hitLocSlf + 0.5f*(hitLocOth - hitLocSlf);
 		Vec3 radiusSlf = hitLocSlf - m_posSlf; //point
@@ -291,19 +291,6 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 		float impulse = -(1 + epsilon) * dot((velocitySlf - velocityOth), normal);
 		impulse /= (1 / massSlf + 1 / massOth) + dot(normal, cross(m_modelSlf->GetInertiaTensorInverse()* cross(radiusSlf, normal), radiusSlf)
 			+ cross(m_modelOth->GetInertiaTensorInverse()* cross(radiusOth, normal), radiusOth));
-		/*	dot(normal, normal*(1 / massSlf + 1 / massOth))
-			+ dot(cross(m_modelSlf->GetInertiaTensorInverse()*cross(radiusSlf, normal), radiusSlf)
-			+ cross(m_modelOth->GetInertiaTensorInverse()*cross(radiusOth, normal), radiusOth), normal);*/
-
-		//set both back so that they dont intersect
-		//todo: pay attention to angular velocity
-		/*float deltaDist = abs(length(velocitySlf - velocityOth));//abs(length(m_modelSlf->GetVelocity() - m_modelOth->GetVelocity()));
-		float t = -0.5 / deltaDist;
-		//calculate the real intersection point
-		//distance is aproximated linearly
-		//normal *= 0.5f;
-		m_modelSlf->Translate(t * m_modelSlf->GetVelocity());//-normal
-		m_modelOth->Translate(t * m_modelOth->GetVelocity());//normal*/
 
 		m_modelSlf->AddVelocity(impulse / massSlf * normal);
 		m_modelOth->AddVelocity(-impulse / massOth * normal);
@@ -331,10 +318,10 @@ void SceneGraph::CollisionCheck::TreeCollision(const IVec4& _position0, const Vo
 	int sizeOth = 1 << _position1[3];
 	Vec3 posSlf = Vec3(IVec3(_position0) * sizeSlf);
 	posSlf += sizeSlf*0.5f;
-	posSlf = m_rotSlf * posSlf + m_posSlf;
+	posSlf = *m_rotSlf * posSlf + m_posSlf;
 	Vec3 posOth = Vec3(IVec3(_position1) * sizeOth);
 	posOth += sizeOth*0.5f;
-	posOth = m_rotOth * posOth + m_posOth;
+	posOth = *m_rotOth * posOth + m_posOth;
 
 	int sizeSq = sizeSlf + sizeOth;
 	sizeSq *= sizeSq;

@@ -83,8 +83,8 @@ private:
 		ei::Vec3 m_posOth;
 
 		//rotation of the models
-		ei::Mat3x3 m_rotSlf;
-		ei::Mat3x3 m_rotOth;
+		const ei::Mat3x3* m_rotSlf;
+		const ei::Mat3x3* m_rotOth;
 
 		std::vector <HitResult> m_hits;
 
