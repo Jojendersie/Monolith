@@ -173,12 +173,11 @@ void GSEditor::Render( double _deltaTime )
 		Graphic::Device::SetEffect(	Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
 		m_ship->Draw( *m_modelCamera );
 		m_ship->GetModelMatrix( modelViewProjection, *m_modelCamera );
-		//modelViewProjection = Mat4x4::Translation(m_ship->GetModel().GetCenter()) * modelViewProjection;
-		modelViewProjection *= m_modelCamera->GetProjection();
+		modelViewProjection = m_modelCamera->GetProjection() * modelViewProjection;
 
 		// Draw the thrust function
-		if( m_recreateThrustVis ) { m_thrustFunction = new Graphic::Marker::SphericalFunction( m_ship->DebugGet() ); m_recreateThrustVis = false; }
-		m_thrustFunction->Draw( modelViewProjection * translation(m_ship->GetCenter()) );
+//		if( m_recreateThrustVis ) { m_thrustFunction = new Graphic::Marker::SphericalFunction( m_ship->DebugGet() ); m_recreateThrustVis = false; }
+//		m_thrustFunction->Draw( modelViewProjection * translation(m_ship->GetCenter()) );
 
 		m_deleteList.Clear();
 		m_criticalModelWork.unlock();
@@ -216,7 +215,7 @@ void GSEditor::MouseMove( double _dx, double _dy )
 	// Read config file for speed
 	double rotSpeed = m_game->Config[std::string("Input")][std::string("CameraRotationSpeed")];
 	if( Input::Manager::IsVirtualKeyPressed(Input::VirtualKey::ROTATE_CAMERA) )
-		m_ship->Rotate( Quaternion( float(-_dy * rotSpeed), float(_dx * rotSpeed), 0.0f ) );
+		m_ship->Rotate( Quaternion( float(-_dy * rotSpeed), float(-_dx * rotSpeed), 0.0f ) );
 
 	m_hud->MouseMove(_dx, _dy);
 }

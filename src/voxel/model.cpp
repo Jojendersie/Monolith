@@ -255,7 +255,7 @@ namespace Voxel {
 	bool Model::RayCast( const Math::WorldRay& _ray, int _targetLevel, ModelData::HitResult& _hit, float& _distance ) const
 	{
 		// Convert ray to model space
-		Ray ray = _ray.getRelativeRay(*this);
+		Ray ray = _ray.GetRelativeRay(*this);
 		ray.origin += GetCenter();
 		// TODO: Mat4x4::Scaling(m_scale) translation relevant?
 		return m_voxelTree.RayCast(ray, _targetLevel, _hit, _distance);
@@ -385,6 +385,7 @@ namespace Voxel {
 			case ModelChunkTypes::WORLD_LOCATION:
 				_file.Read( sizeof(FixVec3), &m_position );
 				_file.Read( sizeof(Quaternion), &m_rotation );
+				UpdateMatrices();
 				break;
 			case ModelChunkTypes::COMPONENT_TREE:
 				IVec3 root; int level;

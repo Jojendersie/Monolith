@@ -21,16 +21,15 @@ namespace Input {
 		m_nearPlane(5.0f),
 		m_farPlane(50000.0f)
 	{
-		m_rotationMatrix = m_latestTransformation.GetRotationMatrix();
 		UpdateMatrices();
 	}
 
 	// ********************************************************************* //
 	void Camera::Set( Graphic::UniformBuffer& _cameraUBO )
 	{
-		_cameraUBO["CameraR0"] = transpose(m_rotationMatrix(0));
-		_cameraUBO["CameraR1"] = transpose(m_rotationMatrix(1));
-		_cameraUBO["CameraR2"] = transpose(m_rotationMatrix(2));
+		_cameraUBO["CameraR0"] = transpose(m_latestTransformation.GetRotationMatrix()(0));
+		_cameraUBO["CameraR1"] = transpose(m_latestTransformation.GetRotationMatrix()(1));
+		_cameraUBO["CameraR2"] = transpose(m_latestTransformation.GetRotationMatrix()(2));
 		_cameraUBO["Projection"] = Vec4(GetProjection()(0,0), GetProjection()(1,1), GetProjection()(2,2), GetProjection()(2,3));
 		_cameraUBO["ProjectionInverse"] = m_inverseProjection;
 		_cameraUBO["NearPlane"] = m_nearPlane;
@@ -84,14 +83,12 @@ namespace Input {
 			if( m_attachMode != FOLLOW_AND_ROTATE )
 			{
 				m_latestTransformation.SetRotation( m_worldRotation );
-				m_rotationMatrix = m_latestTransformation.GetRotationMatrix();
 			}
 			NormalizeReference();
 		} else {
 			//m_worldRotation *= ~Math::Quaternion( _theta, _phi, 0.0f );
 			m_worldRotation = ei::Quaternion( 0.0f, -m_phi, 0.0f ) * ei::Quaternion( -m_theta, 0.0f, 0.0f );
 			m_latestTransformation.SetRotation( m_worldRotation );
-			m_rotationMatrix = m_latestTransformation.GetRotationMatrix();
 		}
 		m_mutex.unlock();
 	}
@@ -106,7 +103,7 @@ namespace Input {
 			_dy *= m_referencePos[2] * m_fov;
 		}
 		// Compute actual xy directions in camera space
-		m_latestTransformation.Translate( transpose(m_rotationMatrix(1) * _dy - m_rotationMatrix(0) * _dx) );
+		m_latestTransformation.Translate( transpose(m_latestTransformation.GetRotationMatrix()(1) * _dy - m_latestTransformation.GetRotationMatrix()(0) * _dx) );
 		// Make soft attachment
 		m_attachMode = REFERENCE_ONLY;
 	}
@@ -122,7 +119,7 @@ namespace Input {
 			_dz = ei::min( _dz, -m_attachedTo->GetRadius() * 0.75f + m_referencePos[2] );
 		} // Linear movement otherwise
 
-		m_latestTransformation.Translate( transpose(m_rotationMatrix(2) * _dz) );
+		m_latestTransformation.Translate( transpose(m_latestTransformation.GetRotationMatrix()(2) * _dz) );
 		m_referencePos[2] -= _dz;
 	}
 
@@ -173,12 +170,12 @@ namespace Input {
 	{
 		// Transform by rotation inverse (which is multiplying from right for
 		// rotations)
-		m_latestTransformation.SetPosition( m_attachedTo->GetPosition() - FixVec3(transpose(transpose(m_referencePos) * m_rotationMatrix)) );
+		//m_latestTransformation.SetPosition( m_attachedTo->GetPosition() - FixVec3(transpose(transpose(m_referencePos) * m_latestTransformation.GetRotationMatrix())) );
+		m_latestTransformation.SetPosition( m_attachedTo->GetPosition() - FixVec3(m_latestTransformation.GetInverseRotationMatrix() * m_referencePos) );
 		// Object might be rotated -> 
 		if( m_attachMode == FOLLOW_AND_ROTATE )
 		{
-			m_latestTransformation.SetRotation( ~m_attachedTo->GetRotation() * m_worldRotation );
-			m_rotationMatrix = m_latestTransformation.GetRotationMatrix();
+			m_latestTransformation.SetRotation( m_worldRotation * ~m_attachedTo->GetRotation() );
 		}
 	}
 
@@ -208,7 +205,7 @@ namespace Input {
 							   1.0f );	// 1.0 result of inverse project of any coordinate
 										// Division by 
 		ray.origin = m_latestTransformation.TransformInverse(nearPoint);
-		ray.direction = normalize(m_rotationMatrix * nearPoint);
+		ray.direction = normalize(m_latestTransformation.GetInverseRotationMatrix() * nearPoint);
 		return ray;
 	}
 

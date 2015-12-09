@@ -95,7 +95,6 @@ namespace Input {
 		Math::Transformation m_latestTransformation;
 		Math::Transformation m_renderTransformation;
 		ei::Vec4 m_inverseProjection;		///< A vector to invert projection calculations: (1/p(0,0), 1/p(1,1), 1/p(2,2), -p(3,2)/p(2,2); Usage: pos.xyz * invProj.xyz + vec3(0,0,invProj.w)
-		ei::Mat3x3 m_rotationMatrix;		///< Precomputed matrix from quaternion
 		Math::Plane m_frustum[6];			///< Left, Right, Bottom, Top, Near, Far all showing inwards in view space
 
 		std::mutex m_mutex;					///< mutex between all update methods
