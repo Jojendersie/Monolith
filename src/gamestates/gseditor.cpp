@@ -216,7 +216,7 @@ void GSEditor::MouseMove( double _dx, double _dy )
 	// Read config file for speed
 	double rotSpeed = m_game->Config[std::string("Input")][std::string("CameraRotationSpeed")];
 	if( Input::Manager::IsVirtualKeyPressed(Input::VirtualKey::ROTATE_CAMERA) )
-		m_ship->Rotate( Quaternion( float(-_dy * rotSpeed), float(_dx * rotSpeed), 0.0f ) );
+		m_ship->Rotate( Quaternion( float(-_dy * rotSpeed), float(-_dx * rotSpeed), 0.0f ) );
 
 	m_hud->MouseMove(_dx, _dy);
 }

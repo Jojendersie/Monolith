@@ -16,7 +16,7 @@ namespace Math {
 		ei::Vec3 direction;
 
 		/// \brief Create relative ray from world space ray
-		ei::Ray getRelativeRay(const Transformation& _reference) const;
+		ei::Ray GetRelativeRay(const Transformation& _reference) const;
 	};
 	/*
 

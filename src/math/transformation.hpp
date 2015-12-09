@@ -11,7 +11,7 @@ namespace Math {
 	class Transformation
 	{
 	public:
-		Transformation() : m_position(Fix(0.0)), m_rotation(0.0f, 0.0f, 0.0f) {}
+		Transformation() : m_position(Fix(0.0)), m_rotation(ei::qidentity()), m_rotationMatrix(ei::identity3x3()), m_inverseRotationMatrix(ei::identity3x3()) {}
 		Transformation(Fix _x, Fix _y, Fix _z, const ei::Quaternion& _rotation) : m_position(_x, _y, _z), m_rotation(_rotation)	{ UpdateMatrices(); }
 		Transformation(const FixVec3& _position, const ei::Quaternion& _rotation) : m_position(_position), m_rotation(_rotation)	{ UpdateMatrices(); }
 
