@@ -91,12 +91,14 @@ void main()
 	}
 	
 	// Estimate normal from the plane we intersected
+	vec3 d1 = d;
 	d = abs(d - projLength);
 	vec3 normal;
 	if(d.x < 0.0001) normal = -dirSign.x * vec3(c_mWorldView[0][0], c_mWorldView[1][0], c_mWorldView[2][0]);
 	if(d.y < 0.0001) normal = -dirSign.y * vec3(c_mWorldView[0][1], c_mWorldView[1][1], c_mWorldView[2][1]);
 	if(d.z < 0.0001) normal = -dirSign.z * vec3(c_mWorldView[0][2], c_mWorldView[1][2], c_mWorldView[2][2]);
 	normal = normalize(normal);
+	normal = normalize(normal + (rayPos - texSize * 0.5) * (0.5 / texSize) - d1 / projLength * 0.1 + 0.05);
 	
 	// Decode transparency or color rotation
 	float yvar = float((codes.x >> 28) & 0xf) / 15.0;
