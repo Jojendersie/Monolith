@@ -189,9 +189,9 @@ namespace Graphic
 	
 	void ScreenModel::Draw(const Input::Camera& _cam)
 	{
-//		Math::WorldRay ray = _cam.GetRay(m_center);
-	//	Math::FixVec3 pos = ray.origin+35.f*ray.direction;
-//		m_model->SetPosition(ray.origin+(Math::FixVec3)( 1.f / m_scale * 10.f*ray.direction));
+		Math::WorldRay ray = _cam.GetRay(m_center);
+		Math::FixVec3 pos = Math::FixVec3(ray.origin+35.f*ray.direction);
+		m_model->SetPosition(ray.origin+(Math::FixVec3)( 1.f / m_scale * 10.f*ray.direction));
 		m_model->Draw( _cam );
 	}
 
