@@ -192,6 +192,7 @@ namespace Graphic
 		Math::WorldRay ray = _cam.GetRay(m_center);
 		Math::FixVec3 pos = Math::FixVec3(ray.origin+35.f*ray.direction);
 		m_model->SetPosition(ray.origin+(Math::FixVec3)( 1.f / m_scale * 10.f*ray.direction));
+		m_model->SetRotation(Quaternion(-acos(ray.direction.z)*0.5f - 0.1f, 0.0f, 0.0f) * Quaternion(0.0f, 1.0f, 0.0f));
 		m_model->Draw( _cam );
 	}
 
