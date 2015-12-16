@@ -33,11 +33,12 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 	m_hud = new Graphic::HudGsEditor(_game);
 
 	//add every (available) voxel to the list which fits the criteria
-	for (int i = 0; i < Voxel::TypeInfo::GetNumVoxels() - 1; i++)
+	for (int i = 0; i < Voxel::TypeInfo::GetNumVoxels() - 2; i++)
 	{
-		Voxel::ComponentType type = (Voxel::ComponentType)(i + 1);
+		Voxel::ComponentType type = (Voxel::ComponentType)(i + 2);
 		Voxel::Model* vox = new Voxel::Model;
-		vox->Set(IVec3(0, 0, 0), type);
+		vox->Set(IVec3(0, 1, 0), type);
+		vox->Set(IVec3(0, 0, 0), Voxel::ComponentType::INVISIBLE);
 		m_hud->m_voxelContainer->CreateModel(Vec2(-0.76f, 0.9f - i*0.2f), Vec2(0.f, 0.f), vox, 0.2f);
 		//head:лмнопя
 		m_hud->m_voxelContainer->CreateBtn("componentBtn", "<s 018>        " + Voxel::TypeInfo::GetName(type)

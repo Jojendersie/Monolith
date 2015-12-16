@@ -16,6 +16,22 @@
       "Colors": 0,
       "Texture": 0
     },
+	{
+      "Name": "INVISIBLE",
+      "Solid": true,
+      "Mass": 0.000000,
+      "Threshold Energy": 100000.000000,
+      "Reaction Energy": 0.000000,
+      "Hydrogen": 0,
+      "Carbon": 0,
+      "Metals": 0,
+      "Rare Earth Elements": 0,
+      "Semiconductors": 0,
+      "Heisenbergium": 0,
+      "Texture Resolution": 1,
+      "Colors": 0,
+      "Texture": 0
+    },
     {
       "Name": "Water",
       "Solid": true,
@@ -171,7 +187,7 @@
     {
       "Name": "scanner",
       "Solid": false,
-      "Mass": 0.000000,
+      "Mass": 4.500000,
       "Threshold Energy": 100000.000000,
       "Reaction Energy": 0.000000,
       "Hydrogen": 0,

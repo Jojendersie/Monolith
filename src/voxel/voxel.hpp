@@ -13,12 +13,20 @@ namespace Voxel {
 
 	enum struct ComponentType: uint8 {
 		UNDEFINED,
+		INVISIBLE,
 		WATER,
 		COMPUTER,
 		STONE,
 		SOLAR_CELL,
-		ION_THRUSTER,
-		LASER
+		ION_THRUSTER_M1,
+		LASER,
+		STANDARD_STORE,
+		STEEL_HULL_SL,
+		STEEL_HULL_DL,
+		SCANNER,
+		ION_BOOSTER_M1,
+		ION_BOOSTER_M2,
+		ION_BOOSTER_M3,
 	};
 
 	enum struct ComponentClass {
