@@ -5,8 +5,8 @@ using namespace ei;
 
 namespace Graphic
 {
-	HudGsEditor::HudGsEditor(Monolith* _game) :
-		Hud(_game)
+	HudGsEditor::HudGsEditor(Monolith* _game, Graphic::SingleComponentRenderer* _componentRenderer) :
+		Hud(_game, _componentRenderer)
 	{
 		m_nameEdit = &CreateEditField(Vec2(-0.98f, 0.94f), Vec2(0.66f, 0.1f), 1, 0.f);
 

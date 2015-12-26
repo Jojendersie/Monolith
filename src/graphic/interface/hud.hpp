@@ -9,10 +9,12 @@ namespace Graphic {
 	class Hud : public ScreenOverlay
 	{
 	public:
-		/// \brief Creates an Hud object wich handles a 2d interface on the specfied screen rectangle
-		Hud( Monolith* _game, ei::Vec2 _pos=ei::Vec2(-1.f,-1.f) , ei::Vec2 _size=ei::Vec2(2.f,2.f), int _cursor = 1, bool _showDbg = true);
+		/// \brief Creates an Hud object which handles a 2d interface on the specified screen rectangle
+		/// \param [in] _componentRenderer Reference to a renderer to show single component previews.
+		///		The HUD class does not take the ownership.
+		Hud( Monolith* _game, Graphic::SingleComponentRenderer* _componentRenderer, ei::Vec2 _pos=ei::Vec2(-1.f,-1.f) , ei::Vec2 _size=ei::Vec2(2.f,2.f), int _cursor = 1, bool _showDbg = true);
 
-		// functions intended do be used in gamestates to create a button with the specefied params
+		// functions intended do be used in game states to create a button with the specified params
 		void CreateBtn(std::string _texName, std::string _desc, ei::Vec2 _position, ei::Vec2 _size,
 			RealDimension _rDim = RealDimension::none, std::function<void()> _OnMouseUp = []() {return; },
 			bool _autoX = true, bool _autoY = true,
@@ -23,7 +25,7 @@ namespace Graphic {
 
 		/// \brief Creates an screenModel
 		/// ScreenModels requiere a camera to be set first per SetCamera()
-		void CreateModel(ei::Vec2 _pos , ei::Vec2 _size, Voxel::Model* _model, float _scale);
+		void CreateComponent(Voxel::ComponentType _type, ei::Vec2 _pos, float _scale);
 
 		/// \brief Creates an EditField
 		/// \details returns a reference to the field
@@ -36,20 +38,20 @@ namespace Graphic {
 
 		MessageBox& CreateMessageBox(const ei::Vec2& _pos, const ei::Vec2& _size);
 
-		/// \brief Last call in every frame drawcall
+		/// \brief Last call in every frame draw call
 		void Draw(double _deltaTime);
 
-		/// \brief Adds an ScreenOverlay to the managegement
+		/// \brief Adds an ScreenOverlay to the management
 		void AddScreenOverlay(ScreenOverlay* _screenOverlay);
 
-		/// \brief Adds an existing label(TextRender) to the auto draw managment and takes ownership
+		/// \brief Adds an existing label(TextRender) to the auto draw management and takes ownership
 		/// \details Size gets relativated to the hud it is member of
 		void AddTextRender(TextRender* _label);
 
-		/// \brief Adds an existing screenTex to the auto draw and collision managment
+		/// \brief Adds an existing screenTex to the auto draw and collision management
 		void AddTexture(ScreenTexture* _tex);
 
-		/// \brief Adds an existing button to the auto draw managment and takes ownership
+		/// \brief Adds an existing button to the auto draw management and takes ownership
 		void AddButton(Button* _btn);
 
 		/// \brief Sets the camera; Currently only used by ScreenModel
@@ -62,13 +64,13 @@ namespace Graphic {
 		int CursorVisible() { return m_showCursor; };
 
 		/// \brief Mouse events
-		//atleast one is important so that dynamic_cast can work
+		///	At least one is important so that dynamic_cast can work
 		virtual void MouseEnter() override;
 		virtual void MouseLeave() override;
 		virtual bool KeyDown( int _key, int _modifiers, ei::Vec2 _pos = ei::Vec2(0.f,0.f)) override;
 		virtual bool KeyUp(int _key, int _modifiers, ei::Vec2 _pos = ei::Vec2(0.f,0.f)) override;
 
-		/// \brief called by the current gamestate to update mouseinput
+		/// \brief called by the current game state to update mouse input
 		virtual void MouseMove( double _dx, double _dy )override;
 
 		virtual bool Scroll(double _dx, double _dy) override;
@@ -79,31 +81,31 @@ namespace Graphic {
 
 	private:
 
-		ScreenOverlay* m_focus;///< object wich currently takes the input
+		ScreenOverlay* m_focus;///< object which currently takes the input
 
 		/// \brief rebuilds the vertex buffer for screen textures
 		void RenewBuffer(); 
 
 		// pointers to global information
 		Monolith* m_game;
-
 		Input::Camera* m_camera;
+		Graphic::SingleComponentRenderer* m_componentRenderer;
 
 		VertexBuffer m_characters;/// < vertex buffer that holds the screen textures
 
 		Texture m_texContainer; ///< The basic texture container for screen elements; loads "combined.png" 
-		//gets created dynamicly in constructor since it temporarly needs a hdd file handle
+		// gets created dynamically in constructor since it temporarily needs a hdd file handle
 		Jo::Files::MetaFileWrapper* m_texContainerMap; ///< the size and position informations of the elements in the container
 
-		//dynamic lists to hold and manage HUD elements
-		//all elements of m_containers and m_screenModels are aswell in m_screenOverlays
+		// dynamic lists to hold and manage HUD elements
+		// all elements of m_containers and m_screenModels are as well in m_screenOverlays
 
 		//ownership
 		std::vector<Button*> m_buttons;
 		std::vector<std::unique_ptr <EditField> > m_editFields;
 		std::vector<std::unique_ptr <Hud> > m_containers;
-		std::vector<std::unique_ptr <ScreenModel> > m_screenModels;
-		std::vector<std::unique_ptr <ScreenTexture > > m_screenTextures;
+		std::vector<std::unique_ptr < ScreenComponent > > m_screenComponents;
+		std::vector<std::unique_ptr < ScreenTexture > > m_screenTextures;
 		std::vector<std::unique_ptr < TextRender > > m_labels; ///< The container of TextRenders that are not part of another element
 		std::vector<std::unique_ptr < MessageBox > > m_messageBoxes;
 		//no ownership

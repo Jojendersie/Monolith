@@ -6,6 +6,7 @@
 #include "gseditorhud.hpp"
 #include "graphic/marker/box.hpp"
 #include "graphic/marker/sphericalfunciton.hpp"
+#include "graphic/interface/singlecomponentrenderer.hpp"
 #include "graphic/content.hpp"
 #include "GLFW/glfw3.h"
 #include "utilities/assert.hpp"
@@ -30,16 +31,14 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 {
 	LOG_LVL2("Starting to create game state Editor");
 
-	m_hud = new Graphic::HudGsEditor(_game);
+	m_singleComponentRenderer = new Graphic::SingleComponentRenderer();
+	m_hud = new Graphic::HudGsEditor(_game, m_singleComponentRenderer);
 
 	//add every (available) voxel to the list which fits the criteria
 	for (int i = 0; i < Voxel::TypeInfo::GetNumVoxels() - 2; i++)
 	{
 		Voxel::ComponentType type = (Voxel::ComponentType)(i + 2);
-		Voxel::Model* vox = new Voxel::Model;
-		vox->Set(IVec3(0, 1, 0), type);
-		vox->Set(IVec3(0, 0, 0), Voxel::ComponentType::INVISIBLE);
-		m_hud->m_voxelContainer->CreateModel(Vec2(-0.76f, 0.9f - i*0.2f), Vec2(0.f, 0.f), vox, 0.2f);
+		m_hud->m_voxelContainer->CreateComponent(type, Vec2(-0.76f, 0.91f - i*0.2f), 0.158f);
 		//head:лмнопя
 		m_hud->m_voxelContainer->CreateBtn("componentBtn", "<s 018>        " + Voxel::TypeInfo::GetName(type)
 			+ "\n       " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetHydrogen(type), 2)
@@ -49,7 +48,7 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 			+ " " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetSemiconductors(type), 2)
 			+ " " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetHeisenbergium(type), 2),
 			Vec2(-1.f, 1.f - i*0.2f), Vec2(1.8f, 0.2f), Graphic::RealDimension::width,
-			[this, type](){m_currentType = type; }, false);
+			[this, type](){ m_currentType = type; }, false);
 		/*		voxelContainer->CreateBtn("componentBtn", "<s 022>       "+Voxel::TypeInfo::GetName(type)
 		+ " л:" + std::to_string(Voxel::TypeInfo::GetHydrogen(type))
 		+ " \n      м:" + std::to_string(Voxel::TypeInfo::GetCarbon(type))

@@ -52,6 +52,7 @@ namespace Graphic {
 	class Framebuffer;
 	class Texture;
 	class PostProcessing;
+	class SingleComponentRenderer;
 
 	namespace Marker {
 		class Grid;

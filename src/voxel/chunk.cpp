@@ -54,7 +54,6 @@ namespace Voxel {
 		objectConstants["InverseWorldView"] = invert(modelView);
 		Mat4x4 modelViewProjection = _projection * modelView;
 
-		float halfScale = m_scale * 0.5f;
 		Vec4 c000 = modelViewProjection * Vec4( -0.5f, -0.5f, -0.5f, 0.0f );
 		Vec4 c001 = modelViewProjection * Vec4( -0.5f, -0.5f,  0.5f, 0.0f );
 		Vec4 c010 = modelViewProjection * Vec4( -0.5f,  0.5f, -0.5f, 0.0f );

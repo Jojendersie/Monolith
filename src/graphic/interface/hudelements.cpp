@@ -1,7 +1,8 @@
 #include "hudelements.hpp"
-#include "..\..\math\ray.hpp"
-#include "..\..\input\camera.hpp"
-#include "../../voxel/model.hpp"
+#include "math/ray.hpp"
+#include "input/camera.hpp"
+#include "voxel/model.hpp"
+#include "graphic/interface/singlecomponentrenderer.hpp"
 #include "GLFW/glfw3.h"
 
 using namespace ei;
@@ -154,20 +155,16 @@ namespace Graphic
 	
 	// ************************************************************** //
 
-	ScreenModel::ScreenModel(Vec2 _position, Vec2 _size, Voxel::Model* _model, float _scale ):
-		ScreenOverlay(_position, _size),
-		m_model(_model),
-		m_scale(_scale)
+	ScreenComponent::ScreenComponent( Voxel::ComponentType _component, ei::Vec2 _position, float _scale, int _sideFlags ):
+		ScreenOverlay(_position, Vec2(0.0f)),
+		m_componentType(_component),
+		m_scale(_scale),
+		m_sideFlags(_sideFlags)
 	{
 		Center();
 	}
 
-	ScreenModel::~ScreenModel()
-	{
-		delete m_model;
-	}
-
-	void ScreenModel::SetPos(Vec2 _pos)
+	void ScreenComponent::SetPos(Vec2 _pos)
 	{
 		ScreenOverlay::SetPos(_pos);
 		Center();
@@ -175,25 +172,25 @@ namespace Graphic
 
 	// ************************************************************************ //
 
-	void ScreenModel::SetSize(Vec2 _size)
+	void ScreenComponent::SetSize(Vec2 _size)
 	{
 		ScreenOverlay::SetSize(_size);
 		Center();
 	}
 
-	void ScreenModel::Center()
+	void ScreenComponent::Center()
 	{
 		m_center[0] = m_pos[0] + m_size[0] * 0.5f;
 		m_center[1] = m_pos[1] + m_size[1] * 0.5f;
 	}
 	
-	void ScreenModel::Draw(const Input::Camera& _cam)
+	void ScreenComponent::Draw(Graphic::SingleComponentRenderer* _renderer, const Input::Camera& _cam)
 	{
 		Math::WorldRay ray = _cam.GetRay(m_center);
-		Math::FixVec3 pos = Math::FixVec3(ray.origin+35.f*ray.direction);
-		m_model->SetPosition(ray.origin+(Math::FixVec3)( 1.f / m_scale * 10.f*ray.direction));
-		m_model->SetRotation(Quaternion(-acos(ray.direction.z)*0.5f - 0.1f, 0.0f, 0.0f) * Quaternion(0.0f, 1.0f, 0.0f));
-		m_model->Draw( _cam );
+		Mat4x4 transformation = translation( 10.0f * ray.direction - m_scale * Vec3(0.5f, 0.5f, 0.0f) );
+		transformation *= rotationH( Quaternion(-asin(ray.direction.y) - 0.25f, 0.0f, 0.0f) * Quaternion(0.0f, 1.0f, 0.0f) );
+		transformation *= scalingH( m_scale );
+		_renderer->Draw(m_componentType, m_sideFlags, transformation, _cam.GetProjection());
 	}
 
 	// ************************************************************** //

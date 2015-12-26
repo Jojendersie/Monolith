@@ -2,9 +2,9 @@
 
 #include <cstdint>
 #include "utilities/assert.hpp"
-#include "../predeclarations.hpp"
+#include "predeclarations.hpp"
 #include "ei/vector.hpp"
-#include "../graphic/core/vertexbuffer.hpp"
+#include "graphic/core/vertexbuffer.hpp"
 #include "voxel.hpp"
 #include "sparseoctree.hpp"
 #include "model.hpp"
@@ -31,7 +31,7 @@ namespace Voxel {
 		///			 respective size-dimension (2^s).
 		///		24-31: 256 texture indices / voxel types.
 		uint32 flags;
-		Material material;
+		Material material;	///< The material code is used for hierarchical rendering (only component-groups are encoded by voxels of a single material).
 
 		VoxelVertex() : flags(0)	{}
 

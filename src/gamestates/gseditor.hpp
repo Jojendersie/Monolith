@@ -34,6 +34,7 @@ private:
 	Graphic::Marker::Box* m_redBox;		///< Marker for regions that can be deleted, or for invalid positions
 	Graphic::Marker::Box* m_greenBox;	///< Marker where the new voxel would be added
 	ScopedPtr<Graphic::Marker::SphericalFunction> m_thrustFunction;	///< Visualization for the maximum engine thrust
+	ScopedPtr<Graphic::SingleComponentRenderer> m_singleComponentRenderer;	///< Helper to draw components at the cursor and in the menu
 	bool m_recreateThrustVis;
 
 	ScopedPtr<Ship> m_ship;				///< The ship which is currently edited

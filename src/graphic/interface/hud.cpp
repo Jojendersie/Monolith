@@ -9,9 +9,10 @@ using namespace ei;
 
 namespace Graphic
 {
-	Hud::Hud(Monolith* _game, Vec2 _pos, Vec2 _size, int _cursor, bool _showDbg) :
+	Hud::Hud(Monolith* _game, Graphic::SingleComponentRenderer* _componentRenderer, Vec2 _pos, Vec2 _size, int _cursor, bool _showDbg) :
 		ScreenOverlay(ei::Vec2(_pos[0],_pos[1] + _size[1]), _size),
 		m_game(_game),
+		m_componentRenderer(_componentRenderer),
 		m_characters( "2222", VertexBuffer::PrimitiveType::POINT ),
 		m_texContainer("texture/combined.png"),
 		m_preElem(NULL),
@@ -67,18 +68,17 @@ namespace Graphic
 	// ************************************************************************* //
 	Hud* Hud::CreateContainer(Vec2 _pos, Vec2 _size) 
 	{
-		Hud* hud = new Hud(m_game, _pos, _size, false, false);
+		Hud* hud = new Hud(m_game, m_componentRenderer, _pos, _size, false, false);
 		m_containers.push_back(std::unique_ptr<Hud>(hud));
 		AddScreenOverlay(hud);
 		return hud;
 	};
 
 	// ************************************************************************* //
-	void Hud::CreateModel(Vec2 _pos , Vec2 _size, Voxel::Model* _model, float _scale)
+	void Hud::CreateComponent(Voxel::ComponentType _type, ei::Vec2 _pos, float _scale)
 	{
-		ScreenModel* screenModel = new ScreenModel(_pos, _size, _model, _scale);
-		AddScreenOverlay(screenModel);
-		m_screenModels.push_back(std::unique_ptr<ScreenModel>(screenModel));
+		m_screenComponents.push_back( std::make_unique< ScreenComponent >(_type, _pos, _scale, 0x3b) );
+		AddScreenOverlay( m_screenComponents.back().get() );
 	};
 
 	// ************************************************************************* //
@@ -156,12 +156,15 @@ namespace Graphic
 				hud->Draw(_deltaTime);
 		}
 
-		//activate voxel rendering
-		Graphic::Device::SetEffect(	Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
-		//draw every screenModel
-		for (int i = (int)m_screenModels.size(); i-- > 0;)
+		if(m_componentRenderer && m_screenComponents.size() > 0)
 		{
-			m_screenModels[i]->Draw(*m_camera);
+			// activate voxel rendering
+			Graphic::Device::SetEffect(	Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
+			// draw every screenComponent
+			for (int i = (int)m_screenComponents.size(); i-- > 0;)
+			{
+				m_screenComponents[i]->Draw(m_componentRenderer, *m_camera);
+			}
 		}
 
 		//draw cursor last

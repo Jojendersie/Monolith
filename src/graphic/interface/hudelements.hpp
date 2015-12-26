@@ -137,31 +137,30 @@ namespace Graphic {
 		int m_btnState; // 0 - default; 1 - mouseover; 2 - down
 	};
 
-	/// \brief An model rendered as overlay on the camera level
-	class ScreenModel : public ScreenOverlay
+	/// \brief A component rendered as overlay on the camera level
+	class ScreenComponent : public ScreenOverlay
 	{
 		/// \brief Takes an model which gets rendered in the center specified screen rect
-		/// \details param [in] the center of the model is in the center of the rectangle
-		/// _model The ScreenModel takes the ownership of the model
+		/// \details param [in] _position the center of the model is in the center of the
+		///		rectangle _component.
 	public:
-		ScreenModel( ei::Vec2 _position, ei::Vec2 _size, Voxel::Model* _model, float _scale );
-		~ScreenModel();
+		ScreenComponent( Voxel::ComponentType _component, ei::Vec2 _position, float _scale, int _sideFlags );
 		virtual void SetPos(ei::Vec2 _pos) override;
 		virtual void SetSize(ei::Vec2 _size) override;
 		
 		/// \brief Positions and draws the model 
-		void Draw(const Input::Camera& _cam);
+		void Draw(Graphic::SingleComponentRenderer* _renderer, const Input::Camera& _cam);
 	private:
-		/// \brief Centers the modell in the current rectangle
+		/// \brief Centers the model in the current rectangle
 		void Center();
 
 		ei::Vec2 m_center;
 		float m_scale;
-
-		Voxel::Model* m_model;
+		Voxel::ComponentType m_componentType;
+		int m_sideFlags;
 	};
 
-	/// \brief A panel wich allows text input
+	/// \brief A panel which allows text input
 	class EditField : public ScreenTexture
 	{
 	public:
