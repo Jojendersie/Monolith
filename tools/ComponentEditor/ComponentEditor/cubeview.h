@@ -71,7 +71,10 @@ private:
 	//data for single cubes
 	vector< Cube > m_cubeData;
 	//data of previous state
-	vector< CubeStateData > m_cubeDataPrev;
+	//vector< CubeStateData > m_cubeDataPrev;
+	vector< CubeStateData > m_cubeDataPrev[10];
+	size_t m_prevPtr;
+	size_t m_prevPtrBegin;
 
 	//position offset of the coordinate axis
 	QVector3D m_axisOffset;

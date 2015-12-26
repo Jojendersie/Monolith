@@ -163,7 +163,10 @@ void ComponentEditor::open()
 	ui.comboBox_2->clear();
 	if(m_view) delete m_view;
 	m_view = nullptr;
+
 	std::string m_fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"",tr("Files (*.json)")).toStdString();
+	if(!m_fileName.size()) return;
+
 	Jo::Files::MetaFileWrapper infoFile( Jo::Files::HDDFile( m_fileName ), Jo::Files::Format::JSON );
 
 	m_voxelCount = (int)infoFile.RootNode[string("PerVoxelInfo")].Size();
@@ -225,7 +228,7 @@ void ComponentEditor::open()
 		ui.comboBox_2->addItem(qname);
 
 		//additional attributes
-		//14 or 15 fixed attributes in fron of this sector
+		//14 or 15 fixed attributes in front of this sector
 		for(int index = hasBorderTex ? 15 : 14; index < voxelNode.Size(); ++index)
 		{
 			voxelInfo.m_attributes.emplace_back(voxelNode[index].GetName(), voxelNode[index].Get(0.f));
@@ -235,6 +238,10 @@ void ComponentEditor::open()
 
 void ComponentEditor::save()
 {
+	//show dialog know so that if it is canceled nothing happens
+	std::string fileName = QFileDialog::getSaveFileName(this, tr("save File"),"",tr("Files (*.*)")).toStdString();
+	if(!fileName.size()) return;
+
 	//make sure to get the latest changes saved
 	voxelChosen(QString("UNDEFINED"));
 
@@ -298,9 +305,11 @@ void ComponentEditor::save()
 		}
 			 
 	}
-
-	std::string fileName = QFileDialog::getSaveFileName(this, tr("save File"),"",tr("Files (*.*)")).toStdString();
-	Jo::Files::HDDFile hddFile(fileName, 1);
+	
+	//on win10 the filename given by the dialog seems to cause trouble
+	for(int i = 0; i < fileName.length(); ++i)
+		if(fileName[i] == '/') fileName[i] = '\\';
+	Jo::Files::HDDFile hddFile(fileName, Jo::Files::HDDFile::OVERWRITE);
 	infoFile.Write( hddFile, Jo::Files::Format::JSON );
 }
 

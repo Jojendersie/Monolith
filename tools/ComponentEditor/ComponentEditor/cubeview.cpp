@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <functional>
 
+const size_t MAXUNDOSTEPS = 10;
+
 //makro to iterate throught the voxel
 #define FOREACH for(int x = 0; x < m_res; x++) for(int y = 0; y < m_res; y++) for(int z = 0; z < m_res; z++)
 
@@ -46,7 +48,11 @@ CubeView::CubeView(QComboBox* _colorBox, int _res, QWidget *parent)
 			m_cube[i][j].resize(m_res);
 	} 
 	m_cubeData.resize(m_res_3);
-	m_cubeDataPrev.resize(m_res_3);
+
+	for(int i = 0; i < MAXUNDOSTEPS; ++i)
+		m_cubeDataPrev[i].resize(m_res_3);
+	m_prevPtr = 0;
+	m_prevPtrBegin = 0;
 
 	size_t index = 0;
 
@@ -281,15 +287,19 @@ void CubeView::mouseReleaseEvent( QMouseEvent* _e )
 
 void CubeView::keyPressEvent(QKeyEvent* e)
 {
-	this->setTitle(QString::fromStdString(std::to_string(e->key())));
+//	this->setTitle(QString::fromStdString(std::to_string(e->key())));
 	if(e->matches(QKeySequence::StandardKey::Undo))
 	{
+		//undo can only be down when some change happend
+		if(m_prevPtr == m_prevPtrBegin) return;
 		//retrieve previous state
-		for(size_t i = 0; i < m_res*m_res*m_res; i++)
+		for(size_t i = 0; i < m_res_3; i++)
 		{
-			m_cubeData[i].setColor(m_cubeDataPrev[i].color);
-			m_cubeData[i].setState(m_cubeDataPrev[i].state);
+			m_cubeData[i].setColor(m_cubeDataPrev[m_prevPtr][i].color);
+			m_cubeData[i].setState(m_cubeDataPrev[m_prevPtr][i].state);
 		}
+		if(m_prevPtr == 0) m_prevPtr = 9;
+		m_prevPtr--;
 
 		//show changes
 		update();
@@ -390,10 +400,15 @@ void CubeView::changeCubes(unsigned int _color, unsigned int _newColor, bool _st
 
 void CubeView::saveAsPrevious()
 {
-	for(size_t i = 0; i < m_res*m_res*m_res; ++i)
+	m_prevPtr = (m_prevPtr+1) % MAXUNDOSTEPS;
+
+	//when all buffers are used 
+	if(m_prevPtr == m_prevPtrBegin) m_prevPtrBegin = (m_prevPtr+1) % 10;
+	
+	for(size_t i = 0; i < m_res_3; ++i)
 	{
-		m_cubeDataPrev[i].color = m_cubeData[i].m_colorOrg;
-		m_cubeDataPrev[i].state = m_cubeData[i].getState();
+		m_cubeDataPrev[m_prevPtr][i].color = m_cubeData[i].m_colorOrg;
+		m_cubeDataPrev[m_prevPtr][i].state = m_cubeData[i].getState();
 	}
 }
 
@@ -421,8 +436,8 @@ void CubeView::shiftCubes(int _x, int _y, int _z)
 		}
 		else
 		{
-			m_cubeData[i].setColor(m_cubeDataPrev[newInd].color);
-			m_cubeData[i].setState(m_cubeDataPrev[newInd].state);
+			m_cubeData[i].setColor(m_cubeDataPrev[m_prevPtr][newInd].color);
+			m_cubeData[i].setState(m_cubeDataPrev[m_prevPtr][newInd].state);
 		}
 	}
 
@@ -455,8 +470,8 @@ void CubeView::rotateCubes(int _x, int _y, int _z)
 		//every component value is changed by rotations around the two other axis 
 		int index = INDEX(newVal(_z, newVal(_y, x, z), y), newVal(_z, newVal(_x, y, z), x), newVal(_y, newVal(_x, z, y), x));
 
-		m_cubeData[i].setColor(m_cubeDataPrev[index].color);
-		m_cubeData[i].setState(m_cubeDataPrev[index].state);
+		m_cubeData[i].setColor(m_cubeDataPrev[m_prevPtr][index].color);
+		m_cubeData[i].setState(m_cubeDataPrev[m_prevPtr][index].state);
 
 		i++;
 	}

@@ -28,6 +28,8 @@ arrow-up	Shifts every cube in direction of the current operation axis.
 
 arrow-down	Shifts every cube in oposite direction of the current operation axis.
 
+r		Rotates every cube around the current operation axis.
+
 x		Sets the current operation axis to x.
 
 y		Sets the current operation axis to y.

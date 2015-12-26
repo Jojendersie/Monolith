@@ -254,7 +254,16 @@ public:
         actionSave->setText(QApplication::translate("ComponentEditorClass", "save", 0));
         actionAbout->setText(QApplication::translate("ComponentEditorClass", "about", 0));
         groupBox->setTitle(QApplication::translate("ComponentEditorClass", "ColorOptions", 0));
+#ifndef QT_NO_TOOLTIP
+        lineEdit->setToolTip(QApplication::translate("ComponentEditorClass", "color code in hex or decimal without prefix", 0));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
+        pushButton->setToolTip(QApplication::translate("ComponentEditorClass", "add color to this palette", 0));
+#endif // QT_NO_TOOLTIP
         pushButton->setText(QApplication::translate("ComponentEditorClass", "+", 0));
+#ifndef QT_NO_TOOLTIP
+        BtnColorRemove->setToolTip(QApplication::translate("ComponentEditorClass", "remove selected color", 0));
+#endif // QT_NO_TOOLTIP
         BtnColorRemove->setText(QApplication::translate("ComponentEditorClass", "x", 0));
         generalInfos->setTitle(QApplication::translate("ComponentEditorClass", "general Informations", 0));
         label_3->setText(QApplication::translate("ComponentEditorClass", "Mass:", 0));
@@ -273,6 +282,9 @@ public:
         checkBoxSolid->setText(QString());
         label_12->setText(QApplication::translate("ComponentEditorClass", "Solid:", 0));
         label_13->setText(QApplication::translate("ComponentEditorClass", "Name:", 0));
+#ifndef QT_NO_TOOLTIP
+        pushButtonAtr->setToolTip(QString());
+#endif // QT_NO_TOOLTIP
         pushButtonAtr->setText(QApplication::translate("ComponentEditorClass", "additional attributes", 0));
         groupBox_2->setTitle(QApplication::translate("ComponentEditorClass", "Voxels", 0));
 #ifndef QT_NO_TOOLTIP
