@@ -36,9 +36,9 @@ Galaxy::Galaxy(int _stars, float _size, int _ambientStars) :
 		//center is a cloud
 		if (i / (float)_stars < coreToRemoteRatio)
 		{
-			pos[0] = rnd.Normal(radius * 10);
-			pos[1] = rnd.Normal(radius * 10);
-			pos[2] = rnd.Normal(radius * 10);
+			pos[0] = rnd.Normal(radius * 8);
+			pos[1] = rnd.Normal(radius * 8);
+			pos[2] = rnd.Normal(radius * 8);
 		}
 		else
 		{
@@ -55,28 +55,16 @@ Galaxy::Galaxy(int _stars, float _size, int _ambientStars) :
 		
 			//noise decreases linear with radius
 			float relative = c / (float)(_stars - coreStars);
-			float f2 = (1.2f - relative) * radius / 12;
+			float f2 = (1.2f - relative) * radius * 2;
 			//2 arms starting on the same axis (+-)
-			pos[0] = (r*radius + rnd.Uniform(-f2, f2)) *(i % 2 ? 1.f : -1.f);
-
-			pos[1] = 0.f;
+			pos[0] = (r*radius + rnd.Normal(f2)) *(i % 2 ? 1.f : -1.f);
+			pos[2] = 0.f;
 			//rotation is linear
-			float a = relative * 2 * PI * rotationRate;
-			Mat3x3 rotator = Mat3x3(cos(a), -sin(a), 0.f,
-									sin(a),  cos(a), 0.f,
-									0.f,     0.f,    1.f);
-			pos = rotator * pos;
-			pos[2] = rnd.Uniform(-height, height);
-		}
-		//alternative distribution
-	/*	pos[0] = rnd.Uniform(-radius, radius);
+			float a = relative * 2 * PI * rotationRate + rnd.Exponential(relative);
+			pos = rotationY(a) * pos;
 
-		float max = sqrtf(radiusSq - pos[0] * pos[0]);
-		pos[1] = rnd.Uniform(-max, max);
-		
-		float f = pos[0] * pos[0] + pos[1] * pos[1];
-		f = 1 - f / radiusSq;
-		pos[2] = rnd.Uniform(-f*height, f*height);*/
+			pos[1] = rnd.Uniform(-height, height);
+		}
 
 		m_starSystems.emplace_back(
 			Math::FixVec3(pos),

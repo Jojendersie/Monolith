@@ -2,6 +2,7 @@
 #include "gsmainmenu.hpp"
 #include "gsplay.hpp"
 #include "gseditor.hpp"
+#include "gameplay/galaxy.hpp"
 #include "graphic/core/device.hpp"
 #include "math/math.hpp"
 #include "input/camera.hpp"
@@ -12,6 +13,7 @@
 #include "GLFW/glfw3.h"
 
 using namespace ei;
+using namespace Math;
 
 // ************************************************************************* //
 GSMainMenu::GSMainMenu(Monolith* _game) : IGameState(_game)
@@ -24,6 +26,8 @@ GSMainMenu::GSMainMenu(Monolith* _game) : IGameState(_game)
 	m_hud->CreateBtn("menuBtn", Resources::GetText("editor"), Vec2(-0.25f, 0.22f), Vec2(0.5f, 0.15f), Graphic::RealDimension::width, [&]() { m_game->PushState(m_game->GetEditorState()); });
 	m_hud->CreateBtn("menuBtn", Resources::GetText("options"), Vec2(-0.25f, 0.04f), Vec2(0.5f, 0.15f), Graphic::RealDimension::width, [&]() { m_finished = true; });
 	m_hud->CreateBtn("menuBtn", Resources::GetText("end"), Vec2(-0.25f, -0.14f), Vec2(0.5f, 0.15f), Graphic::RealDimension::width, [&]() { m_finished = true; });
+
+	m_galaxy = new Galaxy(10000, 2000.f, 10000);
 
 	LOG_LVL2("Created game state MainMenu");
 }
@@ -57,7 +61,16 @@ void GSMainMenu::Simulate( double _deltaTime )
 // ************************************************************************* //
 void GSMainMenu::Render( double _deltaTime )
 {
-	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
+	Graphic::Device::Clear( 0.05f, 0.05f, 0.06f );
+
+	const float galaxyZoom = -1500.0f;
+	float galaxyRotation = Monolith::Time() * 0.01f;
+	Input::Camera galaxyCam( FixVec3(Fix(galaxyZoom*sin(galaxyRotation)), Fix(1000.0), Fix(galaxyZoom*cos(galaxyRotation))),
+		Quaternion(-0.4f, 0.0f, 0.0f) * Quaternion(0.0f, -galaxyRotation, 0.0f),
+		0.55f, Graphic::Device::GetAspectRatio() );
+	galaxyCam.UpdateMatrices();
+	galaxyCam.Set( Graphic::Resources::GetUBO(Graphic::UniformBuffers::CAMERA) );
+	m_galaxy->Draw(galaxyCam);
 	
 	m_hud->m_dbgLabel->SetText("<t 026> <s 024>" + std::to_string(_deltaTime * 1000.0) + " ms</s></t>");
 	m_hud->Draw( _deltaTime );

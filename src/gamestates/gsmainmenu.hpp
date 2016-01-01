@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gamestatebase.hpp"
+#include "utilities/scopedpointer.hpp"
 
 /// \brief Game state for the initial menu.
 class GSMainMenu: public IGameState
@@ -22,4 +23,5 @@ public:
 	virtual void KeyDoubleClick( int _key ) override;
 private:
 	Graphic::Hud* m_hud;
+	ScopedPtr<Galaxy> m_galaxy;		///< Galaxy in the background
 };
