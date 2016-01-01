@@ -46,6 +46,7 @@ private:
 	bool m_deletionMode;				///< Deletion mode for the selected voxel
 	bool m_validPosition;				///< False if the target voxel cannot be edited (coordinates or other conditions)
 	ei::IVec3 m_lvl0Position;			///< Information about the current target voxel
+	int m_currentSideFlags;				///< Flags for the neighborhood of the currently selected voxel
 
 	/// \brief Method to create a new model as copy or from scratch.
 	/// TODO: Pool for object templates

@@ -153,6 +153,18 @@ void GSEditor::Simulate( double _deltaTime )
 		}
 
 		ValidatePosition();
+
+		// Update the side-flags mask
+		if( !m_deletionMode && m_validPosition )
+		{
+			// Set one for each side without an neighbor
+			m_currentSideFlags  = Voxel::TypeInfo::IsSolid(m_ship->Get(m_lvl0Position + IVec3(0,0,1))) ? 0 : 0x20;
+			m_currentSideFlags |= Voxel::TypeInfo::IsSolid(m_ship->Get(m_lvl0Position - IVec3(0,0,1))) ? 0 : 0x10;
+			m_currentSideFlags |= Voxel::TypeInfo::IsSolid(m_ship->Get(m_lvl0Position + IVec3(0,1,0))) ? 0 : 0x08;
+			m_currentSideFlags |= Voxel::TypeInfo::IsSolid(m_ship->Get(m_lvl0Position - IVec3(0,1,0))) ? 0 : 0x04;
+			m_currentSideFlags |= Voxel::TypeInfo::IsSolid(m_ship->Get(m_lvl0Position + IVec3(1,0,0))) ? 0 : 0x02;
+			m_currentSideFlags |= Voxel::TypeInfo::IsSolid(m_ship->Get(m_lvl0Position - IVec3(1,0,0))) ? 0 : 0x01;
+		}
 	}
 }
 
@@ -164,7 +176,7 @@ void GSEditor::Render( double _deltaTime )
 	Graphic::Device::Clear( 0.5f, 0.5f, 0.0f );
 
 	// The model's transformation matrix to render additional information
-	Mat4x4 modelViewProjection;
+	Mat4x4 modelView;
 
 	// Draw the model which is edited
 	if( m_criticalModelWork.try_lock() )
@@ -172,8 +184,8 @@ void GSEditor::Render( double _deltaTime )
 		m_modelCamera->Set( Graphic::Resources::GetUBO(Graphic::UniformBuffers::CAMERA) );
 		Graphic::Device::SetEffect(	Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
 		m_ship->Draw( *m_modelCamera );
-		m_ship->GetModelMatrix( modelViewProjection, *m_modelCamera );
-		modelViewProjection = m_modelCamera->GetProjection() * modelViewProjection;
+		m_ship->GetModelMatrix( modelView, *m_modelCamera );
+		Mat4x4 modelViewProjection = m_modelCamera->GetProjection() * modelView;
 
 		// Draw the thrust function
 //		if( m_recreateThrustVis ) { m_thrustFunction = new Graphic::Marker::SphericalFunction( m_ship->DebugGet() ); m_recreateThrustVis = false; }
@@ -186,25 +198,24 @@ void GSEditor::Render( double _deltaTime )
 	// Draw the marker in the same view
 	if( m_rayHits )
 	{
+		// Draw a ghost of the new component
+		if( !m_deletionMode && m_validPosition )
+		{
+			Mat4x4 ghostTransform = modelView * scalingH( 1.0f ) * translation( m_lvl0Position );
+			m_singleComponentRenderer->Draw( m_currentType, m_currentSideFlags, ghostTransform, m_modelCamera->GetProjection() );
+		}
 		// Use model coordinate system
 		// Compute position of edited voxel.
 		Vec3 voxelPos = m_lvl0Position + 0.50001f;
+		Mat4x4 markerTransform = m_modelCamera->GetProjection() * modelView * scalingH( 1.0f ) * translation( voxelPos );
 		if( m_deletionMode || !m_validPosition )
-			m_redBox->Draw( modelViewProjection * scalingH( 1.0f ) * translation( voxelPos ) );
-		else 
-			m_greenBox->Draw( modelViewProjection * scalingH( 1.0f ) * translation( voxelPos ) );
+			m_redBox->Draw( markerTransform );
+		else
+			m_greenBox->Draw( markerTransform );
 	}
 
 	// Draw hud and components in another view
 	m_hud->Draw( _deltaTime );
-
-/*	Graphic::Device::SetEffect(	*Graphic::Resources::GetEffect(Graphic::Effects::VOXEL_RENDER) );
-	for(int i = 0; i < Voxel::TypeInfo::GetNumVoxels()-1; i++)
-	{
-		Math::Ray ray = m_modelCamera->GetRay(Math::Vec2(-0.887f,0.9f-i*0.2f));
-		m_availableVoxels[i].SetCenter(ray.m_start+35.f*ray.m_direction);
-		m_availableVoxels[i].Draw( *m_modelCamera, _time );
-	}*/
 }
 
 
