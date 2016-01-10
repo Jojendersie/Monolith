@@ -59,29 +59,8 @@ namespace Voxel {
 		/// \brief Must be called to release the memory allocated by the type information.
 		static void Unload();
 
-		/// \brief Sample the voxel material of the type at a target level.
-		/// \details This also samples the 'border texture' which provides a
-		///		fusion/transition of neighbored voxels. This texture is mostly
-		///		defined to allow a smooth texture in directions where no
-		///		neighbor is and a solid transition otherwise.
-		///		
-		///		The border texture will be rotated/mirrored to the correct side
-		///		and can therefore be used for alignment too. E.g. A tree which
-		///		stands on its border-side. If there are multiple neighbors the
-		///		union of all border and normal textures is calculated - so be
-		///		careful with trees.
-		/// \param [in] _type The type of the component voxel.
-		/// \param [in] _position A position inside the target levels 3D array.
-		/// \param [in] _level 0 Is the root of the mip map chain (1x1x1).
-		///		Positive numbers go to finer maps. If the number is larger than
-		///		the highest possible mip map a sample from a coarser map is used.
-		///	\param [in] _rootSurface Flags for the neighborhood. A 1 causes a
-		///		sampling of the rotated/mirrored border texture in this direction.
-		///	\param [out] _materialOut The material at the target position.
-		///	\param [out] _surfaceOut The surface properties at the target
-		///		position.
-		///	\return The voxel is valid (defined and surface voxel).
-		static bool Sample( ComponentType _type, ei::IVec3 _position, int _level, uint8 _rootSurface, Material& _materialOut, uint8& _surfaceOut );
+		/// \brief Get the material code of the 1x1x1 mip-map.
+		static Material GetMaterial( ComponentType _type );
 
 		/// \brief Returns the number of mip maps for the given type's materials.
 		static int GetMaxLevel( ComponentType _type );
@@ -297,7 +276,15 @@ namespace Voxel {
 		Voxel() : material(Material::UNDEFINED), type(ComponentType::UNDEFINED), dirty(0), solid(0), surface(0), health(0), sysAssignment(0)	{}
 
 		/// \brief Construct a component with a defined type and undefined material
-		Voxel(ComponentType _type) : type(_type), dirty(1), solid(TypeInfo::IsSolid(_type)?1:0), surface(0), sysAssignment(0) { uint8 dummy; TypeInfo::Sample(_type, ei::IVec3(0), 0, 0, material, dummy); }
+		Voxel(ComponentType _type) :
+			material( TypeInfo::GetMaterial(_type) ),
+			type( _type ),
+			dirty( 1 ),
+			solid( TypeInfo::IsSolid(_type) ? 1 : 0 ),
+			surface( 0 ),
+			sysAssignment( 0 )
+		{
+		}
 
 		/// \brief Mark this component as outdated (it is set to undefined)
 		void Touch()			{ dirty = 1; }
