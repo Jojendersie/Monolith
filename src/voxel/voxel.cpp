@@ -8,6 +8,7 @@
 #include <hybridarray.hpp>
 
 using namespace std;
+using namespace ei;
 
 namespace Voxel {
 	static TypeInfo* g_InfoManager;
@@ -646,6 +647,39 @@ namespace Voxel {
 				res /= 2;
 			}
 		}
+	}
+
+
+	// ********************************************************************* //
+	static uint8 rotate(uint8 _code, const IMat3x3& _rot)
+	{
+		// Reconstruct matrix from bit code
+		int x = _code & 0x3;
+		int y = (_code & 0xc) >> 2;
+		int z = 3 - (x + y);
+		IMat3x3 current(0);
+		current[x  ] = _code & 0x10 ? -1 : 1;
+		current[y+3] = _code & 0x20 ? -1 : 1;
+		current[z+6] = _code & 0x40 ? -1 : 1;
+		// Rotate
+		current *= _rot;
+		// Find position of x and y in the columns
+		x = current[0] != 0 ? 0 : (current[1] != 0 ? 1 : 2);
+		y = current[3] != 0 ? 0 : (current[4] != 0 ? 1 : 2);
+		z = 3 - (x + y);
+		return x | (y << 2) | (current[x] > 0 ? 0 : 0x10) | (current[y+3] > 0 ? 0 : 0x20) | (current[z+6] > 0 ? 0 : 0x40);
+	}
+	void Voxel::RotateX(bool _ccw)
+	{
+		rotation = rotate(rotation, IMat3x3(1, 0, 0, 0, 0, _ccw?-1:1, 0, _ccw?1:-1,  0));
+	}
+	void Voxel::RotateY(bool _ccw)
+	{
+		rotation = rotate(rotation, IMat3x3(0, 0, _ccw?1:-1, 0, 1, 0, _ccw?-1:1, 0, 0));
+	}
+	void Voxel::RotateZ(bool _ccw)
+	{
+		rotation = rotate(rotation, IMat3x3(0, _ccw?1:-1, 0, _ccw?-1:1, 0, 0, 0, 0, 1));
 	}
 
 } // namespace Voxel

@@ -12,7 +12,7 @@ namespace Graphic {
 SingleComponentRenderer::SingleComponentRenderer() :
 	m_voxels( "uu", nullptr, 0, Graphic::VertexBuffer::PrimitiveType::POINT )
 {
-	int bufferSize = 64 * Voxel::TypeInfo::GetNumVoxels() * sizeof(Voxel::VoxelVertex);
+	int bufferSize = 128 * 64 * Voxel::TypeInfo::GetNumVoxels() * sizeof(Voxel::VoxelVertex);
 	Voxel::VoxelVertex* vertexData = (Voxel::VoxelVertex*)malloc(bufferSize);
 	Voxel::VoxelVertex* appendBuffer = vertexData;
 	// Loop over all components
@@ -21,18 +21,22 @@ SingleComponentRenderer::SingleComponentRenderer() :
 		// Loop over all side flags
 		for( int j = 0; j < 64; ++j )
 		{
-			appendBuffer->SetPosition( IVec3(0) );
-			appendBuffer->SetVisibility( j );
-			appendBuffer->SetTexture( i );
-			appendBuffer->material = 0; // Unused for non-hierarchy voxels
-			++appendBuffer;
+			// Loop over all rotations (valid and invalid ones)
+			for( int k = 0; k < 128; ++k )
+			{
+				appendBuffer->SetPosition( IVec3(0) );
+				appendBuffer->SetVisibility( j );
+				appendBuffer->SetTexture( i );
+				appendBuffer->SetRotation( k );
+				++appendBuffer;
+			}
 		}
 	}
 
 	m_voxels.Commit((void*&)vertexData, bufferSize);
 }
 
-void SingleComponentRenderer::Draw( Voxel::ComponentType _type, int _sideFlags, const ei::Mat4x4& _worldView, const ei::Mat4x4& _projection )
+void SingleComponentRenderer::Draw( const Voxel::Voxel& _component, int _sideFlags, const ei::Mat4x4& _worldView, const ei::Mat4x4& _projection )
 {
 	Graphic::UniformBuffer& objectConstants = Graphic::Resources::GetUBO(Graphic::UniformBuffers::OBJECT_VOXEL);
 	objectConstants["WorldView"] = _worldView;
@@ -53,7 +57,17 @@ void SingleComponentRenderer::Draw( Voxel::ComponentType _type, int _sideFlags, 
 	objectConstants["Corner111"] = modelViewProjection * Vec4(  0.5f,  0.5f,  0.5f, 0.0f );
 	objectConstants["MaxOffset"] = max(len(c000), len(c001), len(c010), len(c011));
 
-	Graphic::Device::DrawVertices( m_voxels, int(_type) * 64 + _sideFlags, 1 );
+	// Rotate side-flags
+	/*int rx = _component.rotation & 0x03;
+	int ry = (_component.rotation & 0x0c) >> 2;
+	int rz = 3 - (rx + ry);
+	int flags[6] = { _sideFlags & 0x01, (_sideFlags & 0x02) >> 1, (_sideFlags & 0x04) >> 2,
+					(_sideFlags & 0x08) >> 3, (_sideFlags & 0x10) >> 4, (_sideFlags & 0x20) >> 5};
+	int sideFlags = ((_component.rotation & 0x10) ? (flags[rx*2]<<1) | (flags[rx*2+1]   ) : (flags[rx*2]   ) | (flags[rx*2+1]<<1))
+				  | ((_component.rotation & 0x20) ? (flags[ry*2]<<3) | (flags[ry*2+1]<<2) : (flags[ry*2]<<2) | (flags[ry*2+1]<<3))
+				  | ((_component.rotation & 0x40) ? (flags[rz*2]<<5) | (flags[rz*2+1]<<4) : (flags[rz*2]<<4) | (flags[rz*2+1]<<5));*/
+
+	Graphic::Device::DrawVertices( m_voxels, (int(_component.type) * 64 + _sideFlags) * 128 + _component.rotation, 1 );
 }
 
 } // namespace Graphic

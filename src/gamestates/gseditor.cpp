@@ -26,7 +26,7 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 	m_rayHits( false ),
 	m_deletionMode( false ),
 	m_lvl0Position( 0 ),
-	m_currentType( Voxel::ComponentType::WATER ),
+	m_currentComponent( Voxel::ComponentType::WATER ),
 	m_recreateThrustVis( false )
 {
 	LOG_LVL2("Starting to create game state Editor");
@@ -48,7 +48,7 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 			+ " " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetSemiconductors(type), 2)
 			+ " " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetHeisenbergium(type), 2),
 			Vec2(-1.f, 1.f - i*0.2f), Vec2(1.8f, 0.2f), Graphic::RealDimension::width,
-			[this, type](){ m_currentType = type; }, false);
+			[this, type](){ m_currentComponent = Voxel::Voxel(type); }, false);
 		/*		voxelContainer->CreateBtn("componentBtn", "<s 022>       "+Voxel::TypeInfo::GetName(type)
 		+ " Ì:" + std::to_string(Voxel::TypeInfo::GetHydrogen(type))
 		+ " \n      Í:" + std::to_string(Voxel::TypeInfo::GetCarbon(type))
@@ -202,7 +202,7 @@ void GSEditor::Render( double _deltaTime )
 		if( !m_deletionMode && m_validPosition )
 		{
 			Mat4x4 ghostTransform = modelView * scalingH( 1.0f ) * translation( m_lvl0Position );
-			m_singleComponentRenderer->Draw( m_currentType, m_currentSideFlags, ghostTransform, m_modelCamera->GetProjection() );
+			m_singleComponentRenderer->Draw( m_currentComponent, m_currentSideFlags, ghostTransform, m_modelCamera->GetProjection() );
 		}
 		// Use model coordinate system
 		// Compute position of edited voxel.
@@ -245,8 +245,18 @@ void GSEditor::KeyDown( int _key, int _modifiers )
 	// hud overrides input
 	if(m_hud->KeyDown(_key, _modifiers)) return;
 
-	if( _key == GLFW_KEY_ESCAPE )
+	switch( _key )
+	{
+	case GLFW_KEY_ESCAPE:
 		m_finished = true;
+		break;
+	case GLFW_KEY_W: m_currentComponent.RotateX(true); break;
+	case GLFW_KEY_S: m_currentComponent.RotateX(false); break;
+	case GLFW_KEY_E: m_currentComponent.RotateY(true); break;
+	case GLFW_KEY_Q: m_currentComponent.RotateY(false); break;
+	case GLFW_KEY_D: m_currentComponent.RotateZ(true); break;
+	case GLFW_KEY_A: m_currentComponent.RotateZ(false); break;
+	}
 
 	if( Input::Manager::IsVirtualKey(_key, Input::VirtualKey::QUICK_SAVE) )
 		m_ship->Save( Jo::Files::HDDFile( "savegames/test.vmo", Jo::Files::HDDFile::OVERWRITE ) );
@@ -267,7 +277,7 @@ void GSEditor::KeyDown( int _key, int _modifiers )
 	// DEBUG CODE TO TEST EDITING WITHOUT THE HUD
 	if( _key >= GLFW_KEY_0 && _key <= GLFW_KEY_9 )
 	{
-		m_currentType = Voxel::ComponentType(_key - GLFW_KEY_0);
+		m_currentComponent = Voxel::Voxel(Voxel::ComponentType(_key - GLFW_KEY_0));
 	}
 }
 
@@ -288,7 +298,7 @@ void GSEditor::KeyClick( int _key )
 			m_ship->RemoveComponent( m_lvl0Position );
 		} else {
 			// Add a voxel of the chosen type
-			m_ship->AddComponent( m_lvl0Position, m_currentType );
+			m_ship->AddComponent( m_lvl0Position, m_currentComponent );
 		}
 		m_ship->ComputeParameters();
 		m_recreateThrustVis = true;

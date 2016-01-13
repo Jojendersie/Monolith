@@ -40,7 +40,7 @@ namespace Voxel {
 
 		/// \brief Set a voxel in the model and update mass properties.
 		/// \see SparseVoxelOctree::Set.
-		void Set( const ei::IVec3& _position, ComponentType _type )	{ m_voxelTree.Set( _position, 0, Voxel(_type) ); }
+		void Set( const ei::IVec3& _position, const Voxel& _component )	{ m_voxelTree.Set( _position, 0, _component ); }
 
 		/// \brief Returns the type of a voxel on a finest grid level.
 		///	\details If the position is outside the return value is UNDEFINED. For

@@ -35,7 +35,9 @@ void main()
 {
 	// Determine which voxels can be sampled at all (dependent on neighborhood)
 	int voxelMask = 0x40 | ((~gs_voxel_material_mipmap.x) & 0x3f);
-	int materialIndex = gs_voxel_material_mipmap.x >> 24;
+	int textureIndex = 0;
+	if( (gs_voxel_material_mipmap.x & 0x80000000) == 0 )
+		textureIndex = gs_voxel_material_mipmap.y;
 	ivec2 codes;
 	codes.x = gs_voxel_material_mipmap.y;
 
@@ -43,6 +45,25 @@ void main()
 	vec3 chunkSpacePos = gs_objectPosition + gs_texCoord - 0.5;
 	vec3 viewDir = normalize((vec4(chunkSpacePos, 1) * c_mWorldView).xyz);
 	vec3 chunkSpaceDir = viewDir * mat3x3(c_mInverseWorldView);
+	int rx = (gs_voxel_material_mipmap.x & 0x03000000) >> 24;
+	int ry = (gs_voxel_material_mipmap.x & 0x0c000000) >> 26;
+	int rz = 3 - (rx + ry);
+	bool toggleSignX = (gs_voxel_material_mipmap.x & 0x10000000) != 0;
+	bool toggleSignY = (gs_voxel_material_mipmap.x & 0x20000000) != 0;
+	bool toggleSignZ = (gs_voxel_material_mipmap.x & 0x40000000) != 0;
+	vec3 componentSpaceDir;
+	componentSpaceDir.x = toggleSignX ? -chunkSpaceDir[rx] : chunkSpaceDir[rx];
+	componentSpaceDir.y = toggleSignY ? -chunkSpaceDir[ry] : chunkSpaceDir[ry];
+	componentSpaceDir.z = toggleSignZ ? -chunkSpaceDir[rz] : chunkSpaceDir[rz];
+	
+	// Also rotate voxelMask to component-space
+	voxelMask = 0x40 |
+			((voxelMask & (1<<(rx*2+(toggleSignX?1:0)))) != 0 ? 0x01 : 0x00) |
+			((voxelMask & (1<<(rx*2+(toggleSignX?0:1)))) != 0 ? 0x02 : 0x00) |
+			((voxelMask & (1<<(ry*2+(toggleSignY?1:0)))) != 0 ? 0x04 : 0x00) |
+			((voxelMask & (1<<(ry*2+(toggleSignY?0:1)))) != 0 ? 0x08 : 0x00) |
+			((voxelMask & (1<<(rz*2+(toggleSignZ?1:0)))) != 0 ? 0x10 : 0x00) |
+			((voxelMask & (1<<(rz*2+(toggleSignZ?0:1)))) != 0 ? 0x20 : 0x00);
 	
 	// Number of pixel must be equal in all directions (can theoretically be changed
 	// if required). Used for ray marching the texture.
@@ -50,12 +71,17 @@ void main()
 	
 	// Initialize ray marching algorithm
 	ivec3 dirSign; 
-	dirSign.x = chunkSpaceDir.x < 0.0f ? -1 : 1;
-	dirSign.y = chunkSpaceDir.y < 0.0f ? -1 : 1;
-	dirSign.z = chunkSpaceDir.z < 0.0f ? -1 : 1;
-	vec3 voxelPos = gs_texCoord * (texSize - 0.00001);
+	dirSign.x = componentSpaceDir.x < 0.0f ? -1 : 1;
+	dirSign.y = componentSpaceDir.y < 0.0f ? -1 : 1;
+	dirSign.z = componentSpaceDir.z < 0.0f ? -1 : 1;
+	// Dependent on rotation change start position
+	vec3 texPos;
+	texPos.x = toggleSignX ? 1.0 - gs_texCoord[rx] : gs_texCoord[rx];
+	texPos.y = toggleSignY ? 1.0 - gs_texCoord[ry] : gs_texCoord[ry];
+	texPos.z = toggleSignZ ? 1.0 - gs_texCoord[rz] : gs_texCoord[rz];
+	vec3 voxelPos = texPos * (texSize - 0.00001);
 	ivec3 rayPos = ivec3(voxelPos);
-	vec3 absDir = abs(chunkSpaceDir);
+	vec3 absDir = abs(componentSpaceDir);
 	vec3 projLength = 1.0 / (absDir + 0.0001);
 	vec3 d = voxelPos - rayPos;
 	if(dirSign.x == 1) d.x = 1-d.x;
@@ -63,10 +89,10 @@ void main()
 	if(dirSign.z == 1) d.z = 1-d.z;
 	d *= projLength;
 	
-	if( materialIndex != 0 && texSize > 1 )
+	if( textureIndex != 0 && texSize > 1 )
 	{
 		// Ray march until a voxel is set in the current configuration
-		codes = texelFetch(u_componentTex, ivec3(rayPos.x + rayPos.y * texSize, rayPos.z, materialIndex), gs_voxel_material_mipmap.z).xy;
+		codes = texelFetch(u_componentTex, ivec3(rayPos.x + rayPos.y * texSize, rayPos.z, textureIndex), gs_voxel_material_mipmap.z).xy;
 		while((codes.y & voxelMask) == 0)
 		{
 			if(d.x < d.y || d.z < d.y) {
@@ -86,20 +112,32 @@ void main()
 			}
 			if(any(greaterThanEqual(rayPos, ivec3(texSize,texSize,texSize))) || any(lessThan(rayPos, ivec3(0,0,0))))
 				discard;
-			codes = texelFetch(u_componentTex, ivec3(rayPos.x + rayPos.y * texSize, rayPos.z, materialIndex), gs_voxel_material_mipmap.z).xy;
+			codes = texelFetch(u_componentTex, ivec3(rayPos.x + rayPos.y * texSize, rayPos.z, textureIndex), gs_voxel_material_mipmap.z).xy;
 		}
 	}
 	
 	// Estimate normal from the plane we intersected
 	vec3 d1 = d;
 	d = abs(d - projLength);
+	vec3 normalTmp;
+	normalTmp[rx] = toggleSignX ? dirSign.x : -dirSign.x;
+	normalTmp[ry] = toggleSignY ? dirSign.y : -dirSign.y;
+	normalTmp[rz] = toggleSignZ ? dirSign.z : -dirSign.z;
 	vec3 normal;
-	if(d.x < 0.0001) normal = -dirSign.x * vec3(c_mWorldView[0][0], c_mWorldView[1][0], c_mWorldView[2][0]);
-	if(d.y < 0.0001) normal = -dirSign.y * vec3(c_mWorldView[0][1], c_mWorldView[1][1], c_mWorldView[2][1]);
-	if(d.z < 0.0001) normal = -dirSign.z * vec3(c_mWorldView[0][2], c_mWorldView[1][2], c_mWorldView[2][2]);
+	if(d[rx] < 0.0001) normal = normalTmp.x * vec3(c_mWorldView[0][0], c_mWorldView[1][0], c_mWorldView[2][0]);
+	if(d[ry] < 0.0001) normal = normalTmp.y * vec3(c_mWorldView[0][1], c_mWorldView[1][1], c_mWorldView[2][1]);
+	if(d[rz] < 0.0001) normal = normalTmp.z * vec3(c_mWorldView[0][2], c_mWorldView[1][2], c_mWorldView[2][2]);
 	normal = normalize(normal);
-	//normal = normalize(normal + (rayPos - texSize * 0.5) * (0.5 / texSize) - d1 / projLength * 0.1 + 0.05);
-	normal = normalize(normal - d1 / projLength * 0.1 + 0.05);
+	vec3 normalModification;
+	normalTmp = - d1 / projLength * 0.1 + 0.05;
+	//normalTmp = normalize(normalTmp + (rayPos - texSize * 0.5) * (0.5 / texSize) - d1 / projLength * 0.1 + 0.05);
+	normalModification.x = toggleSignX ? -normalTmp[rx] : normalTmp[rx];
+	normalModification.y = toggleSignY ? -normalTmp[ry] : normalTmp[ry];
+	normalModification.z = toggleSignZ ? -normalTmp[rz] : normalTmp[rz];
+	/*normalModification[rx] = toggleSignX ? normalTmp.x : -normalTmp.x;
+	normalModification[ry] = toggleSignY ? normalTmp.y : -normalTmp.y;
+	normalModification[rz] = toggleSignZ ? normalTmp.z : -normalTmp.z;*/
+	normal = normalize(normal + normalModification);
 	
 	// Decode transparency or color rotation
 	float yvar = float((codes.x >> 28) & 0xf) / 15.0;

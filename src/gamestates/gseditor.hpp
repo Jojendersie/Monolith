@@ -41,7 +41,7 @@ private:
 	std::mutex m_criticalModelWork;		///< Locked if a model is replaced or similar
 	Jo::HybridArray<ScopedPtr<Ship>> m_deleteList;	///< Deletion must be done by the one who has the context
 
-	Voxel::ComponentType m_currentType;		///< The type of the voxel which is painted
+	Voxel::Voxel m_currentComponent;	///< Type+Rotation+default information of the current new component
 	bool m_rayHits;						///< The hit information is up to date and filled
 	bool m_deletionMode;				///< Deletion mode for the selected voxel
 	bool m_validPosition;				///< False if the target voxel cannot be edited (coordinates or other conditions)

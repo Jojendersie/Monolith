@@ -34,9 +34,9 @@ Ship::~Ship()
 }
 
 // ********************************************************************* //
-void Ship::AddComponent(const IVec3& _position, Voxel::ComponentType _type)
+void Ship::AddComponent(const IVec3& _position, const Voxel::Voxel& _component)
 {
-	Model::Set(_position, _type);
+	Model::Set(_position, _component);
 	// Add to systems after insertion
 	//m_primarySystem.OnAdd(_position, _type);
 	// Report the change to each neighbor

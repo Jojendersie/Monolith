@@ -17,7 +17,7 @@ namespace Voxel {
 	const int LOG_CHUNK_SIZE = 6;
 	const int CHUNK_SIZE = 1<<LOG_CHUNK_SIZE;
 
-	struct VoxelVertex
+	class VoxelVertex
 	{
 		/// \brief A lot of discrete information.
 		///	\details Single bits or groups of bits have different meanings:
@@ -29,18 +29,21 @@ namespace Voxel {
 		///			 respective size-dimension (2^s).
 		///		18-23: Z coordinate of voxel relative to the grid corner of the
 		///			 respective size-dimension (2^s).
-		///		24-31: 256 texture indices / voxel types.
+		///		24-30: rotation code (see voxel.hpp)
+		///		31: is the second code a material (1) or a texture/component type (0).
 		uint32 flags;
-		Material material;	///< The material code is used for hierarchical rendering (only component-groups are encoded by voxels of a single material).
+		uint32 materialOrTexture;	///< The material code is used for hierarchical rendering (only component-groups are encoded by voxels of a single material).
 
+	public:
 		VoxelVertex() : flags(0)	{}
 
 		void SetVisibility( int _l, int _r, int _bo, int _t, int _f, int _ba )	{ flags = (flags & 0xffffffc0) | _l | _r<<1 | _bo<<2 | _t<<3 | _f<<4 | _ba<<5; }
 		void SetVisibility( int _flags )					{ Assert(_flags < 64, "Invalid visiblity flag."); flags = (flags & 0xffffffc0) | _flags; }
-// DEPRECATED		void SetSize( int _level )							{ Assert(0<=_level && _level<=5); flags = (flags & 0xfffffe3f) | (_level<<6); }
 		void SetPosition( const ei::IVec3& _position )	    { flags = (flags & 0xff00003f) | (_position[0] << 6) | (_position[1] << 12) | (_position[2] << 18); }
- 		void SetTexture( int _textureIndex )				{ flags = (flags & 0x00ffffff) | (_textureIndex << 24); }
-//		void SetHasChildren( bool _bHasChildren )			{ flags = (flags & 0x7fffffff) | (_bHasChildren?0x80000000:0); }
+ 		void SetTexture( int _textureIndex )				{ flags &= 0x7fffffff; materialOrTexture = _textureIndex; }
+		void SetMaterial( uint32 _materialCode )			{ flags |= 0x80000000; materialOrTexture = _materialCode; }
+		// WARNING: only call SetRotation() once and only after flags are set!
+		void SetRotation( int _rotationCode );
 
 		bool IsVisible() const								{ return (flags & 0x3f) != 0; }
 		int GetSize() const									{ return (flags>>6) & 0x7; }

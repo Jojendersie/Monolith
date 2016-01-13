@@ -11,7 +11,7 @@ namespace Graphic {
 
 namespace Voxel {
 
-	enum struct ComponentType: uint8 {
+	enum struct ComponentType: uint16 {
 		UNDEFINED,
 		INVISIBLE,
 		WATER,
@@ -267,10 +267,19 @@ namespace Voxel {
 		Material material;		///< Graphical representation
 		uint16_t health;		///< Hit points until destruction (0 and less). One hit point is approximating 30kJ
 		ComponentType type;		///< The type of the voxel
-		uint8 dirty: 1;		///< Somebody changed a child or this node
-		uint8 solid: 1;		///< This node and all its children are defined
+		uint8 dirty: 1;			///< Somebody changed a child or this node
+		uint8 solid: 1;			///< This node and all its children are defined
 		uint8 surface: 6;		///< One flag for each direction if there is no solid neighborhood
 		uint8 sysAssignment;	///< Used from outside to determine an assignment to different ship systems.
+		/// \brief A rotation code to transform direction vectors fast.
+		/// \details Bits are interpreted as follows:
+		///		0-1 swap index for the x component. I.e dir.x = dir[si.x].
+		///		2-3 swap index for y (si.y).
+		///		z is indirectly given by (3-(si.x+si.y)).
+		///		4-6 switch sign for each component.
+		///		A full direction can be rotated by:
+		///		dir = Vec3(r&0x10?-1:1 * dir[r&0x3], r&0x20?-1:1 * dir[(r&0xc)>>2], r&0x40?-1:1 * dir[3-(r&0x3 + (r&0xc)>>2)])
+		uint8 rotation;
 
 		/// \brief Standard constructor creates undefined element
 		Voxel() : material(Material::UNDEFINED), type(ComponentType::UNDEFINED), dirty(0), solid(0), surface(0), health(0), sysAssignment(0)	{}
@@ -282,7 +291,8 @@ namespace Voxel {
 			dirty( 1 ),
 			solid( TypeInfo::IsSolid(_type) ? 1 : 0 ),
 			surface( 0 ),
-			sysAssignment( 0 )
+			sysAssignment( 0 ),
+			rotation( 0x4 ) // no rotation = 0->0, 1->1, no signs
 		{
 		}
 
@@ -297,6 +307,13 @@ namespace Voxel {
 		bool operator == (const Voxel& _mat) const		{ return type == _mat.type; }
 		/// \brief Checks if type is not equal
 		bool operator != (const Voxel& _mat) const		{ return type != _mat.type; }
+
+		/// \brief Rotate +90 degree (ccw) or -90 degree (cw) around X axis.
+		void RotateX(bool _ccw);
+		/// \brief Rotate +90 degree (ccw) or -90 degree (cw) around Y axis.
+		void RotateY(bool _ccw);
+		/// \brief Rotate +90 degree (ccw) or -90 degree (cw) around Z axis.
+		void RotateZ(bool _ccw);
 	};
 #	pragma pack(pop)
 };

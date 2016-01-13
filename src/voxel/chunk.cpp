@@ -12,6 +12,34 @@ using namespace ei;
 
 namespace Voxel {
 
+	void VoxelVertex::SetRotation( int _rotationCode )
+	{
+		flags = (flags & 0x80ffffff) | (_rotationCode << 24);
+
+		// Rotate side-flags
+		/*int rx = _rotationCode & 0x03;
+		int ry = (_rotationCode & 0x0c) >> 2;
+		int rz = 3 - (rx + ry);
+		int flagArray[6] = { flags & 0x01, (flags & 0x02) >> 1, (flags & 0x04) >> 2,
+							(flags & 0x08) >> 3, (flags & 0x10) >> 4, (flags & 0x20) >> 5};
+		int sideFlags = ((_rotationCode & 0x10) ? (flagArray[rx*2]<<1) | (flagArray[rx*2+1]   ) : (flagArray[rx*2]   ) | (flagArray[rx*2+1]<<1))
+					  | ((_rotationCode & 0x20) ? (flagArray[ry*2]<<3) | (flagArray[ry*2+1]<<2) : (flagArray[ry*2]<<2) | (flagArray[ry*2+1]<<3))
+					  | ((_rotationCode & 0x40) ? (flagArray[rz*2]<<5) | (flagArray[rz*2+1]<<4) : (flagArray[rz*2]<<4) | (flagArray[rz*2+1]<<5));
+		flags = (flags & 0xffffffc0) | sideFlags;*/
+		/*if(rx < 3 && ry < 3 && rz < 3 && rx >= 0 && ry >= 0 && rz >= 0)
+		{
+			int flagArray[6];
+			flagArray[rx*2]   = _rotationCode & 0x10 ? (flags & 0x02) >> 1 : flags & 0x01;
+			flagArray[rx*2+1] = _rotationCode & 0x10 ? flags & 0x01 : (flags & 0x02) >> 1;
+			flagArray[ry*2]   = _rotationCode & 0x20 ? (flags & 0x08) >> 3 : (flags & 0x04) >> 2;
+			flagArray[ry*2+1] = _rotationCode & 0x20 ? (flags & 0x04) >> 2 : (flags & 0x08) >> 3;
+			flagArray[rz*2]   = _rotationCode & 0x40 ? (flags & 0x20) >> 5 : (flags & 0x10) >> 4;
+			flagArray[rz*2+1] = _rotationCode & 0x40 ? (flags & 0x10) >> 4 : (flags & 0x20) >> 5;
+			flags = (flags & 0xffffffc0) | flagArray[0] | flagArray[1]<<1 | flagArray[2]<<2 | flagArray[3]<<3 | flagArray[4]<<4 | flagArray[5]<<5;
+		}*/
+	}
+
+	// ********************************************************************* //
 #	define INDEX(P, L)		(LEVEL_OFFSETS[L] + (P.x) + (1<<(L))*((P.y) + (1<<(L))*(P.z)))
 #	define INDEX2(X,Y,Z, L)	(LEVEL_OFFSETS[L] + (X) + (1<<(L))*((Y) + (1<<(L))*(Z)))
 
@@ -183,8 +211,11 @@ namespace Voxel {
 				// Generate a vertex here
 				appendBuffer->SetPosition( IVec3(_position)-pmin );
 				appendBuffer->SetVisibility( _node->Data().surface );
-				appendBuffer->SetTexture( (int)_node->Data().type );
-				appendBuffer->material = _node->Data().material;
+				appendBuffer->SetRotation( _node->Data().rotation );
+				if( _node->Data().type == ComponentType::UNDEFINED )
+					appendBuffer->SetMaterial( _node->Data().material.code );
+				else
+					appendBuffer->SetTexture( (int)_node->Data().type );
 				++appendBuffer;
 			}
 

@@ -24,7 +24,7 @@ public:
 	~Ship();
 
 	/// \brief Add a new component to the ship.
-	void AddComponent(const ei::IVec3& _position, Voxel::ComponentType _type);
+	void AddComponent(const ei::IVec3& _position, const Voxel::Voxel& _component);
 
 	/// \brief Remove a component because it is destroyed or in editor...
 	void RemoveComponent(const ei::IVec3& _position);
