@@ -117,27 +117,19 @@ void main()
 	}
 	
 	// Estimate normal from the plane we intersected
-	vec3 d1 = d;
+	vec3 normalModification = d;
 	d = abs(d - projLength);
-	vec3 normalTmp;
-	normalTmp[rx] = toggleSignX ? dirSign.x : -dirSign.x;
-	normalTmp[ry] = toggleSignY ? dirSign.y : -dirSign.y;
-	normalTmp[rz] = toggleSignZ ? dirSign.z : -dirSign.z;
 	vec3 normal;
-	if(d[rx] < 0.0001) normal = normalTmp.x * vec3(c_mWorldView[0][0], c_mWorldView[1][0], c_mWorldView[2][0]);
-	if(d[ry] < 0.0001) normal = normalTmp.y * vec3(c_mWorldView[0][1], c_mWorldView[1][1], c_mWorldView[2][1]);
-	if(d[rz] < 0.0001) normal = normalTmp.z * vec3(c_mWorldView[0][2], c_mWorldView[1][2], c_mWorldView[2][2]);
+	if(d.x < 0.0001) normal = (toggleSignX ? dirSign.x : -dirSign.x) * vec3(c_mWorldView[0][rx], c_mWorldView[1][rx], c_mWorldView[2][rx]);
+	if(d.y < 0.0001) normal = (toggleSignY ? dirSign.y : -dirSign.y) * vec3(c_mWorldView[0][ry], c_mWorldView[1][ry], c_mWorldView[2][ry]);
+	if(d.z < 0.0001) normal = (toggleSignZ ? dirSign.z : -dirSign.z) * vec3(c_mWorldView[0][rz], c_mWorldView[1][rz], c_mWorldView[2][rz]);
 	normal = normalize(normal);
-	vec3 normalModification;
-	normalTmp = - d1 / projLength * 0.1 + 0.05;
-	//normalTmp = normalize(normalTmp + (rayPos - texSize * 0.5) * (0.5 / texSize) - d1 / projLength * 0.1 + 0.05);
-	normalModification.x = toggleSignX ? -normalTmp[rx] : normalTmp[rx];
-	normalModification.y = toggleSignY ? -normalTmp[ry] : normalTmp[ry];
-	normalModification.z = toggleSignZ ? -normalTmp[rz] : normalTmp[rz];
-	/*normalModification[rx] = toggleSignX ? normalTmp.x : -normalTmp.x;
-	normalModification[ry] = toggleSignY ? normalTmp.y : -normalTmp.y;
-	normalModification[rz] = toggleSignZ ? normalTmp.z : -normalTmp.z;*/
-	normal = normalize(normal + normalModification);
+	normalModification = (0.05 - normalModification / projLength * 0.1) * dirSign;
+	vec3 normalTmp;
+	normalTmp[rx] = toggleSignX ? -normalModification.x : normalModification.x;
+	normalTmp[ry] = toggleSignY ? -normalModification.y : normalModification.y;
+	normalTmp[rz] = toggleSignZ ? -normalModification.z : normalModification.z;
+	normal = normalize(normal + normalTmp);
 	
 	// Decode transparency or color rotation
 	float yvar = float((codes.x >> 28) & 0xf) / 15.0;
