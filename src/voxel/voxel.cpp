@@ -95,6 +95,13 @@ namespace Voxel {
 			voxelInfo.shieldRegeneration = voxelNode[string("ShieldRegeneration")].Get(0.0f);
 			voxelInfo.shieldComponentType = voxelNode[string("ShieldComponentType")].Get(0);
 			voxelInfo.lifeSupport = voxelNode[string("LifeSupport")].Get(0.0f);
+			Jo::Files::MetaFileWrapper::Node* mainDirNode;
+			if(voxelNode.HasChild(string("Main Direction"), &mainDirNode))
+			{
+				string dirCode = *mainDirNode;
+				voxelInfo.mainDir = (dirCode[0] == '-' ? -1 : 1) *
+					Vec3(dirCode[1] == 'x' ? 1.0f : 0.0f, dirCode[1] == 'y' ? 1.0f : 0.0f, dirCode[1] == 'z' ? 1.0f : 0.0f);
+			} else voxelInfo.mainDir = Vec3(0.0);
 			// Get volumetric size
 			int s = voxelNode[string("Texture Resolution")].Get(0);
 			voxelInfo.textureResolution = s;
@@ -443,6 +450,16 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
+	const ei::Vec3& TypeInfo::GetMainDir( ComponentType _type )
+	{
+		if( (int)_type >= g_InfoManager->m_numVoxels ) {
+			LOG_LVL1("The searched voxel type is not defined.");
+			return g_InfoManager->m_voxels[0].mainDir;
+		} else
+			return g_InfoManager->m_voxels[(int)_type].mainDir;
+	}
+
+	// ********************************************************************* //
 	int TypeInfo::GetNumVoxels()
 	{
 		return g_InfoManager->m_numVoxels;
@@ -680,6 +697,16 @@ namespace Voxel {
 	void Voxel::RotateZ(bool _ccw)
 	{
 		rotation = rotate(rotation, IMat3x3(0, _ccw?1:-1, 0, _ccw?-1:1, 0, 0, 0, 0, 1));
+	}
+
+	// ********************************************************************* //
+	ei::Vec3 Voxel::GetMainDir()
+	{
+		int x = rotation & 0x3;
+		int y = (rotation & 0xc) >> 2;
+		int z = 3 - (x + y);
+		const Vec3& dir = TypeInfo::GetMainDir( type );
+		return Vec3(rotation & 0x10 ? -dir[x] : dir[x], rotation & 0x20 ? -dir[y] : dir[y], rotation & 0x40 ? -dir[z] : dir[z]);
 	}
 
 } // namespace Voxel

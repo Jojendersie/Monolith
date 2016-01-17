@@ -132,6 +132,10 @@ namespace Voxel {
 		/// \brief Returns the name of the voxel
 		static std::string GetName( ComponentType _type );
 
+		/// \brief Get the basic main functional direction. This is 0 for
+		///		omni-directional components.
+		static const ei::Vec3& GetMainDir( ComponentType _type );
+
 		static int GetNumVoxels();
 
 		/// \brief Set the internal voxel texture array as TEXTURE0
@@ -189,8 +193,9 @@ namespace Voxel {
 			float projectileSpeed;		///< Speed of any kind of shots in [/s]
 			float thrust; 				///< [kN] at maximum energy supply.
 			float shieldRegeneration;	///< [hit points/s]
-			uint8 shieldComponentType;///< The component which is spawned and regenerate by the shield.
+			uint8 shieldComponentType;	///< The component which is spawned and regenerate by the shield.
 			float lifeSupport;			///< Number of supportable storage components [#vox]
+			ei::Vec3 mainDir;			///< Main functional direction or 0 for omni-directional components
 
 			std::string name;			///< The name of this voxel type
 
@@ -314,6 +319,10 @@ namespace Voxel {
 		void RotateY(bool _ccw);
 		/// \brief Rotate +90 degree (ccw) or -90 degree (cw) around Z axis.
 		void RotateZ(bool _ccw);
+
+		/// \brief Get the transformed main functional direction. For omni-
+		///		directional components this returns Vec3(0)
+		ei::Vec3 GetMainDir();
 	};
 #	pragma pack(pop)
 };
