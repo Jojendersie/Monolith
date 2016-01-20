@@ -315,7 +315,9 @@ namespace Voxel {
 				// This is a leaf and contains a component
 				// First store the mask byte with all 0 (no children)
 				file.WriteU8( 0 );
-				file.WriteU8( (uint8)_node->Data().type );
+				file.Write( &_node->Data().type, sizeof(ComponentType) );
+				file.WriteU8( _node->Data().rotation );
+				file.WriteU8( _node->Data().sysAssignment );
 			}
 			return true;
 		}
@@ -361,10 +363,13 @@ namespace Voxel {
 				}
 			}
 		} else {
-			// Now data comes
-			ComponentType type;
-			_file.Read( sizeof(ComponentType), &type );
-			_model->Set( _position, type );
+			// Now the data follows
+			Voxel voxel;
+			_file.Read( sizeof(ComponentType), &voxel.type );
+			voxel = Voxel(voxel.type); // Reinitialize with correct type information
+			_file.Read( 1, &voxel.rotation );
+			_file.Read( 1, &voxel.sysAssignment );
+			_model->Set( _position, voxel );
 		}
 	}
 
