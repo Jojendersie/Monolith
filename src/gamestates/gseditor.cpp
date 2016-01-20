@@ -153,18 +153,6 @@ void GSEditor::Simulate( double _deltaTime )
 		}
 
 		ValidatePosition();
-
-		// Update the side-flags mask
-		if( !m_deletionMode && m_validPosition )
-		{
-			// Set one for each side without an neighbor
-			m_currentSideFlags  = Voxel::TypeInfo::IsInner(m_ship->Get(m_lvl0Position + IVec3(0,0,1))) ? 0 : 0x20;
-			m_currentSideFlags |= Voxel::TypeInfo::IsInner(m_ship->Get(m_lvl0Position - IVec3(0,0,1))) ? 0 : 0x10;
-			m_currentSideFlags |= Voxel::TypeInfo::IsInner(m_ship->Get(m_lvl0Position + IVec3(0,1,0))) ? 0 : 0x08;
-			m_currentSideFlags |= Voxel::TypeInfo::IsInner(m_ship->Get(m_lvl0Position - IVec3(0,1,0))) ? 0 : 0x04;
-			m_currentSideFlags |= Voxel::TypeInfo::IsInner(m_ship->Get(m_lvl0Position + IVec3(1,0,0))) ? 0 : 0x02;
-			m_currentSideFlags |= Voxel::TypeInfo::IsInner(m_ship->Get(m_lvl0Position - IVec3(1,0,0))) ? 0 : 0x01;
-		}
 	}
 }
 
@@ -346,6 +334,21 @@ void GSEditor::ValidatePosition()
 	// Do not delete the last computer
 	if( all(m_lvl0Position == m_ship->GetCentralComputerPosition()) )
 		m_validPosition = false;
+
+	// Update the side-flags mask
+	if( !m_deletionMode && m_validPosition )
+	{
+		// Set one for each side without an neighbor
+		m_currentSideFlags  = Voxel::TypeInfo::IsInner(m_ship->Get(m_lvl0Position + IVec3(0,0,1))) ? 0 : 0x20;
+		m_currentSideFlags |= Voxel::TypeInfo::IsInner(m_ship->Get(m_lvl0Position - IVec3(0,0,1))) ? 0 : 0x10;
+		m_currentSideFlags |= Voxel::TypeInfo::IsInner(m_ship->Get(m_lvl0Position + IVec3(0,1,0))) ? 0 : 0x08;
+		m_currentSideFlags |= Voxel::TypeInfo::IsInner(m_ship->Get(m_lvl0Position - IVec3(0,1,0))) ? 0 : 0x04;
+		m_currentSideFlags |= Voxel::TypeInfo::IsInner(m_ship->Get(m_lvl0Position + IVec3(1,0,0))) ? 0 : 0x02;
+		m_currentSideFlags |= Voxel::TypeInfo::IsInner(m_ship->Get(m_lvl0Position - IVec3(1,0,0))) ? 0 : 0x01;
+		// If there is no inner neighbor it is not possible to attach an component
+		if(m_currentSideFlags == 0x3f)
+			m_validPosition = false;
+	}
 }
 
 // ************************************************************************* //
