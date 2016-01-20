@@ -65,8 +65,8 @@ namespace Voxel {
 		/// \brief Returns the number of mip maps for the given type's materials.
 		static int GetMaxLevel( ComponentType _type );
 
-		/// \brief Returns if the volume texture is solid or not.
-		static bool IsSolid( ComponentType _type );
+		/// \brief Returns if the component counts is inner or outer (hull, weapon...).
+		static bool IsInner( ComponentType _type );
 
 		/// \brief Returns the mass of the voxel.
 		/// TODO: use integer(64?) mass
@@ -180,6 +180,7 @@ namespace Voxel {
 			int textureResolution;		///< Number of pixels in one dimension of the volume "texture"
 			int numMipMaps;				///< Number of generated mip maps
 			bool isSolid;
+			bool isInner;				///< If false no other voxels can be attached. Also, this is responsible for the neighborhood determination.
 			MatSample* texture;			///< Main texture used for sampling of the material-sub-voxels
 			MatSample* borderTexture;	///< A texture which is added on each side of this voxel (rotated) which has a neighbor. The coordinate system is on x axis.
 
@@ -273,7 +274,7 @@ namespace Voxel {
 		uint16_t health;		///< Hit points until destruction (0 and less). One hit point is approximating 30kJ
 		ComponentType type;		///< The type of the voxel
 		uint8 dirty: 1;			///< Somebody changed a child or this node
-		uint8 solid: 1;			///< This node and all its children are defined
+		uint8 inner: 1;			///< This node can be fully inside
 		uint8 surface: 6;		///< One flag for each direction if there is no solid neighborhood
 		uint8 sysAssignment;	///< Used from outside to determine an assignment to different ship systems.
 		/// \brief A rotation code to transform direction vectors fast.
@@ -287,14 +288,14 @@ namespace Voxel {
 		uint8 rotation;
 
 		/// \brief Standard constructor creates undefined element
-		Voxel() : material(Material::UNDEFINED), type(ComponentType::UNDEFINED), dirty(0), solid(0), surface(0), health(0), sysAssignment(0)	{}
+		Voxel() : material(Material::UNDEFINED), type(ComponentType::UNDEFINED), dirty(0), inner(0), surface(0), health(0), sysAssignment(0)	{}
 
 		/// \brief Construct a component with a defined type and undefined material
 		Voxel(ComponentType _type) :
 			material( TypeInfo::GetMaterial(_type) ),
 			type( _type ),
 			dirty( 1 ),
-			solid( TypeInfo::IsSolid(_type) ? 1 : 0 ),
+			inner( TypeInfo::IsInner(_type) ? 1 : 0 ),
 			surface( 0 ),
 			sysAssignment( 0 ),
 			rotation( 0x4 ) // no rotation = 0->0, 1->1, no signs

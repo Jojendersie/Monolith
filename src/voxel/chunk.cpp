@@ -113,7 +113,7 @@ namespace Voxel {
 	/// \brief Current dirty region update - just reuse a child voxel.
 	/// \details This is the first part of the update which recreates materials
 	///		and solidity flags.
-	struct UpdateSolid: public Model::ModelData::SVOProcessor
+	struct UpdateInner: public Model::ModelData::SVOProcessor
 	{
 		/// \brief If the current voxel is not dirty its whole subtree is
 		///		clean too. Then stop.
@@ -134,12 +134,12 @@ namespace Voxel {
 			_node->Data().type = ComponentType::UNDEFINED;
 
 			// Take the last defined children and check solidity.
-			bool solid = true;
+			bool inner = true;
 			for( int i = 0; i < 8; ++i )
 			{
-				solid &= _node->Children()[i].Data().solid;
+				inner &= _node->Children()[i].Data().inner;
 			}
-			_node->Data().solid = solid ? 1 : 0;
+			_node->Data().inner = inner ? 1 : 0;
 		}
 	};
 
@@ -165,12 +165,14 @@ namespace Voxel {
 		{
 			if( !_node->Data().IsDirty() ) return;
 
-			_node->Data().surface = ((_left == nullptr)   || !_left->Data().solid)
-				| (((_right == nullptr)  || !_right->Data().solid)  << 1)
-				| (((_bottom == nullptr) || !_bottom->Data().solid) << 2)
-				| (((_top == nullptr)    || !_top->Data().solid)    << 3)
-				| (((_front == nullptr)  || !_front->Data().solid)  << 4)
-				| (((_back == nullptr)   || !_back->Data().solid)   << 5);
+			int selfInner = _node->Data().inner;
+			_node->Data().surface =
+				   ((_left == nullptr)   || !(_left->Data().inner || selfInner))
+				| (((_right == nullptr)  || !(_right->Data().inner || selfInner))  << 1)
+				| (((_bottom == nullptr) || !(_bottom->Data().inner || selfInner)) << 2)
+				| (((_top == nullptr)    || !(_top->Data().inner || selfInner))    << 3)
+				| (((_front == nullptr)  || !(_front->Data().inner || selfInner))  << 4)
+				| (((_back == nullptr)   || !(_back->Data().inner || selfInner))   << 5);
 
 			// Recompute the material from surface voxels only
 			if( _node->Children() && _node->Data().surface )
@@ -233,7 +235,7 @@ namespace Voxel {
 		Model::ModelData::SVON* node = _chunk.m_modelData->Get( IVec3(_chunk.m_root), _chunk.m_root[3] );
 		if( node->Data().IsDirty() )
 		{
-			node->Traverse( _chunk.m_root, UpdateSolid() );
+			node->Traverse( _chunk.m_root, UpdateInner() );
 			node->TraverseEx( _chunk.m_root, UpdateMaterial(),
 				_chunk.m_modelData->Get( IVec3(_chunk.m_root[0]-1, _chunk.m_root[1]  , _chunk.m_root[2]  ), _chunk.m_root[3] ),
 				_chunk.m_modelData->Get( IVec3(_chunk.m_root[0]+1, _chunk.m_root[1]  , _chunk.m_root[2]  ), _chunk.m_root[3] ),

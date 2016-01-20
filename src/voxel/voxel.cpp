@@ -72,7 +72,7 @@ namespace Voxel {
 
 			// TODO: string pooling to avoid construction and destruction of std strings
 			voxelInfo.name = voxelNode[string("Name")];
-			voxelInfo.isSolid = voxelNode[string("Solid")].Get(true);
+			voxelInfo.isInner = voxelNode[string("Inner")].Get(true);
 			voxelInfo.mass = voxelNode[string("Mass")].Get(1.0f);
 			voxelInfo.thresholdEnergy = voxelNode[string("Threshold Energy")].Get(100000.0f);
 			voxelInfo.reactionEnergy = voxelNode[string("Reaction Energy")].Get(0.0f);
@@ -222,13 +222,13 @@ namespace Voxel {
 	}
 
 	// ********************************************************************* //
-	bool TypeInfo::IsSolid( ComponentType _type )
+	bool TypeInfo::IsInner( ComponentType _type )
 	{
 		if( (int)_type >= g_InfoManager->m_numVoxels ) {
 			LOG_LVL1("The searched voxel type is not defined.");
 			return false;
 		} else
-			return g_InfoManager->m_voxels[(int)_type].isSolid;
+			return g_InfoManager->m_voxels[(int)_type].isInner;
 	}
 
 	// ********************************************************************* //

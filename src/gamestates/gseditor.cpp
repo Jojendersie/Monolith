@@ -158,12 +158,12 @@ void GSEditor::Simulate( double _deltaTime )
 		if( !m_deletionMode && m_validPosition )
 		{
 			// Set one for each side without an neighbor
-			m_currentSideFlags  = Voxel::TypeInfo::IsSolid(m_ship->Get(m_lvl0Position + IVec3(0,0,1))) ? 0 : 0x20;
-			m_currentSideFlags |= Voxel::TypeInfo::IsSolid(m_ship->Get(m_lvl0Position - IVec3(0,0,1))) ? 0 : 0x10;
-			m_currentSideFlags |= Voxel::TypeInfo::IsSolid(m_ship->Get(m_lvl0Position + IVec3(0,1,0))) ? 0 : 0x08;
-			m_currentSideFlags |= Voxel::TypeInfo::IsSolid(m_ship->Get(m_lvl0Position - IVec3(0,1,0))) ? 0 : 0x04;
-			m_currentSideFlags |= Voxel::TypeInfo::IsSolid(m_ship->Get(m_lvl0Position + IVec3(1,0,0))) ? 0 : 0x02;
-			m_currentSideFlags |= Voxel::TypeInfo::IsSolid(m_ship->Get(m_lvl0Position - IVec3(1,0,0))) ? 0 : 0x01;
+			m_currentSideFlags  = Voxel::TypeInfo::IsInner(m_ship->Get(m_lvl0Position + IVec3(0,0,1))) ? 0 : 0x20;
+			m_currentSideFlags |= Voxel::TypeInfo::IsInner(m_ship->Get(m_lvl0Position - IVec3(0,0,1))) ? 0 : 0x10;
+			m_currentSideFlags |= Voxel::TypeInfo::IsInner(m_ship->Get(m_lvl0Position + IVec3(0,1,0))) ? 0 : 0x08;
+			m_currentSideFlags |= Voxel::TypeInfo::IsInner(m_ship->Get(m_lvl0Position - IVec3(0,1,0))) ? 0 : 0x04;
+			m_currentSideFlags |= Voxel::TypeInfo::IsInner(m_ship->Get(m_lvl0Position + IVec3(1,0,0))) ? 0 : 0x02;
+			m_currentSideFlags |= Voxel::TypeInfo::IsInner(m_ship->Get(m_lvl0Position - IVec3(1,0,0))) ? 0 : 0x01;
 		}
 	}
 }

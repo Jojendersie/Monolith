@@ -2,7 +2,6 @@
   "PerVoxelInfo": [
     {
       "Name": "UNDEFINED",
-      "Solid": false,
 	  "Inner": false,
       "Mass": 0.000000,
       "Threshold Energy": 100000.000000,
@@ -19,8 +18,7 @@
     },
     {
       "Name": "INVISIBLE",
-      "Solid": true,
-	  "Inner": false,
+	  "Inner": true,
       "Mass": 0.000000,
       "Threshold Energy": 100000.000000,
       "Reaction Energy": 0.000000,
@@ -36,7 +34,6 @@
     },
     {
       "Name": "Water",
-      "Solid": true,
 	  "Inner": true,
       "Mass": 64.0,
       "Threshold Energy": 334000.000000,
@@ -54,7 +51,6 @@
     },
     {
       "Name": "Computer",
-      "Solid": true,
 	  "Inner": true,
       "Mass": 285.0,
       "Threshold Energy": 50000.000000,
@@ -71,7 +67,6 @@
     },
     {
       "Name": "Clastic Sedimentary Rock",
-      "Solid": true,
 	  "Inner": true,
       "Mass": 230.0,
       "Threshold Energy": 460000.000000,
@@ -89,7 +84,6 @@
     },
     {
       "Name": "Solar Cell I",
-      "Solid": true,
 	  "Inner": true,
       "Mass": 150.0,
       "Threshold Energy": 300000.000000,
@@ -106,7 +100,6 @@
     },
     {
       "Name": "Ion Thruster I",
-      "Solid": true,
 	  "Inner": true,
       "Mass": 237.0,
       "Threshold Energy": 250000.000000,
@@ -125,7 +118,6 @@
     },
     {
       "Name": "Laser",
-      "Solid": true,
 	  "Inner": false,
       "Mass": 194.000000,
       "Threshold Energy": 250000.000000,
@@ -144,7 +136,6 @@
     },
     {
       "Name": "Standard Store",
-      "Solid": true,
 	  "Inner": true,
       "Mass": 40.0,
       "Threshold Energy": 100000.000000,
@@ -162,7 +153,6 @@
     },
     {
       "Name": "Steel Hull SL",
-      "Solid": false,
 	  "Inner": false,
       "Mass": 63.0,
       "Threshold Energy": 100000.000000,
@@ -180,7 +170,6 @@
     },
     {
       "Name": "Steel Hull DL",
-      "Solid": false,
 	  "Inner": false,
       "Mass": 126.0,
       "Threshold Energy": 100000.000000,
@@ -198,7 +187,6 @@
     },
     {
       "Name": "Scanner",
-      "Solid": false,
 	  "Inner": false,
       "Mass": 125.0,
       "Threshold Energy": 100000.000000,
@@ -216,7 +204,6 @@
     },
     {
       "Name": "Ion Booster I",
-      "Solid": true,
 	  "Inner": true,
       "Mass": 310.0,
       "Threshold Energy": 250000.000000,
@@ -236,7 +223,6 @@
     },
     {
       "Name": "Ion Booster II",
-      "Solid": true,
 	  "Inner": true,
       "Mass": 274.0,
       "Threshold Energy": 250000.000000,
@@ -257,7 +243,6 @@
     },
     {
       "Name": "Ion Booster III",
-      "Solid": true,
 	  "Inner": true,
       "Mass": 241.0,
       "Threshold Energy": 220000.000000,
@@ -278,7 +263,6 @@
     },
     {
       "Name": "Lithium Accumulator III",
-      "Solid": true,
 	  "Inner": true,
       "Mass": 362.0,
       "Threshold Energy": 10000.000000,
@@ -296,7 +280,6 @@
     },
     {
       "Name": "Lithium Accumulator II",
-      "Solid": true,
 	  "Inner": true,
       "Mass": 399.0,
       "Threshold Energy": 10000.000000,
@@ -314,7 +297,6 @@
     },
     {
       "Name": "Gatling",
-      "Solid": false,
 	  "Inner": false,
       "Mass": 455.0,
       "Threshold Energy": 100000.000000,
