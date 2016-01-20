@@ -60,7 +60,7 @@ namespace Graphic {
 			break;
 		case Effects::BACKGROUNDSTAR:
 			s_effects[(int)_effect] = new Effect("shader/backgroundstar.vs", "shader/backgroundstar.ps", "shader/backgroundstar.gs");
-			s_effects[(int)_effect]->SetBlendState(BlendState(Graphic::BlendState::BLEND_OPERATION::ADD, Graphic::BlendState::BLEND::SRC_ALPHA, Graphic::BlendState::BLEND::INV_SRC_ALPHA));
+			s_effects[(int)_effect]->SetBlendState(BlendState(Graphic::BlendState::BLEND_OPERATION::ADD, Graphic::BlendState::BLEND::ONE, Graphic::BlendState::BLEND::ONE));
 			s_effects[(int)_effect]->SetDepthStencilState(DepthStencilState(Graphic::DepthStencilState::COMPARISON_FUNC::ALWAYS, false));
 			s_effects[(int)_effect]->BindUniformBuffer(GetUBO(UniformBuffers::CAMERA));
 			//s_effects[(int)_effect]->BindUniformBuffer(GetUBO(UniformBuffers::GLOBAL));*/
