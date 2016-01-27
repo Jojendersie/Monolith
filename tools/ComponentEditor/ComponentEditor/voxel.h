@@ -1,15 +1,39 @@
 #include <string>
 #include <vector>
 
+enum AttributeType
+{
+	String,
+	Int,
+	Float,
+	Bool
+};
+
 struct Attribute
 {
 	Attribute(){};
 	Attribute(const std::string& _name, float _val)
 		: name(_name),
-		value(_val)
+		value(_val),
+		type(Float)
 	{};
+	Attribute(const std::string& _name, std::string& _val)
+		: name(_name),
+		strValue(_val),
+		type(String)
+	{};
+	Attribute(const std::string& _name, bool _val)
+		: name(_name),
+		value(_val ? 1.f : 0.f),
+		type(Bool)
+	{};
+
+	AttributeType type;
+	
 	std::string name;
+
 	float value;
+	std::string strValue;
 };
 
 struct Voxel

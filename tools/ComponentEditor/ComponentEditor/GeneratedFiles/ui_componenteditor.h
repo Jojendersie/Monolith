@@ -13,7 +13,6 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
-#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHeaderView>
@@ -24,6 +23,7 @@
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QStatusBar>
+#include <QtWidgets/QTableWidget>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QWidget>
 
@@ -42,29 +42,7 @@ public:
     QComboBox *comboBox;
     QPushButton *BtnColorRemove;
     QGroupBox *generalInfos;
-    QLineEdit *editMass;
-    QLabel *label_3;
-    QLineEdit *editTreshHoldE;
-    QLabel *label_4;
-    QLineEdit *editReactionE;
-    QLabel *label_5;
-    QLabel *label_6;
-    QLineEdit *editHydrogen;
-    QLabel *label_7;
-    QLineEdit *editCarbon;
-    QLabel *label_8;
-    QLabel *label_9;
-    QLineEdit *editMetals;
-    QLineEdit *editRare;
-    QLabel *label_10;
-    QLabel *label_11;
-    QLineEdit *editSemicon;
-    QLineEdit *editHeisium;
-    QCheckBox *checkBoxSolid;
-    QLabel *label_12;
-    QLabel *label_13;
-    QLineEdit *editName;
-    QPushButton *pushButtonAtr;
+    QTableWidget *attributeTable;
     QGroupBox *groupBox_2;
     QLineEdit *lineEdit_2;
     QPushButton *pushButtonNew;
@@ -111,84 +89,17 @@ public:
         BtnColorRemove->setGeometry(QRect(170, 50, 31, 23));
         generalInfos = new QGroupBox(centralWidget);
         generalInfos->setObjectName(QStringLiteral("generalInfos"));
-        generalInfos->setGeometry(QRect(10, 190, 211, 281));
-        editMass = new QLineEdit(generalInfos);
-        editMass->setObjectName(QStringLiteral("editMass"));
-        editMass->setGeometry(QRect(60, 50, 131, 20));
-        editMass->setClearButtonEnabled(false);
-        label_3 = new QLabel(generalInfos);
-        label_3->setObjectName(QStringLiteral("label_3"));
-        label_3->setGeometry(QRect(8, 50, 46, 13));
-        editTreshHoldE = new QLineEdit(generalInfos);
-        editTreshHoldE->setObjectName(QStringLiteral("editTreshHoldE"));
-        editTreshHoldE->setGeometry(QRect(60, 90, 131, 20));
-        label_4 = new QLabel(generalInfos);
-        label_4->setObjectName(QStringLiteral("label_4"));
-        label_4->setGeometry(QRect(10, 70, 101, 16));
-        editReactionE = new QLineEdit(generalInfos);
-        editReactionE->setObjectName(QStringLiteral("editReactionE"));
-        editReactionE->setGeometry(QRect(60, 130, 131, 20));
-        label_5 = new QLabel(generalInfos);
-        label_5->setObjectName(QStringLiteral("label_5"));
-        label_5->setGeometry(QRect(10, 110, 101, 16));
-        label_6 = new QLabel(generalInfos);
-        label_6->setObjectName(QStringLiteral("label_6"));
-        label_6->setGeometry(QRect(8, 160, 61, 16));
-        editHydrogen = new QLineEdit(generalInfos);
-        editHydrogen->setObjectName(QStringLiteral("editHydrogen"));
-        editHydrogen->setGeometry(QRect(60, 160, 31, 20));
-        editHydrogen->setClearButtonEnabled(false);
-        label_7 = new QLabel(generalInfos);
-        label_7->setObjectName(QStringLiteral("label_7"));
-        label_7->setGeometry(QRect(108, 160, 61, 16));
-        editCarbon = new QLineEdit(generalInfos);
-        editCarbon->setObjectName(QStringLiteral("editCarbon"));
-        editCarbon->setGeometry(QRect(160, 160, 31, 20));
-        editCarbon->setClearButtonEnabled(false);
-        label_8 = new QLabel(generalInfos);
-        label_8->setObjectName(QStringLiteral("label_8"));
-        label_8->setGeometry(QRect(8, 190, 61, 16));
-        label_9 = new QLabel(generalInfos);
-        label_9->setObjectName(QStringLiteral("label_9"));
-        label_9->setGeometry(QRect(108, 190, 61, 16));
-        editMetals = new QLineEdit(generalInfos);
-        editMetals->setObjectName(QStringLiteral("editMetals"));
-        editMetals->setGeometry(QRect(60, 190, 31, 20));
-        editMetals->setClearButtonEnabled(false);
-        editRare = new QLineEdit(generalInfos);
-        editRare->setObjectName(QStringLiteral("editRare"));
-        editRare->setGeometry(QRect(160, 190, 31, 20));
-        editRare->setClearButtonEnabled(false);
-        label_10 = new QLabel(generalInfos);
-        label_10->setObjectName(QStringLiteral("label_10"));
-        label_10->setGeometry(QRect(8, 220, 61, 16));
-        label_11 = new QLabel(generalInfos);
-        label_11->setObjectName(QStringLiteral("label_11"));
-        label_11->setGeometry(QRect(108, 220, 61, 16));
-        editSemicon = new QLineEdit(generalInfos);
-        editSemicon->setObjectName(QStringLiteral("editSemicon"));
-        editSemicon->setGeometry(QRect(60, 220, 31, 20));
-        editSemicon->setClearButtonEnabled(false);
-        editHeisium = new QLineEdit(generalInfos);
-        editHeisium->setObjectName(QStringLiteral("editHeisium"));
-        editHeisium->setGeometry(QRect(160, 220, 31, 20));
-        editHeisium->setClearButtonEnabled(false);
-        checkBoxSolid = new QCheckBox(generalInfos);
-        checkBoxSolid->setObjectName(QStringLiteral("checkBoxSolid"));
-        checkBoxSolid->setGeometry(QRect(60, 250, 16, 17));
-        label_12 = new QLabel(generalInfos);
-        label_12->setObjectName(QStringLiteral("label_12"));
-        label_12->setGeometry(QRect(10, 250, 41, 16));
-        label_13 = new QLabel(generalInfos);
-        label_13->setObjectName(QStringLiteral("label_13"));
-        label_13->setGeometry(QRect(10, 20, 46, 13));
-        editName = new QLineEdit(generalInfos);
-        editName->setObjectName(QStringLiteral("editName"));
-        editName->setGeometry(QRect(62, 20, 131, 20));
-        editName->setClearButtonEnabled(false);
-        pushButtonAtr = new QPushButton(generalInfos);
-        pushButtonAtr->setObjectName(QStringLiteral("pushButtonAtr"));
-        pushButtonAtr->setGeometry(QRect(84, 250, 111, 20));
+        generalInfos->setGeometry(QRect(10, 190, 221, 281));
+        attributeTable = new QTableWidget(generalInfos);
+        if (attributeTable->columnCount() < 2)
+            attributeTable->setColumnCount(2);
+        attributeTable->setObjectName(QStringLiteral("attributeTable"));
+        attributeTable->setGeometry(QRect(10, 20, 201, 251));
+        attributeTable->setSizeAdjustPolicy(QAbstractScrollArea::AdjustIgnored);
+        attributeTable->setAlternatingRowColors(true);
+        attributeTable->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+        attributeTable->setRowCount(0);
+        attributeTable->setColumnCount(2);
         groupBox_2 = new QGroupBox(centralWidget);
         groupBox_2->setObjectName(QStringLiteral("groupBox_2"));
         groupBox_2->setGeometry(QRect(10, 20, 211, 91));
@@ -251,7 +162,9 @@ public:
     {
         ComponentEditorClass->setWindowTitle(QApplication::translate("ComponentEditorClass", "ComponentEditor", 0));
         actionOpen->setText(QApplication::translate("ComponentEditorClass", "open", 0));
+        actionOpen->setShortcut(QApplication::translate("ComponentEditorClass", "Ctrl+O", 0));
         actionSave->setText(QApplication::translate("ComponentEditorClass", "save", 0));
+        actionSave->setShortcut(QApplication::translate("ComponentEditorClass", "Ctrl+S", 0));
         actionAbout->setText(QApplication::translate("ComponentEditorClass", "about", 0));
         groupBox->setTitle(QApplication::translate("ComponentEditorClass", "ColorOptions", 0));
 #ifndef QT_NO_TOOLTIP
@@ -265,27 +178,7 @@ public:
         BtnColorRemove->setToolTip(QApplication::translate("ComponentEditorClass", "remove selected color", 0));
 #endif // QT_NO_TOOLTIP
         BtnColorRemove->setText(QApplication::translate("ComponentEditorClass", "x", 0));
-        generalInfos->setTitle(QApplication::translate("ComponentEditorClass", "general Informations", 0));
-        label_3->setText(QApplication::translate("ComponentEditorClass", "Mass:", 0));
-        editTreshHoldE->setText(QString());
-        label_4->setText(QApplication::translate("ComponentEditorClass", "Threshold Energy:", 0));
-        editReactionE->setText(QString());
-        label_5->setText(QApplication::translate("ComponentEditorClass", "Reaction Energy:", 0));
-        label_6->setText(QApplication::translate("ComponentEditorClass", "Hydrogen:", 0));
-        label_7->setText(QApplication::translate("ComponentEditorClass", "Carbon:", 0));
-        label_8->setText(QApplication::translate("ComponentEditorClass", "Metals:", 0));
-        label_9->setText(QApplication::translate("ComponentEditorClass", "Rare:", 0));
-        label_10->setText(QApplication::translate("ComponentEditorClass", "Semicon:", 0));
-        label_11->setText(QApplication::translate("ComponentEditorClass", "Heisium:", 0));
-        editSemicon->setText(QString());
-        editHeisium->setText(QString());
-        checkBoxSolid->setText(QString());
-        label_12->setText(QApplication::translate("ComponentEditorClass", "Solid:", 0));
-        label_13->setText(QApplication::translate("ComponentEditorClass", "Name:", 0));
-#ifndef QT_NO_TOOLTIP
-        pushButtonAtr->setToolTip(QString());
-#endif // QT_NO_TOOLTIP
-        pushButtonAtr->setText(QApplication::translate("ComponentEditorClass", "additional attributes", 0));
+        generalInfos->setTitle(QApplication::translate("ComponentEditorClass", "attributes", 0));
         groupBox_2->setTitle(QApplication::translate("ComponentEditorClass", "Voxels", 0));
 #ifndef QT_NO_TOOLTIP
         pushButtonNew->setToolTip(QApplication::translate("ComponentEditorClass", "add new voxel", 0));

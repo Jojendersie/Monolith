@@ -18,6 +18,10 @@ defined by the first and last selected cube.
 When adding additional attributes make shure to apply changes to a cell pressing enter or entering
 another cell before closing the window.
 
+Attributes can be of 3 different types: float, string, bool.
+The values "true" and "false" (case sensitive) are evaluated as bool, anythink starting with a digit a number
+and everythink else as a string.
+
 ADDITIONAL COMMANDS
 
 cntrl + z 	Undo the latest change.

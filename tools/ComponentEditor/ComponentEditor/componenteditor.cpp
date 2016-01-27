@@ -21,6 +21,8 @@ ComponentEditor::ComponentEditor(QWidget *parent)
 	connect(ui.actionSave, SIGNAL(triggered()), this, SLOT(save()));
 	//connect comboBox
 	connect(ui.comboBox_2, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(voxelChosen(const QString&)));
+	//attr table
+	connect(ui.attributeTable, SIGNAL(cellChanged ( int, int )), this, SLOT(cellChanged ( int, int )));
 }
 
 ComponentEditor::~ComponentEditor()
@@ -178,16 +180,6 @@ void ComponentEditor::open()
 		auto& voxelNode = infoFile.RootNode[string("PerVoxelInfo")][i];
 		Voxel& voxelInfo = *m_voxels[i];
 		voxelInfo.name = voxelNode[string("Name")];
-		voxelInfo.isSolid = voxelNode[string("Solid")].Get(true);
-		voxelInfo.mass = voxelNode[string("Mass")].Get(1.0f);
-		voxelInfo.thresholdEnergy = voxelNode[string("Threshold Energy")].Get(100000.0f);
-		voxelInfo.reactionEnergy = voxelNode[string("Reaction Energy")].Get(0.0f);
-		voxelInfo.hydrogen = voxelNode[string("Hydrogen")].Get(0);
-		voxelInfo.carbon = voxelNode[string("Carbon")].Get(0);
-		voxelInfo.metals = voxelNode[string("Metals")].Get(0);
-		voxelInfo.rareEarthElements = voxelNode[string("Rare Earth Elements")].Get(0);
-		voxelInfo.semiconductors = voxelNode[string("Semiconductors")].Get(0);
-		voxelInfo.heisenbergium = voxelNode[string("Heisenbergium")].Get(0);
 		// Get volumetric size
 		int s = voxelNode[string("Texture Resolution")].Get(0);
 		voxelInfo.textureResolution = s;
@@ -224,21 +216,35 @@ void ComponentEditor::open()
 				voxelInfo.borderTexture[v] = colorNode[index];
 			}
 		}
-		QString qname = QString::fromStdString(m_voxels[i]->name);
-		ui.comboBox_2->addItem(qname);
 
-		//additional attributes
-		//14 or 15 fixed attributes in front of this sector
-		for(int index = hasBorderTex ? 15 : 14; index < voxelNode.Size(); ++index)
+		//all other attributes
+		for(int index = 0; index < voxelNode.Size(); ++index)
 		{
-			voxelInfo.m_attributes.emplace_back(voxelNode[index].GetName(), voxelNode[index].Get(0.f));
+			string name = voxelNode[index].GetName();
+			//these attributes are handled different
+			if(name != "Colors" && name != "Texture Resolution" && name != "Border Texture" && name != "Texture")
+			{
+				if(voxelNode[index].IsString())
+					voxelInfo.m_attributes.emplace_back(voxelNode[index].GetName(), string(voxelNode[index]));
+				else if(voxelNode[index].IsFloat() || voxelNode[index].IsInt())
+					voxelInfo.m_attributes.emplace_back(voxelNode[index].GetName(), voxelNode[index].Get(0.f));
+				else
+					voxelInfo.m_attributes.emplace_back(voxelNode[index].GetName(), voxelNode[index].Get(true));
+			}
 		}
 	}//end for m_voxelCount
+
+	//after the file is fully load add all voxels to the dropdown menu
+	for( int i = 0; i < m_voxelCount; ++i )
+	{
+		QString qname = QString::fromStdString(m_voxels[i]->name);
+		ui.comboBox_2->addItem(qname);
+	}
 }
 
 void ComponentEditor::save()
 {
-	//show dialog know so that if it is canceled nothing happens
+	//show dialog now so that if it is canceled nothing happens
 	std::string fileName = QFileDialog::getSaveFileName(this, tr("save File"),"",tr("Files (*.*)")).toStdString();
 	if(!fileName.size()) return;
 
@@ -254,17 +260,22 @@ void ComponentEditor::save()
 		auto& voxelNode = infoFile.RootNode[string("PerVoxelInfo")][i];
 		Voxel& voxelInfo = *m_voxels[i];
 
-		voxelNode[string("Name")] = voxelInfo.name;
-		voxelNode[string("Solid")] = voxelInfo.isSolid;
-		voxelNode[string("Mass")] = voxelInfo.mass;
-		voxelNode[string("Threshold Energy")] = voxelInfo.thresholdEnergy;
-		voxelNode[string("Reaction Energy")] = voxelInfo.reactionEnergy;
-		voxelNode[string("Hydrogen")] = voxelInfo.hydrogen;
-		voxelNode[string("Carbon")] = voxelInfo.carbon;
-		voxelNode[string("Metals")]  = voxelInfo.metals;
-		voxelNode[string("Rare Earth Elements")] = voxelInfo.rareEarthElements;
-		voxelNode[string("Semiconductors")] = voxelInfo.semiconductors;
-		voxelNode[string("Heisenbergium")] = voxelInfo.heisenbergium;
+		//attributes
+		for(auto& atr : voxelInfo.m_attributes)
+		{
+			switch (atr.type)
+			{
+			case Float:
+				voxelNode[atr.name] = atr.value;
+				break;
+			case String:
+				voxelNode[atr.name] = atr.strValue;
+				break;
+			case Bool:
+				voxelNode[atr.name] = atr.value != 0.f;
+				break;
+			}
+		}
 
 		voxelNode[string("Texture Resolution")] = m_voxels[i]->textureResolution;
 		int s = voxelInfo.textureResolution;
@@ -298,17 +309,19 @@ void ComponentEditor::save()
 						break;
 					}
 		}
-		//aditional attributes
-		for(auto& atr : voxelInfo.m_attributes)
-		{
-			voxelNode[atr.name] = atr.value;
-		}
 			 
 	}
 	
 	//on win10 the filename given by the dialog seems to cause trouble
-	for(int i = 0; i < fileName.length(); ++i)
-		if(fileName[i] == '/') fileName[i] = '\\';
+//	for(int i = 0; i < fileName.length(); ++i)
+//		if(fileName[i] == '/') fileName[i] = '\\';
+	//absolute paths cause a crash
+/*	for(int i = fileName.size() - 1; i >= 0; --i)
+		if(fileName[i] == '/')
+		{
+			fileName.erase(fileName.begin(), fileName.begin() + i + 1);
+			break;
+		}*/
 	Jo::Files::HDDFile hddFile(fileName, Jo::Files::HDDFile::OVERWRITE);
 	infoFile.Write( hddFile, Jo::Files::Format::JSON );
 }
@@ -318,20 +331,7 @@ void ComponentEditor::voxelChosen(const QString & _text)
 	//save changes to current voxel made in the editor/ mask
 	if(m_voxel) 
 	{
-		m_voxel->name = ui.editName->text().toStdString();
-		m_voxel->isSolid = ui.checkBoxSolid->isChecked();
-		m_voxel->mass = ui.editMass->text().toFloat();
-		m_voxel->thresholdEnergy = ui.editTreshHoldE->text().toFloat();
-		m_voxel->reactionEnergy = ui.editReactionE->text().toFloat();
-		m_voxel->hydrogen = ui.editHydrogen->text().toInt();
-		m_voxel->carbon = ui.editCarbon->text().toInt();
-		m_voxel->metals = ui.editMetals->text().toInt();
-		m_voxel->rareEarthElements = ui.editRare->text().toInt();
-		m_voxel->semiconductors = ui.editSemicon->text().toInt();
-		m_voxel->heisenbergium = ui.editHeisium->text().toInt();
-
-		//the existens of a selected voxel implies the exsistens of the view
-		saveModelChanges();
+		updateVoxelData();
 	}
 	if(m_view)
 	{
@@ -347,8 +347,9 @@ void ComponentEditor::voxelChosen(const QString & _text)
 		{
 			m_currentIndex = i;
 			m_voxel = m_voxels[i];
-			//update edits with the voxelinformation
-			ui.editName->setText(_text);
+			//update table with the voxelinformation
+			updateTable();
+/*			ui.editName->setText(_text);
 			ui.editMass->setText(QString::number(m_voxels[i]->mass));
 			ui.editTreshHoldE->setText(QString::number(m_voxels[i]->thresholdEnergy));
 			ui.editReactionE->setText(QString::number(m_voxels[i]->reactionEnergy));
@@ -358,7 +359,7 @@ void ComponentEditor::voxelChosen(const QString & _text)
 			ui.editRare->setText(QString::number(m_voxels[i]->rareEarthElements));
 			ui.editSemicon->setText(QString::number(m_voxels[i]->semiconductors));
 			ui.editHeisium->setText(QString::number(m_voxels[i]->heisenbergium));
-			ui.checkBoxSolid->setChecked(m_voxels[i]->isSolid);
+			ui.checkBoxSolid->setChecked(m_voxels[i]->isSolid);*/
 			
 			//add colors to the comboBox
 			for(int v = 0; v < m_voxels[i]->colors.size(); v++)
@@ -405,12 +406,29 @@ void ComponentEditor::voxelChosen(const QString & _text)
 		}
 }
 
+// *************************************************** //
+
 void ComponentEditor::on_pushButtonAtr_clicked()
 {
 	//parent takes ownership
 	if(m_voxel)
 		(new AttributeTable(this, m_voxel->m_attributes))->show();
 }
+
+// *************************************************** //
+
+void ComponentEditor::cellChanged ( int row, int column )
+{
+	int rowCount = ui.attributeTable->rowCount();
+	//last row got accessed
+	if(row == rowCount - 1)
+	{
+		ui.attributeTable->setRowCount(rowCount + 1);
+//		ui.attributeTable->setItem(rowCount - 1, 1, new QTableWidgetItem(QString("0.0")));
+	}
+}
+
+// *************************************************** //
 
 void ComponentEditor::saveModelChanges()
 {
@@ -420,4 +438,65 @@ void ComponentEditor::saveModelChanges()
 		for(int iy = 0; iy < res; iy++) 
 			for(int iz = 0; iz < res; iz++)
 				tex[ix+iy*res+iz*res*res] = m_view->getState(ix,iy,iz) ? m_view->getCol(ix,iy,iz) : 0;
+}
+
+// *************************************************** //
+
+void ComponentEditor::updateTable()
+{
+	vector < Attribute >& attributes = m_voxel->m_attributes;
+	//add one to allow adding of other attributes
+	//but make shure to discard the previous lines first
+	ui.attributeTable->setRowCount(attributes.size());
+	ui.attributeTable->setRowCount(attributes.size() + 1);
+	ui.attributeTable->setColumnCount(2);
+
+//	ui.atrTable->setColumnWidth(0, 200);
+
+	QStringList header;
+	header << "name" << "value";
+	ui.attributeTable->setHorizontalHeaderLabels(header);
+    ui.attributeTable->verticalHeader()->setVisible(false);
+
+	for(int i = 0; i < attributes.size(); ++i)
+	{
+		QTableWidgetItem* tableItem = new QTableWidgetItem(QString::fromStdString(attributes[i].name));
+		
+		//the first 5 attributes are mandetory
+		if(i <= 4) tableItem->setFlags(tableItem->flags() ^ Qt::ItemIsEditable);
+
+		ui.attributeTable->setItem(i, 0, tableItem);
+		if(attributes[i].type == AttributeType::String) tableItem = new QTableWidgetItem(QString::fromStdString(attributes[i].strValue));
+		else if(attributes[i].type == AttributeType::Float) tableItem = new QTableWidgetItem(QString::number(attributes[i].value));
+		else if(attributes[i].type == AttributeType::Bool) tableItem = new QTableWidgetItem(attributes[i].value == 0.f ? QString("false") : QString("true"));
+		tableItem->setFlags(tableItem->flags() | Qt::ItemIsEditable);
+		ui.attributeTable->setItem(i, 1, tableItem);
+	}
+}
+
+// *************************************************** //
+
+void ComponentEditor::updateAttributes()
+{
+	vector < Attribute >& attributes = m_voxel->m_attributes;
+
+	//last row should be empty
+	int rows = ui.attributeTable->rowCount()-1;
+	attributes.clear();
+	attributes.reserve(rows);
+	for(int i = 0; i < rows; ++i)
+	{
+		
+		string name = ui.attributeTable->item(i,0)->text().toStdString();
+		QString value = ui.attributeTable->item(i,1)->text();
+
+		//attribute is unusable
+		if(name == "" || value == "") continue;
+
+		if(value[0] >= '0' && value[0] <= '9') attributes.emplace_back(name,value.toFloat());
+		else if(value == "true") attributes.emplace_back(name,true);
+		else if(value == "false") attributes.emplace_back(name,false);
+		else attributes.emplace_back(name,value.toStdString());
+	}
+
 }

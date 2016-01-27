@@ -113,7 +113,7 @@ void CubeView::paintGL(QGLPainter *painter)
     painter->modelViewMatrix().rotate(45.0f, 0.0f, 0.0f, 0.0f);
 	
 	painter->setStandardEffect(QGL::StandardEffect::FlatColor);
-	QArray<QVector3D> line;
+	QArray<QVector3D> line; line.resize(2);
 	line[0] = m_axisOffset;
 
 	//x

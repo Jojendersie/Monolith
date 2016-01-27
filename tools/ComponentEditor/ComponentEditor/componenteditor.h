@@ -41,11 +41,22 @@ private slots:
 	//triggered when a voxel is chosen in the combo box
 	void voxelChosen( const QString & _text );
 
+	//updates the the currently selected voxel's data from the mask
+	void updateVoxelData() { saveModelChanges(); updateAttributes(); };
+
+	//a cell in the attribute table got changed
+	void cellChanged ( int row, int column );
+
 	void on_pushButtonAtr_clicked();
 private:
 	//modes: 0 - border; 1 - normal
 	//!caution! does no savety tests
 	void saveModelChanges();
+
+	//attributes -> table
+	void updateTable();
+	//table -> attributes
+	void updateAttributes();
 
 	void closeEvent(QCloseEvent *event);
 
