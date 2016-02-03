@@ -263,6 +263,9 @@
     <ClCompile Include="src\gameplay\componentsystems\weaponsystem.cpp">
       <Filter>Source Files\gameplay\componentsystems</Filter>
     </ClCompile>
+    <ClCompile Include="src\graphic\highlevel\particlesystem.cpp">
+      <Filter>Source Files\graphic\highlevel</Filter>
+    </ClCompile>
     <ClCompile Include="src\gamestates\gseditorhud.cpp">
       <Filter>Source Files\gamestates</Filter>
     </ClCompile>
@@ -762,6 +765,9 @@
     <ClInclude Include="src\gameplay\componentsystems\batterysystem.hpp">
       <Filter>Source Files\gameplay\componentsystems</Filter>
     </ClInclude>
+    <ClInclude Include="src\graphic\highlevel\particlesystem.hpp">
+      <Filter>Source Files\graphic\highlevel</Filter>
+    </ClInclude>
     <ClInclude Include="src\gamestates\gseditorhud.hpp">
       <Filter>Source Files\gamestates</Filter>
     </ClInclude>
@@ -779,6 +785,9 @@
     </ClInclude>
     <ClInclude Include="src\graphic\interface\singlecomponentrenderer.hpp">
       <Filter>Source Files\graphic\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utilities\metaproghelper.hpp">
+      <Filter>Source Files\utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

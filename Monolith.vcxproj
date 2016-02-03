@@ -138,6 +138,7 @@
     <ClCompile Include="src\graphic\core\texture.cpp" />
     <ClCompile Include="src\graphic\core\uniformbuffer.cpp" />
     <ClCompile Include="src\graphic\core\vertexbuffer.cpp" />
+    <ClCompile Include="src\graphic\highlevel\particlesystem.cpp" />
     <ClCompile Include="src\graphic\highlevel\postprocessing.cpp" />
     <ClCompile Include="src\graphic\highlevel\screenalignedtriangle.cpp" />
     <ClCompile Include="src\graphic\interface\font.cpp" />
@@ -235,6 +236,7 @@
     <ClInclude Include="src\graphic\core\texture.hpp" />
     <ClInclude Include="src\graphic\core\uniformbuffer.hpp" />
     <ClInclude Include="src\graphic\core\vertexbuffer.hpp" />
+    <ClInclude Include="src\graphic\highlevel\particlesystem.hpp" />
     <ClInclude Include="src\graphic\highlevel\postprocessing.h" />
     <ClInclude Include="src\graphic\highlevel\screenalignedtriangle.h" />
     <ClInclude Include="src\graphic\interface\font.hpp" />
@@ -265,6 +267,7 @@
     <ClInclude Include="src\utilities\flagoperators.hpp" />
     <ClInclude Include="src\utilities\logger.hpp" />
     <ClInclude Include="src\utilities\loggerinit.hpp" />
+    <ClInclude Include="src\utilities\metaproghelper.hpp" />
     <ClInclude Include="src\utilities\pathutils.hpp" />
     <ClInclude Include="src\utilities\policy.hpp" />
     <ClInclude Include="src\utilities\scopedpointer.hpp" />
