@@ -27,7 +27,9 @@ int main()
 	ParticleSystem sys;
 //	ParticleSystem::SubSystems<(uint)ParticleSystem::Comp::POSITION>::Get().AddParticle<1>(ei::Vec3(0.0f));
 	sys.AddParticle<(uint)ParticleSystem::Comp::POSITION>(ei::Vec3(0.0f));
-	sys.AddParticle<(uint)ParticleSystem::Comp::POSITION | (uint)ParticleSystem::Comp::VELOCITY>(ei::Vec3(0.0f));
+	sys.AddParticle<(uint)ParticleSystem::Comp::POSITION | (uint)ParticleSystem::Comp::VELOCITY>(ei::Vec3(0.0f), ei::Vec3(1.0f));
+	//sys.AddParticle<(uint)ParticleSystem::Comp::POSITION>(ei::Vec3(0.0f), ei::Vec3(1.0f));
+	//sys.AddParticle<(uint)ParticleSystem::Comp::POSITION | (uint)ParticleSystem::Comp::VELOCITY>(ei::Vec3(0.0f));
 
 #if defined(DEBUG) || defined(_DEBUG)
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );

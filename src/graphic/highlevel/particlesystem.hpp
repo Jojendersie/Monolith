@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "utilities/metaproghelper.hpp"
+#include "utilities/assert.hpp"
 //#include "utilities/flagoperators.hpp"
 
 namespace Graphic {
@@ -98,7 +99,7 @@ namespace Graphic {
 		template<uint PFlags, typename... Params>
 		void AddParticle(Params... _params)
 		{
-			SubSystems<PFlags>::Get().AddParticle<1>(_params...);
+			SubSystems<PFlags>::Get().AddParticle<1, PFlags>(_params...);
 		}
 
 		public:
@@ -169,16 +170,30 @@ namespace Graphic {
 			public inherit_conditional<(PFlags & (uint)Comp::POSITION) != 0, PositionComponents, NoComponent>,
 			public inherit_conditional<(PFlags & (uint)Comp::VELOCITY) != 0, VeloctiyComponents, NoComponent>
 		{
+			// Compiletime while loop which finds the next flag set in PFlags
+			template<uint TheFlag, bool>
+			struct NextFlag {
+				static const uint Get = TheFlag;
+			};
+			template<uint TheFlag>
+			struct NextFlag<TheFlag, false> {
+				static const uint Get = NextFlag<TheFlag << 1, ((TheFlag << 1) & PFlags) != 0 || TheFlag == 0>::Get;
+			};
 		public:
-			template<uint>
-			void AddParticle() { /*End of recursion*/ }
+			template<uint TheFlag, uint RemainingFlags>
+			void AddParticle() // End of recursion
+			{
+				Assert(RemainingFlags == 0, "Too few parameters provided!");
+			}
 
-			template<uint TheFlag, typename Param0, typename... Params>
+			template<uint TheFlag, uint RemainingFlags, typename Param0, typename... Params>
 			void AddParticle(const Param0& _param0, Params... _params)
 			{
+				Assert(TheFlag != 0, "Too many parameters provided!");
+				// The flag is set -> consume the argument.
 				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & (uint)Comp::POSITION) != 0, PositionComponents, NoComponent>::add(_param0);
 				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & (uint)Comp::VELOCITY) != 0, VeloctiyComponents, NoComponent>::add(_param0);
-				AddParticle<TheFlag << 1>(_params...);
+				AddParticle<NextFlag<TheFlag, false>::Get, RemainingFlags ^ TheFlag>(_params...);
 			}
 		};
 
