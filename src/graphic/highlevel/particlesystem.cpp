@@ -8,11 +8,11 @@ namespace Graphic {
 // System class
 std::vector<ParticleSystem::SubSystemActions*> ParticleSystem::m_registeredSystems;
 
-void ParticleSystem::Simulate()
+void ParticleSystem::Simulate(float _deltaTime)
 {
 	for(auto sys : m_registeredSystems)
 	{
-		sys->Simulate();
+		sys->Simulate(_deltaTime);
 	}
 }
 

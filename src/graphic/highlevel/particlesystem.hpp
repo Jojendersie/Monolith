@@ -11,7 +11,7 @@
 
 namespace Graphic {
 
-	/// \brief Component based particle system.
+	/// \brief Component based particle systems.
 	/// \details There are different rendering systems with different parameters.
 	///		A particle can also have different simulation components. Everything can
 	///		be combined arbitrary.
@@ -22,11 +22,12 @@ namespace Graphic {
 		/// \details All flags are orthogonal and any combination is valid. The
 		///		functionality is inferred automatically. E.g. If you add POSITION
 		///		and VELOCITY the particle will be moved each frame.
-		struct PSComponent {
+		struct Component {
 			enum Val: uint
 			{
-				POSITION = 1,
-				VELOCITY = 2,
+				POSITION = 1,	///< Every particle needs a position. Always add this component!
+				VELOCITY = 2,	///< Change of position over time.
+				LIFETIME = 4,	///< Lifetime in seconds until despawn. If not provided the particle lasts forever.
 			};
 		};
 
@@ -48,7 +49,7 @@ namespace Graphic {
 		}
 
 		/// \brief Simulate all kinds of particle systems.
-		static void Simulate();
+		static void Simulate(float _deltaTime);
 
 	private:
 
@@ -56,33 +57,57 @@ namespace Graphic {
 		{
 			template<typename T>
 			static void Add(const T&) {}
+			static void Remove(size_t _idx) {}
 		};
 
 		struct PositionComponents
 		{
 			std::vector<ei::Vec3> m_positions;
 			void Add(const ei::Vec3& _pos) { m_positions.push_back(_pos); }
+			void Remove(size_t _idx) { m_positions[_idx] = m_positions.back(); m_positions.pop_back(); }
 		};
 
 		struct VeloctiyComponents
 		{
 			std::vector<ei::Vec3> m_velocities;
 			void Add(const ei::Vec3& _vel) { m_velocities.push_back(_vel); }
+			void Remove(size_t _idx) { m_velocities[_idx] = m_velocities.back(); m_velocities.pop_back(); }
+		};
+
+		struct LifetimeComponents
+		{
+			std::vector<float> m_lifetimes;
+			void Add(float _life) { m_lifetimes.push_back(_life); }
+			void Remove(size_t _idx) { m_lifetimes[_idx] = m_lifetimes.back(); m_lifetimes.pop_back(); }
 		};
 
 		template<typename Base>
 		struct FuncNOP
 		{
-			void Run() {}
+			void Run(float _deltaTime) {}
 		};
 
 		template<typename Base>
 		struct FuncAdvection : public virtual Base
 		{
-			void Run()
+			void Run(float _deltaTime)
 			{
 				for(size_t i = 0; i < m_velocities.size(); ++i)
 					m_positions[i] += m_velocities[i];
+			}
+		};
+
+		template<typename Base>
+		struct FuncDie : public virtual Base
+		{
+			void Run(float _deltaTime)
+			{
+				for(size_t i = 0; i < m_lifetimes.size(); ++i)
+				{
+					m_lifetimes[i] -= _deltaTime;
+					if(m_lifetimes[i] < 0.0f)
+						Remove(i--);
+				}
 			}
 		};
 
@@ -95,8 +120,9 @@ namespace Graphic {
 		// m_positions and m_velocity.
 		template<uint PFlags>
 		class SubSystemData :
-			public inherit_conditional<(PFlags & (uint)PSComponent::POSITION) != 0, PositionComponents, NoComponent>,
-			public inherit_conditional<(PFlags & (uint)PSComponent::VELOCITY) != 0, VeloctiyComponents, NoComponent>
+			public inherit_conditional<(PFlags & (uint)Component::POSITION) != 0, PositionComponents, NoComponent>,
+			public inherit_conditional<(PFlags & (uint)Component::VELOCITY) != 0, VeloctiyComponents, NoComponent>,
+			public inherit_conditional<(PFlags & (uint)Component::LIFETIME) != 0, LifetimeComponents, NoComponent>
 		{
 			// Compiletime while loop which finds the next flag set in PFlags
 			template<uint TheFlag, bool>
@@ -119,9 +145,17 @@ namespace Graphic {
 			{
 				Assert(TheFlag != 0, "Too many parameters provided!");
 				// The flag is set -> consume the argument.
-				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & (uint)PSComponent::POSITION) != 0, PositionComponents, NoComponent>::Add(_param0);
-				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & (uint)PSComponent::VELOCITY) != 0, VeloctiyComponents, NoComponent>::Add(_param0);
+				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & (uint)Component::POSITION) != 0, PositionComponents, NoComponent>::Add(_param0);
+				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & (uint)Component::VELOCITY) != 0, VeloctiyComponents, NoComponent>::Add(_param0);
+				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & (uint)Component::LIFETIME) != 0, LifetimeComponents, NoComponent>::Add(_param0);
 				AddParticle<NextFlag<TheFlag, false>::Get, RemainingFlags ^ TheFlag>(_params...);
+			}
+
+			void Remove(size_t _idx)
+			{
+				inherit_conditional<(PFlags & (uint)Component::POSITION) != 0, PositionComponents, NoComponent>::Remove(_idx);
+				inherit_conditional<(PFlags & (uint)Component::VELOCITY) != 0, VeloctiyComponents, NoComponent>::Remove(_idx);
+				inherit_conditional<(PFlags & (uint)Component::LIFETIME) != 0, LifetimeComponents, NoComponent>::Remove(_idx);
 			}
 		};
 
@@ -130,7 +164,7 @@ namespace Graphic {
 		class SubSystemActions
 		{
 		public:
-			virtual void Simulate() {}
+			virtual void Simulate(float _deltaTime) {}
 		};
 
 		// The SubSystem extends the SubSystemData by mixing in functions conditional.
@@ -142,7 +176,8 @@ namespace Graphic {
 		template<uint PFlags>
 		class SubSystem :
 			public virtual SubSystemData<PFlags>,
-			public inherit_conditional<(PFlags & (uint)PSComponent::POSITION) != 0 && (PFlags & (uint)PSComponent::VELOCITY) != 0, FuncAdvection<SubSystemData<PFlags>>, FuncNOP<SubSystemData<PFlags>>>,
+			public inherit_conditional<(PFlags & (uint)Component::POSITION) != 0 && (PFlags & (uint)Component::VELOCITY) != 0, FuncAdvection<SubSystemData<PFlags>>, FuncNOP<SubSystemData<PFlags>>>,
+			public inherit_conditional<(PFlags & (uint)Component::LIFETIME) != 0, FuncDie<SubSystemData<PFlags>>, FuncNOP<SubSystemData<PFlags>>>,
 			public SubSystemActions
 		{
 		public:
@@ -152,9 +187,10 @@ namespace Graphic {
 				ParticleSystem::m_registeredSystems.push_back(this);
 			}
 
-			void Simulate() override
+			void Simulate(float _deltaTime) override
 			{
-				inherit_conditional<((PFlags & PSComponent::POSITION) != 0) && ((PFlags & PSComponent::VELOCITY) != 0), FuncAdvection<SubSystemData<PFlags>>, FuncNOP<SubSystemData<PFlags>>>::Run();
+				inherit_conditional<((PFlags & Component::POSITION) != 0) && ((PFlags & Component::VELOCITY) != 0), FuncAdvection<SubSystemData<PFlags>>, FuncNOP<SubSystemData<PFlags>>>::Run(_deltaTime);
+				inherit_conditional<((PFlags & Component::LIFETIME) != 0), FuncDie<SubSystemData<PFlags>>, FuncNOP<SubSystemData<PFlags>>>::Run(_deltaTime);
 			}
 		};
 
@@ -175,5 +211,6 @@ namespace Graphic {
 		static std::vector<SubSystemActions*> m_registeredSystems;
 	};
 
+	using PSComponent = ParticleSystem::Component;
 
 } // namespace Graphic
