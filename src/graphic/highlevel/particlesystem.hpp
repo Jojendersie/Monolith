@@ -15,9 +15,8 @@ namespace Graphic {
 	/// \details There are different rendering systems with different parameters.
 	///		A particle can also have different simulation components. Everything can
 	///		be combined arbitrary.
-	class ParticleSystem
+	namespace ParticleSystems
 	{
-	public:
 		/// \brief A list of valid components for different particle system definitions.
 		/// \details All flags are orthogonal and any combination is valid. The
 		///		functionality is inferred automatically. E.g. If you add POSITION
@@ -42,17 +41,30 @@ namespace Graphic {
 		/// \brief Add a custom particle to the appropriate system. Simulation
 		///		and rendering will be done efficiently together with all other
 		///		particles of the same type.
-		template<uint PFlags, typename... Params>
+		/*template<uint PFlags, typename... Params>
 		static void AddParticle(Params... _params)
 		{
 			SubSystems<PFlags>::Get().AddParticle<1, PFlags>(_params...);
-		}
+		}*/
 
-		/// \brief Simulate all kinds of particle systems.
-		static void Simulate(float _deltaTime);
+		class Manager
+		{
+		public:
+			/// \brief Simulate all kinds of particle systems.
+			static void Simulate(float _deltaTime);
+		private:
+			template<uint> friend class System;
+			/// \brief Register a new system to the global management.
+			///		This is called automatically!
+			static void Register(class SystemActions* _system);
+			/// \brief Find and remove from the list. This is called automatically!
+			static void Release(class SystemActions* _system);
 
-	private:
+			// A list of pointers to all instances of particle systems.
+			static std::vector<class SystemActions*> m_registeredSystems;
+		};
 
+		/// \brief Helper class for component system meta programming.
 		struct NoComponent
 		{
 			template<typename T>
@@ -60,6 +72,7 @@ namespace Graphic {
 			static void Remove(size_t _idx) {}
 		};
 
+		/// \brief Position components for all particles of a system
 		struct PositionComponents
 		{
 			std::vector<ei::Vec3> m_positions;
@@ -67,6 +80,7 @@ namespace Graphic {
 			void Remove(size_t _idx) { m_positions[_idx] = m_positions.back(); m_positions.pop_back(); }
 		};
 
+		/// \brief Velocity components for all particles of a system
 		struct VeloctiyComponents
 		{
 			std::vector<ei::Vec3> m_velocities;
@@ -74,6 +88,7 @@ namespace Graphic {
 			void Remove(size_t _idx) { m_velocities[_idx] = m_velocities.back(); m_velocities.pop_back(); }
 		};
 
+		/// \brief Lifetimes in seconds for all particles of a system
 		struct LifetimeComponents
 		{
 			std::vector<float> m_lifetimes;
@@ -81,12 +96,14 @@ namespace Graphic {
 			void Remove(size_t _idx) { m_lifetimes[_idx] = m_lifetimes.back(); m_lifetimes.pop_back(); }
 		};
 
+		/// \brief Helper class for component system meta programming.
 		template<typename Base>
 		struct FuncNOP
 		{
 			void Run(float _deltaTime) {}
 		};
 
+		/// \brief Simulation component. Automatically added when POSITION and VELOCITY are given
 		template<typename Base>
 		struct FuncAdvection : public virtual Base
 		{
@@ -97,6 +114,7 @@ namespace Graphic {
 			}
 		};
 
+		/// \brief Simulation component decreasing the lifetime and despawning particles.
 		template<typename Base>
 		struct FuncDie : public virtual Base
 		{
@@ -111,15 +129,15 @@ namespace Graphic {
 			}
 		};
 
-		// The SubSystemData creates a type which contains the specific properties
+		// The SystemData creates a type which contains the specific properties
 		// defined by the flag word. This is the aggregation of different components into
 		// a single identity.
 		// It further creates an AddParticle which properly called only succeeds if an
 		// initial value for each property is given with the proper type.
-		// Example: SubSystemData<POSTITION | VELOCITY> will contain the arrays
+		// Example: SystemData<POSTITION | VELOCITY> will contain the arrays
 		// m_positions and m_velocity.
 		template<uint PFlags>
-		class SubSystemData :
+		class SystemData :
 			public inherit_conditional<(PFlags & (uint)Component::POSITION) != 0, PositionComponents, NoComponent>,
 			public inherit_conditional<(PFlags & (uint)Component::VELOCITY) != 0, VeloctiyComponents, NoComponent>,
 			public inherit_conditional<(PFlags & (uint)Component::LIFETIME) != 0, LifetimeComponents, NoComponent>
@@ -140,7 +158,7 @@ namespace Graphic {
 				Assert(RemainingFlags == 0, "Too few parameters provided!");
 			}
 
-			template<uint TheFlag, uint RemainingFlags, typename Param0, typename... Params>
+			template<uint TheFlag = 1, uint RemainingFlags = PFlags, typename Param0, typename... Params>
 			void AddParticle(const Param0& _param0, Params... _params)
 			{
 				Assert(TheFlag != 0, "Too many parameters provided!");
@@ -161,7 +179,7 @@ namespace Graphic {
 
 		// Base class to make functions of particle systems callable independent of their
 		// type.
-		class SubSystemActions
+		class SystemActions
 		{
 		public:
 			virtual void Simulate(float _deltaTime) {}
@@ -174,23 +192,27 @@ namespace Graphic {
 		// would not compile. The trick is that an empty dummy function from the default
 		// type gets called instead of invalid code if a condition is not fulfilled.
 		template<uint PFlags>
-		class SubSystem :
-			public virtual SubSystemData<PFlags>,
-			public inherit_conditional<(PFlags & (uint)Component::POSITION) != 0 && (PFlags & (uint)Component::VELOCITY) != 0, FuncAdvection<SubSystemData<PFlags>>, FuncNOP<SubSystemData<PFlags>>>,
-			public inherit_conditional<(PFlags & (uint)Component::LIFETIME) != 0, FuncDie<SubSystemData<PFlags>>, FuncNOP<SubSystemData<PFlags>>>,
-			public SubSystemActions
+		class System :
+			public virtual SystemData<PFlags>,
+			public inherit_conditional<(PFlags & (uint)Component::POSITION) != 0 && (PFlags & (uint)Component::VELOCITY) != 0, FuncAdvection<SystemData<PFlags>>, FuncNOP<SystemData<PFlags>>>,
+			public inherit_conditional<(PFlags & (uint)Component::LIFETIME) != 0, FuncDie<SystemData<PFlags>>, FuncNOP<SystemData<PFlags>>>,
+			public SystemActions
 		{
 		public:
-			SubSystem()
+			System()
 			{
 				// Register the system where the runtime can see it.
-				ParticleSystem::m_registeredSystems.push_back(this);
+				Manager::Register(this);
+			}
+			~System()
+			{
+				Manager::Release(this);
 			}
 
 			void Simulate(float _deltaTime) override
 			{
-				inherit_conditional<((PFlags & Component::POSITION) != 0) && ((PFlags & Component::VELOCITY) != 0), FuncAdvection<SubSystemData<PFlags>>, FuncNOP<SubSystemData<PFlags>>>::Run(_deltaTime);
-				inherit_conditional<((PFlags & Component::LIFETIME) != 0), FuncDie<SubSystemData<PFlags>>, FuncNOP<SubSystemData<PFlags>>>::Run(_deltaTime);
+				inherit_conditional<((PFlags & Component::POSITION) != 0) && ((PFlags & Component::VELOCITY) != 0), FuncAdvection<SystemData<PFlags>>, FuncNOP<SystemData<PFlags>>>::Run(_deltaTime);
+				inherit_conditional<((PFlags & Component::LIFETIME) != 0), FuncDie<SystemData<PFlags>>, FuncNOP<SystemData<PFlags>>>::Run(_deltaTime);
 			}
 		};
 
@@ -198,19 +220,16 @@ namespace Graphic {
 		// which is used in the program a single instance will be created and mapped.
 		// Thus all unused combinations of flags will not cost us anything.
 		// I.e. the mapping is sparse!
-		template<uint Key>
+		/*template<uint Key>
 		class SubSystems {
 		public:
 			static SubSystem<Key>& Get () {
 				static SubSystem<Key> v;
 				return v;
 			}
-		};
+		};*/
+	}
 
-		// A list of pointers to all instances of the above hash map.
-		static std::vector<SubSystemActions*> m_registeredSystems;
-	};
-
-	using PSComponent = ParticleSystem::Component;
+	using PSComponent = ParticleSystems::Component;
 
 } // namespace Graphic

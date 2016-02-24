@@ -5,10 +5,29 @@ using namespace ei;
 namespace Graphic {
 
 // ************************************************************************* //
-// System class
-std::vector<ParticleSystem::SubSystemActions*> ParticleSystem::m_registeredSystems;
+// Manager class
+std::vector<ParticleSystems::SystemActions*> ParticleSystems::Manager::m_registeredSystems;
 
-void ParticleSystem::Simulate(float _deltaTime)
+void ParticleSystems::Manager::Register(class SystemActions* _system)
+{
+	m_registeredSystems.push_back(_system);
+}
+
+void ParticleSystems::Manager::Release(class SystemActions* _system)
+{
+	for(size_t i = 0; i < m_registeredSystems.size(); ++i)
+	{
+		if(m_registeredSystems[i] == _system)
+		{
+			m_registeredSystems[i] = m_registeredSystems.back();
+			m_registeredSystems.pop_back();
+			return;
+		}
+	}
+}
+
+// ************************************************************************* //
+void ParticleSystems::Manager::Simulate(float _deltaTime)
 {
 	for(auto sys : m_registeredSystems)
 	{

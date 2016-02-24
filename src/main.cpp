@@ -24,13 +24,13 @@ using namespace Graphic;
 /// \brief Entry point.
 int main()
 {
-//	ParticleSystem::SubSystems<(uint)ParticleSystem::Comp::POSITION>::Get().AddParticle<1>(ei::Vec3(0.0f));
-	ParticleSystem::AddParticle<PSComponent::POSITION>(ei::Vec3(0.0f));
-	ParticleSystem::AddParticle<PSComponent::POSITION | PSComponent::LIFETIME>(ei::Vec3(0.0f), 2.0f);
-	ParticleSystem::AddParticle<PSComponent::POSITION | PSComponent::VELOCITY>(ei::Vec3(0.0f), ei::Vec3(1.0f));
-	ParticleSystem::Simulate(0.1f);
-	//sys.AddParticle<(uint)ParticleSystem::Comp::POSITION>(ei::Vec3(0.0f), ei::Vec3(1.0f));
-	//sys.AddParticle<(uint)ParticleSystem::Comp::POSITION | (uint)ParticleSystem::Comp::VELOCITY>(ei::Vec3(0.0f));
+	ParticleSystems::System<PSComponent::POSITION | PSComponent::VELOCITY> sys0;
+	ParticleSystems::System<PSComponent::POSITION | PSComponent::LIFETIME> sys1;
+	sys0.AddParticle(ei::Vec3(0.0f), ei::Vec3(1.0f));
+	sys1.AddParticle(ei::Vec3(0.0f), 2.0f);
+	ParticleSystems::Manager::Simulate(0.1f);
+	//sys0.AddParticle(ei::Vec3(0.0f));
+	//sys0.AddParticle(ei::Vec3(0.0f), ei::Vec3(1.0f), 0.0f);
 
 #if defined(DEBUG) || defined(_DEBUG)
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
