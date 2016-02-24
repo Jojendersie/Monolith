@@ -24,10 +24,10 @@ using namespace Graphic;
 /// \brief Entry point.
 int main()
 {
-	ParticleSystem sys;
 //	ParticleSystem::SubSystems<(uint)ParticleSystem::Comp::POSITION>::Get().AddParticle<1>(ei::Vec3(0.0f));
-	sys.AddParticle<(uint)ParticleSystem::Comp::POSITION>(ei::Vec3(0.0f));
-	sys.AddParticle<(uint)ParticleSystem::Comp::POSITION | (uint)ParticleSystem::Comp::VELOCITY>(ei::Vec3(0.0f), ei::Vec3(1.0f));
+	ParticleSystem::AddParticle<(uint)ParticleSystem::PSComponent::POSITION>(ei::Vec3(0.0f));
+	ParticleSystem::AddParticle<(uint)ParticleSystem::PSComponent::POSITION | (uint)ParticleSystem::PSComponent::VELOCITY>(ei::Vec3(0.0f), ei::Vec3(1.0f));
+	ParticleSystem::Simulate();
 	//sys.AddParticle<(uint)ParticleSystem::Comp::POSITION>(ei::Vec3(0.0f), ei::Vec3(1.0f));
 	//sys.AddParticle<(uint)ParticleSystem::Comp::POSITION | (uint)ParticleSystem::Comp::VELOCITY>(ei::Vec3(0.0f));
 

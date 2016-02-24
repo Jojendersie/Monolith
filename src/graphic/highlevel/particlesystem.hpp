@@ -18,68 +18,17 @@ namespace Graphic {
 	class ParticleSystem
 	{
 	public:
-		enum struct Comp
-		{
-			POSITION = 1,
-			VELOCITY = 2,
+		/// \brief A list of valid components for different particle system definitions.
+		/// \details All flags are orthogonal and any combination is valid. The
+		///		functionality is inferred automatically. E.g. If you add POSITION
+		///		and VELOCITY the particle will be moved each frame.
+		struct PSComponent {
+			enum Val: uint
+			{
+				POSITION = 1,
+				VELOCITY = 2,
+			};
 		};
-
-		/// \brief Base class for data components of particles. There are components
-		///		which all particle use.
-		/*struct Component
-		{
-		protected:
-		private:
-			int particleID;
-			friend class ParticleSystem;
-		};
-
-		struct VeloctiyComponent: public Component
-		{
-			ei::Vec3 velocity;
-		};
-
-		struct RotationComponent: public Component
-		{
-			ei::Quaternion rotation;
-		};
-
-		/// \brief A spawner component adds additional properties to new particles.
-		struct SpawnerPropertyComponent: public Component
-		{
-			/// \brief Add a new component to an already generated particle
-			virtual void extend(int _particleID) const;
-		};
-
-		/// \brief Adds a spawner ability to the current particle
-		struct SpawnerComponent: public Component
-		{
-			float particlesPerSecond;
-			/// \brief Create a new particle now
-			virtual int create() const;
-		protected:
-			Jo::HybridArray<int, 4> spawnerProperties;
-		};
-
-		/// \brief Spawn particles at the position of this spawner particle.
-		struct PointSpawnerComponent: public SpawnerComponent
-		{
-			virtual int create() const override;
-		};
-
-		struct BoxSpawnerComponent: public SpawnerComponent
-		{
-			ei::Box box;		///< Spawn area box relative to the current particle position
-			virtual int create() const override;
-		};
-
-		/// \brief Set a random spawn direction
-		/// \brief If the spawner is moving its own velocity is added too.
-		struct SpawnerVelocityComponent: public SpawnerPropertyComponent
-		{
-			float spawnVelocity;		///< Magnitude of initial velocity of newly spawned particles.
-			virtual void extend(int _particleID) const override;
-		};*/
 
 		enum struct RenderType
 		{
@@ -89,57 +38,36 @@ namespace Graphic {
 			RAY
 		};
 
-		/// \brief Add an particle and get its id to be able to add components
-		/*int AddParticle(const ei::Vec3& _position, const ei::Vec3& _scale);
-		void AddComponent(int _particleID, const VeloctiyComponent& _component);
-		void AddComponent(int _particleID, const RotationComponent& _component);
-		void AddComponent(int _particleID, const PointSpawnerComponent& _component);
-		void AddComponent(int _particleID, const BoxSpawnerComponent& _component);*/
-
+		/// \brief Add a custom particle to the appropriate system. Simulation
+		///		and rendering will be done efficiently together with all other
+		///		particles of the same type.
 		template<uint PFlags, typename... Params>
-		void AddParticle(Params... _params)
+		static void AddParticle(Params... _params)
 		{
 			SubSystems<PFlags>::Get().AddParticle<1, PFlags>(_params...);
 		}
 
-		public:
-		/*struct ComponentHandle
-		{
-		};
+		/// \brief Simulate all kinds of particle systems.
+		static void Simulate();
 
-		struct Particle
-		{
-			Jo::HybridArray<int, 4> components;		///< Indices of optional components
-		};
-
-		std::unordered_map<> m_subSystems;
-
-		std::vector<Particle> m_particles;
-		/// Each particle has a position
-		std::vector<ei::Vec3> m_partPositions;
-		/// Each particle has a scale
-		std::vector<ei::Vec3> m_partScale;
-		std::vector<VeloctiyComponent> m_coVelocity; // TODO: velocity ist pflicht
-		std::vector<RotationComponent> m_coRotation;
-		std::vector<PointSpawnerComponent> m_coPointSpawner;
-		std::vector<BoxSpawnerComponent> m_coBoxSpawner;*/
+	private:
 
 		struct NoComponent
 		{
 			template<typename T>
-			static void add(const T&) {}
+			static void Add(const T&) {}
 		};
 
 		struct PositionComponents
 		{
 			std::vector<ei::Vec3> m_positions;
-			void add(const ei::Vec3& _pos) { m_positions.push_back(_pos); }
+			void Add(const ei::Vec3& _pos) { m_positions.push_back(_pos); }
 		};
 
 		struct VeloctiyComponents
 		{
 			std::vector<ei::Vec3> m_velocities;
-			void add(const ei::Vec3& _vel) { m_velocities.push_back(_vel); }
+			void Add(const ei::Vec3& _vel) { m_velocities.push_back(_vel); }
 		};
 
 		template<typename Base>
@@ -167,8 +95,8 @@ namespace Graphic {
 		// m_positions and m_velocity.
 		template<uint PFlags>
 		class SubSystemData :
-			public inherit_conditional<(PFlags & (uint)Comp::POSITION) != 0, PositionComponents, NoComponent>,
-			public inherit_conditional<(PFlags & (uint)Comp::VELOCITY) != 0, VeloctiyComponents, NoComponent>
+			public inherit_conditional<(PFlags & (uint)PSComponent::POSITION) != 0, PositionComponents, NoComponent>,
+			public inherit_conditional<(PFlags & (uint)PSComponent::VELOCITY) != 0, VeloctiyComponents, NoComponent>
 		{
 			// Compiletime while loop which finds the next flag set in PFlags
 			template<uint TheFlag, bool>
@@ -191,10 +119,18 @@ namespace Graphic {
 			{
 				Assert(TheFlag != 0, "Too many parameters provided!");
 				// The flag is set -> consume the argument.
-				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & (uint)Comp::POSITION) != 0, PositionComponents, NoComponent>::add(_param0);
-				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & (uint)Comp::VELOCITY) != 0, VeloctiyComponents, NoComponent>::add(_param0);
+				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & (uint)PSComponent::POSITION) != 0, PositionComponents, NoComponent>::Add(_param0);
+				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & (uint)PSComponent::VELOCITY) != 0, VeloctiyComponents, NoComponent>::Add(_param0);
 				AddParticle<NextFlag<TheFlag, false>::Get, RemainingFlags ^ TheFlag>(_params...);
 			}
+		};
+
+		// Base class to make functions of particle systems callable independent of their
+		// type.
+		class SubSystemActions
+		{
+		public:
+			virtual void Simulate() {}
 		};
 
 		// The SubSystem extends the SubSystemData by mixing in functions conditional.
@@ -202,16 +138,23 @@ namespace Graphic {
 		// together.
 		// Conditional inheritance is used to execute code conditional which otherwise
 		// would not compile. The trick is that an empty dummy function from the default
-		// type gets called instead of invalid code if a condition is not fullfilled.
+		// type gets called instead of invalid code if a condition is not fulfilled.
 		template<uint PFlags>
 		class SubSystem :
 			public virtual SubSystemData<PFlags>,
-			public inherit_conditional<(PFlags & (uint)Comp::POSITION) != 0 && (PFlags & (uint)Comp::VELOCITY) != 0, FuncAdvection<SubSystemData<PFlags>>, FuncNOP<SubSystemData<PFlags>>>
+			public inherit_conditional<(PFlags & (uint)PSComponent::POSITION) != 0 && (PFlags & (uint)PSComponent::VELOCITY) != 0, FuncAdvection<SubSystemData<PFlags>>, FuncNOP<SubSystemData<PFlags>>>,
+			public SubSystemActions
 		{
 		public:
-			void Run()
+			SubSystem()
 			{
-				inherit_conditional<PFlags & Comp::POSITION != 0 && PFlags & Comp::VELOCITY != 0, FuncAdvection<SubSystemData<PFlags>>, FuncNOP<SubSystemData<PFlags>>>::Run();
+				// Register the system where the runtime can see it.
+				ParticleSystem::m_registeredSystems.push_back(this);
+			}
+
+			void Simulate() override
+			{
+				inherit_conditional<((PFlags & PSComponent::POSITION) != 0) && ((PFlags & PSComponent::VELOCITY) != 0), FuncAdvection<SubSystemData<PFlags>>, FuncNOP<SubSystemData<PFlags>>>::Run();
 			}
 		};
 
@@ -227,6 +170,9 @@ namespace Graphic {
 				return v;
 			}
 		};
+
+		// A list of pointers to all instances of the above hash map.
+		static std::vector<SubSystemActions*> m_registeredSystems;
 	};
 
 
