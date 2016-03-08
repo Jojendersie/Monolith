@@ -10,7 +10,7 @@ using namespace ei;
 namespace Graphic {
 
 SingleComponentRenderer::SingleComponentRenderer() :
-	m_voxels( "uu", nullptr, 0, Graphic::VertexBuffer::PrimitiveType::POINT )
+m_voxels( Graphic::VertexArrayBuffer::PrimitiveType::POINT, {{VertexAttribute::UINT, 7}, {VertexAttribute::UINT, 8}} )
 {
 	int bufferSize = 128 * 64 * Voxel::TypeInfo::GetNumVoxels() * sizeof(Voxel::VoxelVertex);
 	Voxel::VoxelVertex* vertexData = (Voxel::VoxelVertex*)malloc(bufferSize);
@@ -33,7 +33,7 @@ SingleComponentRenderer::SingleComponentRenderer() :
 		}
 	}
 
-	m_voxels.Commit((void*&)vertexData, bufferSize);
+	m_voxels.GetBuffer(0)->SetData((void*&)vertexData, bufferSize);
 }
 
 void SingleComponentRenderer::Draw( const Voxel::Voxel& _component, int _sideFlags, const ei::Mat4x4& _worldView, const ei::Mat4x4& _projection )

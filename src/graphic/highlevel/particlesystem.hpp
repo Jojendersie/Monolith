@@ -181,6 +181,7 @@ namespace Graphic {
 			template<uint TheFlag, uint RemainingFlags>
 			void AddParticle() // End of recursion
 			{
+				m_numParticles++;
 				Assert(RemainingFlags == 0, "Too few parameters provided!");
 			}
 
@@ -200,8 +201,11 @@ namespace Graphic {
 				inherit_conditional<(PFlags & (uint)Component::POSITION) != 0, PositionComponents, NoComponent>::Remove(_idx);
 				inherit_conditional<(PFlags & (uint)Component::VELOCITY) != 0, VeloctiyComponents, NoComponent>::Remove(_idx);
 				inherit_conditional<(PFlags & (uint)Component::LIFETIME) != 0, LifetimeComponents, NoComponent>::Remove(_idx);
+				m_numParticles--;
 			}
 			#undef PFlagsWOGlobal
+		protected:
+			uint32 m_numParticles;
 		};
 
 		// Base class to make functions of particle systems callable independent of their
@@ -210,6 +214,10 @@ namespace Graphic {
 		{
 		public:
 			virtual void Simulate(float _deltaTime) {}
+			void Draw();
+			RenderType getRenderType() const { return m_renderer; }
+		protected:
+			RenderType m_renderer;
 		};
 
 		// The SubSystem extends the SubSystemData by mixing in functions conditional.
@@ -227,8 +235,9 @@ namespace Graphic {
 			public SystemActions
 		{
 		public:
-			System()
+			System(RenderType _renderer)
 			{
+				m_renderer = _renderer;
 				// Register the system where the runtime can see it.
 				Manager::Register(this);
 			}

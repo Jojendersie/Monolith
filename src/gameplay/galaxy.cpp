@@ -8,8 +8,8 @@
 using namespace ei;
 
 Galaxy::Galaxy(int _stars, float _size, int _ambientStars) :
-	m_starInfos("3c1", Graphic::VertexBuffer::PrimitiveType::POINT),
-	m_ambientStars("3c1", Graphic::VertexBuffer::PrimitiveType::POINT)
+	m_starInfos(Graphic::VertexArrayBuffer::PrimitiveType::POINT, {{Graphic::VertexAttribute::VEC3, 0}, {Graphic::VertexAttribute::COLOR, 3}, {Graphic::VertexAttribute::FLOAT, 11}}),
+	m_ambientStars(Graphic::VertexArrayBuffer::PrimitiveType::POINT, {{Graphic::VertexAttribute::VEC3, 0}, {Graphic::VertexAttribute::COLOR, 3}, {Graphic::VertexAttribute::FLOAT, 11}})
 {
 	//needs to be called to allow custom point size in the geometry shader
 	GL_CALL(glEnable, GL_PROGRAM_POINT_SIZE);
@@ -72,6 +72,8 @@ Galaxy::Galaxy(int _stars, float _size, int _ambientStars) :
 			rnd.Uniform(1.0f, 2.0f)
 			);
 	}
+
+	auto vbGuard = m_ambientStars.GetBuffer(0);
 	for (int i = 0; i < _ambientStars; ++i)
 	{
 		StarVertex star;
@@ -79,19 +81,19 @@ Galaxy::Galaxy(int _stars, float _size, int _ambientStars) :
 		star.position = rnd.Direction() * 10.0f;
 		star.size = rnd.Uniform(1.0f, 2.0f);
 
-		m_ambientStars.Add(star);
+		vbGuard->Add(star);
 	}
-	m_ambientStars.SetDirty();
 }
 
 void Galaxy::Draw(const Input::Camera& _camera)
 {
 	m_starInfos.Clear();
 
-	for (auto& starSystem : m_starSystems)
-		m_starInfos.Add(starSystem.ComputeVertex(_camera));
-
-	m_starInfos.SetDirty();
+	{
+		auto vbGuard = m_starInfos.GetBuffer(0);
+		for (auto& starSystem : m_starSystems)
+			vbGuard->Add(starSystem.ComputeVertex(_camera));
+	}
 
 	Graphic::Effect& effect = Graphic::Resources::GetEffect(Graphic::Effects::BACKGROUNDSTAR);
 	Graphic::Device::SetEffect(effect);

@@ -2,8 +2,6 @@
 
 namespace Graphic {
 
-	class VertexBuffer;
-
 	/// \brief Helper class for drawing screen aligned triangles
 	class ScreenAlignedTriangle
 	{
@@ -23,7 +21,7 @@ namespace Graphic {
 			return m_instance;
 		};
 
-		VertexBuffer* m_vertexBuffer;
+		class VertexArrayBuffer* m_vertexBuffer;
 	};
 
 } // namespace Graphic

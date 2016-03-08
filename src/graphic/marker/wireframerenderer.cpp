@@ -15,7 +15,7 @@ namespace Marker {
 
 	// ********************************************************************* //
 	WireframeRenderer::WireframeRenderer( const Utils::Color32F& _color, float _fading ) :
-		m_mesh( "pc", VertexBuffer::PrimitiveType::LINE ),
+		m_mesh( VertexArrayBuffer::PrimitiveType::LINE, {{VertexAttribute::VEC3, 0}, {VertexAttribute::COLOR, 3}} ),
 		m_color( _color ),
 		m_fading( max(0.01f, _fading) ),
 		m_lineWidth( 1.0f )
@@ -26,13 +26,14 @@ namespace Marker {
 	// ********************************************************************* //
 	void WireframeRenderer::AddSegment( const Vec3& _v1, const Vec3& _v2, const Utils::Color32F& _color1, const Utils::Color32F& _color2 )
 	{
+		auto vbGuard = m_mesh.GetBuffer(0);
 		ColorPointVertex vertex;
 		vertex.position = _v1;
 		vertex.color = _color1;
-		m_mesh.Add( vertex );
+		vbGuard->Add( vertex );
 		vertex.position = _v2;
 		vertex.color = _color2;
-		m_mesh.Add( vertex );
+		vbGuard->Add( vertex );
 	}
 
 	// ********************************************************************* //
@@ -58,7 +59,6 @@ namespace Marker {
 	// ********************************************************************* //
 	void WireframeRenderer::Commit()
 	{
-		m_mesh.SetDirty();
 		// Force upload now
 		m_mesh.Bind();
 	}

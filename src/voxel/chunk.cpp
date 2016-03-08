@@ -49,7 +49,7 @@ namespace Voxel {
 		m_scale( pow(2.0f, _nodePostion[3]-_depth) ),//float(1<<(_nodePostion[3]-_depth)) ),
 		m_depth( _depth ),
 		m_root( _nodePostion ),
-		m_voxels( "uu", nullptr, 0, Graphic::VertexBuffer::PrimitiveType::POINT ),
+		m_voxels( Graphic::VertexArrayBuffer::PrimitiveType::POINT, {{Graphic::VertexAttribute::UINT, 7}, {Graphic::VertexAttribute::UINT, 8}} ),
 		m_position( float(_nodePostion[0]<<_depth), float(_nodePostion[1]<<_depth), float(_nodePostion[2]<<_depth) )
 	{
 		// Use an initialization point in the future such that it does not get deleted too fast.
@@ -257,8 +257,8 @@ namespace Voxel {
 		int numVoxels = int(FillP.appendBuffer - vertexBuffer);
 
 		if( numVoxels )
-			_chunk.m_voxels.Commit((void*&)vertexBuffer, numVoxels * sizeof(VoxelVertex));
+			_chunk.m_voxels.GetBuffer(0)->SetData((void*&)vertexBuffer, numVoxels * sizeof(VoxelVertex));
 		else free(vertexBuffer);
 	}
 
-};
+}

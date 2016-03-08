@@ -13,7 +13,7 @@ namespace Graphic
 		ScreenOverlay(ei::Vec2(_pos[0],_pos[1] + _size[1]), _size),
 		m_game(_game),
 		m_componentRenderer(_componentRenderer),
-		m_characters( "2222", VertexBuffer::PrimitiveType::POINT ),
+		m_characters( VertexArrayBuffer::PrimitiveType::POINT, {{VertexAttribute::VEC2, 11}, {VertexAttribute::VEC2, 12}, {VertexAttribute::VEC2, 13}, {VertexAttribute::VEC2, 14}} ),
 		m_texContainer("texture/combined.png"),
 		m_preElem(NULL),
 		m_showCursor(_cursor),
@@ -180,23 +180,23 @@ namespace Graphic
 	void Hud::RenewBuffer()
 	{
 		m_characters.Clear();
+		auto vbGuard = m_characters.GetBuffer(0);
 	
 	//	for( size_t i = m_screenOverlays.size(); i-- > 0; )
 		for (size_t i = 1; i < m_screenOverlays.size(); i++)
 		{
 			ScreenTexture* screenTex = dynamic_cast<ScreenTexture*> (m_screenOverlays[i]);
 			if(screenTex != NULL && screenTex->GetState() && screenTex->GetVisibility()) 
-				m_characters.Add(screenTex->m_vertex);
+				vbGuard->Add(screenTex->m_vertex);
 		}
 		//cursor
 		ScreenTexture* screenTex = dynamic_cast<ScreenTexture*> (m_screenOverlays[0]);
 		if (screenTex != NULL && screenTex->GetState() && screenTex->GetVisibility())
-			m_characters.Add(screenTex->m_vertex);
+			vbGuard->Add(screenTex->m_vertex);
 	/*	for(auto& screenTex : m_screenTextures)
 		{
 			if(screenTex->GetState() && screenTex->GetVisibility()) m_characters.Add(screenTex->m_vertex);
 		}*/
-		m_characters.SetDirty();
 	}
 
 	// ************************************************************************* //

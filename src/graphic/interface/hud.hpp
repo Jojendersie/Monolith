@@ -91,7 +91,7 @@ namespace Graphic {
 		Input::Camera* m_camera;
 		Graphic::SingleComponentRenderer* m_componentRenderer;
 
-		VertexBuffer m_characters;/// < vertex buffer that holds the screen textures
+		VertexArrayBuffer m_characters;/// < vertex buffer that holds the screen textures
 
 		Texture m_texContainer; ///< The basic texture container for screen elements; loads "combined.png" 
 		// gets created dynamically in constructor since it temporarily needs a hdd file handle

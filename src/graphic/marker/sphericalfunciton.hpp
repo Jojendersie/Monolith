@@ -16,7 +16,7 @@ namespace Marker {
 		void Draw( const ei::Mat4x4& _worldViewProjection );
 	private:
 
-		VertexBuffer m_mesh;
+		VertexArrayBuffer m_mesh;
 	};
 
 } // namespace Marker

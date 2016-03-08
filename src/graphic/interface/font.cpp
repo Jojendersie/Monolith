@@ -37,7 +37,11 @@ namespace Graphic
 
 	TextRender::TextRender(Font* _font) :
 		m_font(_font),
-		m_characters( "222c11", VertexBuffer::PrimitiveType::POINT ),//222c11
+		m_characters( VertexArrayBuffer::PrimitiveType::POINT, {
+				{Graphic::VertexAttribute::VEC2, 11}, {Graphic::VertexAttribute::VEC2, 12},
+				{Graphic::VertexAttribute::VEC2, 13}, {Graphic::VertexAttribute::COLOR, 3},
+				{Graphic::VertexAttribute::FLOAT, 14}, {Graphic::VertexAttribute::FLOAT, 15}
+		} ),//222c11
 		m_screenPos( 0.0f ),
 		m_sizeD(2.f),
 		m_colorD((uint8)255,(uint8)255,(uint8)255,(uint8)255),
@@ -126,9 +130,12 @@ namespace Graphic
 
 	void TextRender::Draw()
 	{
-		Graphic::Device::SetEffect( m_font->m_effect );
-		Graphic::Device::SetTexture( m_font->m_texture, 7 );
-		Graphic::Device::DrawVertices( m_characters, 0, m_characters.GetNumVertices() );
+		if(m_characters.GetNumVertices())
+		{
+			Graphic::Device::SetEffect( m_font->m_effect );
+			Graphic::Device::SetTexture( m_font->m_texture, 7 );
+			Graphic::Device::DrawVertices( m_characters, 0, m_characters.GetNumVertices() );
+		}
 	}
 
 	int TextRender::CntrlChr(int _i)
@@ -171,6 +178,7 @@ namespace Graphic
 	{
 		//reset the previous build
 		m_characters.Clear();
+		auto vbGuard = m_characters.GetBuffer(0);
 		m_sizeMax = m_size / 2.0f;
 		m_color = m_colorD;
 		m_size = m_sizeD;
@@ -199,13 +207,12 @@ namespace Graphic
 			else if(m_text[i] == '<') { i += CntrlChr((int)i)-1; continue;} 
 			else currentPos[0] += m_font->m_sizeTable[(unsigned char)m_text[i]][0]*m_size;  
 
- 			m_characters.Add(CV);
+ 			vbGuard->Add(CV);
 
 			//save the greatest size that gets used in the text
 			//after checking for cntrl chars
 			if(m_size > m_sizeMax && m_text[i] != ' ') m_sizeMax = m_size;
 		}
-		m_characters.SetDirty();
 
 		//when no line break happened
 		if (currentPos[0] > maxExpanseX) maxExpanseX = currentPos[0];

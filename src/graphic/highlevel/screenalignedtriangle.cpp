@@ -11,7 +11,7 @@ namespace Graphic
 
 	ScreenAlignedTriangle::ScreenAlignedTriangle()
 	{
-		ScreenTriVertex screenTriangle[3];
+		ScreenTriVertex* screenTriangle = (ScreenTriVertex*)malloc(3 * sizeof(screenTriangle));
 		screenTriangle[0].position[0] = -1.0f;
 		screenTriangle[0].position[1] = -1.0f;
 		screenTriangle[1].position[0] = 3.0f;
@@ -19,7 +19,8 @@ namespace Graphic
 		screenTriangle[2].position[0] = -1.0f;
 		screenTriangle[2].position[1] = 3.0f;
 
-		m_vertexBuffer = new VertexBuffer("2", screenTriangle, sizeof(screenTriangle), VertexBuffer::PrimitiveType::TRIANGLE_LIST);
+		m_vertexBuffer = new VertexArrayBuffer(VertexArrayBuffer::PrimitiveType::TRIANGLE_LIST, {{VertexAttribute::VEC2, 11}});
+		m_vertexBuffer->GetBuffer(0)->SetData((void*&)screenTriangle, sizeof(ScreenTriVertex) * 3);
 	}
 
 	ScreenAlignedTriangle::~ScreenAlignedTriangle()

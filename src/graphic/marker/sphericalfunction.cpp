@@ -38,7 +38,7 @@ namespace Marker {
 		const Vec3& _v1,
 		const Vec3& _v2,
 		const Vec3& _v3,
-		int _div, VertexBuffer& _out )
+		int _div, DataBuffer& _out )
 	{
 		if( _div == 0 )
 		{
@@ -82,7 +82,7 @@ namespace Marker {
 	// ********************************************************************* //
 	// Create a visualization of a spherical function
 	SphericalFunction::SphericalFunction( const Math::SphericalFunction& _function ) :
-		m_mesh( "pc", VertexBuffer::PrimitiveType::TRIANGLE_LIST )
+		m_mesh( VertexArrayBuffer::PrimitiveType::TRIANGLE_LIST, {{VertexAttribute::VEC3}, {VertexAttribute::COLOR}} )
 	{
 		// Create a tessellated sphere and project the vertices to the function
 		// value.
@@ -91,12 +91,11 @@ namespace Marker {
 		Vec3 v2 = normalize( Vec3( -0.471f, 0.816f, -0.333f ) );
 		Vec3 v3 = normalize( Vec3( 0.000f, 0.000f,  1.000f ) );
 		Vec3 v4 = normalize( Vec3( -0.471f,-0.816f, -0.333f ) );
-		SubDivide( _function, v1, v2, v3, 5, m_mesh );
-		SubDivide( _function, v1, v4, v2, 5, m_mesh );
-		SubDivide( _function, v4, v1, v3, 5, m_mesh );
-		SubDivide( _function, v3, v2, v4, 5, m_mesh );
-
-		m_mesh.SetDirty();
+		auto vbGuard = m_mesh.GetBuffer(0);
+		SubDivide( _function, v1, v2, v3, 5, *vbGuard );
+		SubDivide( _function, v1, v4, v2, 5, *vbGuard );
+		SubDivide( _function, v4, v1, v3, 5, *vbGuard );
+		SubDivide( _function, v3, v2, v4, 5, *vbGuard );
 	}
 
 	// ********************************************************************* //

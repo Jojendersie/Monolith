@@ -328,12 +328,15 @@ namespace Graphic {
 	}
 
 
-	void Device::DrawVertices( const VertexBuffer& _buffer, int _from, int _count )
+	void Device::DrawVertices( const VertexArrayBuffer& _buffer, int _from, int _count )
 	{
 		_buffer.Bind();
 
 		g_Device.m_currentEffect->CommitUniformBuffers();
 
-		GL_CALL(glDrawArrays, unsigned(_buffer.GetPrimitiveType()), _from, _count);
+		if(_buffer.IsInstanced())
+			GL_CALL(glDrawArraysInstanced, unsigned(_buffer.GetPrimitiveType()), _from, _count, _buffer.GetNumInstances());
+		else
+			GL_CALL(glDrawArrays, unsigned(_buffer.GetPrimitiveType()), _from, _count);
 	}
 };

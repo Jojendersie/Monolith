@@ -86,7 +86,7 @@ namespace Graphic {
 
 	private:
 		void RenewBuffer();
-		/// \brief resolves control chars and aplies them
+		/// \brief resolves control chars and applies them
 		/// \param [in] _start index of '<' in m_text
 		int CntrlChr(int _i);
 		Font* m_font;	///< Reference to the used font.
@@ -94,15 +94,15 @@ namespace Graphic {
 		ei::Vec2 m_screenPos;
 
 
-		VertexBuffer m_characters;
+		VertexArrayBuffer m_characters;
 		Utils::Color8U m_color, m_colorD;
 		float m_size, m_sizeD;
 		float m_thickness, m_thicknessD;
 
 		float m_sizeMax;
 
-		int m_lineCount;		///< Amount of linebreaks m_text contains
-		ei::Vec2 m_expanse;		///< size of the area the string posesses on the screen
+		int m_lineCount;		///< Amount of line breaks m_text contains
+		ei::Vec2 m_expanse;		///< size of the area the string possesses on the screen
 		ei::Vec2 m_charSize;	///< real x/y size a char is drawn in; x is not reliable since most fonts have differing widths
 	};
 };

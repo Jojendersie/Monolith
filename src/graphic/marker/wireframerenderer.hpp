@@ -48,7 +48,7 @@ namespace Marker {
 
 	private:
 		/// \brief A buffer with line geometry
-		VertexBuffer m_mesh;
+		VertexArrayBuffer m_mesh;
 		Utils::Color32F m_color;		// The color of the lines.
 		float m_fading;					// How fast are lines faded out. This number is relative to the line. A 1.0 means to fade from each end to the middle.
 		float m_lineWidth;				// Thickness of the beam

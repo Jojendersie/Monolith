@@ -7,7 +7,7 @@
 #include "predeclarations.hpp"
 #include "starsystem.hpp"
 
-/// \brief A cluster of starsystems.
+/// \brief A cluster of star systems.
 class Galaxy
 {
 public:
@@ -24,7 +24,7 @@ public:
 private:
 	std::vector< StarSystem > m_starSystems;
 
-	Graphic::VertexBuffer m_starInfos;
-	Graphic::VertexBuffer m_ambientStars;
+	Graphic::VertexArrayBuffer m_starInfos;
+	Graphic::VertexArrayBuffer m_ambientStars;
 };
 

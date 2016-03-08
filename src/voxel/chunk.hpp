@@ -98,7 +98,7 @@ namespace Voxel {
 		int m_depth;					///< The depth in the octree respective to this chunk's root. Maximum is 5.
 		ei::IVec4 m_root;				///< Position of the root node from this chunk in the model's octree.
 
-		Graphic::VertexBuffer m_voxels;	///< One VoxelVertex value per surface voxel.
+		Graphic::VertexArrayBuffer m_voxels;	///< One VoxelVertex value per surface voxel.
 
 		ei::Vec3 m_position;			///< Relative position of the chunk respective to the model.
 
