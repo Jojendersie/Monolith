@@ -53,7 +53,7 @@ namespace Graphic {
 	class Texture;
 	class PostProcessing;
 	class SingleComponentRenderer;
-	class BufferData;
+	class DataBuffer;
 	class VertexArrayBuffer;
 
 	namespace Marker {

@@ -42,11 +42,8 @@ namespace Graphic {
 	class DataBuffer
 	{
 	public:
-		/// \param [in] _instanceData true if the datum has to be present per instance
-		///		instead of per vertex.
-		DataBuffer(VertexAttribute _attribute, bool _instanceData);
-
 		/// \brief Create an vertex buffer with interleaved data (multiple attributes with different types).
+		/// \details Using only one attribute creates a pure buffer without interleaving.
 		DataBuffer(std::initializer_list<VertexAttribute> _interleavedData, bool _instanceData);
 		
 		~DataBuffer();
@@ -54,6 +51,7 @@ namespace Graphic {
 		bool IsStatic() const					{ return m_isStatic; }
 		bool IsDirty() const					{ return m_isDiry; }
 		bool IsInstanceData() const				{ return m_divisor == 1; }
+		int GetNumElements() const				{ return m_cursor; }
 
 		/// \brief Set the number of vertices back to 0.
 		/// \details Only possible for dynamic buffers. The storage will not
@@ -63,6 +61,7 @@ namespace Graphic {
 		/// \brief Prepare upload of static vertex buffer.
 		/// \details This call makes the buffer static in any case.
 		///		The ownership of the data is taken until upload.
+		///		The buffer is set to dirty automatically.
 		///
 		///		This call does not upload the data directly to allow a multi
 		///		threaded filling of vertex buffers.
@@ -71,11 +70,28 @@ namespace Graphic {
 		///		malloc.
 		void SetData(void*& _data, int _size);
 
+		/// \brief Return access to the internal memory. This yields nullptr
+		///		if the buffer is static.
+		void* GetDirectAccess() { return m_data; }
+
+		/// \brief Declare the buffer as dirty.
+		/// \details Add(), Remove() or the direct access do not do this automatically.
+		///		This has the advantage that a change can be completed by a thread
+		///		before the rendering tries to recommit the buffer.
+		///
+		///		However, the buffer guard IS CALLING Touch(). I.e. if you get
+		///		access by the VertexArrayBuffer you don't need to do anything.
+		void Touch() { m_isDiry = true; }
+
 		/// \brief Add one vertex at the end of the buffer.
 		/// \details This copies as much bytes as specified through _vertexDeclaration in
 		///		constructor.
 		template<typename T>
 		void Add(const T& _value);
+
+		/// \brief Replace an element with the last one
+		template<typename T>
+		void Remove(int _index);
 	private:
 		uint8*		m_data;				///< A CPU copy of the data or nullptr for static buffers
 		std::mutex	m_dataLock;			///< Data is under editing or gets uploaded
@@ -105,7 +121,6 @@ namespace Graphic {
 	{
 		if( IsStatic() ) { LOG_ERROR("Cannot add vertices to a static buffer."); return; }
 		if( m_elemSize != sizeof(T) ) { LOG_ERROR("Data size differs from attribute declaration. Cannot add vertex!"); return; }
-//		Assert( m_state != State::UPLOAD_READY, "Call BeginWorking() to make sure the buffer is in a clean state before changing things!");
 		if( m_cursor == m_numElements )
 		{
 			// Grow on CPU side
@@ -115,8 +130,21 @@ namespace Graphic {
 
 		memcpy(m_data + m_cursor * m_elemSize, &_value, m_elemSize);
 		++m_cursor;
-		m_isDiry = true;
+		//m_isDiry = true;
 	}
+
+	template<typename T>
+	void DataBuffer::Remove(int _index)
+	{
+		if( IsStatic() ) { LOG_ERROR("Cannot delete vertices from a static buffer."); return; }
+		if( m_elemSize != sizeof(T) ) { LOG_ERROR("Data size differs from attribute declaration. Cannot add vertex!"); return; }
+		Assert( m_cursor > 0, "No vertex to delete! The buffer is empty." );
+		Assert( _index >= m_cursor, "Invalid index to delete a vertex." );
+
+		T* data = (T*)m_data;
+		data[_index] = data[--m_cursor];
+	}
+
 
 	// ************************************************************************* //
 	/// \brief A class which behaves like a DataBuffer pointer, but also handles
@@ -155,33 +183,29 @@ namespace Graphic {
 			INDEXED
 		};
 
+		/// \brief Create an vertex declaration from a list of buffer objects.
+		/// \details This call allows to create instanced data as well as other
+		///		more complex setups. It also allows to share the buffers between
+		///		different Array objects. For example to use a reduced model version
+		///		for shadowmap rendering.
 		/// \param [in] _primitiveType What form of geometry will be stored? The standard
 		///		case is indexed where the according index buffer will determine
 		///		the primitive type. This is required for direct vertex-draw calls
-		/// \brief Create an vertex declaration from a list of buffer objects.
 		VertexArrayBuffer(PrimitiveType _primitiveType, std::initializer_list<std::shared_ptr<DataBuffer>> _buffers);
 
-		/// \brief Create an vertex array from short descriptor string.
+		/// \brief Create an vertex array from short descriptor list.
+		/// \details It is not possible to create instanced rendering with this kind
+		///		of constructor. Instead create the buffers manually and add them to this
+		///		buffer.
 		/// \param [in] _primitiveType What form of geometry will be stored? The standard
 		///		case is indexed where the according index buffer will determine
 		///		the primitive type. This is required for direct vertex-draw calls
 		/// \param [in] _vertexDeclaration Vertex definition/declaration specifies the
-		///		format of one vertex. Each character determines a binding
-		///		location and its positions the position in the per vertex data.
-		///
-		///		The following characters can be used:
-		///					p - 3 float position (BindingLocation::POSITION)
-		///					n - 3 float normal (BindingLocation::NORMAL)
-		///					t - 3 float tangent (BindingLocation::TANGENT)
-		///					c - 4 byte color (BindingLocation::FREE_CHOICE+x)
-		///					u - 1 uint32 (BindingLocation::FREE_CHOICE+x)
-		///					1 - 1 float texture coordinate (BindingLocation::FREE_CHOICE+x)
-		///					2 - 2 float texture coordinate (BindingLocation::FREE_CHOICE+x)
-		///					3 - 3 float texture coordinate (BindingLocation::FREE_CHOICE+x)
-		///					4 - 4 float components (BindingLocation::FREE_CHOICE+x)
-		///		The characters p,n,t may only occur once. All other attributes are
-		///		bound in the order of the characters (x is increased for each attribute).
+		///		format of one vertex. The input is a list of types and binding locations.
+		///		Example: {{VertexAttribute::VEC3, 0}, {VertexAttribute::VEC3, 1}} for
+		///			position + normal.
 		/// \param [in] _interleaved Only create a single data buffer of a combined type.
+		///		Otherwise a dedicated buffer per attribute is created.
 		VertexArrayBuffer(PrimitiveType _primitiveType, std::initializer_list<VertexAttribute> _vertexDeclaration, bool _interleaved = true);
 
 		/// \brief Move construction
@@ -191,9 +215,6 @@ namespace Graphic {
 
 		/// \brief Clear all internal buffers
 		void Clear();
-
-		/// \brief Lock until work can be done without conflict
-		//void BeginWorking();
 
 		/// \brief Bind the buffer for the draw call
 		void Bind() const;
@@ -218,24 +239,6 @@ namespace Graphic {
 		/// \brief Upload changed part of a buffer to GPU.
 		/// \details If the buffer was created static this is not necessary.
 		void Commit();
-
-		/// \brief The following states control the thread safety of vertex buffers.
-		/// \details The basic assumptions are:
-		///		* Do not upload while changing.
-		///		* The only reason for vertex buffer updates is to render their content.
-		///		* A dedicated worker thread can wait, rendering not.
-		///
-		///		Therefore the concept is: Except for initializing state there is
-		///		always a buffer on the GPU -> rendering possible. When flaged
-		///		as upload-ready upload, then render. Somebody how wants to
-		///		change something can do so except it is upload ready. Then the
-		///		worker must wait.
-		/*enum struct State
-		{
-			INITIALIZING,				///< Do not upload or render
-			WORKING,					///< The memory is inconsistent - do not upload
-			UPLOAD_READY,				///< The memory is consistent and can be uploaded to GPU (is set after a chain of changes), or is still uploading
-		};*/
 
 		friend class DataBufferGuard;
 	};

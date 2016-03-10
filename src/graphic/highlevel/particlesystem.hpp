@@ -5,9 +5,11 @@
 #include <vector>
 #include <memory>
 
+#include "predeclarations.hpp"
 #include "utilities/metaproghelper.hpp"
 #include "utilities/assert.hpp"
 //#include "utilities/flagoperators.hpp"
+#include "graphic/core/vertexbuffer.hpp"
 
 namespace Graphic {
 
@@ -76,9 +78,11 @@ namespace Graphic {
 		/// \brief Position components for all particles of a system
 		struct PositionComponents
 		{
-			std::vector<ei::Vec3> m_positions;
-			void Add(const ei::Vec3& _pos) { m_positions.push_back(_pos); }
-			void Remove(size_t _idx) { m_positions[_idx] = m_positions.back(); m_positions.pop_back(); }
+			PositionComponents();
+			//std::vector<ei::Vec3> m_positions;
+			std::shared_ptr< DataBuffer > m_positions;
+			void Add(const ei::Vec3& _pos);
+			void Remove(size_t _idx);
 		};
 
 		/// \brief Velocity components for all particles of a system
@@ -117,8 +121,9 @@ namespace Graphic {
 		{
 			void Run(float _deltaTime)
 			{
+				ei::Vec3* positions = (ei::Vec3*)m_positions->GetDirectAccess();
 				for(size_t i = 0; i < m_velocities.size(); ++i)
-					m_positions[i] += m_velocities[i];
+					positions[i] += m_velocities[i];
 			}
 		};
 
@@ -143,9 +148,10 @@ namespace Graphic {
 		{
 			void Run(float _deltaTime)
 			{
+				ei::Vec3* positions = (ei::Vec3*)m_positions->GetDirectAccess();
 				for(size_t i = 0; i < m_velocities.size(); ++i)
 				{
-					ei::Vec3 toCenter = m_gravitationCenter - m_positions[i];
+					ei::Vec3 toCenter = m_gravitationCenter - positions[i];
 					float dSq = lensq(toCenter);
 					// Normalize and scale with gravitation in one step
 					m_velocities[i] += toCenter * (m_gravitation / (dSq * sqrt(dSq)));

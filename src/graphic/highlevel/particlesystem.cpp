@@ -6,12 +6,13 @@
 using namespace ei;
 
 namespace Graphic {
+namespace ParticleSystems{
 
 // ************************************************************************* //
 // Manager class
-std::vector<ParticleSystems::SystemActions*> ParticleSystems::Manager::m_registeredSystems;
+std::vector<SystemActions*> Manager::m_registeredSystems;
 
-void ParticleSystems::Manager::Register(class SystemActions* _system)
+void Manager::Register(class SystemActions* _system)
 {
 	// Insert sorted after render type to avoid many renderer switches
 	m_registeredSystems.insert(
@@ -21,7 +22,7 @@ void ParticleSystems::Manager::Register(class SystemActions* _system)
 	);
 }
 
-void ParticleSystems::Manager::Release(class SystemActions* _system)
+void Manager::Release(class SystemActions* _system)
 {
 	for(size_t i = 0; i < m_registeredSystems.size(); ++i)
 	{
@@ -35,7 +36,7 @@ void ParticleSystems::Manager::Release(class SystemActions* _system)
 }
 
 // ************************************************************************* //
-void ParticleSystems::Manager::Simulate(float _deltaTime)
+void Manager::Simulate(float _deltaTime)
 {
 	for(auto sys : m_registeredSystems)
 	{
@@ -56,10 +57,29 @@ void ParticleSystems::SystemActions::Draw()
 	switch(m_renderer)
 	{
 	case RenderType::BLOB:
-		Graphic::Device::SetEffect(	Resources::GetEffect(Effects::BACKGROUNDSTAR) );
+		Device::SetEffect(	Resources::GetEffect(Effects::BACKGROUNDSTAR) );
 		// Manual draw call, because of special vertex definitions (independent buffers)
 //		GL_CALL(glDrawArrays, GL_POINTS, 0, m_numParticles);
 	}
 }
 
+
+// ************************************************************************* //
+// Position Components
+PositionComponents::PositionComponents()
+{
+	m_positions = std::make_shared<DataBuffer>(std::initializer_list<VertexAttribute>({{VertexAttribute::VEC3, 0}}), false);
+}
+
+void PositionComponents::Add(const ei::Vec3& _pos)
+{
+	m_positions->Add(_pos);
+}
+
+void PositionComponents::Remove(size_t _idx)
+{
+	m_positions->Remove<ei::Vec3>((int)_idx);
+}
+
+} // namespace ParticleSystem
 } // namespace Graphic
