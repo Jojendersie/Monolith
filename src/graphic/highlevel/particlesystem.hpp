@@ -26,10 +26,11 @@ namespace Graphic {
 		struct Component {
 			enum Val: uint
 			{
-				POSITION = 1,		///< Every particle needs a position. Always add this component!
-				VELOCITY = 2,		///< Change of position over time.
-				LIFETIME = 4,		///< Lifetime in seconds until despawn. If not provided the particle lasts forever.
-				GRAVITATION = 8,	///< Add a single center of gravitation which draws all particles to it or pushes them away.
+				POSITION = 0x1,		///< Every particle needs a position. Always add this component!
+				VELOCITY = 0x2,		///< Change of position over time.
+				LIFETIME = 0x4,		///< Lifetime in seconds until despawn. If not provided the particle lasts forever.
+				GRAVITATION = 0x8,	///< Add a single center of gravitation which draws all particles to it or pushes them away.
+				COLOR = 0x10,		///< Add one color per particle. If this is not set the system wide color is enabled instead.
 			};
 		};
 
@@ -73,16 +74,17 @@ namespace Graphic {
 			template<typename T>
 			static void Add(const T&) {}
 			static void Remove(size_t _idx) {}
+			static void AttachTo(VertexArrayBuffer& _vertexArray) {}
 		};
 
 		/// \brief Position components for all particles of a system
 		struct PositionComponents
 		{
 			PositionComponents();
-			//std::vector<ei::Vec3> m_positions;
 			std::shared_ptr< DataBuffer > m_positions;
 			void Add(const ei::Vec3& _pos);
 			void Remove(size_t _idx);
+			void AttachTo(VertexArrayBuffer& _vertexArray);
 		};
 
 		/// \brief Velocity components for all particles of a system
@@ -108,6 +110,25 @@ namespace Graphic {
 			float m_gravitation;	///< Gravitation constant. Positive means pull and negative is anti-gravitation.
 		};
 
+		/// \brief One color per particle
+		struct ColorComponents
+		{
+			ColorComponents();
+			std::shared_ptr< DataBuffer > m_colors;
+			void Add(const uint32& _pos);
+			void Remove(size_t _idx);
+			void AttachTo(VertexArrayBuffer& _vertexArray);
+		};
+
+		/// \brief A system wide color.
+		struct PSColorComponent
+		{
+			PSColorComponent();
+			std::shared_ptr< DataBuffer > m_systemColor;
+			void SetColor(uint32 _color);
+			void AttachTo(VertexArrayBuffer& _vertexArray);
+		};
+
 		/// \brief Helper class for component system meta programming.
 		template<typename Base>
 		struct FuncNOP
@@ -124,6 +145,7 @@ namespace Graphic {
 				ei::Vec3* positions = (ei::Vec3*)m_positions->GetDirectAccess();
 				for(size_t i = 0; i < m_velocities.size(); ++i)
 					positions[i] += m_velocities[i];
+				m_positions->Touch();
 			}
 		};
 
@@ -156,6 +178,7 @@ namespace Graphic {
 					// Normalize and scale with gravitation in one step
 					m_velocities[i] += toCenter * (m_gravitation / (dSq * sqrt(dSq)));
 				}
+				m_positions->Touch();
 			}
 		};
 
@@ -171,7 +194,8 @@ namespace Graphic {
 			public inherit_conditional<(PFlags & Component::POSITION) != 0, PositionComponents, NoComponent>,
 			public inherit_conditional<(PFlags & Component::VELOCITY) != 0, VeloctiyComponents, NoComponent>,
 			public inherit_conditional<(PFlags & Component::LIFETIME) != 0, LifetimeComponents, NoComponent>,
-			public inherit_conditional<(PFlags & Component::GRAVITATION) != 0, GravitationComponent, NoComponent>
+			public inherit_conditional<(PFlags & Component::GRAVITATION) != 0, GravitationComponent, NoComponent>,
+			public inherit_conditional<(PFlags & Component::COLOR) != 0, ColorComponents, PSColorComponent>
 		{
 			#define PFlagsWOGlobal  (PFlags & ~(Component::GRAVITATION))
 			// Compiletime while loop which finds the next flag set in PFlags
@@ -191,7 +215,7 @@ namespace Graphic {
 				Assert(RemainingFlags == 0, "Too few parameters provided!");
 			}
 
-			template<uint TheFlag = 1, uint RemainingFlags = (PFlags & ~(Component::GRAVITATION)), typename Param0, typename... Params>
+			template<uint TheFlag = 1, uint RemainingFlags = PFlagsWOGlobal, typename Param0, typename... Params>
 			void AddParticle(const Param0& _param0, Params... _params)
 			{
 				Assert(TheFlag != 0, "Too many parameters provided!");
@@ -199,6 +223,7 @@ namespace Graphic {
 				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & Component::POSITION) != 0, PositionComponents, NoComponent>::Add(_param0);
 				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & Component::VELOCITY) != 0, VeloctiyComponents, NoComponent>::Add(_param0);
 				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & Component::LIFETIME) != 0, LifetimeComponents, NoComponent>::Add(_param0);
+				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & Component::COLOR) != 0, ColorComponents, NoComponent>::Add(_param0);
 				AddParticle<NextFlag<TheFlag, false>::Get, RemainingFlags ^ TheFlag>(_params...);
 			}
 
@@ -207,6 +232,7 @@ namespace Graphic {
 				inherit_conditional<(PFlags & (uint)Component::POSITION) != 0, PositionComponents, NoComponent>::Remove(_idx);
 				inherit_conditional<(PFlags & (uint)Component::VELOCITY) != 0, VeloctiyComponents, NoComponent>::Remove(_idx);
 				inherit_conditional<(PFlags & (uint)Component::LIFETIME) != 0, LifetimeComponents, NoComponent>::Remove(_idx);
+				inherit_conditional<(PFlags & (uint)Component::COLOR) != 0, ColorComponents, NoComponent>::Remove(_idx);
 				m_numParticles--;
 			}
 			#undef PFlagsWOGlobal
@@ -219,11 +245,13 @@ namespace Graphic {
 		class SystemActions
 		{
 		public:
+			SystemActions();
 			virtual void Simulate(float _deltaTime) {}
 			void Draw();
 			RenderType getRenderType() const { return m_renderer; }
 		protected:
 			RenderType m_renderer;
+			VertexArrayBuffer m_particleVertices;
 		};
 
 		// The SubSystem extends the SubSystemData by mixing in functions conditional.
@@ -246,6 +274,10 @@ namespace Graphic {
 				m_renderer = _renderer;
 				// Register the system where the runtime can see it.
 				Manager::Register(this);
+				// The subconstructors of SystemData and SystemActions created all
+				// GPU resources, but they do not know each other.
+				inherit_conditional<(PFlags & Component::POSITION) != 0, PositionComponents, NoComponent>::AttachTo(m_particleVertices);
+				inherit_conditional<(PFlags & Component::COLOR) != 0, ColorComponents, PSColorComponent>::AttachTo(m_particleVertices);
 			}
 			~System()
 			{

@@ -183,6 +183,11 @@ namespace Graphic {
 			INDEXED
 		};
 
+		/// \brief Create a pure empty object. Buffers must be attached with AttachBuffer.
+		/// \details See constructor with buffer list: it is essentially the same, only
+		///		that buffers are attached successive.
+		VertexArrayBuffer(PrimitiveType _primitiveType);
+
 		/// \brief Create an vertex declaration from a list of buffer objects.
 		/// \details This call allows to create instanced data as well as other
 		///		more complex setups. It also allows to share the buffers between
@@ -219,6 +224,10 @@ namespace Graphic {
 		/// \brief Bind the buffer for the draw call
 		void Bind() const;
 
+		/// \brief Add a new vertex data array.
+		/// \details If the binding point is already occupied it is overwritten.
+		void AttachBuffer(std::shared_ptr<DataBuffer> _buffer);
+
 		int GetNumVertices() const	{ return m_numVertices; }
 		int GetNumInstances() const { return m_numInstances; }
 		bool IsInstanced() const	{ return m_isInstanced; }
@@ -233,8 +242,6 @@ namespace Graphic {
 		int			m_numInstances;
 		bool		m_isInstanced;
 
-		/// \brief Initialization helper which makes all necessary GL-Calls.
-		void AttachBuffer(DataBuffer& _b);
 
 		/// \brief Upload changed part of a buffer to GPU.
 		/// \details If the buffer was created static this is not necessary.

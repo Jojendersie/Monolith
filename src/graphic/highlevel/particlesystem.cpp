@@ -47,6 +47,11 @@ void Manager::Simulate(float _deltaTime)
 
 // ************************************************************************* //
 // SystemAction class
+ParticleSystems::SystemActions::SystemActions() :
+	m_particleVertices(VertexArrayBuffer::PrimitiveType::POINT)
+{
+}
+
 void ParticleSystems::SystemActions::Draw()
 {
 	// Upload the data (position, //size) if available
@@ -74,12 +79,63 @@ PositionComponents::PositionComponents()
 void PositionComponents::Add(const ei::Vec3& _pos)
 {
 	m_positions->Add(_pos);
+	m_positions->Touch();
 }
 
 void PositionComponents::Remove(size_t _idx)
 {
 	m_positions->Remove<ei::Vec3>((int)_idx);
+	m_positions->Touch();
 }
+
+void PositionComponents::AttachTo(VertexArrayBuffer& _vertexArray)
+{
+	_vertexArray.AttachBuffer(m_positions);
+}
+
+// ************************************************************************* //
+// Color components
+ColorComponents::ColorComponents()
+{
+	m_colors = std::make_shared<DataBuffer>(std::initializer_list<VertexAttribute>({{VertexAttribute::COLOR, 3}}), false);
+}
+
+void ColorComponents::Add(const uint32& _pos)
+{
+	m_colors->Add(_pos);
+	m_colors->Touch();
+}
+
+void ColorComponents::Remove(size_t _idx)
+{
+	m_colors->Remove<uint32>((int)_idx);
+	m_colors->Touch();
+}
+
+void ColorComponents::AttachTo(VertexArrayBuffer& _vertexArray)
+{
+	_vertexArray.AttachBuffer(m_colors);
+}
+
+// System wide color
+PSColorComponent::PSColorComponent()
+{
+	m_systemColor = std::make_shared<DataBuffer>(std::initializer_list<VertexAttribute>({{VertexAttribute::COLOR, 3}}), false);
+	// Default to black
+	m_systemColor->Add<uint32>(0);
+}
+
+void PSColorComponent::SetColor(uint32 _color)
+{
+	*(uint32*)m_systemColor->GetDirectAccess() = _color;
+	m_systemColor->Touch();
+}
+
+void PSColorComponent::AttachTo(VertexArrayBuffer& _vertexArray)
+{
+	_vertexArray.AttachBuffer(m_systemColor);
+}
+
 
 } // namespace ParticleSystem
 } // namespace Graphic
