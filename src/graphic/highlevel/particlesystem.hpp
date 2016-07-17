@@ -127,6 +127,9 @@ namespace Graphic {
 			std::shared_ptr< DataBuffer > m_systemColor;
 			void SetColor(uint32 _color);
 			void AttachTo(VertexArrayBuffer& _vertexArray);
+			static void Remove(size_t _idx) {}
+			template<typename T>
+			static void Add(const T&) {}
 		};
 
 		/// \brief Helper class for component system meta programming.
@@ -159,7 +162,7 @@ namespace Graphic {
 				{
 					m_lifetimes[i] -= _deltaTime;
 					if(m_lifetimes[i] < 0.0f)
-						Remove(i--);
+						this->Remove(i--);
 				}
 			}
 		};
@@ -223,16 +226,16 @@ namespace Graphic {
 				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & Component::POSITION) != 0, PositionComponents, NoComponent>::Add(_param0);
 				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & Component::VELOCITY) != 0, VeloctiyComponents, NoComponent>::Add(_param0);
 				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & Component::LIFETIME) != 0, LifetimeComponents, NoComponent>::Add(_param0);
-				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & Component::COLOR) != 0, ColorComponents, NoComponent>::Add(_param0);
+				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & Component::COLOR) != 0, ColorComponents, PSColorComponent>::Add(_param0);
 				AddParticle<NextFlag<TheFlag, false>::Get, RemainingFlags ^ TheFlag>(_params...);
 			}
 
 			void Remove(size_t _idx)
 			{
-				inherit_conditional<(PFlags & (uint)Component::POSITION) != 0, PositionComponents, NoComponent>::Remove(_idx);
-				inherit_conditional<(PFlags & (uint)Component::VELOCITY) != 0, VeloctiyComponents, NoComponent>::Remove(_idx);
-				inherit_conditional<(PFlags & (uint)Component::LIFETIME) != 0, LifetimeComponents, NoComponent>::Remove(_idx);
-				inherit_conditional<(PFlags & (uint)Component::COLOR) != 0, ColorComponents, NoComponent>::Remove(_idx);
+				inherit_conditional<(PFlags & Component::POSITION) != 0, PositionComponents, NoComponent>::Remove(_idx);
+				inherit_conditional<(PFlags & Component::VELOCITY) != 0, VeloctiyComponents, NoComponent>::Remove(_idx);
+				inherit_conditional<(PFlags & Component::LIFETIME) != 0, LifetimeComponents, NoComponent>::Remove(_idx);
+				inherit_conditional<(PFlags & Component::COLOR) != 0, ColorComponents, PSColorComponent>::Remove(_idx);
 				m_numParticles--;
 			}
 			#undef PFlagsWOGlobal
@@ -277,7 +280,7 @@ namespace Graphic {
 				// The subconstructors of SystemData and SystemActions created all
 				// GPU resources, but they do not know each other.
 				inherit_conditional<(PFlags & Component::POSITION) != 0, PositionComponents, NoComponent>::AttachTo(m_particleVertices);
-				inherit_conditional<(PFlags & Component::COLOR) != 0, ColorComponents, PSColorComponent>::AttachTo(m_particleVertices);
+//				inherit_conditional<(PFlags & Component::COLOR) != 0, ColorComponents, PSColorComponent>::AttachTo(m_particleVertices);
 			}
 			~System()
 			{
