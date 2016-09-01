@@ -583,7 +583,7 @@ namespace Voxel {
 
 	bool TypeInfo::IsWeapon( ComponentType _type )
 	{
-		return false;
+		return GetDamage(_type) > 0.0f;
 	}
 
 	bool TypeInfo::IsShield( ComponentType _type )

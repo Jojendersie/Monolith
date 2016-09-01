@@ -3,6 +3,7 @@
 #include "gamestatebase.hpp"
 #include "gameplay/scenegraph.hpp"
 #include "gameplay/managment/playercontroller.hpp"
+#include "gameplay/firemanager.hpp"
 
 #include <memory>
 
@@ -32,6 +33,7 @@ private:
 	Galaxy* m_galaxy;
 	Input::Camera* m_camera;
 	SceneGraph m_scene;
+	FireManager m_fireManager;
 	std::unique_ptr<PlayerController> m_player;
 
 	SOHandle m_selectedObject;
