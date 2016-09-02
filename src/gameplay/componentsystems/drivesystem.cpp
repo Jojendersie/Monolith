@@ -19,6 +19,7 @@ namespace Mechanics {
 		m_particles(Graphic::ParticleSystems::RenderType::BLOB),
 		m_rng(1091613067)
 	{
+		m_particles.SetParticleSize(0.15f);
 	}
 
 	void DriveSystem::Estimate(float _deltaTime, SystemRequierements& _requirements)
@@ -74,15 +75,15 @@ namespace Mechanics {
 			_provided.torque = m_currentTorque * e;
 
 			// Create particles proportional to the energy throughput
-			for(int i = 0; i < m_energyIn; ++i)
+			for(int i = 0; i < m_energyIn * 3.0f; ++i)
 			{
 				int thrusterIdx = m_rng.Uniform(0, (int)m_relativeThrusterPositions.size()-1);
-				ei::Vec3 inThrusterPos(m_rng.Normal(0.03f), m_rng.Normal(0.03f), m_rng.Normal(0.03f));
+				ei::Vec3 inThrusterPos(m_rng.Normal(0.02f), m_rng.Normal(0.02f), m_rng.Normal(0.02f));
 				ei::Vec3 localPos = m_relativeThrusterPositions[thrusterIdx] + inThrusterPos;
 				localPos = m_ship.GetRotationMatrix() * localPos;
 				m_particles.AddParticle(
 					ei::Vec3(m_ship.GetPosition() - m_particles.GetPosition()) + localPos,
-					max(0.2f, m_rng.Uniform(1.0f, 2.5f) - lensq(inThrusterPos) * 1.5f),
+					max(0.2f, m_rng.Uniform(1.0f, 2.5f) - lensq(inThrusterPos) * 2.5f),
 					Utils::Color8U(0.1f, 0.2f, 0.5f).RGBA());
 			}
 		}

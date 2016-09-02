@@ -65,14 +65,15 @@ ParticleSystems::SystemActions::SystemActions() :
 	m_particleVertices(VertexArrayBuffer::PrimitiveType::POINT),
 	m_systemTransformation()
 {
+	m_particleVertices.SetNumInstances(1);
 }
 
 void ParticleSystems::SystemActions::Draw( const Input::Camera& _camera )
 {
-	// Upload the data (position, //size) if available
-//	UploadAndBind();
+	if(!GetNumParticles()) return;
+
+	// Upload current transformation matrix
 	Mat4x4 modelViewProj = m_systemTransformation.GetTransformation(_camera.RenderState());
-	//modelViewProj *= _camera.GetProjection();
 	modelViewProj = _camera.GetProjection() * modelViewProj;
 	Resources::GetUBO(UniformBuffers::SIMPLE_OBJECT)["WorldViewProjection"] = modelViewProj;
 
@@ -85,8 +86,6 @@ void ParticleSystems::SystemActions::Draw( const Input::Camera& _camera )
 	}
 	m_particleVertices.Bind();
 	Graphic::Device::DrawVertices( m_particleVertices, 0, GetNumParticles() );
-	// Manual draw call, because of special vertex definitions (independent buffers)
-	//GL_CALL(glDrawArrays, GL_POINTS, 0, m_numParticles);
 }
 
 
@@ -121,9 +120,9 @@ ColorComponents::ColorComponents()
 	m_colors = std::make_shared<DataBuffer>(std::initializer_list<VertexAttribute>({{VertexAttribute::COLOR, 3}}), false);
 }
 
-void ColorComponents::Add(const uint32& _pos)
+void ColorComponents::Add(uint32 _color)
 {
-	m_colors->Add(_pos);
+	m_colors->Add(_color);
 	m_colors->Touch();
 }
 
@@ -144,6 +143,7 @@ PSColorComponent::PSColorComponent()
 	m_systemColor = std::make_shared<DataBuffer>(std::initializer_list<VertexAttribute>({{VertexAttribute::COLOR, 3}}), false);
 	// Default to black
 	m_systemColor->Add<uint32>(0);
+	m_systemColor->Touch();
 }
 
 void PSColorComponent::SetColor(uint32 _color)
@@ -155,6 +155,50 @@ void PSColorComponent::SetColor(uint32 _color)
 void PSColorComponent::AttachTo(VertexArrayBuffer& _vertexArray)
 {
 	_vertexArray.AttachBuffer(m_systemColor);
+}
+
+
+// ************************************************************************* //
+// Size components
+SizeComponents::SizeComponents()
+{
+	m_sizes = std::make_shared<DataBuffer>(std::initializer_list<VertexAttribute>({{VertexAttribute::FLOAT, 1}}), false);
+}
+
+void SizeComponents::Add(float _size)
+{
+	m_sizes->Add(_size);
+	m_sizes->Touch();
+}
+
+void SizeComponents::Remove(size_t _idx)
+{
+	m_sizes->Remove<float>((int)_idx);
+	m_sizes->Touch();
+}
+
+void SizeComponents::AttachTo(VertexArrayBuffer& _vertexArray)
+{
+	_vertexArray.AttachBuffer(m_sizes);
+}
+
+PSSizeComponent::PSSizeComponent()
+{
+	m_systemSize = std::make_shared<DataBuffer>(std::initializer_list<VertexAttribute>({{VertexAttribute::FLOAT, 1}}), true);
+	// Default to 0.5 (well visible)
+	m_systemSize->Add<float>(0.5f);
+	m_systemSize->Touch();
+}
+
+void PSSizeComponent::SetParticleSize(float _size)
+{
+	*(float*)m_systemSize->GetDirectAccess() = _size;
+	m_systemSize->Touch();
+}
+
+void PSSizeComponent::AttachTo(VertexArrayBuffer& _vertexArray)
+{
+	_vertexArray.AttachBuffer(m_systemSize);
 }
 
 

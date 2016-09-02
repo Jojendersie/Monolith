@@ -230,6 +230,8 @@ namespace Graphic {
 
 		int GetNumVertices() const	{ return m_numVertices; }
 		int GetNumInstances() const { return m_numInstances; }
+		void SetNumVertices(int _numVertices) { m_numVertices = _numVertices; }
+		void SetNumInstances(int _numInstances) { if(m_isInstanced) m_numInstances = _numInstances; }
 		bool IsInstanced() const	{ return m_isInstanced; }
 		PrimitiveType GetPrimitiveType() const	{ return m_primitiveType; }
 

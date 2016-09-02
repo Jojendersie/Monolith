@@ -26,7 +26,7 @@ void main(void)
 	vec4 position = vec4(vs_out_Position[0].xyz, 1) * c_mWorldViewProjection;
 //	position.xyz /= abs(position.w);
 	
-	float size = 0.5;
+	float size = vs_out_Size[0];
 	gs_texCoord = vec2(-1.0, -1.0);
 	gl_Position = position + vec4(-size, -size * c_fAspect, 0, 0);
 	EmitVertex();

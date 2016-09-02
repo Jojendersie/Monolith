@@ -171,7 +171,6 @@ void VertexArrayBuffer::AttachBuffer(std::shared_ptr<DataBuffer> _b)
 
 	if(_b->IsInstanceData()) {
 		m_isInstanced = true;
-		m_numInstances = 0;
 	}
 }
 

@@ -32,6 +32,7 @@ namespace Graphic {
 				LIFETIME = 0x4,		///< Lifetime in seconds until despawn. If not provided the particle lasts forever.
 				GRAVITATION = 0x8,	///< Add a single center of gravitation which draws all particles to it or pushes them away.
 				COLOR = 0x10,		///< Add one color per particle. If this is not set the system wide color is enabled instead.
+				SIZE = 0x20,		///< Add a size per particle. If this is not set the system wide size is enabled instead.
 			};
 		};
 
@@ -121,7 +122,7 @@ namespace Graphic {
 		{
 			ColorComponents();
 			std::shared_ptr< DataBuffer > m_colors;
-			void Add(const uint32& _pos);
+			void Add(uint32 _color);
 			void Remove(size_t _idx);
 			void AttachTo(VertexArrayBuffer& _vertexArray);
 		};
@@ -132,6 +133,28 @@ namespace Graphic {
 			PSColorComponent();
 			std::shared_ptr< DataBuffer > m_systemColor;
 			void SetColor(uint32 _color);
+			void AttachTo(VertexArrayBuffer& _vertexArray);
+			static void Remove(size_t _idx) {}
+			template<typename T>
+			static void Add(const T&) {}
+		};
+
+		/// \brief One size per particle (radius).
+		struct SizeComponents
+		{
+			SizeComponents();
+			std::shared_ptr< DataBuffer > m_sizes;
+			void Add(float _size);
+			void Remove(size_t _idx);
+			void AttachTo(VertexArrayBuffer& _vertexArray);
+		};
+
+		/// \brief A system wide particle size (radius).
+		struct PSSizeComponent
+		{
+			PSSizeComponent();
+			std::shared_ptr< DataBuffer > m_systemSize;
+			void SetParticleSize(float _size);
 			void AttachTo(VertexArrayBuffer& _vertexArray);
 			static void Remove(size_t _idx) {}
 			template<typename T>
@@ -204,7 +227,8 @@ namespace Graphic {
 			public inherit_conditional<(PFlags & Component::VELOCITY) != 0, VeloctiyComponents, NoComponent>,
 			public inherit_conditional<(PFlags & Component::LIFETIME) != 0, LifetimeComponents, NoComponent>,
 			public inherit_conditional<(PFlags & Component::GRAVITATION) != 0, GravitationComponent, NoComponent>,
-			public inherit_conditional<(PFlags & Component::COLOR) != 0, ColorComponents, PSColorComponent>
+			public inherit_conditional<(PFlags & Component::COLOR) != 0, ColorComponents, PSColorComponent>,
+			public inherit_conditional<(PFlags & Component::SIZE) != 0, SizeComponents, PSSizeComponent>
 		{
 			#define PFlagsWOGlobal  (PFlags & ~(Component::GRAVITATION))
 			// Compiletime while loop which finds the next flag set in PFlags
@@ -234,6 +258,7 @@ namespace Graphic {
 				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & Component::VELOCITY) != 0, VeloctiyComponents, NoComponent>::Add(_param0);
 				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & Component::LIFETIME) != 0, LifetimeComponents, NoComponent>::Add(_param0);
 				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & Component::COLOR) != 0, ColorComponents, PSColorComponent>::Add(_param0);
+				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & Component::SIZE) != 0, SizeComponents, PSSizeComponent>::Add(_param0);
 				AddParticle<NextFlag<TheFlag, false>::Get, RemainingFlags ^ TheFlag>(_params...);
 			}
 
@@ -243,6 +268,7 @@ namespace Graphic {
 				inherit_conditional<(PFlags & Component::VELOCITY) != 0, VeloctiyComponents, NoComponent>::Remove(_idx);
 				inherit_conditional<(PFlags & Component::LIFETIME) != 0, LifetimeComponents, NoComponent>::Remove(_idx);
 				inherit_conditional<(PFlags & Component::COLOR) != 0, ColorComponents, PSColorComponent>::Remove(_idx);
+				inherit_conditional<(PFlags & Component::SIZE) != 0, SizeComponents, PSSizeComponent>::Remove(_idx);
 				m_numParticles--;
 			}
 			#undef PFlagsWOGlobal
@@ -291,6 +317,7 @@ namespace Graphic {
 				// GPU resources, but they do not know each other.
 				inherit_conditional<(PFlags & Component::POSITION) != 0, PositionComponents, NoComponent>::AttachTo(m_particleVertices);
 				inherit_conditional<(PFlags & Component::COLOR) != 0, ColorComponents, PSColorComponent>::AttachTo(m_particleVertices);
+				inherit_conditional<(PFlags & Component::SIZE) != 0, SizeComponents, PSSizeComponent>::AttachTo(m_particleVertices);
 			}
 			~System()
 			{
