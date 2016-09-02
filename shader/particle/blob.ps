@@ -1,0 +1,11 @@
+#version 330
+
+in vec4 gs_color;
+in vec2 gs_texCoord;
+
+out vec4 fragColor;
+
+void main()
+{
+	fragColor = gs_color * sqrt(max(0.0, 1.0 - dot(gs_texCoord, gs_texCoord)));
+}

@@ -13,6 +13,7 @@
 #include "utilities/stringutils.hpp"
 #include "math/fixedpoint.hpp"
 #include "math/ray.hpp"
+#include "graphic/highlevel/particlesystem.hpp"
 #include <ei/vector.hpp>
 
 using namespace ei;
@@ -176,6 +177,9 @@ void GSPlay::Simulate( double _deltaTime )
 	/*static Generators::Random Rnd(1435461);
 	for( int i = 0; i < 100; ++i )
 		m_astTest->Set( IVec3(Rnd.Uniform(0,79), Rnd.Uniform(0,49), Rnd.Uniform(0,29)), 0, Voxel::VoxelType::UNDEFINED );//*/
+
+
+	Graphic::ParticleSystems::Manager::Simulate((float)_deltaTime);
 }
 
 // ************************************************************************* //
@@ -203,6 +207,8 @@ void GSPlay::Render( double _deltaTime )
 
 	if( m_selectedObject )
 		DrawReferenceGrid( m_selectedObjectModPtr );
+
+	Graphic::ParticleSystems::Manager::Draw( *m_camera );
 	
 	//update hud information
 	m_hud->m_dbgLabel->SetText("<s 024>" + std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(RenderStat::g_numVoxels) + "\n#Chunks: " + std::to_string(RenderStat::g_numChunks)+"</s>");

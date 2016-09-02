@@ -139,7 +139,7 @@ namespace Graphic {
 		if( IsStatic() ) { LOG_ERROR("Cannot delete vertices from a static buffer."); return; }
 		if( m_elemSize != sizeof(T) ) { LOG_ERROR("Data size differs from attribute declaration. Cannot add vertex!"); return; }
 		Assert( m_cursor > 0, "No vertex to delete! The buffer is empty." );
-		Assert( _index >= m_cursor, "Invalid index to delete a vertex." );
+		Assert( _index < m_cursor, "Invalid index to delete a vertex." );
 
 		T* data = (T*)m_data;
 		data[_index] = data[--m_cursor];

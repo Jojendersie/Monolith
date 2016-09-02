@@ -10,6 +10,7 @@
 #include "utilities/assert.hpp"
 //#include "utilities/flagoperators.hpp"
 #include "graphic/core/vertexbuffer.hpp"
+#include "math/transformation.hpp"
 
 namespace Graphic {
 
@@ -39,7 +40,9 @@ namespace Graphic {
 			BLOB,
 			QUAD,
 			BOX,
-			RAY
+			RAY,
+
+			INVALID
 		};
 
 		/// \brief Add a custom particle to the appropriate system. Simulation
@@ -56,6 +59,9 @@ namespace Graphic {
 		public:
 			/// \brief Simulate all kinds of particle systems.
 			static void Simulate(float _deltaTime);
+
+			/// \brief Draw all visible particle systems
+			static void Draw( const Input::Camera& _camera );
 		private:
 			template<uint> friend class System;
 			/// \brief Register a new system to the global management.
@@ -215,7 +221,8 @@ namespace Graphic {
 			void AddParticle() // End of recursion
 			{
 				m_numParticles++;
-				Assert(RemainingFlags == 0, "Too few parameters provided!");
+				//Assert(RemainingFlags == 0, "Too few parameters provided!");
+				static_assert(RemainingFlags == 0, "Too few parameters provided!");
 			}
 
 			template<uint TheFlag = 1, uint RemainingFlags = PFlagsWOGlobal, typename Param0, typename... Params>
@@ -250,10 +257,12 @@ namespace Graphic {
 		public:
 			SystemActions();
 			virtual void Simulate(float _deltaTime) {}
-			void Draw();
+			void Draw( const Input::Camera& _camera );
 			RenderType getRenderType() const { return m_renderer; }
+			virtual uint32 GetNumParticles() const { return 0; }
 		protected:
 			RenderType m_renderer;
+			Math::Transformation m_systemTransformation;
 			VertexArrayBuffer m_particleVertices;
 		};
 
@@ -280,7 +289,7 @@ namespace Graphic {
 				// The subconstructors of SystemData and SystemActions created all
 				// GPU resources, but they do not know each other.
 				inherit_conditional<(PFlags & Component::POSITION) != 0, PositionComponents, NoComponent>::AttachTo(m_particleVertices);
-//				inherit_conditional<(PFlags & Component::COLOR) != 0, ColorComponents, PSColorComponent>::AttachTo(m_particleVertices);
+				inherit_conditional<(PFlags & Component::COLOR) != 0, ColorComponents, PSColorComponent>::AttachTo(m_particleVertices);
 			}
 			~System()
 			{
@@ -293,6 +302,8 @@ namespace Graphic {
 				inherit_conditional<((PFlags & Component::LIFETIME) != 0), FuncDie<SystemData<PFlags>>, FuncNOP<SystemData<PFlags>>>::Run(_deltaTime);
 				inherit_conditional<((PFlags & Component::POSITION) != 0) && ((PFlags & Component::VELOCITY) != 0) && ((PFlags & Component::GRAVITATION) != 0), FuncGravitation<SystemData<PFlags>>, FuncNOP<SystemData<PFlags>>>::Run(_deltaTime);
 			}
+
+			uint32 GetNumParticles() const override { return m_numParticles; }
 		};
 
 		// Kind of a hash-map to instantiate the dynamical produced types. For each type

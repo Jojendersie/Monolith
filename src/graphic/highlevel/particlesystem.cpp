@@ -2,6 +2,7 @@
 #include <algorithm>
 #include "graphic/core/device.hpp"
 #include "graphic/content.hpp"
+#include "input/camera.hpp"
 
 using namespace ei;
 
@@ -44,28 +45,48 @@ void Manager::Simulate(float _deltaTime)
 	}
 }
 
+void Manager::Draw( const Input::Camera& _camera )
+{
+	RenderType currentEffect = RenderType::INVALID;
+	for(auto sys : m_registeredSystems)
+	{
+		// The draw call switches the effect automatically. Since systems are
+		// sorted this should not happen more than once in each frame for each PS type.
+
+		// TODO: culling
+		sys->Draw( _camera );
+	}
+}
+
 
 // ************************************************************************* //
 // SystemAction class
 ParticleSystems::SystemActions::SystemActions() :
-	m_particleVertices(VertexArrayBuffer::PrimitiveType::POINT)
+	m_particleVertices(VertexArrayBuffer::PrimitiveType::POINT),
+	m_systemTransformation()
 {
 }
 
-void ParticleSystems::SystemActions::Draw()
+void ParticleSystems::SystemActions::Draw( const Input::Camera& _camera )
 {
 	// Upload the data (position, //size) if available
 //	UploadAndBind();
+	Mat4x4 modelViewProj = m_systemTransformation.GetTransformation(_camera.RenderState());
+	//modelViewProj *= _camera.GetProjection();
+	modelViewProj = _camera.GetProjection() * modelViewProj;
+	Resources::GetUBO(UniformBuffers::SIMPLE_OBJECT)["WorldViewProjection"] = modelViewProj;
 
 	// Set renderer and do draw call. The set has no effect if the renderer is
 	// currently active.
 	switch(m_renderer)
 	{
 	case RenderType::BLOB:
-		Device::SetEffect(	Resources::GetEffect(Effects::BACKGROUNDSTAR) );
-		// Manual draw call, because of special vertex definitions (independent buffers)
-//		GL_CALL(glDrawArrays, GL_POINTS, 0, m_numParticles);
+		Device::SetEffect(	Resources::GetEffect(Effects::BLOB_PARTICLE) );
 	}
+	m_particleVertices.Bind();
+	Graphic::Device::DrawVertices( m_particleVertices, 0, GetNumParticles() );
+	// Manual draw call, because of special vertex definitions (independent buffers)
+	//GL_CALL(glDrawArrays, GL_POINTS, 0, m_numParticles);
 }
 
 

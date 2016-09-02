@@ -1,6 +1,7 @@
 #include "drivesystem.hpp"
 #include "math/ray.hpp"
 #include "gameplay/ship.hpp"
+#include "utilities/color.hpp"
 
 using namespace ei;
 using namespace Math;
@@ -14,7 +15,8 @@ namespace Mechanics {
 	inline float denoise(float _x) { return int(_x * 128.0f) / 128.0f; }
 
 	DriveSystem::DriveSystem(class Ship& _theShip, unsigned _id) :
-		ComponentSystem(_theShip, "Drive", _id)
+		ComponentSystem(_theShip, "Drive", _id),
+		m_particles(Graphic::ParticleSystems::RenderType::BLOB)
 	{
 	}
 
@@ -69,6 +71,10 @@ namespace Mechanics {
 
 			_provided.thrust = m_currentThrust * e;
 			_provided.torque = m_currentTorque * e;
+
+			// Create particles proportional to the energy throughput
+			for(int i = 0; i < m_energyIn; ++i)
+				m_particles.AddParticle(ei::Vec3(m_ship.GetPosition()), 5.0f, Utils::Color8U(0.1f, 0.2f, 0.5f).RGBA());
 		}
 	}
 

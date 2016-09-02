@@ -24,7 +24,7 @@ using namespace Graphic;
 /// \brief Entry point.
 int main()
 {
-	ParticleSystems::System<PSComponent::POSITION | PSComponent::VELOCITY | PSComponent::GRAVITATION> sys0(ParticleSystems::RenderType::BLOB);
+	/*ParticleSystems::System<PSComponent::POSITION | PSComponent::VELOCITY | PSComponent::GRAVITATION> sys0(ParticleSystems::RenderType::BLOB);
 	ParticleSystems::System<PSComponent::POSITION | PSComponent::LIFETIME> sys2(ParticleSystems::RenderType::BOX);
 	ParticleSystems::System<PSComponent::POSITION | PSComponent::LIFETIME> sys1(ParticleSystems::RenderType::BLOB);
 	ParticleSystems::System<PSComponent::COLOR> sys3(ParticleSystems::RenderType::BLOB);
@@ -32,8 +32,8 @@ int main()
 	sys0.m_gravitation = 1.0f; // Pull
 	sys0.AddParticle(ei::Vec3(0.0f), ei::Vec3(1.0f));
 	sys1.AddParticle(ei::Vec3(0.0f), 2.0f);
-	sys3.Remove(0);
-	ParticleSystems::Manager::Simulate(0.1f);
+	//sys3.Remove(0);
+	ParticleSystems::Manager::Simulate(0.1f);*/
 	//sys0.AddParticle(ei::Vec3(0.0f));
 	//sys0.AddParticle(ei::Vec3(0.0f), ei::Vec3(1.0f), 0.0f);
 

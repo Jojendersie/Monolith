@@ -2,6 +2,7 @@
 
 #include "componentsystem.hpp"
 #include "math/sphericalfunction.hpp"
+#include "graphic/highlevel/particlesystem.hpp"
 
 namespace Mechanics {
 
@@ -29,6 +30,8 @@ namespace Mechanics {
 	//	Math::SphericalFunction m_torqueToThrustZ;
 		//Math::SphericalFunction m_energyUsage;	///< How many of the drives can fire in the desired direction?
 		float m_maxEnergyDrain;
+
+		Graphic::ParticleSystems::System<Graphic::PSComponent::POSITION | Graphic::PSComponent::LIFETIME | Graphic::PSComponent::COLOR> m_particles;
 
 		friend class Ship;
 	};

@@ -63,7 +63,14 @@ namespace Graphic {
 			s_effects[(int)_effect]->SetBlendState(BlendState(Graphic::BlendState::BLEND_OPERATION::ADD, Graphic::BlendState::BLEND::ONE, Graphic::BlendState::BLEND::ONE));
 			s_effects[(int)_effect]->SetDepthStencilState(DepthStencilState(Graphic::DepthStencilState::COMPARISON_FUNC::ALWAYS, false));
 			s_effects[(int)_effect]->BindUniformBuffer(GetUBO(UniformBuffers::CAMERA));
-			//s_effects[(int)_effect]->BindUniformBuffer(GetUBO(UniformBuffers::GLOBAL));*/
+			s_effects[(int)_effect]->BindUniformBuffer(GetUBO(UniformBuffers::GLOBAL));
+			break;
+		case Effects::BLOB_PARTICLE:
+			s_effects[(int)_effect] = new Effect("shader/particle/blob.vs", "shader/particle/blob.ps", "shader/particle/blob.gs");
+			s_effects[(int)_effect]->SetBlendState(BlendState(Graphic::BlendState::BLEND_OPERATION::ADD, Graphic::BlendState::BLEND::ONE, Graphic::BlendState::BLEND::ONE));
+			s_effects[(int)_effect]->SetDepthStencilState( DepthStencilState(Graphic::DepthStencilState::COMPARISON_FUNC::LESS, false) );
+			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::SIMPLE_OBJECT) );
+			s_effects[(int)_effect]->BindUniformBuffer(GetUBO(UniformBuffers::GLOBAL));
 			break;
 		}
 		return *s_effects[(int)_effect];
