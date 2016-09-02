@@ -3,6 +3,7 @@
 #include "componentsystem.hpp"
 #include "math/sphericalfunction.hpp"
 #include "graphic/highlevel/particlesystem.hpp"
+#include "generators/random.hpp"
 
 namespace Mechanics {
 
@@ -30,6 +31,8 @@ namespace Mechanics {
 	//	Math::SphericalFunction m_torqueToThrustZ;
 		//Math::SphericalFunction m_energyUsage;	///< How many of the drives can fire in the desired direction?
 		float m_maxEnergyDrain;
+		std::vector<ei::Vec3> m_relativeThrusterPositions;
+		Generators::Random m_rng;
 
 		Graphic::ParticleSystems::System<Graphic::PSComponent::POSITION | Graphic::PSComponent::LIFETIME | Graphic::PSComponent::COLOR> m_particles;
 

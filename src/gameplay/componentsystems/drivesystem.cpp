@@ -16,7 +16,8 @@ namespace Mechanics {
 
 	DriveSystem::DriveSystem(class Ship& _theShip, unsigned _id) :
 		ComponentSystem(_theShip, "Drive", _id),
-		m_particles(Graphic::ParticleSystems::RenderType::BLOB)
+		m_particles(Graphic::ParticleSystems::RenderType::BLOB),
+		m_rng(1091613067)
 	{
 	}
 
@@ -74,7 +75,16 @@ namespace Mechanics {
 
 			// Create particles proportional to the energy throughput
 			for(int i = 0; i < m_energyIn; ++i)
-				m_particles.AddParticle(ei::Vec3(m_ship.GetPosition()), 5.0f, Utils::Color8U(0.1f, 0.2f, 0.5f).RGBA());
+			{
+				int thrusterIdx = m_rng.Uniform(0, (int)m_relativeThrusterPositions.size()-1);
+				ei::Vec3 inThrusterPos(m_rng.Normal(0.03f), m_rng.Normal(0.03f), m_rng.Normal(0.03f));
+				ei::Vec3 localPos = m_relativeThrusterPositions[thrusterIdx] + inThrusterPos;
+				localPos = m_ship.GetRotationMatrix() * localPos;
+				m_particles.AddParticle(
+					ei::Vec3(m_ship.GetPosition() - m_particles.GetPosition()) + localPos,
+					max(0.2f, m_rng.Uniform(1.0f, 2.5f) - lensq(inThrusterPos) * 1.5f),
+					Utils::Color8U(0.1f, 0.2f, 0.5f).RGBA());
+			}
 		}
 	}
 
@@ -92,6 +102,7 @@ namespace Mechanics {
 		auto endit = directionGenerator.end();
 		Vec3 center = _position+Vec3(0.5f);
 		Vec3 centerDir = _position + 0.5f - m_ship.GetCenter();
+		m_relativeThrusterPositions.push_back(centerDir);
 		float centerDistance = len(centerDir);
 		// Count number of samples per direction to normalize.
 		int thrustCount[26] = {0};
@@ -147,6 +158,7 @@ namespace Mechanics {
 	{
 		m_maxTorque = Math::SphericalFunction();
 		m_maxThrust = Math::SphericalFunction();
+		m_relativeThrusterPositions.clear();
 	}
 
 }

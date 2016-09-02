@@ -260,6 +260,7 @@ namespace Graphic {
 			void Draw( const Input::Camera& _camera );
 			RenderType getRenderType() const { return m_renderer; }
 			virtual uint32 GetNumParticles() const { return 0; }
+			const Math::FixVec3& GetPosition() const { return m_systemTransformation.GetPosition(); }
 		protected:
 			RenderType m_renderer;
 			Math::Transformation m_systemTransformation;
