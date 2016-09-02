@@ -7,5 +7,10 @@ out vec4 fragColor;
 
 void main()
 {
-	fragColor = gs_color * sqrt(max(0.0, 1.0 - dot(gs_texCoord, gs_texCoord)));
+	//fragColor = gs_color * sqrt(max(0.0, 1.0 - dot(gs_texCoord, gs_texCoord)));
+	float circleDist = sqrt(max(0.0, 1.0 - dot(gs_texCoord, gs_texCoord)));
+	if(circleDist == 0.0) discard;
+	float blobShape = cos((1.0 - circleDist) * 3.1415926) * 0.5 + 0.5;
+	blobShape *= circleDist;
+	fragColor = gs_color * blobShape;
 }
