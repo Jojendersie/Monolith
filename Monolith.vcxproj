@@ -98,13 +98,13 @@
     <ClCompile Include="src\exceptions.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\gameloop.cpp" />
-    <ClCompile Include="src\gameplay\communication\dialog.cpp" />
     <ClCompile Include="src\gameplay\componentsystems\componentsystem.cpp" />
     <ClCompile Include="src\gameplay\componentsystems\computersystem.cpp" />
     <ClCompile Include="src\gameplay\componentsystems\drivesystem.cpp" />
     <ClCompile Include="src\gameplay\componentsystems\reactorsystem.cpp" />
     <ClCompile Include="src\gameplay\componentsystems\storagesystem.cpp" />
     <ClCompile Include="src\gameplay\componentsystems\weaponsystem.cpp" />
+    <ClCompile Include="src\gameplay\firemanager.cpp" />
     <ClCompile Include="src\gameplay\galaxy.cpp" />
     <ClCompile Include="src\gameplay\managment\controller.cpp" />
     <ClCompile Include="src\gameplay\managment\playercontroller.cpp" />
@@ -193,7 +193,6 @@
     <ClInclude Include="src\exceptions.hpp" />
     <ClInclude Include="src\game.hpp" />
     <ClInclude Include="src\gameloop.hpp" />
-    <ClInclude Include="src\gameplay\communication\dialog.hpp" />
     <ClInclude Include="src\gameplay\componentsystems\batterysystem.hpp" />
     <ClInclude Include="src\gameplay\componentsystems\componentsystem.hpp" />
     <ClInclude Include="src\gameplay\componentsystems\computersystem.hpp" />
@@ -203,6 +202,7 @@
     <ClInclude Include="src\gameplay\componentsystems\shieldsystem.hpp" />
     <ClInclude Include="src\gameplay\componentsystems\storagesystem.hpp" />
     <ClInclude Include="src\gameplay\componentsystems\weaponsystem.hpp" />
+    <ClInclude Include="src\gameplay\firemanager.hpp" />
     <ClInclude Include="src\gameplay\galaxy.hpp" />
     <ClInclude Include="src\gameplay\managment\controller.hpp" />
     <ClInclude Include="src\gameplay\managment\playercontroller.hpp" />

@@ -37,10 +37,13 @@ Ship* aiTestShip;
 Voxel::Model* collTest01;
 Voxel::Model* collTest02;
 // ************************************************************************* //
-GSPlay::GSPlay(Monolith* _game) : IGameState(_game)
+GSPlay::GSPlay(Monolith* _game) 
+	: IGameState(_game),
+	m_fireManager(m_scene)
 {
 	LOG_LVL2("Starting to create game state Play");
 
+	g_fireManager = &m_fireManager;
 	m_hud = new Graphic::HudGsPlay(_game);
 	
 	m_camera = new Input::Camera( FixVec3( Fix(0.0), Fix(0.0), Fix(0.0) ),
@@ -161,6 +164,7 @@ void GSPlay::Simulate( double _deltaTime )
 {
 	m_scene.Simulate((float)_deltaTime);
 	m_scene.UpdateGraph();
+	m_fireManager.Process((float)_deltaTime);
 	m_player->Process( (float)_deltaTime );
 	aiTest01->Process((float)_deltaTime);
 

@@ -1,5 +1,6 @@
 #include "weaponsystem.hpp"
 #include "gameplay\ship.hpp"
+#include "../firemanager.hpp"
 
 using namespace ei;
 
@@ -8,17 +9,8 @@ namespace Mechanics {
 	WeaponSystem::WeaponSystem(Ship& _theShip, unsigned _id)
 		: ComponentSystem(_theShip, "Weapons", _id)
 	{
-		//add some test data
-		WeaponInformation weapon;
-
-		weapon.cooldown = 0.f;
-		weapon.cooldownBase = 2.f;
-
-		//100% efficiency
-		weapon.damage = 10;
-		weapon.cost = 10.f;
-
-		m_weapons.push_back(weapon);
+		//shot permanently
+		m_firing = true;
 	}
 
 
@@ -26,9 +18,9 @@ namespace Mechanics {
 	{
 		m_energyMaxOut = 0.f;
 
-		m_energyDemand = 0.f;
+		m_energyDemand = 0.01f;
 		for (auto& weapon : m_weapons)
-			m_energyDemand += min(0.f - weapon.cooldown, _deltaTime / weapon.cooldownBase * weapon.cost);
+			m_energyDemand += min(weapon.cooldown, _deltaTime / weapon.cooldownBase * weapon.cost);
 	}
 
 
@@ -48,13 +40,22 @@ namespace Mechanics {
 		{
 			if (weapon.cooldown <= 0.f)
 			{
-				Ray ray(weapon.position, xaxis(m_ship.GetRotation()));
+				weapon.cooldown = weapon.cooldownBase;
+				Ray ray(weapon.position, m_ship.GetRotationMatrix() * Vec3(0.f, 0.f, 1.f)/*zaxis(m_ship.GetRotation())*/);
 				Voxel::Model::ModelData::HitResult hit;
 				float distance;
 
+				ray.origin = m_ship.GetRotationMatrix() * ray.origin;
 				//when the player ship is not in the way
-				if (!m_ship.GetVoxelTree().RayCast(ray, 1, hit, distance))
+		//		if (!m_ship.GetVoxelTree().RayCast(ray, 1, hit, distance))
 				{
+					Math::WorldRay wRay;
+					wRay.origin = m_ship.GetPosition();
+					wRay.origin.x += Math::Fix(ray.origin.x);
+					wRay.origin.y += Math::Fix(ray.origin.y);
+					wRay.origin.z += Math::Fix(ray.origin.z);
+					wRay.direction = ray.direction;
+					g_fireManager->FireRay(FireRayInfo(wRay, 10.f));
 				}
 			}
 		}
@@ -64,13 +65,16 @@ namespace Mechanics {
 	void WeaponSystem::OnAdd(const IVec3& _position, Voxel::ComponentType _type, uint8 _assignment) 
 	{
 		WeaponInformation weapon;
-		weapon.position = Vec3(_position) + 0.5f;
+		weapon.position = _position + 0.5f - m_ship.GetCenter();
+		weapon.position.z += 1.f; // begin of the firing is outside of the voxel
 
 		weapon.cooldown = 0.f;
 		weapon.cooldownBase = 2.f;
 
-		//100% effiency
+		//100% efficiency
 		weapon.damage = 10;
 		weapon.cost = 10.f;
+
+		m_weapons.push_back(weapon);
 	}
 }

@@ -296,11 +296,11 @@
     <ClCompile Include="dependencies\epsilon\src\2dtypes.cpp">
       <Filter>Source Files\dependencies\epsilon</Filter>
     </ClCompile>
-    <ClCompile Include="src\gameplay\communication\dialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\graphic\interface\singlecomponentrenderer.cpp">
       <Filter>Source Files\graphic\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\firemanager.cpp">
+      <Filter>Source Files\gameplay</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -780,14 +780,14 @@
     <ClInclude Include="src\utilities\stringutils.hpp">
       <Filter>Source Files\utilities</Filter>
     </ClInclude>
-    <ClInclude Include="src\gameplay\communication\dialog.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\graphic\interface\singlecomponentrenderer.hpp">
       <Filter>Source Files\graphic\interface</Filter>
     </ClInclude>
     <ClInclude Include="src\utilities\metaproghelper.hpp">
       <Filter>Source Files\utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gameplay\firemanager.hpp">
+      <Filter>Source Files\gameplay</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
