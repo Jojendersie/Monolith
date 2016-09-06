@@ -176,7 +176,7 @@ namespace Graphic {
 			{
 				ei::Vec3* positions = (ei::Vec3*)m_positions->GetDirectAccess();
 				for(size_t i = 0; i < m_velocities.size(); ++i)
-					positions[i] += m_velocities[i];
+					positions[i] += m_velocities[i] * _deltaTime;
 				m_positions->Touch();
 			}
 		};

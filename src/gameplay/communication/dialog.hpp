@@ -7,6 +7,38 @@
 
 namespace Gameplay{
 
+	enum TaskType
+	{
+
+	};
+
+	template< TaskType _TT>
+	class Task
+	{
+	public:
+		Task() : m_timeRequired(0.f){}
+		Task(float _timeRequired) : _timeRequired(_timeRequired){}
+	private:
+		float m_timeRequired;
+	};
+
+	///\brief Handles timed events with sequential order.
+	class SequenceManager
+	{
+	public:
+		//searches the file for all valid dialog functions
+		//adding them to the choice object when their condition function returns true
+		void startCom(/*the dialog file*/);
+	private:
+		
+	};
+
+	//required externals:
+	//adds a task to the queue
+	void say(Controller& _controller, const std::string& _msg); 
+	//adds a choice to the current choice object
+	void addChoice(void* _dialog, const std::string& _descr);
+
 /*	struct DialogChoice
 	{
 		std::string m_description;

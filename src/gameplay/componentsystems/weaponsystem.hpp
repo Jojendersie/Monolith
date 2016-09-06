@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "componentsystem.hpp"
+#include "graphic/highlevel/particlesystem.hpp"
 
 namespace Mechanics {
 
@@ -40,6 +41,8 @@ namespace Mechanics {
 		bool m_firing;		///< should the weapons fire when loaded
 
 		std::vector < WeaponInformation > m_weapons;
+
+		Graphic::ParticleSystems::System<Graphic::PSComponent::POSITION | Graphic::PSComponent::VELOCITY | Graphic::PSComponent::LIFETIME | Graphic::PSComponent::COLOR | Graphic::PSComponent::SIZE> m_particles;
 	};
 
 }

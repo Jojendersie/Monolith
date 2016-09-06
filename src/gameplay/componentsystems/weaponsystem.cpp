@@ -1,13 +1,17 @@
 #include "weaponsystem.hpp"
 #include "gameplay\ship.hpp"
 #include "../firemanager.hpp"
+#include "utilities/color.hpp"
 
 using namespace ei;
 
 namespace Mechanics {
 
+	const float c_projVel = 600.f;
+
 	WeaponSystem::WeaponSystem(Ship& _theShip, unsigned _id)
-		: ComponentSystem(_theShip, "Weapons", _id)
+		: ComponentSystem(_theShip, "Weapons", _id),
+		m_particles(Graphic::ParticleSystems::RenderType::BLOB) //RAY
 	{
 		//shot permanently
 		m_firing = true;
@@ -42,20 +46,41 @@ namespace Mechanics {
 			{
 				weapon.cooldown = weapon.cooldownBase;
 				Ray ray(weapon.position, m_ship.GetRotationMatrix() * Vec3(0.f, 0.f, 1.f)/*zaxis(m_ship.GetRotation())*/);
-				Voxel::Model::ModelData::HitResult hit;
-				float distance;
 
 				ray.origin = m_ship.GetRotationMatrix() * ray.origin;
 				//when the player ship is not in the way
 		//		if (!m_ship.GetVoxelTree().RayCast(ray, 1, hit, distance))
 				{
+					Vec3 basePos(m_ship.GetPosition() - m_particles.GetPosition());
+					basePos += ray.origin;
+
 					Math::WorldRay wRay;
 					wRay.origin = m_ship.GetPosition();
 					wRay.origin.x += Math::Fix(ray.origin.x);
 					wRay.origin.y += Math::Fix(ray.origin.y);
 					wRay.origin.z += Math::Fix(ray.origin.z);
 					wRay.direction = ray.direction;
-					g_fireManager->FireRay(FireRayInfo(wRay, 10.f));
+					float d = g_fireManager->FireRay(FireRayInfo(wRay, 10.f));
+
+					m_particles.AddParticle(basePos, //position
+						ray.direction * c_projVel,// velocity
+						d / c_projVel, //life time
+						Utils::Color8U(0.4f, 0.1f, 0.8f).RGBA(),
+						2.f);
+
+					//temporary, hit feedback should be done by the model?
+					if (d != 100.f)
+					{
+						static Generators::Random rng(351298);
+						Vec3 hitPos(basePos + ray.direction * d);
+
+						for (int i = 0; i < 50; ++i)
+							m_particles.AddParticle(hitPos, //position
+								Vec3(rng.Uniform(0.1f, 3.0f), rng.Uniform(0.1f,3.0f), rng.Uniform(0.1f, 3.0f)),// velocity
+								rng.Uniform(0.2f, 1.f), //life time
+								Utils::Color8U(0.15f, 0.2f, 0.2f).RGBA(),
+								0.5f);
+					}
 				}
 			}
 		}

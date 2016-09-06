@@ -7,7 +7,6 @@ struct FireRayInfo
 		ray(_ray),
 		damage(_dam)
 	{}
-
 	Math::WorldRay ray;
 
 	float damage;
@@ -18,7 +17,9 @@ class FireManager
 public:
 	FireManager(SceneGraph& _graph);
 
-	void FireRay(const FireRayInfo& _info);
+	/// \brief Processes a ray shot in the scene
+	/// \return distance of the hit
+	float FireRay(const FireRayInfo& _info);
 
 	void Process(float _deltaTime);
 private:

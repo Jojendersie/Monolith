@@ -8,24 +8,25 @@ FireManager::FireManager(SceneGraph& _graph)
 {
 }
 
-void FireManager::FireRay(const FireRayInfo& _info)
+float FireManager::FireRay(const FireRayInfo& _info)
 {
-	m_fireInfos.push_back(_info);
+//	m_fireInfos.push_back(_info);
+	Voxel::Model::ModelData::HitResult hit;
+
+
+	auto hitObj = m_sceneGraph.RayQuery(_info.ray, hit);
+	if (hitObj){
+		Voxel::Model* model = static_cast<Voxel::Model*>(&hitObj);
+		model->Set(hit.position, Voxel::ComponentType::UNDEFINED);
+
+		Math::FixVec3 pos = model->GetPosition() + Math::FixVec3(model->GetRotationMatrix() * (hit.position + 0.5f - model->GetCenter()));
+
+		return ei::len(ei::Vec3(_info.ray.origin - pos));
+	}
+
+	return 100.f; // max length
 }
 
 void FireManager::Process(float _deltaTime)
 {
-	for (auto info : m_fireInfos)
-	{
-		Voxel::Model::ModelData::HitResult hit;
-
-
-		auto hitObj = m_sceneGraph.RayQuery(info.ray, hit);
-		if (hitObj){
-			Voxel::Model* model = static_cast<Voxel::Model*>(&hitObj);
-			model->Set( hit.position, Voxel::ComponentType::UNDEFINED );
-		}
-	}
-
-	m_fireInfos.clear();
 }
