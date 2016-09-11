@@ -2,6 +2,7 @@
 #include "gameplay\ship.hpp"
 #include "../firemanager.hpp"
 #include "utilities/color.hpp"
+#include "utilities/scriptengineinst.hpp"
 
 using namespace ei;
 
@@ -13,8 +14,7 @@ namespace Mechanics {
 		: ComponentSystem(_theShip, "Weapons", _id),
 		m_particles(Graphic::ParticleSystems::RenderType::BLOB) //RAY
 	{
-		//shot permanently
-		m_firing = true;
+		m_firing = false;
 	}
 
 

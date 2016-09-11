@@ -53,6 +53,8 @@ public:
 	unsigned AllocNewSystemID();
 	void ReleaseSystemID( unsigned _id );
 
+	Mechanics::ComputerSystem& getPrimarySystem() { return m_primarySystem; }
+
 	const Math::SphericalFunction& DebugGet() const {
 		return m_primarySystem.m_drives.m_maxThrust;
 	}

@@ -243,6 +243,8 @@ void GSPlay::Scroll( double _dx, double _dy )
 // ************************************************************************* //
 void GSPlay::KeyDown( int _key, int _modifiers )
 {
+	m_player->KeyDown(_key, _modifiers);
+
 	if (_key == GLFW_KEY_SPACE) {
 		bool flyingMode = (1 == (m_hud->CursorVisible() - 1));
 		m_hud->ShowCursor(flyingMode ? 1 : 2 );
@@ -250,6 +252,12 @@ void GSPlay::KeyDown( int _key, int _modifiers )
 	}
 	if( _key == GLFW_KEY_ESCAPE )
 		m_finished = true;
+}
+
+// ************************************************************************* //
+void GSPlay::KeyRelease(int _key)
+{
+	m_player->KeyRelease(_key);
 }
 
 // ************************************************************************* //

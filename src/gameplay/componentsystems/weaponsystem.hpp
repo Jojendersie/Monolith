@@ -35,6 +35,9 @@ namespace Mechanics {
 		void SetTarget(ei::Vec3& _target) { m_target = _target; };
 
 		void SetFiring(bool _firing) { m_firing = _firing; };
+
+		//same thing as above, but the compiler does not allow this calls to be casted to void*
+		static void _SetFiring(WeaponSystem* _this, int _firing) { _this->SetFiring(_firing ? true : false); }
 	private:
 
 		ei::Vec3 m_target; ///< target in local space

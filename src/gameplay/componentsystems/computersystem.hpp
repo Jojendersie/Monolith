@@ -22,7 +22,11 @@ namespace Mechanics {
 		virtual void Process(float _deltaTime, SystemRequierements& _provided) override;
 		virtual void OnAdd(const ei::IVec3& _position, Voxel::ComponentType _type, uint8 _assignment) override;
 		virtual void ClearSystem() override;
+
+		// writes all owned component systems to a script file.
+		void exportSystems(std::ofstream& _file);
 	private:
+
 		std::vector<ComputerSystem> m_subSystems;	///< May contain more computers
 		BatterySystem m_batteries;					///< Handle all attached batteries (not these of the sub systems)
 		DriveSystem m_drives;						///< Handle all attached drives (not these of the sub systems)

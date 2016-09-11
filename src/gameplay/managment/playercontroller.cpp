@@ -1,7 +1,10 @@
+#include <fstream>
+
 #include "playercontroller.hpp"
 #include "input/input.hpp"
 #include "graphic/core/device.hpp"
 #include "graphic/core/opengl.hpp"
+#include "utilities/scriptengineinst.hpp"
 
 using namespace ei;
 
@@ -10,7 +13,23 @@ PlayerController::PlayerController(SOHandle _ship, Input::Camera* _camera)
 	m_mouseRotationEnabled(false),
 	m_camera(_camera)
 {
+}
 
+void PlayerController::Possess(SOHandle _ship)
+{
+	Controller::Possess(_ship);
+
+	NaReTi::Module* mod = g_scriptEngine.getModule("shipfunctions");
+	mod->linkExternal("setFiring", &Mechanics::WeaponSystem::_SetFiring);
+
+	std::ofstream file("scripts/availablesystems.nrt", std::ofstream::out & std::ofstream::trunc);
+	file << "use shipfunctions" << std::endl << std::endl;
+	m_ship->getPrimarySystem().exportSystems(file);
+
+	//make sure that the module is loaded
+	NaReTi::Module* inputMod = g_scriptEngine.getModule("input");
+	m_keyDownHndl = g_scriptEngine.getFuncHndl("keyDown");
+	m_keyReleaseHndl = g_scriptEngine.getFuncHndl("keyRelease");
 }
 
 void PlayerController::MouseMove(double _dx, double _dy)
@@ -25,12 +44,12 @@ void PlayerController::Scroll(double _dx, double _dy)
 
 void PlayerController::KeyDown(int _key, int _modifiers)
 {
-
+	g_scriptEngine.call<void, int, int>(m_keyDownHndl, _key, _modifiers);
 }
 
-void PlayerController::KeyUp(int _key, int _modifiers)
+void PlayerController::KeyRelease(int _key)
 {
-//	if (_key = GLFW_KEY_Y) 
+	g_scriptEngine.call<void, int>(m_keyReleaseHndl, _key);
 }
 
 

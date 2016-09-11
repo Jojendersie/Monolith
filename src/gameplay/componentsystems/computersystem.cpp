@@ -1,3 +1,4 @@
+#include <fstream>
 #include "computersystem.hpp"
 #include "gameplay/ship.hpp"
 
@@ -93,5 +94,14 @@ namespace Mechanics {
 		m_weapons.ClearSystem();
 		for(auto sys : m_subSystems)
 			sys.ClearSystem();
+	}
+
+	void ComputerSystem::exportSystems(std::ofstream& _file)
+	{
+		using namespace std;
+
+	//	_file << "BatterySystem& " << m_batteries.GetName() << " = 0x" << &m_batteries;
+		_file << "DriveSystem& " << m_drives.GetName() << " := 0a" << &m_drives << endl;
+		_file << "WeaponSystem& " << m_weapons.GetName() << " := 0a" << &m_weapons << endl;
 	}
 }

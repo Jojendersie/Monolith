@@ -39,12 +39,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>dependencies\glfw-3.1.1\lib;dependencies\glew-1.10.0\lib\Release\x64;dependencies\JoFileLib\lib\Debug;$(LibraryPath)</LibraryPath>
-    <IncludePath>dependencies\JoFileLib\include;dependencies\glfw-3.1.1\include;dependencies\epsilon\include;$(SolutionDir)\src;$(IncludePath)</IncludePath>
+    <LibraryPath>dependencies\glfw-3.1.1\lib;dependencies\glew-1.10.0\lib\Release\x64;dependencies\JoFileLib\lib\Debug;dependencies\NaReTi\lib\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>dependencies\NaReTi\include;dependencies\JoFileLib\include;dependencies\glfw-3.1.1\include;dependencies\epsilon\include;$(SolutionDir)\src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LibraryPath>dependencies\glfw-3.1.1\lib;dependencies\glew-1.10.0\lib\Release\x64;dependencies\JoFileLib\lib\Release;$(LibraryPath)</LibraryPath>
-    <IncludePath>dependencies\JoFileLib\include;dependencies\glfw-3.1.1\include;dependencies\epsilon\include;$(SolutionDir)\src;$(IncludePath)</IncludePath>
+    <LibraryPath>dependencies\glfw-3.1.1\lib;dependencies\glew-1.10.0\lib\Release\x64;dependencies\JoFileLib\lib\Release;dependencies\NaReTi\lib\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>dependencies\NaReTi\include;dependencies\JoFileLib\include;dependencies\glfw-3.1.1\include;dependencies\epsilon\include;$(SolutionDir)\src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -58,7 +58,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>JoFile.lib;opengl32.lib;glfw3.lib;glew32s.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;msvcrtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>nareti.lib;JoFile.lib;opengl32.lib;glfw3.lib;glew32s.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;msvcrtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT;LIBCMTD</IgnoreSpecificDefaultLibraries>
       <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -78,7 +78,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>JoFile.lib;glew32s.lib;opengl32.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>nareti.lib;JoFile.lib;glew32s.lib;opengl32.lib;glfw3.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
     </Link>
@@ -162,6 +162,7 @@
     <ClCompile Include="src\utilities\logger.cpp" />
     <ClCompile Include="src\utilities\pathutils.cpp" />
     <ClCompile Include="src\utilities\policy.cpp" />
+    <ClCompile Include="src\utilities\scriptengineinst.cpp" />
     <ClCompile Include="src\voxel\chunk.cpp" />
     <ClCompile Include="src\voxel\material.cpp" />
     <ClCompile Include="src\voxel\model.cpp" />
@@ -271,6 +272,7 @@
     <ClInclude Include="src\utilities\pathutils.hpp" />
     <ClInclude Include="src\utilities\policy.hpp" />
     <ClInclude Include="src\utilities\scopedpointer.hpp" />
+    <ClInclude Include="src\utilities\scriptengineinst.hpp" />
     <ClInclude Include="src\utilities\stringutils.hpp" />
     <ClInclude Include="src\utilities\threadsafebuffer.hpp" />
     <ClInclude Include="src\voxel\chunk.hpp" />

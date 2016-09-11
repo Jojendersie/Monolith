@@ -7,7 +7,7 @@ public:
 
 	///\brief Takes control of the target ship
 	///\details Any former ownership of this controller is discarded
-	void Possess(SOHandle _ship);
+	virtual void Possess(SOHandle _ship);
 
 	///\brief The ship rotates to face the given rotation.
 	void FaceDirection(const ei::Vec3& _targetDirection);

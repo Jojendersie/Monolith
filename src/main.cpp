@@ -2,6 +2,7 @@
 #include "graphic/core/device.hpp"
 //#include "predeclarations.hpp"
 #include "utilities/loggerinit.hpp"
+#include "utilities/scriptengineinst.hpp"
 
 // CRT's memory leak detection
 #if defined(DEBUG) || defined(_DEBUG)
@@ -46,6 +47,10 @@ int main()
 
 	Jo::Logger::g_logger.Initialize( new Jo::Logger::FilePolicy( "run.log" ) );
 	atexit(exitprogram);
+
+	//init scriptEngine
+	g_scriptEngine.config().scriptLocation = "scripts/";
+	g_scriptEngine.config().optimizationLvl = NaReTi::OptimizationLvl::Basic;
 
 	// Create and run game
 	{

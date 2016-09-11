@@ -260,9 +260,6 @@
     <ClCompile Include="src\gameplay\componentsystems\storagesystem.cpp">
       <Filter>Source Files\gameplay\componentsystems</Filter>
     </ClCompile>
-    <ClCompile Include="src\gameplay\componentsystems\weaponsystem.cpp">
-      <Filter>Source Files\gameplay\componentsystems</Filter>
-    </ClCompile>
     <ClCompile Include="src\graphic\highlevel\particlesystem.cpp">
       <Filter>Source Files\graphic\highlevel</Filter>
     </ClCompile>
@@ -301,6 +298,12 @@
     </ClCompile>
     <ClCompile Include="src\gameplay\firemanager.cpp">
       <Filter>Source Files\gameplay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utilities\scriptengineinst.cpp">
+      <Filter>Source Files\utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gameplay\componentsystems\weaponsystem.cpp">
+      <Filter>Source Files\gameplay\componentsystems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -788,6 +791,9 @@
     </ClInclude>
     <ClInclude Include="src\gameplay\firemanager.hpp">
       <Filter>Source Files\gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utilities\scriptengineinst.hpp">
+      <Filter>Source Files\utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
