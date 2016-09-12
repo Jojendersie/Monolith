@@ -139,12 +139,12 @@ namespace Voxel {
 	{
 		if( this == _reference.GetAttachedModel() )
 		{
-			_out = rotationH(_reference.RenderState().GetRotation())
+			_out = rotationH(_reference.Transformation().GetRotation())
 				 * translation(_reference.GetReferencePosition())
 				 * rotationH(m_rotation)
 				 * translation(-m_center);
 		} else {
-			_out = GetTransformation(_reference.RenderState()) * translation(-m_center);
+			_out = GetTransformation(_reference.Transformation()) * translation(-m_center);
 		}
 		return _out;
 	}

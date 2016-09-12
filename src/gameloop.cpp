@@ -53,14 +53,18 @@ void GameLoop::Run()
 		double deltaFrameTime = TimeQuery( frameTimer );
 		// Smooth frame time
 //		deltaTime = deltaTime * 0.8 + deltaFrameTime * 0.2;
-		deltaTime = max( deltaFrameTime, m_targetFrameDuration );
+//		deltaTime = max( deltaFrameTime, m_targetFrameDuration );
+		// Because of sleeping the time of a frame always takes the desired
+		// length. If it takes longer the game will run slower, but to large
+		// steps make many things too instable.
+		deltaTime = m_targetFrameDuration;
 
 		// Limiting to target fps
 		double timeDifference = m_targetFrameDuration - deltaFrameTime;
 		//timeDifference = max(0.0, timeDifference);
 		if( timeDifference > 0.0 )
 		{
-			std::this_thread::sleep_for( std::chrono::microseconds(unsigned(timeDifference * 1000000.0))  );
+			std::this_thread::sleep_for( std::chrono::microseconds(unsigned(timeDifference * 1000000.0)) );
 		}
 	}
 

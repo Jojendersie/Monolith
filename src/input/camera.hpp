@@ -75,7 +75,7 @@ namespace Input {
 		///		(multi threading). This is the only function which will change
 		///		them.
 		void UpdateMatrices();
-		const Math::Transformation& RenderState() const { return m_renderTransformation; }
+		const Math::Transformation& Transformation() const { return m_transformation; }
 
 		const ei::Mat4x4& GetProjection() const			{ return m_projection; }			///< Return projection matrix
 		//const ei::Mat4x4& GetRotation() const				{ return m_rotationMatrix; }		///< Return inverse (view * projection) matrix
@@ -92,12 +92,10 @@ namespace Input {
 	private:
 		// Computed matrices used in rendering
 		ei::Mat4x4 m_projection;
-		Math::Transformation m_latestTransformation;
-		Math::Transformation m_renderTransformation;
+		Math::Transformation m_transformation;
 		ei::Vec4 m_inverseProjection;		///< A vector to invert projection calculations: (1/p(0,0), 1/p(1,1), 1/p(2,2), -p(3,2)/p(2,2); Usage: pos.xyz * invProj.xyz + vec3(0,0,invProj.w)
 		Math::Plane m_frustum[6];			///< Left, Right, Bottom, Top, Near, Far all showing inwards in view space
 
-		std::mutex m_mutex;					///< mutex between all update methods
 		float m_fov;						///< Field of view in Y-direction in radiants.
 		float m_aspect;
 

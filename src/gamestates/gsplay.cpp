@@ -288,7 +288,7 @@ void GSPlay::DrawReferenceGrid(const Voxel::Model* _model) const
 		{
 			// Compute relative to the model position
 			position = m_camera->GetReferencePosition();
-			modelView = details::incrementDims(m_camera->RenderState().GetRotationMatrix()) * translation(position) * details::incrementDims(_model->GetRotationMatrix());
+			modelView = details::incrementDims(m_camera->Transformation().GetRotationMatrix()) * translation(position) * details::incrementDims(_model->GetRotationMatrix());
 			//_model->GetModelMatrix( modelView, *m_camera );
 		} else {
 			position = _model->GetCenter();

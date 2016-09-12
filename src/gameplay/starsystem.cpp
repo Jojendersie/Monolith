@@ -18,7 +18,7 @@ StarSystem::StarSystem(const FixVec3& _position, int _temperature, float _size, 
 
 StarVertex& StarSystem::ComputeVertex(const Input::Camera& _camera)
 {
-	m_vertex.position = _camera.RenderState().Transform(m_position);
+	m_vertex.position = _camera.Transformation().Transform(m_position);
 	return m_vertex;
 }
 

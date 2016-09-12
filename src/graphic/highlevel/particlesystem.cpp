@@ -73,7 +73,7 @@ void ParticleSystems::SystemActions::Draw( const Input::Camera& _camera )
 	if(!GetNumParticles()) return;
 
 	// Upload current transformation matrix
-	Mat4x4 modelViewProj = m_systemTransformation.GetTransformation(_camera.RenderState());
+	Mat4x4 modelViewProj = m_systemTransformation.GetTransformation(_camera.Transformation());
 	modelViewProj = _camera.GetProjection() * modelViewProj;
 	Resources::GetUBO(UniformBuffers::SIMPLE_OBJECT)["WorldViewProjection"] = modelViewProj;
 

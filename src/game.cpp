@@ -42,23 +42,26 @@ void RenderLoop::Step( double _deltaTime )
 	// Post processing and draw to back buffer.
 	m_game.m_postProcessing->PerformPostProcessing(*m_game.m_sceneColorTexture, *m_game.m_sceneDepthTexture);
 
-	glfwSwapBuffers(Graphic::Device::GetWindow());
+	// Input handling
+	glfwPollEvents();
+	if( glfwWindowShouldClose(Graphic::Device::GetWindow()) || !m_game.ClearStack() )
+		GameLoop::StopAll();
+	else {
+		// Present if not closed
+		glfwSwapBuffers(Graphic::Device::GetWindow());
 
 #ifdef AUTO_SHADER_RELOAD
-	Graphic::Effect::UpdateShaderFileWatcher();
+		Graphic::Effect::UpdateShaderFileWatcher();
 #endif
+	}
 }
 
 // ************************************************************************* //
 void SimulationLoop::Step( double _deltaTime )
 {
 	// Perform updates
-	m_game.GetState()->Simulate(_deltaTime);
-
-	glfwPollEvents();
-
-	if( glfwWindowShouldClose(Graphic::Device::GetWindow()) || !m_game.ClearStack() )
-		GameLoop::StopAll();
+	if(m_game.GetState())
+		m_game.GetState()->Simulate(_deltaTime);
 
 	m_game.m_time += _deltaTime;
 }
