@@ -217,6 +217,6 @@ namespace Graphic
 		//when no line break happened
 		if (currentPos[0] > maxExpanseX) maxExpanseX = currentPos[0];
 		//calculate size using the start and end point; the points are always the lower left of the char
-		m_expanse = abs((m_screenPos + Vec2(-maxExpanseX, m_charSize[1] * m_sizeMax - currentPos[1])));
+		m_expanse = abs((m_screenPos + Vec2(-maxExpanseX, m_charSize[1] * m_sizeMax * GetDim()[1] - currentPos[1])));
 	}
 }; 

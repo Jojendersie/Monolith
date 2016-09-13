@@ -280,7 +280,7 @@ namespace Graphic
 		{
 			for(size_t i = m_screenOverlays.size(); i-- > 0; )
 			{
-				m_screenOverlays[i]->SetPos(Vec2(m_screenOverlays[i]->m_pos[0]+(float)_dx * 0.1f, m_screenOverlays[i]->m_pos[1]+(float)_dy * 0.1f));
+				m_screenOverlays[i]->SetPos(Vec2(m_screenOverlays[i]->m_pos[0]-(float)_dx * 0.1f, m_screenOverlays[i]->m_pos[1]-(float)_dy * 0.1f));
 			}
 			return true;
 		}

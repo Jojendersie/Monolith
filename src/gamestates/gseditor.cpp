@@ -40,8 +40,8 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 		Voxel::ComponentType type = (Voxel::ComponentType)(i + 2);
 		m_hud->m_voxelContainer->CreateComponent(type, Vec2(-0.76f, 0.91f - i*0.2f), 0.158f);
 		//head:лмнопя
-		m_hud->m_voxelContainer->CreateBtn("componentBtn", "<s 018>        " + Voxel::TypeInfo::GetName(type)
-			+ "\n       " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetHydrogen(type), 2)
+		m_hud->m_voxelContainer->CreateBtn("componentBtn", "<s 013>          " + Voxel::TypeInfo::GetName(type)
+			+ "\n         " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetHydrogen(type), 2)
 			+ " " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetCarbon(type), 2)
 			+ " " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetMetals(type), 2)
 			+ " " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetRareEarthElements(type), 2)

@@ -1,0 +1,21 @@
+/* Handles player input
+ *
+ */
+ use availablesystems
+ use shipfunctions
+ 
+ void keyDown(int _key, int _modifiers)
+ {
+	if(_key == 0)
+	{
+		setFiring(Weapons, 1)
+	}
+ }
+ 
+ void keyRelease(int _key)
+ {
+	if(_key == 0)
+	{
+		setFiring(Weapons, 0)
+	}
+ }

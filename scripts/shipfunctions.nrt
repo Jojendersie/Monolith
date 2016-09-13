@@ -1,0 +1,5 @@
+type WeaponSystem {int dw}
+
+void setFiring(WeaponSystem& _sys, int _fire) external
+
+type DriveSystem {int dw}

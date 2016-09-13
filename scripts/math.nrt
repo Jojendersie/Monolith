@@ -1,0 +1,77 @@
+//-------------------------------------------//
+// NaReTi - standard math library            //
+//-------------------------------------------//
+
+/* Note: The given implementations are not guaranteed to be used.
+ * With optimization level Basic or higher some functions are overwritten
+ */
+
+float pi = 3.14159265
+
+float abs(float val)
+{
+	if(val < 0.0) {return 0.0-val}
+	else {return val}
+}
+ 
+//power
+float '(float x, float y) external
+
+int '(int x, int y)
+{
+	if(y < 0)
+	{
+		y = 1 / x
+		y = 0 - y
+	}
+	if(y == 0){ return 1 }
+	
+	int z = 1
+	while (y > 1)
+	{
+		if(y % 2 == 0)
+		{
+			x = x * x
+			y = y / 2
+		}
+		else
+		{
+			z = x * z
+			x = x * x
+			y = (y - 1) / 2
+		}
+	}
+	return x * z
+}
+
+float _4_pi = 4.0/pi
+float _m4_pi2 = -4.0/(pi*pi)
+float _q = 0.775
+float _p = 0.225
+
+float sine(float x)
+{
+    float y = _4_pi * x + _m4_pi2 * x * abs(x)//abs(x)
+
+    y = _p * (y * abs(y) - y) + y   // Q * y + P * y * abs(y)
+	return y
+}
+
+// fast sinus for x in [-π, π]
+//source: http://stackoverflow.com/questions/23837916/a-faster-but-less-accurate-fsin-for-intel-asm
+float sin(float x)
+{
+	float xx = x * x
+	float s = x + (x * xx) * (-0.16612511580269618 + xx * (0.0080394356072977748 + xx * (-0.000149414020045938777495)))
+	
+	return s
+}
+//precise sin, works for every float
+// ~3x slower then sin
+float sinp(float x) external
+float cosp(float x) external
+float tanp(float x) external
+
+float sinh(float x) external
+float cosh(float x) external
+float tanh(float x) external

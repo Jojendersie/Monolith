@@ -8,7 +8,7 @@ namespace Graphic
 	HudGsEditor::HudGsEditor(Monolith* _game, Graphic::SingleComponentRenderer* _componentRenderer) :
 		Hud(_game, _componentRenderer)
 	{
-		m_nameEdit = &CreateEditField(Vec2(-0.98f, 0.94f), Vec2(0.66f, 0.1f), 1, 0.f);
+		m_nameEdit = &CreateEditField(Vec2(0.55f, -0.2f), Vec2(0.4f, 0.085f), 1, 0.f);
 
 		CreateScreenTexture(Vec2(-0.995f, 0.825f), Vec2(0.48f, 0.2f), "frame");
 		CreateScreenTexture(Vec2(-0.995f, -0.725f), Vec2(0.48f, 0.2f), "frame180");

@@ -15,7 +15,7 @@ namespace Graphic {
 	};
 
 	/// \brief Defines how an element should be scaled to fit the current screen ratio
-	/// \details The choosen dimension is displayed as defined, while the other gets scaled to preserve the size ratio
+	/// \details The chosen dimension is displayed as defined, while the other gets scaled to preserve the size ratio
 	enum class RealDimension
 	{
 		width,
@@ -62,10 +62,6 @@ namespace Graphic {
 		/// \brief Only triggered for the overlay the mouse is in; Does nothing by default 
 		virtual bool Scroll(double _dx, double _dy){return false;};
 
-		//direct acsess should only be used for fast reading
-		ei::Vec2 m_pos;///< position in screen coordsystem
-		ei::Vec2 m_size;///< size in screen coordsystem
-
 	protected:
 		bool m_active; ///< when false: gets ignored by everything
 		bool m_visible; ///< visibility
@@ -76,7 +72,12 @@ namespace Graphic {
 		std::function<void()> OnMouseDown;
 		std::function<void()> OnMouseUp;
 
+		ei::Vec2 m_pos;///< position in screen coordsystem
+		ei::Vec2 m_size;///< size in screen coordsystem
 	private:
+
+		friend class BasicHud;
+		friend class Hud;
 	};
 
 	/// \brief A 2d screen overlay texture 

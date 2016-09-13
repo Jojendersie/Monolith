@@ -211,15 +211,16 @@ namespace Graphic
 		m_textRender.SetText("");
 		Vec2 dim = m_textRender.GetDim();
 
+		const float textToBoxSize = 0.75f;
 		//automatic rezising of the text to fit the field
 		if (!_fontSize)
 		{
-			m_fontSize = m_size[1] / dim[1];
+			m_fontSize = m_size[1] * textToBoxSize / dim[1];
 			m_textRender.SetDefaultSize( m_fontSize );
 		}
-
+		m_textRender.SetExpanse(_size);
 		//offset of an half char in x direction ;center in y direction
-		m_textRender.SetPos(m_pos + Vec2(m_fontSize * m_textRender.GetDim()[0] * 0.5f, -m_size[1] * 0.5f - m_textRender.GetExpanse()[1] * 0.5f));
+		m_textRender.SetPos(m_pos + Vec2(m_fontSize * m_textRender.GetDim()[0] * 0.5f, -m_size[1] * (1.f + textToBoxSize) * 0.5f/* * 0.5f /*- m_textRender.GetExpanse()[1] * 0.5f*/));
 	}
 
 	void EditField::AddLine(int _preLine)

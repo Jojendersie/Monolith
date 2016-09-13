@@ -43,6 +43,7 @@ int main()
 	//_CrtSetBreakAlloc( 18228 );
 	// There is one known leak with a size of 44 Bytes in multithreading
 	// it comes from an internal static variable of the thread implementation.
+	_CrtSetBreakAlloc(1065);
 #endif
 
 	Jo::Logger::g_logger.Initialize( new Jo::Logger::FilePolicy( "run.log" ) );
