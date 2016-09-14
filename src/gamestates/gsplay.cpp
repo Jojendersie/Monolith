@@ -56,7 +56,7 @@ GSPlay::GSPlay(Monolith* _game)
 
 	m_galaxy = new Galaxy(1000, 20000.f, 10000);
 
-	m_player = std::make_unique<PlayerController>(nullptr);
+	m_player = std::make_unique<PlayerController>(nullptr, m_camera);
 
 	LOG_LVL2("Created game state Play");
 }

@@ -26,7 +26,7 @@ namespace Graphic
 		if (m_showDbg)
 		{
 			m_dbgLabel = new TextRender(&Graphic::Resources::GetFont(Graphic::Fonts::DEFAULT));//DEFAULT
-			m_dbgLabel->SetPos(Vec2(0.5f, 0.8f));
+			m_dbgLabel->SetPosition(Vec2(0.5f, 0.8f));
 			AddTextRender(m_dbgLabel);
 		}
 
@@ -112,7 +112,7 @@ namespace Graphic
 		
 		label->SetDefaultSize(_scale);
 		label->SetText(_text);
-		label->SetPos(_pos);
+		label->SetPosition(_pos);
 
 		//after the position is set
 		AddTextRender(label);
@@ -137,7 +137,7 @@ namespace Graphic
 		for (auto& msgBox : m_messageBoxes)
 			msgBox->Process((float)_deltaTime);
 
-		ScissorRect scissor(m_pos[0], m_pos[1]-m_size[1], m_size[0], m_size[1]);
+		ScissorRect scissor(m_position[0], m_position[1]-m_size[1], m_size[0], m_size[1]);
 		RenewBuffer();
 
 		Device::SetEffect( Resources::GetEffect(Effects::TEXTURE_2DQUAD) );
@@ -213,11 +213,11 @@ namespace Graphic
 		{
 			ScreenOverlay* screenOverlay = m_screenOverlays[i]; 
 			Vec2 loc2;
-			loc2[0] = screenOverlay->m_pos[0] + screenOverlay->m_size[0];
-			loc2[1] = screenOverlay->m_pos[1] - screenOverlay->m_size[1];
+			loc2[0] = screenOverlay->m_position[0] + screenOverlay->m_size[0];
+			loc2[1] = screenOverlay->m_position[1] - screenOverlay->m_size[1];
 
 			if((screenOverlay->GetState())
-			&&(screenOverlay->m_pos[0] < cursorPos[0]) && (screenOverlay->m_pos[1] > cursorPos[1])
+			&&(screenOverlay->m_position[0] < cursorPos[0]) && (screenOverlay->m_position[1] > cursorPos[1])
 			&& (loc2[0] > cursorPos[0]) && (loc2[1] < cursorPos[1]))
 			{
 				//enter new element; leave old
@@ -280,7 +280,7 @@ namespace Graphic
 		{
 			for(size_t i = m_screenOverlays.size(); i-- > 0; )
 			{
-				m_screenOverlays[i]->SetPos(Vec2(m_screenOverlays[i]->m_pos[0]-(float)_dx * 0.1f, m_screenOverlays[i]->m_pos[1]-(float)_dy * 0.1f));
+				m_screenOverlays[i]->SetPosition(Vec2(m_screenOverlays[i]->m_position[0]-(float)_dx * 0.1f, m_screenOverlays[i]->m_position[1]-(float)_dy * 0.1f));
 			}
 			return true;
 		}
@@ -309,13 +309,13 @@ namespace Graphic
 	{
 		_screenOverlay->SetSize(_screenOverlay->m_size * (m_size * 0.5f));
 		//calculate the offset, add one so that -1 means no offset; mul with size because thats the relative space the overlay is in
-		_screenOverlay->SetPos((_screenOverlay->m_pos + Vec2(1.f,-1.f)) * m_size * 0.5f + m_pos);// + Math::Vec2(1.f, -1.f)
+		_screenOverlay->SetPosition((_screenOverlay->m_position + Vec2(1.f,-1.f)) * m_size * 0.5f + m_position);// + Math::Vec2(1.f, -1.f)
 		m_screenOverlays.push_back(_screenOverlay);
 	}
 
 	void Hud::AddTextRender(TextRender* _label)
 	{
-		_label->SetPos((_label->GetPos() + Vec2(1.f, -1.f)) * m_size * 0.5f + m_pos);
+		_label->SetPosition((_label->GetPosition() + Vec2(1.f, -1.f)) * m_size * 0.5f + m_position);
 		m_textRenders.push_back(_label);
 	}
 

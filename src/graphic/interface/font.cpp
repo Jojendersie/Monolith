@@ -42,7 +42,7 @@ namespace Graphic
 				{Graphic::VertexAttribute::VEC2, 13}, {Graphic::VertexAttribute::COLOR, 3},
 				{Graphic::VertexAttribute::FLOAT, 14}, {Graphic::VertexAttribute::FLOAT, 15}
 		} ),//222c11
-		m_screenPos( 0.0f ),
+		m_position( 0.0f ),
 		m_sizeD(2.f),
 		m_colorD((uint8)255,(uint8)255,(uint8)255,(uint8)255),
 		m_thicknessD(0.7f),
@@ -65,9 +65,9 @@ namespace Graphic
 	}
 
 
-	void TextRender::SetPos(Vec2 _screenPos)
+	void TextRender::SetPosition(Vec2 _screenPos)
 	{ 
-		m_screenPos = _screenPos;
+		m_position = _screenPos;
 		RenewBuffer();
 //		CharacterVertex* CharVertex = (CharacterVertex*)m_characters.Get( 0 );
 //		for( int i=0; i<m_text.length(); i++)
@@ -182,7 +182,7 @@ namespace Graphic
 		m_sizeMax = m_size / 2.0f;
 		m_color = m_colorD;
 		m_size = m_sizeD;
-		Vec2 currentPos = m_screenPos;
+		Vec2 currentPos = m_position;
 
 		float maxExpanseX = currentPos[0];
 
@@ -200,7 +200,7 @@ namespace Graphic
 			if(m_text[i] == '\n')
 			{
 				if (currentPos[0] > maxExpanseX) maxExpanseX = currentPos[0];
-				currentPos[0] = m_screenPos[0]; 
+				currentPos[0] = m_position[0]; 
 				//m_screenRatio already contains the chars y size because its constant for every char
 				currentPos[1] -= m_charSize[1] * m_sizeMax;//offset to lower line space
 			}
@@ -217,6 +217,6 @@ namespace Graphic
 		//when no line break happened
 		if (currentPos[0] > maxExpanseX) maxExpanseX = currentPos[0];
 		//calculate size using the start and end point; the points are always the lower left of the char
-		m_expanse = abs((m_screenPos + Vec2(-maxExpanseX, m_charSize[1] * m_sizeMax * GetDim()[1] - currentPos[1])));
+		m_expanse = abs((m_position + Vec2(-maxExpanseX, m_charSize[1] * m_sizeMax * GetDim()[1] - currentPos[1])));
 	}
 }; 

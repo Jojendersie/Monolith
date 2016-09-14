@@ -1,5 +1,5 @@
 #include "gseditorhud.hpp"
-
+#include "../graphic/interface/pixelcoords.hpp"
 
 using namespace ei;
 
@@ -10,7 +10,7 @@ namespace Graphic
 	{
 		m_nameEdit = &CreateEditField(Vec2(0.55f, -0.2f), Vec2(0.4f, 0.085f), 1, 0.f);
 
-		CreateScreenTexture(Vec2(-0.995f, 0.825f), Vec2(0.48f, 0.2f), "frame");
+		CreateScreenTexture(Vec2(-0.995f, 0.825f), Vec2(0.f)/*Vec2(0.48f, 0.2f)*/, "frame");
 		CreateScreenTexture(Vec2(-0.995f, -0.725f), Vec2(0.48f, 0.2f), "frame180");
 
 		m_voxelContainer = CreateContainer(Vec2(-0.98f, -0.9f), Vec2(0.5f, 1.7f));//Math::Vec2(0.6f,1.75f));

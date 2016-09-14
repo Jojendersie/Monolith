@@ -37,6 +37,16 @@ namespace Input {
 	}
 
 	// ********************************************************************* //
+	void Camera::SetRelativePosition(const ei::Vec3& _pos)
+	{
+		if (m_attachedTo)
+		{
+			m_transformation.SetPosition(m_attachedTo->GetPosition() + FixVec3(_pos));
+			m_referencePos = -_pos;
+		}
+	}
+
+	// ********************************************************************* //
 	ei::Vec3 Camera::GetReferencePosition() const
 	{
 		if( m_attachMode != REFERENCE_ONLY ) return m_transformation.GetInverseRotationMatrix() * m_referencePos;

@@ -32,11 +32,10 @@ namespace Graphic {
 	{
 	public:
 		ScreenOverlay(ei::Vec2 _pos, ei::Vec2 _size, std::function<void()> _OnMouseUp = [] () {return;}):
-			m_pos(_pos), m_size(_size), m_active(true), m_visible(true), OnMouseUp(_OnMouseUp){};
+			m_position(_pos), m_size(_size), m_active(true), m_visible(true), OnMouseUp(_OnMouseUp){};
 
 		/// \ Functions to alter the rectangle in lifetime
-		///Derivates override to bring in custom behaviour.
-		virtual void SetPos(ei::Vec2 _pos) {m_pos = _pos;};
+		virtual void SetPosition(ei::Vec2 _pos) {m_position = _pos;};
 		virtual void SetSize(ei::Vec2 _size){m_size = _size;};
 
 		/// \ Functions to acsess the vision and activity states
@@ -72,7 +71,7 @@ namespace Graphic {
 		std::function<void()> OnMouseDown;
 		std::function<void()> OnMouseUp;
 
-		ei::Vec2 m_pos;///< position in screen coordsystem
+		ei::Vec2 m_position;///< position in screen coordsystem
 		ei::Vec2 m_size;///< size in screen coordsystem
 	private:
 
@@ -92,7 +91,7 @@ namespace Graphic {
 		TextureVertex m_vertex;
 
 		//override to apply vertex changes 
-		virtual void SetPos(ei::Vec2 _pos) override;
+		virtual void SetPosition(ei::Vec2 _pos) override;
 		virtual void SetSize(ei::Vec2 _size) override;
 
 
@@ -120,7 +119,7 @@ namespace Graphic {
 
 		void SetCaption(const std::string& _caption);
 
-		virtual void SetPos(ei::Vec2 _pos) override;
+		virtual void SetPosition(ei::Vec2 _pos) override;
 		virtual void SetSize(ei::Vec2 _size) override;
 
 	//	void SetMouseOverColor(Utils::Color8U _color)
@@ -146,7 +145,7 @@ namespace Graphic {
 		///		rectangle _component.
 	public:
 		ScreenComponent( Voxel::ComponentType _component, ei::Vec2 _position, float _scale, int _sideFlags );
-		virtual void SetPos(ei::Vec2 _pos) override;
+		virtual void SetPosition(ei::Vec2 _pos) override;
 		virtual void SetSize(ei::Vec2 _size) override;
 		
 		/// \brief Positions and draws the model 

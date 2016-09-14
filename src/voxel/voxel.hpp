@@ -29,6 +29,8 @@ namespace Voxel {
 		ION_BOOSTER_M3,
 		BATTERY_M3,
 		BATTERY_M2,
+		GATLING,
+		CAMERA,
 	};
 
 	enum struct ComponentClass {

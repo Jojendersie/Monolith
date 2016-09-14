@@ -131,28 +131,32 @@ int _tmain(int argc, _TCHAR* argv[])
 		/*write pos map 
 		 * NodeName = imgName without ending
 		 */
-		Jo::Files::MetaFileWrapper Wrap;
+		Jo::Files::MetaFileWrapper wrapper;
+		//general tex info
+		wrapper.RootNode[string("width")] = borderX;
+		wrapper.RootNode[string("height")] = borderY;
+
 		for(int i = 0; i < fileCount; i++)
 		{
 			//perform a linear search to find the original pos of the img to bind with the name
 			int c = 0;
 			while(images[i] != imagesOrg[c])
 				c++;
-			Wrap.RootNode[names[c]][string("positionX")] = texQuads[i].texCoordX;
-			Wrap.RootNode[names[c]][string("positionY")] = texQuads[i].texCoordY;
-			Wrap.RootNode[names[c]][string("sizeX")] = texQuads[i].sizeX;
-			Wrap.RootNode[names[c]][string("sizeY")] = texQuads[i].sizeY;
-//			auto& imgRoot = Wrap.RootNode.Add[names[i]];
+			wrapper.RootNode[names[c]][string("positionX")] = texQuads[i].texCoordX;
+			wrapper.RootNode[names[c]][string("positionY")] = texQuads[i].texCoordY;
+			wrapper.RootNode[names[c]][string("sizeX")] = texQuads[i].sizeX;
+			wrapper.RootNode[names[c]][string("sizeY")] = texQuads[i].sizeY;
+//			auto& imgRoot = wrapper.RootNode.Add[names[i]];
 //			imgRoot.Add
 		}
 
 		Jo::Files::HDDFile tableFile("combined.sraw", false);
-		Wrap.Write( tableFile, Jo::Files::Format::SRAW );
+		wrapper.Write( tableFile, Jo::Files::Format::SRAW );
 		tableFile.Flush();
-//		auto& PosX = Wrap.RootNode.Add(string("positionX"), Jo::Files::MetaFileWrapper::ElementType::FLOAT, 256 );
-//		auto& PosY = Wrap.RootNode.Add(string("positionY"), Jo::Files::MetaFileWrapper::ElementType::FLOAT, 256 );
-//		auto& sizeX = Wrap.RootNode.Add(string("sizeX"), Jo::Files::MetaFileWrapper::ElementType::FLOAT, 256 );
-//		auto& sizeY = Wrap.RootNode.Add(string("sizeY"), Jo::Files::MetaFileWrapper::ElementType::FLOAT, 256 );
+//		auto& PosX = wrapper.RootNode.Add(string("positionX"), Jo::Files::MetaFileWrapper::ElementType::FLOAT, 256 );
+//		auto& PosY = wrapper.RootNode.Add(string("positionY"), Jo::Files::MetaFileWrapper::ElementType::FLOAT, 256 );
+//		auto& sizeX = wrapper.RootNode.Add(string("sizeX"), Jo::Files::MetaFileWrapper::ElementType::FLOAT, 256 );
+//		auto& sizeY = wrapper.RootNode.Add(string("sizeY"), Jo::Files::MetaFileWrapper::ElementType::FLOAT, 256 );
 //
 		delete[] texQuads;
 		for(fileCount--;fileCount>=0;fileCount--) delete images[fileCount]; 

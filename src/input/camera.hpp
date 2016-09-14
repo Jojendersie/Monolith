@@ -39,6 +39,9 @@ namespace Input {
 		/// \brief Set all matrices, and further information in the camera uniform buffer.
 		void Set( Graphic::UniformBuffer& _cameraUBO );
 
+		/// \brief Set the cameras position relative to the attached object.
+		void SetRelativePosition(const ei::Vec3& _pos);
+
 		/// \brief Move in camera space.
 		void Move( float _dx, float _dy );
 

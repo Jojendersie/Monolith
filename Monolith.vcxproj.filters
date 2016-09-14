@@ -795,6 +795,9 @@
     <ClInclude Include="src\utilities\scriptengineinst.hpp">
       <Filter>Source Files\utilities</Filter>
     </ClInclude>
+    <ClInclude Include="src\graphic\interface\pixelcoords.hpp">
+      <Filter>Source Files\graphic\interface</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\voxel.ps">

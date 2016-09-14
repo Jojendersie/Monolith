@@ -24,7 +24,7 @@ void PlayerController::Possess(SOHandle _ship)
 
 	std::ofstream file("scripts/availablesystems.nrt", std::ofstream::out & std::ofstream::trunc);
 	file << "use shipfunctions" << std::endl << std::endl;
-	m_ship->getPrimarySystem().exportSystems(file);
+	m_ship->GetPrimarySystem().exportSystems(file);
 
 	//make sure that the module is loaded
 	NaReTi::Module* inputMod = g_scriptEngine.getModule("input");
@@ -50,6 +50,11 @@ void PlayerController::KeyDown(int _key, int _modifiers)
 void PlayerController::KeyRelease(int _key)
 {
 	g_scriptEngine.call<void, int>(m_keyReleaseHndl, _key);
+
+	if (_key == GLFW_KEY_V)
+	{
+		m_camera->SetRelativePosition(m_ship->GetNextView() - Vec3(0.f,0.f,5.0f)); // no idea why the z offset has to be that high...
+	}
 }
 
 

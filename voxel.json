@@ -317,7 +317,7 @@
     {
       "Name": "Camera",
       "Inner": false,
-      "Mass": 120.000000,
+      "Mass": 50.000000,
       "Threshold Energy": 100000.000000,
       "Reaction Energy": 0.000000,
       "Hydrogen": 0.000000,

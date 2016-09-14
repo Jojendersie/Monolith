@@ -116,6 +116,11 @@ void Ship::ReleaseSystemID( unsigned _id )
 	m_computerSystemAllocation[_id] = false;
 }
 
+Vec3 Ship::GetNextView()
+{
+	return m_views[++m_currentView % m_views.size()] + 0.5f - GetCenter();
+}
+
 // ********************************************************************* //
 void Ship::ComputeParameters()
 {
@@ -125,8 +130,9 @@ void Ship::ComputeParameters()
 	// Iterate over the tree, compute values for each element and reassign to systems.
 	struct UpdateProcessor: public Model::ModelData::SVOProcessor
 	{
-		UpdateProcessor(Mechanics::ComputerSystem& _system) :
-			m_system(_system)
+		UpdateProcessor(Mechanics::ComputerSystem& _system, Ship& _ship) :
+			m_system(_system),
+			m_ship(_ship)
 		{
 		}
 
@@ -144,13 +150,16 @@ void Ship::ComputeParameters()
 					|| Voxel::TypeInfo::IsShield(_node->Data().type)
 					|| Voxel::TypeInfo::IsSensor(_node->Data().type))
 					m_system.OnAdd(IVec3(_position), _node->Data().type, _node->Data().sysAssignment);
+				else if (_node->Data().type == Voxel::ComponentType::CAMERA)
+					m_ship.AddView(IVec3(_position));
 			}
 			return true;
 		}
 	private:
 		Mechanics::ComputerSystem& m_system;
+		Ship& m_ship;
 	};
 
-	UpdateProcessor proc(m_primarySystem);
+	UpdateProcessor proc(m_primarySystem, *this);
 	m_voxelTree.Traverse( proc );
 }

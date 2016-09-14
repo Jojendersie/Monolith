@@ -60,8 +60,8 @@ namespace Graphic {
 		const std::string& GetText() {return m_text;};
 
 		/// \brief Sets the Position on the screen.
-		void SetPos(ei::Vec2 _screenPos);
-		const ei::Vec2& GetPos() { return m_screenPos; };
+		void SetPosition(ei::Vec2 _screenPos);
+		const ei::Vec2& GetPosition() { return m_position; };
 
 		/// \brief Sets the default size of the Textrender which gets used while no control char overrides it
 		void SetDefaultSize(float _size);
@@ -91,7 +91,7 @@ namespace Graphic {
 		int CntrlChr(int _i);
 		Font* m_font;	///< Reference to the used font.
 		std::string m_text;
-		ei::Vec2 m_screenPos;
+		ei::Vec2 m_position;
 
 
 		VertexArrayBuffer m_characters;

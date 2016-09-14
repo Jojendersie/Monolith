@@ -10,7 +10,7 @@ m_textRender(&Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT))
 	ei::Vec2 captionDim = m_textRender.GetDim();
 	m_textRender.SetDefaultSize(1.f);
 
-	m_textRender.SetPos(m_pos + Vec2(0.02f, -m_textRender.GetDim()[1]));
+	m_textRender.SetPosition(m_position + Vec2(0.02f, -m_textRender.GetDim()[1]));
 
 	m_sizeTextArea = m_size - Vec2(0.04f, 0.02f);
 }

@@ -244,6 +244,7 @@
     <ClInclude Include="src\graphic\interface\hud.hpp" />
     <ClInclude Include="src\graphic\interface\hudelements.hpp" />
     <ClInclude Include="src\graphic\interface\messagebox.hpp" />
+    <ClInclude Include="src\graphic\interface\pixelcoords.hpp" />
     <ClInclude Include="src\graphic\interface\singlecomponentrenderer.hpp" />
     <ClInclude Include="src\graphic\marker\box.hpp" />
     <ClInclude Include="src\graphic\marker\grid.hpp" />

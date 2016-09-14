@@ -22,9 +22,9 @@ namespace Graphic
 		m_vertex.screenSize = all(Vec2(0.f,0.f) == _size) ? m_vertex.size : _size ;
 	}
 
-	void ScreenTexture::SetPos(Vec2 _pos)
+	void ScreenTexture::SetPosition(Vec2 _pos)
 	{
-		ScreenOverlay::SetPos(_pos);
+		ScreenOverlay::SetPosition(_pos);
 		m_vertex.position = _pos;// + Math::Vec2(0.f, m_vertex.screenSize[1]/2.f);
 	}
 
@@ -57,13 +57,13 @@ namespace Graphic
 	}
 
 	// ************************************************************************ //
-	void Button::SetPos(Vec2 _pos)
+	void Button::SetPosition(Vec2 _pos)
 	{
-		ScreenOverlay::SetPos(_pos);
-/*		m_btnDefault.SetPos(_pos);
-		m_btnOver.SetPos(_pos);
-		m_btnDown.SetPos(_pos);
-		m_caption.SetPos(_pos);*/
+		ScreenOverlay::SetPosition(_pos);
+/*		m_btnDefault.SetPosition(_pos);
+		m_btnOver.SetPosition(_pos);
+		m_btnDown.SetPosition(_pos);
+		m_caption.SetPosition(_pos);*/
 		SetCaption(m_caption.GetText());
 	}
 
@@ -111,7 +111,7 @@ namespace Graphic
 		m_caption.SetText(_caption);
 
 		// center in both directions
-		m_caption.SetPos(m_pos+Vec2(!m_autoCenter[0] ? 0.f : ((m_size[0] - captionDim[0] * charCountMax * m_caption.GetDefaultSize()) / 2.f),
+		m_caption.SetPosition(m_position+Vec2(!m_autoCenter[0] ? 0.f : ((m_size[0] - captionDim[0] * charCountMax * m_caption.GetDefaultSize()) / 2.f),
 							!m_autoCenter[1] ? 0.f : (- m_size[1] / (float)lineCount * 0.5f	- captionDim[1] * m_caption.GetMaxSize() * 0.45f )));//0.5f
 
 	}
@@ -164,9 +164,9 @@ namespace Graphic
 		Center();
 	}
 
-	void ScreenComponent::SetPos(Vec2 _pos)
+	void ScreenComponent::SetPosition(Vec2 _pos)
 	{
-		ScreenOverlay::SetPos(_pos);
+		ScreenOverlay::SetPosition(_pos);
 		Center();
 	}
 
@@ -180,8 +180,8 @@ namespace Graphic
 
 	void ScreenComponent::Center()
 	{
-		m_center[0] = m_pos[0] + m_size[0] * 0.5f;
-		m_center[1] = m_pos[1] + m_size[1] * 0.5f;
+		m_center[0] = m_position[0] + m_size[0] * 0.5f;
+		m_center[1] = m_position[1] + m_size[1] * 0.5f;
 	}
 	
 	void ScreenComponent::Draw(Graphic::SingleComponentRenderer* _renderer, const Input::Camera& _cam)
@@ -220,7 +220,7 @@ namespace Graphic
 		}
 		m_textRender.SetExpanse(_size);
 		//offset of an half char in x direction ;center in y direction
-		m_textRender.SetPos(m_pos + Vec2(m_fontSize * m_textRender.GetDim()[0] * 0.5f, -m_size[1] * (1.f + textToBoxSize) * 0.5f/* * 0.5f /*- m_textRender.GetExpanse()[1] * 0.5f*/));
+		m_textRender.SetPosition(m_position + Vec2(m_fontSize * m_textRender.GetDim()[0] * 0.5f, -m_size[1] * (1.f + textToBoxSize) * 0.5f/* * 0.5f /*- m_textRender.GetExpanse()[1] * 0.5f*/));
 	}
 
 	void EditField::AddLine(int _preLine)
@@ -231,7 +231,7 @@ namespace Graphic
 		m_lines.insert(m_lines.begin()+_preLine, std::unique_ptr<TextRender>(new TextRender(m_font)));
 		//erange texture and TextRenders
 		for(int i = 0; i < size; i++)
-			m_lines[i]->SetPos(m_vertex.position+Math::Vec2(0.02f,-0.75f*i));
+			m_lines[i]->SetPosition(m_vertex.position+Math::Vec2(0.02f,-0.75f*i));
 		*/
 	}
 
