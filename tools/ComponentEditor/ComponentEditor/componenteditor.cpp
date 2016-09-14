@@ -104,6 +104,7 @@ void ComponentEditor::on_pushButtonNew_clicked()
 	QString qname = ui.lineEdit_2->text();
 	m_voxels[m_voxelCount]->name = qname.toStdString();
 	ui.comboBox_2->addItem(qname);
+	m_voxels[m_voxelCount]->m_attributes[0].strValue = m_voxels[m_voxelCount]->name;
 	m_voxelCount++;
 
 	//clean edits to show that the input has been accepted
@@ -249,7 +250,11 @@ void ComponentEditor::save()
 	if(!fileName.size()) return;
 
 	//make sure to get the latest changes saved
-	voxelChosen(QString("UNDEFINED"));
+	if(m_voxel) 
+	{
+		updateVoxelData();
+	}
+	//voxelChosen(QString("UNDEFINED"));
 
 	Jo::Files::MetaFileWrapper infoFile;
 	

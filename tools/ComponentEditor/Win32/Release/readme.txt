@@ -39,3 +39,5 @@ x		Sets the current operation axis to x.
 y		Sets the current operation axis to y.
 
 z		Sets the current operation axis to z.
+
+alt+left mouse	Rotate even when the mouse is on top of a cube.

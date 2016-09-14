@@ -28,7 +28,6 @@ CubeView::CubeView(QComboBox* _colorBox, int _res, QWidget *parent)
 	setOption(QGLView::ObjectPicking, true);
 	setOption(QGLView::ShowPicking, false);
 	glEnable(GL_BLEND);
-	
 	// Set up sizes
 	m_res = _res;
 	m_res_2 = m_res*m_res;
@@ -220,6 +219,9 @@ void CubeView::mouseMoveEvent( QMouseEvent* _e )
 
 void CubeView::mousePressEvent( QMouseEvent* _e )
 {
+	if(_e->modifiers() == Qt::KeyboardModifier::AltModifier)
+		setOption(QGLView::ObjectPicking, false);
+
 	QGLView::mousePressEvent(_e);
 
 	m_mPos = _e->pos();
@@ -231,6 +233,13 @@ void CubeView::mouseReleaseEvent( QMouseEvent* _e )
 {
 	QGLView::mouseReleaseEvent(_e);
 	m_mPos = _e->pos();
+
+	//when object picking is disabled this is a rotation
+	if(!(options() & QGLView::ObjectPicking)) 
+	{
+		setOption(QGLView::ObjectPicking, true);
+		return;
+	}
 
 	std::function<void(Cube&)> processCube;
 
@@ -346,6 +355,9 @@ void CubeView::keyPressEvent(QKeyEvent* e)
 				}
 		// show
 		update();
+	}
+	else if(e->key() == QKeySequence::Back)
+	{
 	}
 }
 
