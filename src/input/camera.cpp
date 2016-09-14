@@ -56,7 +56,6 @@ namespace Input {
 	// ********************************************************************* //
 	void Camera::UpdateMatrices()
 	{
-		m_worldRotation = ei::Quaternion( 0.0f, -m_phi, 0.0f ) * ei::Quaternion( -m_theta, 0.0f, 0.0f );
 		if( m_attachMode != REFERENCE_ONLY ) {
 			NormalizeReference();
 		}
@@ -80,21 +79,23 @@ namespace Input {
 	{
 		m_phi += _phi;
 		m_theta += _theta;
+		m_phi = fmodf(m_phi + 3*PI, 2*PI) - PI;
+		m_theta = fmodf(m_theta + 3*PI, 2*PI) - PI;
 		if( m_attachedTo ) {
+			//m_theta = clamp(m_theta + _theta, -0.5f*PI, 0.5f*PI);
 			// Do an object relative rotation.
 			// In soft case the reference point is recomputed since we don't
 			// want to jump back but center movement at the object.
 			if( m_attachMode == REFERENCE_ONLY )
 				m_referencePos = m_transformation.Transform( m_attachedTo->GetPosition() );
 			// Additionally the rotation is either relative to the world or to the object.
-			m_worldRotation = ei::Quaternion( 0.0f, -m_phi, 0.0f ) * ei::Quaternion( -m_theta, 0.0f, 0.0f );
+			m_worldRotation = ei::Quaternion( -m_theta, 0.0f, 0.0f ) * ei::Quaternion( 0.0f, -m_phi, 0.0f );
 			if( m_attachMode != FOLLOW_AND_ROTATE )
 			{
 				m_transformation.SetRotation( m_worldRotation );
 			}
 			NormalizeReference();
 		} else {
-			//m_worldRotation *= ~Math::Quaternion( _theta, _phi, 0.0f );
 			m_worldRotation = ei::Quaternion( 0.0f, -m_phi, 0.0f ) * ei::Quaternion( -m_theta, 0.0f, 0.0f );
 			m_transformation.SetRotation( m_worldRotation );
 		}

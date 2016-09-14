@@ -48,7 +48,7 @@ GSPlay::GSPlay(Monolith* _game)
 	
 	m_camera = new Input::Camera( FixVec3( Fix(0.0), Fix(0.0), Fix(0.0) ),
 		Quaternion( 0.0f, 0.0f, 0.0f ),
-		0.3f,
+		0.9f,
 		Graphic::Device::GetAspectRatio() );
 
 	m_objectPlane = new Graphic::Marker::Grid( 40, 40, 8.0f, Utils::Color32F( 0.5f, 0.5f, 1.0f, 0.5f ), true );

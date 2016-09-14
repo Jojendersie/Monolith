@@ -80,6 +80,12 @@ void PlayerController::Process(float _deltaTime)
 		m_velocity = Vec3(0.0f);
 	m_ship->SetTargetVelocity(m_velocity);
 
+	// Let the camera slide back to the main ship direction
+	if(m_mouseRotationEnabled)
+	{
+		m_camera->Rotate(-m_camera->GetXRotation() * 0.05f, -m_camera->GetYRotation() * 0.05f);
+	}
+
 	// Rotation
 	// Stop pushing the rotation keys always resets to zero.
 	Vec3 angularVel(0.0f);

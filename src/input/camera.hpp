@@ -92,6 +92,8 @@ namespace Input {
 
 		/// \brief Get the angle (radiant) of the camera rotation around Y-axis.
 		float GetYRotation() const { return m_phi; }
+		/// \brief Get the angle (radiant) of the camera rotation around horizontal-axis.
+		float GetXRotation() const { return m_theta; }
 	private:
 		// Computed matrices used in rendering
 		ei::Mat4x4 m_projection;
