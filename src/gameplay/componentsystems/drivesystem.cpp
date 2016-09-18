@@ -75,24 +75,36 @@ namespace Mechanics {
 			_provided.thrust = m_currentThrust * e;
 			_provided.torque = m_currentTorque * e;
 
-			// In general particles are spawned with the ships velocity plus
-			// some speed in thrust direction.
-			Vec3 basicVelocity = m_ship.GetVelocity()
-				- 50.0f * m_ship.GetRotationMatrix() * ((_deltaTime / m_ship.GetMass()) * _provided.thrust);
-			Vec3 rotationAcceleration = (_deltaTime * (m_ship.GetInertiaTensorInverse() * _provided.torque));
-			// Create particles proportional to the energy throughput
-			for(int i = 0; i < m_energyIn * 2.0f; ++i)
+			int numParticlesPerDrive = int(m_energyIn / m_maxEnergyDrain * 150);
+			if(numParticlesPerDrive > 5)
 			{
-				int thrusterIdx = m_rng.Uniform(0, (int)m_relativeThrusterPositions.size()-1);
-				Vec3 inThrusterPos(m_rng.Normal(0.02f), m_rng.Normal(0.02f), m_rng.Normal(0.02f));
-				Vec3 localPos = m_relativeThrusterPositions[thrusterIdx] + inThrusterPos;
-				localPos = m_ship.GetRotationMatrix() * localPos;
-				Vec3 rotationVelocity = -500.0f * cross(rotationAcceleration, m_relativeThrusterPositions[thrusterIdx]);
-				m_particles.AddParticle(
-					ei::Vec3(m_ship.GetPosition() - m_particles.GetPosition()) + localPos,
-					basicVelocity + m_ship.GetRotationMatrix() * rotationVelocity,
-					max(0.2f, m_rng.Uniform(1.0f, 2.5f) - lensq(inThrusterPos) * 2.5f),
-					Utils::Color8U(0.1f, 0.2f, 0.5f).RGBA());
+				// In general particles are spawned with the ships velocity plus
+				// some speed in thrust direction.
+				Vec3 basicVelocity = - m_ship.GetRotationMatrix() * (_provided.thrust);
+				Vec3 rotationAcceleration = m_ship.GetRotationMatrix() * (_provided.torque);
+				for(size_t i = 0; i < m_relativeThrusterPositions.size(); ++i)
+				{
+					Vec3 thrusterPos = m_ship.GetRotationMatrix() * m_relativeThrusterPositions[i];
+					Vec3 rotationVelocity = -cross(rotationAcceleration, thrusterPos);
+					Vec3 thrustDir = normalize(basicVelocity + rotationVelocity);
+
+					// Check if the drive can have thrust in the direction at all
+					Voxel::Model::ModelData::HitResult hit; // Dummy
+					Ray ray(m_relativeThrusterPositions[i] + m_ship.GetCenter(), m_ship.GetInverseRotationMatrix() * thrustDir);
+					ray.origin += ray.direction * 1.414213562f;
+					float distance = 100000.0f;
+					if(!m_ship.GetVoxelTree().RayCast( ray, 0, hit, distance ))
+					for(int j = 0; j < numParticlesPerDrive; ++j)
+					{
+						Vec3 inThrusterPos(m_rng.Normal(0.02f), m_rng.Normal(0.02f), m_rng.Normal(0.02f));
+						Vec3 localPos = thrusterPos + inThrusterPos;
+						m_particles.AddParticle(
+							ei::Vec3(m_ship.GetPosition() - m_particles.GetPosition()) + localPos,
+							m_ship.GetVelocity() + thrustDir,
+							max(0.2f, m_rng.Uniform(1.0f, 2.5f) - lensq(inThrusterPos) * 2.5f),
+							Utils::Color8U(0.1f, 0.2f, 0.5f).RGBA());
+					}
+				}
 			}
 		}
 	}
@@ -109,8 +121,8 @@ namespace Mechanics {
 		Math::CubeMap<6, float> directionGenerator;
 		SphericalFunction newThrust, newTorque;
 		auto endit = directionGenerator.end();
-		Vec3 center = _position+Vec3(0.5f);
-		Vec3 centerDir = _position + 0.5f - m_ship.GetCenter();
+		Vec3 center = _position + Vec3(0.5f);
+		Vec3 centerDir = center - m_ship.GetCenter();
 		m_relativeThrusterPositions.push_back(centerDir);
 		float centerDistance = len(centerDir);
 		// Count number of samples per direction to normalize.
@@ -151,9 +163,10 @@ namespace Mechanics {
 				force *= 0.1f;
 			float torque = len(axis) * force;
 			newTorque[idx][0] += torque;
-			newTorque[idx][1] += force * direction[0];
-			newTorque[idx][2] += force * direction[1];
-			newTorque[idx][3] += force * direction[2];
+			// Using axis is correct (it is the same direction as used in the ray cast).
+			newTorque[idx][1] += force * axis[0];
+			newTorque[idx][2] += force * axis[1];
+			newTorque[idx][3] += force * axis[2];
 			++torqueCount[idx];
 		}
 		for(int i=0; i<26; ++i)
