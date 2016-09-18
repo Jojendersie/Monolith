@@ -45,7 +45,8 @@ namespace Mechanics {
 			float sum = max(1.0f, relTh + relTo);
 			relTh /= sum;
 			relTo /= sum;
-			// Apply what is remaining, additionally add the side effects from both components
+			// Apply what is remaining, additionally add the side effects from both components.
+			// Use normalized direction _requirements.thrust / currentThrustAbs with new scale.
 			m_currentThrust = maxThrust[0] * _requirements.thrust * (relTh / max(1e-6f, currentThrustAbs));
 			m_currentThrust[0] += denoise(maxTorque[1] * relTo * TORQUE_FORCE_COUPLING);
 			m_currentThrust[1] += denoise(maxTorque[2] * relTo * TORQUE_FORCE_COUPLING);
@@ -74,15 +75,22 @@ namespace Mechanics {
 			_provided.thrust = m_currentThrust * e;
 			_provided.torque = m_currentTorque * e;
 
+			// In general particles are spawned with the ships velocity plus
+			// some speed in thrust direction.
+			Vec3 basicVelocity = m_ship.GetVelocity()
+				- 50.0f * m_ship.GetRotationMatrix() * ((_deltaTime / m_ship.GetMass()) * _provided.thrust);
+			Vec3 rotationAcceleration = (_deltaTime * (m_ship.GetInertiaTensorInverse() * _provided.torque));
 			// Create particles proportional to the energy throughput
-			for(int i = 0; i < m_energyIn * 3.0f; ++i)
+			for(int i = 0; i < m_energyIn * 2.0f; ++i)
 			{
 				int thrusterIdx = m_rng.Uniform(0, (int)m_relativeThrusterPositions.size()-1);
-				ei::Vec3 inThrusterPos(m_rng.Normal(0.02f), m_rng.Normal(0.02f), m_rng.Normal(0.02f));
-				ei::Vec3 localPos = m_relativeThrusterPositions[thrusterIdx] + inThrusterPos;
+				Vec3 inThrusterPos(m_rng.Normal(0.02f), m_rng.Normal(0.02f), m_rng.Normal(0.02f));
+				Vec3 localPos = m_relativeThrusterPositions[thrusterIdx] + inThrusterPos;
 				localPos = m_ship.GetRotationMatrix() * localPos;
+				Vec3 rotationVelocity = -500.0f * cross(rotationAcceleration, m_relativeThrusterPositions[thrusterIdx]);
 				m_particles.AddParticle(
 					ei::Vec3(m_ship.GetPosition() - m_particles.GetPosition()) + localPos,
+					basicVelocity + m_ship.GetRotationMatrix() * rotationVelocity,
 					max(0.2f, m_rng.Uniform(1.0f, 2.5f) - lensq(inThrusterPos) * 2.5f),
 					Utils::Color8U(0.1f, 0.2f, 0.5f).RGBA());
 			}
@@ -125,7 +133,7 @@ namespace Mechanics {
 				force *= 0.1f;
 
 			// Divide the force into a rotation and a forward thrust.
-			Vec3 axis = -normalize(cross(centerDir, direction));	//// EI-CHECK normalize here could be wrong
+			Vec3 axis = normalize(cross(centerDir, direction));	//// EI-CHECK normalize here could be wrong
 			int idx = newThrust.getSplatIndex( direction );
 			newThrust[idx][0] += force;
 			newThrust[idx][1] += axis[0] * force;
@@ -136,16 +144,16 @@ namespace Mechanics {
 			// Now assume direction is not the direction of force but the rotation axis.
 			// Inverting the relation means, that axis is the direction in which we get
 			// the most torque.
-			ray = Ray(center, -axis);
+			ray = Ray(center, axis);
 			distance = 100000.0f;
 			force = thrust;
 			if(m_ship.GetVoxelTree().RayCast( ray, 0, hit, distance ))
 				force *= 0.1f;
 			float torque = len(axis) * force;
 			newTorque[idx][0] += torque;
-			newTorque[idx][1] += force * axis[0];
-			newTorque[idx][2] += force * axis[1];
-			newTorque[idx][3] += force * axis[2];
+			newTorque[idx][1] += force * direction[0];
+			newTorque[idx][2] += force * direction[1];
+			newTorque[idx][3] += force * direction[2];
 			++torqueCount[idx];
 		}
 		for(int i=0; i<26; ++i)

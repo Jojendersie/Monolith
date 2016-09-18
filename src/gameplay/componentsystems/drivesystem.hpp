@@ -34,7 +34,7 @@ namespace Mechanics {
 		std::vector<ei::Vec3> m_relativeThrusterPositions;
 		Generators::Random m_rng;
 
-		Graphic::ParticleSystems::System<Graphic::PSComponent::POSITION | Graphic::PSComponent::LIFETIME | Graphic::PSComponent::COLOR> m_particles;
+		Graphic::ParticleSystems::System<Graphic::PSComponent::POSITION | Graphic::PSComponent::VELOCITY | Graphic::PSComponent::LIFETIME | Graphic::PSComponent::COLOR> m_particles;
 
 		friend class Ship;
 	};
