@@ -30,12 +30,10 @@ namespace Graphic
 			AddTextRender(m_dbgLabel);
 		}
 
-		//test screen tex
-		Jo::Files::HDDFile file("texture/combined.sraw");
-		m_texContainerMap = new Jo::Files::MetaFileWrapper( file, Jo::Files::Format::SRAW );
+		m_texContainerMap = &Graphic::Resources::GetTextureMap();//new Jo::Files::MetaFileWrapper( file, Jo::Files::Format::SRAW );
 		
-		m_cursors.emplace_back(m_texContainerMap, "cursor");
-		m_cursors.emplace_back(m_texContainerMap, "cursorAlt", Vec2(0.07f, 0.07f), Vec2(-0.035f, 0.035f));
+		m_cursors.emplace_back("cursor");
+		m_cursors.emplace_back("cursorAlt", Vec2(0.07f, 0.07f), Vec2(-0.035f, 0.035f));
 
 		//cursor occupies adress [0]
 		m_screenOverlays.push_back(&m_cursors[0].texture);
@@ -48,28 +46,26 @@ namespace Graphic
 	Hud::~Hud()
 	{
 		delete m_dbgLabel;
-
-		delete m_texContainerMap;
-		for( Button* btn : m_buttons )
-			delete btn;
 	}
 
 	// ************************************************************************* //
-	 void Hud::CreateBtn(std::string _texName, std::string _desc, Vec2 _position, Vec2 _size, RealDimension _rDim, 
+	 void Hud::CreateBtn(std::string _texName, std::string _desc, Vec2 _position, Vec2 _size, 
 		std::function<void()> _OnMouseUp, bool _autoX, bool _autoY, Font* _font)
 	{
-		 Button* btn = new Button(m_texContainerMap, _texName, _position, _size, RealDimension::none, &Resources::GetFont(Fonts::GAME_FONT), _OnMouseUp);
+/*		 Button* btn = new Button(_texName, _position, _size, 
+			 DefinitionPoint::TopLeft, Anchor(),
+			 &Resources::GetFont(Fonts::GAME_FONT), _OnMouseUp);
 		btn->SetAutoCenterX(_autoX);
 		btn->SetAutoCenterY(_autoY);
 		btn->SetCaption(_desc);
-		AddButton(btn);
+		AddButton(btn);*/
 	}
 
 	// ************************************************************************* //
 	Hud* Hud::CreateContainer(Vec2 _pos, Vec2 _size) 
 	{
 		Hud* hud = new Hud(m_game, m_componentRenderer, _pos, _size, false, false);
-		m_containers.push_back(std::unique_ptr<Hud>(hud));
+		m_screenElements.emplace_back(hud);
 		AddScreenOverlay(hud);
 		return hud;
 	};
@@ -77,16 +73,16 @@ namespace Graphic
 	// ************************************************************************* //
 	void Hud::CreateComponent(Voxel::ComponentType _type, ei::Vec2 _pos, float _scale)
 	{
-		m_screenComponents.push_back( std::make_unique< ScreenComponent >(_type, _pos, _scale, 0x3b) );
+		m_screenComponents.push_back( std::make_unique< ScreenComponent >(_type, _pos, _scale, 0x3b, Anchor(TopLeft, this)) );
 		AddScreenOverlay( m_screenComponents.back().get() );
 	};
 
 	// ************************************************************************* //
 	EditField& Hud::CreateEditField(Vec2 _pos, Vec2 _size, int _lines, float _fontSize)
 	{
-		EditField* editField = new EditField(m_texContainerMap, &Resources::GetFont(Fonts::GAME_FONT), _pos, _size, _lines, _fontSize);
+		EditField* editField = new EditField(&Resources::GetFont(Fonts::GAME_FONT), _pos, _size, _lines, _fontSize);
 
-		m_editFields.emplace_back(editField);
+		m_screenElements.emplace_back(editField);
 		AddTexture(editField);
 		AddTextRender(editField->getTextRender());
 
@@ -94,11 +90,11 @@ namespace Graphic
 	}
 
 	// ************************************************************************* //
-	ScreenTexture& Hud::CreateScreenTexture(const Vec2& _pos, const Vec2& _size, const std::string& _name, RealDimension _rDim)
+	ScreenTexture& Hud::CreateScreenTexture(const Vec2& _pos, const Vec2& _size, const std::string& _name)
 	{
-		auto screenTex = new ScreenTexture(m_texContainerMap, _name, _pos, _size, _rDim);
-		m_screenTextures.emplace_back(screenTex);
-		AddTexture(screenTex);
+		auto screenTex = new ScreenTexture(_name, _pos, _size);
+		m_screenElements.emplace_back(screenTex);
+		screenTex->Register(*this);
 
 		return *screenTex;
 	}
@@ -122,9 +118,10 @@ namespace Graphic
 	// ************************************************************************* //
 	MessageBox& Hud::CreateMessageBox(const Vec2& _pos, const Vec2& _size)
 	{
-		MessageBox* msgBox = new MessageBox(m_texContainerMap, _pos, _size);
+		MessageBox* msgBox = new MessageBox(_pos, _size);
 
-		m_messageBoxes.emplace_back(msgBox);
+		m_messageBoxes.push_back(msgBox);
+		m_screenElements.emplace_back(msgBox);
 		AddTexture((ScreenTexture*)msgBox);
 		AddTextRender(&msgBox->m_textRender);
 
@@ -280,8 +277,12 @@ namespace Graphic
 		{
 			for(size_t i = m_screenOverlays.size(); i-- > 0; )
 			{
-				m_screenOverlays[i]->SetPosition(Vec2(m_screenOverlays[i]->m_position[0]-(float)_dx * 0.1f, m_screenOverlays[i]->m_position[1]-(float)_dy * 0.1f));
+				//only top level elements are moved directly
+				if (m_screenOverlays[i]->GetAnchor().parent != this) continue;
+				m_screenOverlays[i]->SetPosition(Vec2(m_screenOverlays[i]->m_positionDef[0] - (float)_dx * 0.1f, m_screenOverlays[i]->m_positionDef[1] - (float)_dy * 0.1f));
 			}
+			//temporary implementation to call updateParams() and refresh the vertex information
+			for (auto el : m_screenOverlays) el->SetPosition(el->m_positionDef);
 			return true;
 		}
 		return false;
@@ -307,9 +308,9 @@ namespace Graphic
 
 	void Hud::AddScreenOverlay(ScreenOverlay* _screenOverlay)
 	{
-		_screenOverlay->SetSize(_screenOverlay->m_size * (m_size * 0.5f));
+//		_screenOverlay->SetSize(_screenOverlay->m_size * (m_size * 0.5f));
 		//calculate the offset, add one so that -1 means no offset; mul with size because thats the relative space the overlay is in
-		_screenOverlay->SetPosition((_screenOverlay->m_position + Vec2(1.f,-1.f)) * m_size * 0.5f + m_position);// + Math::Vec2(1.f, -1.f)
+//		_screenOverlay->SetPosition((_screenOverlay->m_position + Vec2(1.f,-1.f)) * m_size * 0.5f + m_position);// + Math::Vec2(1.f, -1.f)
 		m_screenOverlays.push_back(_screenOverlay);
 	}
 
@@ -326,20 +327,6 @@ namespace Graphic
 		_tex->m_vertex.size[1] -= 1.5f/m_texContainer.Height();
 	//	_tex->m_vertex.texCoord[0] += 0.5f/m_texContainer.Width();
 	//	_tex->m_vertex.texCoord[1] -= 0.5f/m_texContainer.Height();
-		switch (_tex->m_realDimension)
-		{
-		case RealDimension::none:
-			_tex->SetSize(_tex->m_sizeDef);
-			break;
-		case RealDimension::width:
-			_tex->SetSize(Vec2(_tex->m_sizeDef[0], _tex->m_sizeDef[1] / Device::GetAspectRatio()));
-			break;
-		case RealDimension::height:
-			_tex->SetSize(Vec2(_tex->m_sizeDef[0] / Device::GetAspectRatio(), _tex->m_sizeDef[1] ));
-			break;
-		default:
-			break;
-		}  
 //		_tex->m_vertex.screenSize[0] /= Device::GetAspectRatio();
 		AddScreenOverlay(_tex);
 	}
@@ -348,7 +335,7 @@ namespace Graphic
 	{
 		
 		//keep pointer to delete it later
-		m_buttons.push_back(_btn);
+		m_screenElements.emplace_back(_btn);
 
 		AddTextRender(&(_btn->m_caption));
 
@@ -372,14 +359,15 @@ namespace Graphic
 		}
 	}
 
-	Hud::CursorData::CursorData(Jo::Files::MetaFileWrapper* _posMap, std::string _name,
+	Hud::CursorData::CursorData(std::string _name,
 		Vec2 _size, Vec2 _off)
-		: texture(_posMap, _name, Vec2(0.f), _size, RealDimension::height),
+		: texture(_name, Vec2(0.f)),
 		offset(_off)
 	{
+		texture.Scale(Vec2(0.5f));
 		//rescaling to fit the screen
-		texture.SetSize(Vec2(texture.m_sizeDef[0] / Device::GetAspectRatio(), texture.m_sizeDef[1]));
-		offset[0] /= Device::GetAspectRatio();
+	//	texture.SetSize(Vec2(texture.m_sizeDef[0] / Device::GetAspectRatio(), texture.m_sizeDef[1]));
+	//	offset[0] /= Device::GetAspectRatio();
 	};
 
 };

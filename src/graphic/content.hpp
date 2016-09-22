@@ -73,6 +73,8 @@ namespace Graphic {
 		/// \details The first time this is called the state is created.
 		static Graphic::SamplerState& GetSamplerState(SamplerStates _state);
 
+		static Jo::Files::MetaFileWrapper& GetTextureMap();
+
 		/// \brief Delete all the loaded resources
 		static void Unload();
 	private:
@@ -81,6 +83,8 @@ namespace Graphic {
 		static Graphic::UniformBuffer* s_ubos[UniformBuffers::COUNT];
 		static Graphic::Font* s_fonts[Fonts::COUNT];
 		static Graphic::SamplerState* s_samplers[SamplerStates::COUNT];
+
+		static Jo::Files::MetaFileWrapper* s_textureMap;
 	};
 
 } // namespace Graphic

@@ -2,9 +2,8 @@
 
 using namespace ei;
 
-MessageBox::MessageBox(Jo::Files::MetaFileWrapper* _posMap,
-	Vec2 _position, Vec2 _size) :
-ScreenTexture(_posMap, "simpleWindow", _position, _size),
+MessageBox::MessageBox(Vec2 _position, Vec2 _size) :
+ScreenTexture("simpleWindow", _position, _size),
 m_textRender(&Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT))
 {
 	ei::Vec2 captionDim = m_textRender.GetDim();

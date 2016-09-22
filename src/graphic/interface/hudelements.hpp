@@ -1,7 +1,10 @@
+#pragma once
+
 #include "font.hpp"
 #include "game.hpp"
 #include "graphic/content.hpp"
-#include <functional>
+#include "screenoverlay.hpp"
+
 #include <memory>
 
 namespace Graphic {
@@ -14,88 +17,23 @@ namespace Graphic {
 		ei::Vec2 size;		///< Width and height relative to the texture size [0,1]x[0,1]
 	};
 
-	/// \brief Defines how an element should be scaled to fit the current screen ratio
-	/// \details The chosen dimension is displayed as defined, while the other gets scaled to preserve the size ratio
-	enum class RealDimension
-	{
-		width,
-		height,
-		none
-	};
-
-	/// \brief a basic class for 2d screen elements
-	/// \details a storage for size information and capable of interaction with the mouse and keys when managed by a hud
-	/// _position is the upper left corner of the Overlay in screenspace [-1,1]x[-1,1] starting from the lower left corner
-	/// _size is the size in screen space
-	/// both are relative to the owning parent(Hud), thus a size of 2.f will make that the Overlay has the size of the Hud 
-	class ScreenOverlay
-	{
-	public:
-		ScreenOverlay(ei::Vec2 _pos, ei::Vec2 _size, std::function<void()> _OnMouseUp = [] () {return;}):
-			m_position(_pos), m_size(_size), m_active(true), m_visible(true), OnMouseUp(_OnMouseUp){};
-
-		/// \ Functions to alter the rectangle in lifetime
-		virtual void SetPosition(ei::Vec2 _pos) {m_position = _pos;};
-		virtual void SetSize(ei::Vec2 _size){m_size = _size;};
-
-		/// \ Functions to acsess the vision and activity states
-		void SetState(bool _state) {m_active = _state;};
-		void SetVisibility(bool _visibility){m_visible = _visibility;};
-
-		bool GetState(){return m_active;};
-		bool GetVisibility(){return m_visible;};
-
-		//Only the overlay in front recieves this events
-
-		virtual void MouseMove( double _dx, double _dy ){return;};
-		/// \brief Triggered when the mouse entered the tex this frame
-		virtual void MouseEnter(){if(OnMouseEnter != NULL) OnMouseEnter();};
-		/// \brief Triggered when the mouse leaved the tex this frame
-		virtual	void MouseLeave(){if(OnMouseLeave != NULL) OnMouseLeave();};
-		/// \brief Called when left mouse buttons goes down inside the rectangle; @param _pos Pos of Mouse relative to the button
-		///returns true when input gets captured
-		virtual bool KeyDown( int _key, int _modifiers, ei::Vec2 _pos = ei::Vec2(0.f,0.f)){if(OnMouseDown != NULL) OnMouseDown(); return true;};
-		/// \brief Called when left mouse buttons goes up inside the rectangle; @param _pos Pos of Mouse relative to the button
-		virtual bool KeyUp(int _key, int _modifiers, ei::Vec2 _pos = ei::Vec2(0.f,0.f)){if(OnMouseUp != NULL) OnMouseUp();return true;};
-		
-		/// \brief Only triggered for the overlay the mouse is in; Does nothing by default 
-		virtual bool Scroll(double _dx, double _dy){return false;};
-
-	protected:
-		bool m_active; ///< when false: gets ignored by everything
-		bool m_visible; ///< visibility
-
-		//events
-		std::function<void()> OnMouseEnter;
-		std::function<void()> OnMouseLeave;
-		std::function<void()> OnMouseDown;
-		std::function<void()> OnMouseUp;
-
-		ei::Vec2 m_position;///< position in screen coordsystem
-		ei::Vec2 m_size;///< size in screen coordsystem
-	private:
-
-		friend class BasicHud;
-		friend class Hud;
-	};
-
 	/// \brief A 2d screen overlay texture 
 	/// \details To preserve the ratio defined in size one can define _rDim so that the other dimension is scaled to fit the needs
 	class ScreenTexture : public ScreenOverlay
 	{
 	public:
-		ScreenTexture( Jo::Files::MetaFileWrapper* _posMap, const std::string& _name,
-			ei::Vec2 _position, ei::Vec2 _size = ei::Vec2(0.f,0.f), RealDimension _rDim = RealDimension::none,
+		ScreenTexture( const std::string& _name,
+			ei::Vec2 _position, ei::Vec2 _size = ei::Vec2(0.f), DefinitionPoint _def = DefinitionPoint::TopLeft,
+			Anchor _anchor = Anchor(),
 			std::function<void()> _OnMouseUp = [] () {return;});
 		
 		TextureVertex m_vertex;
 
+		void Register(Hud& _hud) override;
 		//override to apply vertex changes 
 		virtual void SetPosition(ei::Vec2 _pos) override;
 		virtual void SetSize(ei::Vec2 _size) override;
-
-
-		RealDimension m_realDimension;
+		virtual void Scale(ei::Vec2 _scale) override;
 
 		ei::Vec2 m_posDef;///< size as defined
 		ei::Vec2 m_sizeDef;///< size as defined
@@ -108,9 +46,11 @@ namespace Graphic {
 	{
 	public:
 		/// \brief creates a button
-		Button(Jo::Files::MetaFileWrapper* _posMap, std::string _name, ei::Vec2 _position, ei::Vec2 _size, 
-			RealDimension _rDim = RealDimension::none, Font* _font = &Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT),
-			std::function<void()> _OnMouseUp = [] () {return;} );
+		Button(const std::string& _name, ei::Vec2 _position, ei::Vec2 _size = ei::Vec2(0.f), 
+			DefinitionPoint _def = DefinitionPoint::TopLeft,
+			Anchor _anchor = Anchor(), const std::string& _caption = "",
+			std::function<void()> _OnMouseUp = [] () {return;}, 
+			Font* _font = &Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT));
 
 		ScreenTexture m_btnDefault;
 		ScreenTexture m_btnOver;
@@ -119,8 +59,10 @@ namespace Graphic {
 
 		void SetCaption(const std::string& _caption);
 
+		void Register(Hud& _hud) override;
 		virtual void SetPosition(ei::Vec2 _pos) override;
 		virtual void SetSize(ei::Vec2 _size) override;
+		virtual void Scale(ei::Vec2 _scale) override;
 
 	//	void SetMouseOverColor(Utils::Color8U _color)
 
@@ -144,7 +86,7 @@ namespace Graphic {
 		/// \details param [in] _position the center of the model is in the center of the
 		///		rectangle _component.
 	public:
-		ScreenComponent( Voxel::ComponentType _component, ei::Vec2 _position, float _scale, int _sideFlags );
+		ScreenComponent( Voxel::ComponentType _component, ei::Vec2 _position, float _scale, int _sideFlags, Anchor _anchor = Anchor() );
 		virtual void SetPosition(ei::Vec2 _pos) override;
 		virtual void SetSize(ei::Vec2 _size) override;
 		
@@ -168,7 +110,9 @@ namespace Graphic {
 		/// \details param [in] informations needed for texture and Textrender
 		/// _lines The amount of lines the field has; 0 means automatic
 		/// _fontSize used fontsize for the text; 0 means automatic
-		EditField(Jo::Files::MetaFileWrapper* _posMap, Font* _font, ei::Vec2 _position, ei::Vec2 _size, int _lines = 1, float _fontSize = 1);
+		EditField(Font* _font, ei::Vec2 _position, ei::Vec2 _size, int _lines = 1, float _fontSize = 1);
+
+		void Register(Hud& _hud) override;
 
 		/// \brief Returns the current text the field contains.
 		const std::string& GetText() { return m_content; };

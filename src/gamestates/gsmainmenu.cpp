@@ -21,11 +21,33 @@ GSMainMenu::GSMainMenu(Monolith* _game) : IGameState(_game)
 	LOG_LVL2("Starting to create game state MainMenu");
 
 	m_hud = new Graphic::Hud(_game, nullptr);
-	//some bsp buttons
-	m_hud->CreateBtn("menuBtn", Resources::GetText("continue"), Vec2(-0.25f,0.4f), Vec2(0.5f, 0.15f), Graphic::RealDimension::width, [&] () { m_game->PushState( m_game->GetPlayState() ); });
-	m_hud->CreateBtn("menuBtn", Resources::GetText("editor"), Vec2(-0.25f, 0.22f), Vec2(0.5f, 0.15f), Graphic::RealDimension::width, [&]() { m_game->PushState(m_game->GetEditorState()); });
-	m_hud->CreateBtn("menuBtn", Resources::GetText("options"), Vec2(-0.25f, 0.04f), Vec2(0.5f, 0.15f), Graphic::RealDimension::width, [&]() { m_finished = true; });
-	m_hud->CreateBtn("menuBtn", Resources::GetText("end"), Vec2(-0.25f, -0.14f), Vec2(0.5f, 0.15f), Graphic::RealDimension::width, [&]() { m_finished = true; });
+
+	namespace G = Graphic;
+
+	auto& btn0 = m_hud->CreateScreenElement<Graphic::Button>("menuBtn", Vec2(0.f, -0.4f), Vec2(0.f),
+		G::TopMid, G::ScreenOverlay::Anchor(G::TopMid, m_hud), Resources::GetText("continue"),
+		[&]() { m_game->PushState(m_game->GetPlayState()); });
+	btn0.Scale(Vec2(0.65f));
+
+
+	auto& btn1 = m_hud->CreateScreenElement<Graphic::Button>("menuBtn", Vec2(0.f, -0.02), Vec2(0.f),
+		G::TopLeft, G::ScreenOverlay::Anchor(G::BotLeft, &btn0), Resources::GetText("editor"),
+		[&]() { m_game->PushState(m_game->GetEditorState());});
+	btn1.Scale(Vec2(0.65f));
+
+	auto& btn2 = m_hud->CreateScreenElement<Graphic::Button>("menuBtn", Vec2(0.f, -0.02), Vec2(0.f),
+		G::TopLeft, G::ScreenOverlay::Anchor(G::BotLeft, &btn1), Resources::GetText("options"),
+		[&]() { m_finished = true; });
+	btn2.Scale(Vec2(0.65f));
+
+	auto& btn3 = m_hud->CreateScreenElement<Graphic::Button>("menuBtn", Vec2(0.f, -0.02), Vec2(0.f),
+		G::TopLeft, G::ScreenOverlay::Anchor(G::BotLeft, &btn2), Resources::GetText("end"),
+		[&]() { m_finished = true; });
+	btn3.Scale(Vec2(0.65f));
+//	m_hud->CreateBtn("menuBtn", Resources::GetText("continue"), Vec2(-0.25f,0.4f), Vec2(0.5f, 0.15f), [&] () { m_game->PushState( m_game->GetPlayState() ); });
+//	m_hud->CreateBtn("menuBtn", Resources::GetText("editor"), Vec2(-0.25f, 0.22f), Vec2(0.5f, 0.15f), Graphic::RealDimension::width, [&]() { m_game->PushState(m_game->GetEditorState()); });
+//	m_hud->CreateBtn("menuBtn", Resources::GetText("options"), Vec2(-0.25f, 0.04f), Vec2(0.5f, 0.15f), Graphic::RealDimension::width, [&]() { m_finished = true; });
+//	m_hud->CreateBtn("menuBtn", Resources::GetText("end"), Vec2(-0.25f, -0.14f), Vec2(0.5f, 0.15f), Graphic::RealDimension::width, [&]() { m_finished = true; });
 
 	m_galaxy = new Galaxy(10000, 2000.f, 10000);
 

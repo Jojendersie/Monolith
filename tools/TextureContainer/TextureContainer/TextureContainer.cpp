@@ -115,44 +115,49 @@ int _tmain(int argc, _TCHAR* argv[])
 					combinedImage.Set(finalX,finalY, 2, images[i]->Get(ix,iy,2));
 					combinedImage.Set(finalX,finalY, 3, images[i]->Get(ix,iy,3));
 				}
-		Jo::Files::HDDFile combinedFile("combined.png", 0);
-		combinedImage.Write(combinedFile, Jo::Files::Format::PNG);
+		try {
+			Jo::Files::HDDFile combinedFile("combined.png", Jo::Files::HDDFile::OVERWRITE);
+			combinedImage.Write(combinedFile, Jo::Files::Format::PNG);
+			//transform numbers
+			for (int i = 0; i < fileCount; i++)
+			{
+				texQuads[i].texCoordX /= borderX;
+				texQuads[i].texCoordY += texQuads[i].sizeY;
+				texQuads[i].texCoordY = 1 - (texQuads[i].texCoordY / (borderY));
+				texQuads[i].sizeX /= borderX;
+				texQuads[i].sizeY /= borderY;
+			}
 
-		//transform numbers
-		for(int i = 0; i < fileCount; i++)
-		{
-			texQuads[i].texCoordX /= borderX;
-			texQuads[i].texCoordY += texQuads[i].sizeY;
-			texQuads[i].texCoordY =  1 - (texQuads[i].texCoordY / (borderY));
-			texQuads[i].sizeX /= borderX;
-			texQuads[i].sizeY /= borderY;
+			/*write pos map
+			 * NodeName = imgName without ending
+			 */
+			Jo::Files::MetaFileWrapper wrapper;
+			//general tex info
+			wrapper.RootNode[string("width")] = borderX;
+			wrapper.RootNode[string("height")] = borderY;
+
+			for (int i = 0; i < fileCount; i++)
+			{
+				//perform a linear search to find the original pos of the img to bind with the name
+				int c = 0;
+				while (images[i] != imagesOrg[c])
+					c++;
+				wrapper.RootNode[names[c]][string("positionX")] = texQuads[i].texCoordX;
+				wrapper.RootNode[names[c]][string("positionY")] = texQuads[i].texCoordY;
+				wrapper.RootNode[names[c]][string("sizeX")] = texQuads[i].sizeX;
+				wrapper.RootNode[names[c]][string("sizeY")] = texQuads[i].sizeY;
+				//			auto& imgRoot = wrapper.RootNode.Add[names[i]];
+				//			imgRoot.Add
+			}
+
+			Jo::Files::HDDFile tableFile("combined.sraw", Jo::Files::HDDFile::OVERWRITE);
+			wrapper.Write(tableFile, Jo::Files::Format::SRAW);
+			tableFile.Flush();
 		}
-
-		/*write pos map 
-		 * NodeName = imgName without ending
-		 */
-		Jo::Files::MetaFileWrapper wrapper;
-		//general tex info
-		wrapper.RootNode[string("width")] = borderX;
-		wrapper.RootNode[string("height")] = borderY;
-
-		for(int i = 0; i < fileCount; i++)
+		catch (std::string _msg)
 		{
-			//perform a linear search to find the original pos of the img to bind with the name
-			int c = 0;
-			while(images[i] != imagesOrg[c])
-				c++;
-			wrapper.RootNode[names[c]][string("positionX")] = texQuads[i].texCoordX;
-			wrapper.RootNode[names[c]][string("positionY")] = texQuads[i].texCoordY;
-			wrapper.RootNode[names[c]][string("sizeX")] = texQuads[i].sizeX;
-			wrapper.RootNode[names[c]][string("sizeY")] = texQuads[i].sizeY;
-//			auto& imgRoot = wrapper.RootNode.Add[names[i]];
-//			imgRoot.Add
+			cout << _msg;
 		}
-
-		Jo::Files::HDDFile tableFile("combined.sraw", false);
-		wrapper.Write( tableFile, Jo::Files::Format::SRAW );
-		tableFile.Flush();
 //		auto& PosX = wrapper.RootNode.Add(string("positionX"), Jo::Files::MetaFileWrapper::ElementType::FLOAT, 256 );
 //		auto& PosY = wrapper.RootNode.Add(string("positionY"), Jo::Files::MetaFileWrapper::ElementType::FLOAT, 256 );
 //		auto& sizeX = wrapper.RootNode.Add(string("sizeX"), Jo::Files::MetaFileWrapper::ElementType::FLOAT, 256 );

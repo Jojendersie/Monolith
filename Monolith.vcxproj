@@ -145,6 +145,7 @@
     <ClCompile Include="src\graphic\interface\hud.cpp" />
     <ClCompile Include="src\graphic\interface\hudelements.cpp" />
     <ClCompile Include="src\graphic\interface\messagebox.cpp" />
+    <ClCompile Include="src\graphic\interface\screenoverlay.cpp" />
     <ClCompile Include="src\graphic\interface\singlecomponentrenderer.cpp" />
     <ClCompile Include="src\graphic\marker\box.cpp" />
     <ClCompile Include="src\graphic\marker\grid.cpp" />
@@ -245,6 +246,7 @@
     <ClInclude Include="src\graphic\interface\hudelements.hpp" />
     <ClInclude Include="src\graphic\interface\messagebox.hpp" />
     <ClInclude Include="src\graphic\interface\pixelcoords.hpp" />
+    <ClInclude Include="src\graphic\interface\screenoverlay.hpp" />
     <ClInclude Include="src\graphic\interface\singlecomponentrenderer.hpp" />
     <ClInclude Include="src\graphic\marker\box.hpp" />
     <ClInclude Include="src\graphic\marker\grid.hpp" />

@@ -14,9 +14,20 @@ namespace Graphic {
 		///		The HUD class does not take the ownership.
 		Hud( Monolith* _game, Graphic::SingleComponentRenderer* _componentRenderer, ei::Vec2 _pos=ei::Vec2(-1.f,-1.f) , ei::Vec2 _size=ei::Vec2(2.f,2.f), int _cursor = 1, bool _showDbg = true);
 
+		template< typename _T, typename... _Args, typename = std::enable_if< std::is_base_of<ScreenOverlay, _T>::value >::type >//only ScreenOverlays should be made with this
+		_T& CreateScreenElement(_Args&&... _args)
+		{
+			auto ptr = new _T(std::forward<_Args>(_args)...);
+
+			m_screenElements.emplace_back(ptr);
+			ptr->Register(*this);
+
+			return *ptr;
+		}
+
 		// functions intended do be used in game states to create a button with the specified params
 		void CreateBtn(std::string _texName, std::string _desc, ei::Vec2 _position, ei::Vec2 _size,
-			RealDimension _rDim = RealDimension::none, std::function<void()> _OnMouseUp = []() {return; },
+			 std::function<void()> _OnMouseUp = []() {return; },
 			bool _autoX = true, bool _autoY = true,
 			Font* _font = &Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT));
 
@@ -24,7 +35,7 @@ namespace Graphic {
 		Hud* CreateContainer(ei::Vec2 _pos=ei::Vec2(-1.f,-1.f) , ei::Vec2 _size=ei::Vec2(2.f,2.f));
 
 		/// \brief Creates an screenModel
-		/// ScreenModels requiere a camera to be set first per SetCamera()
+		/// ScreenModels require a camera to be set first per SetCamera()
 		void CreateComponent(Voxel::ComponentType _type, ei::Vec2 _pos, float _scale);
 
 		/// \brief Creates an EditField
@@ -32,7 +43,7 @@ namespace Graphic {
 		/// which is valid until the hud is destroyed
 		EditField& CreateEditField(ei::Vec2 _pos, ei::Vec2 _size, int _lines = 1, float _fontSize = 1);
 
-		ScreenTexture& CreateScreenTexture(const ei::Vec2& _pos, const ei::Vec2& _size, const std::string& _name, RealDimension _rDim = RealDimension::none);
+		ScreenTexture& CreateScreenTexture(const ei::Vec2& _pos, const ei::Vec2& _size, const std::string& _name);
 
 		TextRender& CreateLabel(const ei::Vec2& _pos, const std::string& _text, float _scale = 1.f, Font& _font = Resources::GetFont(Graphic::Fonts::DEFAULT));
 
@@ -75,6 +86,8 @@ namespace Graphic {
 
 		virtual bool Scroll(double _dx, double _dy) override;
 
+		Jo::Files::MetaFileWrapper* GetTexContainerMap() { return m_texContainerMap; }
+
 		~Hud();
 
 		TextRender* m_dbgLabel;
@@ -94,21 +107,18 @@ namespace Graphic {
 		VertexArrayBuffer m_characters;/// < vertex buffer that holds the screen textures
 
 		Texture m_texContainer; ///< The basic texture container for screen elements; loads "combined.png" 
-		// gets created dynamically in constructor since it temporarily needs a hdd file handle
+		// is created dynamically in constructor since it temporarily needs a hdd file handle
 		Jo::Files::MetaFileWrapper* m_texContainerMap; ///< the size and position informations of the elements in the container
 
 		// dynamic lists to hold and manage HUD elements
 		// all elements of m_containers and m_screenModels are as well in m_screenOverlays
 
 		//ownership
-		std::vector<Button*> m_buttons;
-		std::vector<std::unique_ptr <EditField> > m_editFields;
-		std::vector<std::unique_ptr <Hud> > m_containers;
+		std::vector<std::unique_ptr< ScreenOverlay >> m_screenElements;
 		std::vector<std::unique_ptr < ScreenComponent > > m_screenComponents;
-		std::vector<std::unique_ptr < ScreenTexture > > m_screenTextures;
 		std::vector<std::unique_ptr < TextRender > > m_labels; ///< The container of TextRenders that are not part of another element
-		std::vector<std::unique_ptr < MessageBox > > m_messageBoxes;
 		//no ownership
+		std::vector< MessageBox* > m_messageBoxes;
 		std::vector<TextRender*> m_textRenders;
 		std::vector<ScreenOverlay*> m_screenOverlays;
 
@@ -116,7 +126,7 @@ namespace Graphic {
 
 		struct CursorData
 		{
-			CursorData(Jo::Files::MetaFileWrapper* _posMap, std::string _name,
+			CursorData(std::string _name,
 				ei::Vec2 _size = ei::Vec2(0.07f, 0.07f), ei::Vec2 _off = ei::Vec2(0.f));
 			ScreenTexture texture;
 			ei::Vec2 offset;

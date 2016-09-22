@@ -31,36 +31,35 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 {
 	LOG_LVL2("Starting to create game state Editor");
 
+	namespace G = Graphic;
+
 	m_singleComponentRenderer = new Graphic::SingleComponentRenderer();
 	m_hud = new Graphic::HudGsEditor(_game, m_singleComponentRenderer);
 
+	G::ScreenOverlay* el = m_hud->m_voxelContainer;
 	//add every (available) voxel to the list which fits the criteria
 	for (int i = 0; i < Voxel::TypeInfo::GetNumVoxels() - 2; i++)
 	{
 		Voxel::ComponentType type = (Voxel::ComponentType)(i + 2);
-		m_hud->m_voxelContainer->CreateComponent(type, Vec2(-0.76f, 0.91f - i*0.2f), 0.158f);
+
+		m_hud->m_voxelContainer->CreateComponent(type, Vec2(0.07f, -(0.08f + i*0.307291627f * 0.67f)), 0.158f);
 		//head:лмнопя
-		m_hud->m_voxelContainer->CreateBtn("componentBtn", "<s 013>          " + Voxel::TypeInfo::GetName(type)
+		el = &m_hud->m_voxelContainer->CreateScreenElement<Graphic::Button>("componentBtn",
+			Vec2(0.f), Vec2(0.f),//position, size
+			G::TopLeft, G::ScreenOverlay::Anchor(!i ? G::TopLeft : G::BotLeft, el),
+			"<s 013>          " + Voxel::TypeInfo::GetName(type)
 			+ "\n         " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetHydrogen(type), 2)
 			+ " " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetCarbon(type), 2)
 			+ " " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetMetals(type), 2)
 			+ " " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetRareEarthElements(type), 2)
 			+ " " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetSemiconductors(type), 2)
 			+ " " + StringUtils::ToConstDigit(Voxel::TypeInfo::GetHeisenbergium(type), 2),
-			Vec2(-1.f, 1.f - i*0.2f), Vec2(1.8f, 0.2f), Graphic::RealDimension::width,
-			[this, type](){ m_currentComponent = Voxel::Voxel(type); }, false);
-		/*		voxelContainer->CreateBtn("componentBtn", "<s 022>       "+Voxel::TypeInfo::GetName(type)
-		+ " л:" + std::to_string(Voxel::TypeInfo::GetHydrogen(type))
-		+ " \n      м:" + std::to_string(Voxel::TypeInfo::GetCarbon(type))
-		+ " н:" + std::to_string(Voxel::TypeInfo::GetMetals(type))
-		+ " о:" + std::to_string(Voxel::TypeInfo::GetRareEarthElements(type))
-		+ " п:" + std::to_string(Voxel::TypeInfo::GetSemiconductors(type))
-		+ " я:" + std::to_string(Voxel::TypeInfo::GetHeisenbergium(type)),
-		Math::Vec2(-1.f,1.f-i*0.2f), Math::Vec2(1.8f, 0.2f), Graphic::no,
-		[this,type](){m_currentType = type;}, false);*/
+			[this, type](){ m_currentComponent = Voxel::Voxel(type); });
+
+		el->Scale(Vec2(0.67f));
 	}
 
-	m_hud->m_modelInfoContainer->CreateBtn("menuBtn", "load", Vec2(-0.9f, 0.90f), Vec2(0.8f, 0.22f), Graphic::RealDimension::width, [&]()
+	m_hud->m_modelInfoContainer->CreateBtn("menuBtn", "load", Vec2(-0.9f, 0.90f), Vec2(0.8f, 0.22f), [&]()
 	{
 		//copy and past from quick load
 		ScopedPtr<Ship> ship = new Ship;
@@ -75,7 +74,7 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 		}
 	});
 
-	m_hud->m_modelInfoContainer->CreateBtn("menuBtn", "save", Vec2(0.0f, 0.90f), Vec2(0.8f, 0.22f), Graphic::RealDimension::width, [&]()
+	m_hud->m_modelInfoContainer->CreateBtn("menuBtn", "save", Vec2(0.0f, 0.90f), Vec2(0.8f, 0.22f), [&]()
 	{
 		m_ship->Save(Jo::Files::HDDFile("savegames/" + m_hud->m_nameEdit->GetText() + ".vmo", Jo::Files::HDDFile::OVERWRITE));
 	});

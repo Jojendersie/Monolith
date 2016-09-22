@@ -4,28 +4,45 @@
 #include "voxel/model.hpp"
 #include "graphic/interface/singlecomponentrenderer.hpp"
 #include "GLFW/glfw3.h"
+#include "pixelcoords.hpp"
+#include "hud.hpp"
 
 using namespace ei;
 
 namespace Graphic
 {
-	ScreenTexture::ScreenTexture(Jo::Files::MetaFileWrapper* _posMap, const std::string& _name, Vec2 _position, Vec2 _size,
-		RealDimension _rDim, std::function<void()> _OnMouseUp):
-		ScreenOverlay(_position, _size, _OnMouseUp),
-		m_realDimension(_rDim), //sizes are calculated when added to a hud
-		m_posDef(_position),
-		m_sizeDef(_size)
+	ScreenTexture::ScreenTexture(const std::string& _name, Vec2 _position, Vec2 _size,
+		DefinitionPoint _def, Anchor _anchor,
+		std::function<void()> _OnMouseUp) :
+		ScreenOverlay(_position, _size, _def, _anchor,_OnMouseUp),
+		m_posDef(_position)
 	{
-		m_vertex.position = _position;
-		m_vertex.texCoord = Vec2(_posMap->RootNode[_name][std::string("positionX")],_posMap->RootNode[_name][std::string("positionY")]);
-		m_vertex.size = Vec2(_posMap->RootNode[_name][std::string("sizeX")],_posMap->RootNode[_name][std::string("sizeY")]);
-		m_vertex.screenSize = all(Vec2(0.f,0.f) == _size) ? m_vertex.size : _size ;
+		Jo::Files::MetaFileWrapper& posMap = Resources::GetTextureMap();
+		m_vertex.position = m_position;
+		m_vertex.texCoord = Vec2(posMap.RootNode[_name][std::string("positionX")],posMap.RootNode[_name][std::string("positionY")]);
+		m_vertex.size = Vec2(posMap.RootNode[_name][std::string("sizeX")],posMap.RootNode[_name][std::string("sizeY")]);
+		if (all(Vec2(0.f) == _size))
+		{
+			Vec2 screenSize(posMap.RootNode[std::string("width")].Get(132), posMap.RootNode[std::string("height")].Get(132));
+			screenSize *= m_vertex.size; //pixel size of this texture
+			m_vertex.screenSize = PixelCoord(screenSize);
+			m_vertex.screenSize += Vec2(1.f);
+
+			ScreenOverlay::SetSize(m_vertex.screenSize);
+		}
+		else
+			m_vertex.screenSize = _size;
+	}
+
+	void ScreenTexture::Register(Hud& _hud)
+	{
+		ScreenOverlay::Register(_hud);
 	}
 
 	void ScreenTexture::SetPosition(Vec2 _pos)
 	{
 		ScreenOverlay::SetPosition(_pos);
-		m_vertex.position = _pos;// + Math::Vec2(0.f, m_vertex.screenSize[1]/2.f);
+		m_vertex.position = m_position;// + Math::Vec2(0.f, m_vertex.screenSize[1]/2.f);
 	}
 
 	// ************************************************************************ //
@@ -38,28 +55,49 @@ namespace Graphic
 
 	// ************************************************************************ //
 
-	Button::Button(Jo::Files::MetaFileWrapper* _posMap, std::string _name, Vec2 _position, Vec2 _size,
-		 RealDimension _rDim, Font* _font, std::function<void()> _OnMouseUp ):
-		ScreenTexture(_posMap, _name+"Default", _position, _size, _rDim, _OnMouseUp),
-		m_btnDefault(_posMap, _name+"Default", _position, _size, _rDim),
-		m_btnOver(_posMap, _name+"Over", _position, _size, _rDim),
-		m_btnDown(_posMap, _name+"Down", _position, _size, _rDim),
+	void ScreenTexture::Scale(Vec2 _scale)
+	{
+		ScreenOverlay::Scale(_scale);
+		m_vertex.screenSize = m_size;
+		m_vertex.position = m_position;
+	}
+
+	// ************************************************************************ //
+
+	Button::Button(const std::string& _name, Vec2 _position, Vec2 _size,
+		DefinitionPoint _def, Anchor _anchor, const std::string& _caption,
+		std::function<void()> _OnMouseUp, Font* _font) :
+		ScreenTexture(_name+"Default", _position, _size, _def, _anchor, _OnMouseUp),
+		m_btnDefault(_name+"Default", _position, _size, _def, _anchor),
+		m_btnOver(_name + "Over", _position, _size, _def, _anchor),
+		m_btnDown(_name + "Down", _position, _size, _def, _anchor),
 		m_caption(_font),
 		m_autoCenter(true)
 	{
 		SetVisibility(false); 
 		SetState(true);
 		
-		m_caption.SetText(_name);
+		SetCaption(_caption);
 		m_btnDefault.SetVisibility(true);
 		m_btnOver.SetVisibility(false);
 		m_btnDown.SetVisibility(false);
 	}
 
+	void Button::Register(Hud& _hud)
+	{
+		_hud.AddTextRender(&(m_caption));
+		m_btnDefault.Register(_hud);
+		m_btnOver.Register(_hud);
+		m_btnDown.Register(_hud);
+
+		//add the collision overlay last so it is in front of the elements
+		ScreenTexture::Register(_hud);
+	}
+
 	// ************************************************************************ //
 	void Button::SetPosition(Vec2 _pos)
 	{
-		ScreenOverlay::SetPosition(_pos);
+		ScreenTexture::SetPosition(_pos);
 /*		m_btnDefault.SetPosition(_pos);
 		m_btnOver.SetPosition(_pos);
 		m_btnDown.SetPosition(_pos);
@@ -74,6 +112,18 @@ namespace Graphic
 		m_btnDefault.SetSize(_size);
 		m_btnOver.SetSize(_size);
 		m_btnDown.SetSize(_size);
+	}
+
+	// ************************************************************************ //
+
+	void Button::Scale(Vec2 _scale)
+	{
+		ScreenTexture::Scale(_scale);
+		m_btnDefault.Scale(_scale);
+		m_btnOver.Scale(_scale);
+		m_btnDown.Scale(_scale);
+
+		SetCaption(m_caption.GetText());
 	}
 
 	// ************************************************************************ //
@@ -155,8 +205,8 @@ namespace Graphic
 	
 	// ************************************************************** //
 
-	ScreenComponent::ScreenComponent( Voxel::ComponentType _component, ei::Vec2 _position, float _scale, int _sideFlags ):
-		ScreenOverlay(_position, Vec2(0.0f)),
+	ScreenComponent::ScreenComponent( Voxel::ComponentType _component, ei::Vec2 _position, float _scale, int _sideFlags, Anchor _anchor ):
+		ScreenOverlay(_position, Vec2(0.0f), TopLeft, _anchor),
 		m_componentType(_component),
 		m_scale(_scale),
 		m_sideFlags(_sideFlags)
@@ -196,8 +246,8 @@ namespace Graphic
 	// ************************************************************** //
 
 
-	EditField::EditField(Jo::Files::MetaFileWrapper* _posMap, Font* _font, Vec2 _position, Vec2 _size, int _lines, float _fontSize) :
-		ScreenTexture(_posMap, "componentBtnDefault", _position, _size, RealDimension::none),
+	EditField::EditField( Font* _font, Vec2 _position, Vec2 _size, int _lines, float _fontSize) :
+		ScreenTexture("componentBtnDefault", _position, _size),
 		m_linesMax(_lines),
 		m_font(_font),
 		m_fontSize(_fontSize),
@@ -222,6 +272,14 @@ namespace Graphic
 		//offset of an half char in x direction ;center in y direction
 		m_textRender.SetPosition(m_position + Vec2(m_fontSize * m_textRender.GetDim()[0] * 0.5f, -m_size[1] * (1.f + textToBoxSize) * 0.5f/* * 0.5f /*- m_textRender.GetExpanse()[1] * 0.5f*/));
 	}
+
+	void EditField::Register(Hud& _hud)
+	{
+		ScreenTexture::Register(_hud);
+		_hud.AddTextRender(&m_textRender);
+	}
+
+	// ************************************************************** //
 
 	void EditField::AddLine(int _preLine)
 	{

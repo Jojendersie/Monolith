@@ -9,6 +9,7 @@ namespace Graphic {
 	Graphic::UniformBuffer* Resources::s_ubos[];
 	Graphic::Font* Resources::s_fonts[];
 	Graphic::SamplerState* Resources::s_samplers[];
+	Jo::Files::MetaFileWrapper* Resources::s_textureMap;
 
 	// ********************************************************************* //
 	// Get one of the predefined effects.
@@ -202,6 +203,19 @@ namespace Graphic {
 		return *s_samplers[(int)_state];
 	}
 
+	Jo::Files::MetaFileWrapper& Resources::GetTextureMap()
+	{
+		if (!s_textureMap)
+		{
+			//test screen tex
+			Jo::Files::HDDFile file("texture/combined.sraw");
+			s_textureMap = new Jo::Files::MetaFileWrapper(file, Jo::Files::Format::SRAW);
+		}
+
+		return *s_textureMap;
+	}
+
+
 	// ********************************************************************* //
 	// Delete all the loaded resources
 	void Resources::Unload()
@@ -228,6 +242,12 @@ namespace Graphic {
 		{
 			delete s_samplers[i];
 			s_samplers[i] = nullptr;
+		}
+
+		if (s_textureMap)
+		{
+			delete s_textureMap;
+			s_textureMap = 0;
 		}
 	}
 

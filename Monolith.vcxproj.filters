@@ -305,6 +305,9 @@
     <ClCompile Include="src\gameplay\componentsystems\weaponsystem.cpp">
       <Filter>Source Files\gameplay\componentsystems</Filter>
     </ClCompile>
+    <ClCompile Include="src\graphic\interface\screenoverlay.cpp">
+      <Filter>Source Files\graphic\interface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">
@@ -796,6 +799,9 @@
       <Filter>Source Files\utilities</Filter>
     </ClInclude>
     <ClInclude Include="src\graphic\interface\pixelcoords.hpp">
+      <Filter>Source Files\graphic\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\graphic\interface\screenoverlay.hpp">
       <Filter>Source Files\graphic\interface</Filter>
     </ClInclude>
   </ItemGroup>
