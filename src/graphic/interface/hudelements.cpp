@@ -25,8 +25,7 @@ namespace Graphic
 		{
 			Vec2 screenSize(posMap.RootNode[std::string("width")].Get(132), posMap.RootNode[std::string("height")].Get(132));
 			screenSize *= m_vertex.size; //pixel size of this texture
-			m_vertex.screenSize = PixelCoord(screenSize);
-			m_vertex.screenSize += Vec2(1.f);
+			m_vertex.screenSize = PixelOffset(screenSize);
 
 			ScreenOverlay::SetSize(m_vertex.screenSize);
 		}
@@ -77,10 +76,11 @@ namespace Graphic
 		SetVisibility(false); 
 		SetState(true);
 		
-		SetCaption(_caption);
 		m_btnDefault.SetVisibility(true);
 		m_btnOver.SetVisibility(false);
 		m_btnDown.SetVisibility(false);
+
+		SetCaption(_caption);
 	}
 
 	void Button::Register(Hud& _hud)
@@ -92,6 +92,8 @@ namespace Graphic
 
 		//add the collision overlay last so it is in front of the elements
 		ScreenTexture::Register(_hud);
+
+		SetCaption(m_caption.GetText());
 	}
 
 	// ************************************************************************ //
@@ -151,10 +153,11 @@ namespace Graphic
 		Vec2 captionDim = m_caption.GetDim();
 
 		// in case that the text is to large in any direction scale it down
-		if(captionDim[0] * charCountMax * m_caption.GetDefaultSize() >= m_size[0] || captionDim[1] * lineCount >= m_size[1])
+		float ySize = captionDim[1] * lineCount + captionDim[1] * 0.2f;
+		if (captionDim[0] * charCountMax * m_caption.GetDefaultSize() >= m_size[0] || ySize >= m_size[1])
 		{
 			m_caption.SetDefaultSize(min( (float)(m_size[0] / (captionDim[0] * charCountMax)),
-												(float)(m_size[1] / (captionDim[1] * lineCount))) );
+				(float)(m_size[1] / ySize)));
 		}
 
 		//set the (new) caption first to rebuild the buffer
@@ -246,7 +249,7 @@ namespace Graphic
 	// ************************************************************** //
 
 
-	EditField::EditField( Font* _font, Vec2 _position, Vec2 _size, int _lines, float _fontSize) :
+	EditField::EditField(Vec2 _position, Vec2 _size, Font* _font, int _lines, float _fontSize) :
 		ScreenTexture("componentBtnDefault", _position, _size),
 		m_linesMax(_lines),
 		m_font(_font),

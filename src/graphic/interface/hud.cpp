@@ -49,19 +49,6 @@ namespace Graphic
 	}
 
 	// ************************************************************************* //
-	 void Hud::CreateBtn(std::string _texName, std::string _desc, Vec2 _position, Vec2 _size, 
-		std::function<void()> _OnMouseUp, bool _autoX, bool _autoY, Font* _font)
-	{
-/*		 Button* btn = new Button(_texName, _position, _size, 
-			 DefinitionPoint::TopLeft, Anchor(),
-			 &Resources::GetFont(Fonts::GAME_FONT), _OnMouseUp);
-		btn->SetAutoCenterX(_autoX);
-		btn->SetAutoCenterY(_autoY);
-		btn->SetCaption(_desc);
-		AddButton(btn);*/
-	}
-
-	// ************************************************************************* //
 	Hud* Hud::CreateContainer(Vec2 _pos, Vec2 _size) 
 	{
 		Hud* hud = new Hud(m_game, m_componentRenderer, _pos, _size, false, false);
@@ -76,28 +63,6 @@ namespace Graphic
 		m_screenComponents.push_back( std::make_unique< ScreenComponent >(_type, _pos, _scale, 0x3b, Anchor(TopLeft, this)) );
 		AddScreenOverlay( m_screenComponents.back().get() );
 	};
-
-	// ************************************************************************* //
-	EditField& Hud::CreateEditField(Vec2 _pos, Vec2 _size, int _lines, float _fontSize)
-	{
-		EditField* editField = new EditField(&Resources::GetFont(Fonts::GAME_FONT), _pos, _size, _lines, _fontSize);
-
-		m_screenElements.emplace_back(editField);
-		AddTexture(editField);
-		AddTextRender(editField->getTextRender());
-
-		return *editField;
-	}
-
-	// ************************************************************************* //
-	ScreenTexture& Hud::CreateScreenTexture(const Vec2& _pos, const Vec2& _size, const std::string& _name)
-	{
-		auto screenTex = new ScreenTexture(_name, _pos, _size);
-		m_screenElements.emplace_back(screenTex);
-		screenTex->Register(*this);
-
-		return *screenTex;
-	}
 
 	// ************************************************************************* //
 	TextRender& Hud::CreateLabel(const Vec2& _pos, const std::string& _text, float _scale, Font& _font)

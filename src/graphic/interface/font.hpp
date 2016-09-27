@@ -53,7 +53,7 @@ namespace Graphic {
 		/// 13 : line break
 		/// "<s sss>" size "sized text" "</s>"
 		/// "<c rrr ggg bbb aaa>" "colored text" "</c>"
-		/// "<i>" "italic text" "</i" not yet implemented
+		/// "<i>" "italic text" "</i>" not yet implemented
 		/// "<t  ttt>" "thickness text" "</b>"
 		void SetText(const std::string& _text);
 

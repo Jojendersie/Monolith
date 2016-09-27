@@ -14,6 +14,7 @@
 #include "utilities/stringutils.hpp"
 #include "math/fixedpoint.hpp"
 #include "math/ray.hpp"
+#include "graphic/interface/pixelcoords.hpp"
 
 #include <jofilelib.hpp>
 
@@ -59,7 +60,9 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 		el->Scale(Vec2(0.67f));
 	}
 
-	m_hud->m_modelInfoContainer->CreateBtn("menuBtn", "load", Vec2(-0.9f, 0.90f), Vec2(0.8f, 0.22f), [&]()
+	auto btn = &m_hud->m_modelInfoContainer->CreateScreenElement<Graphic::Button>("menuBtn", Graphic::PixelOffset(10, -10), Vec2(0.183f, 0.1f),
+		G::TopLeft, G::ScreenOverlay::Anchor(G::TopLeft, m_hud->m_modelInfoContainer), "load",
+		[&]()
 	{
 		//copy and past from quick load
 		ScopedPtr<Ship> ship = new Ship;
@@ -74,10 +77,13 @@ GSEditor::GSEditor(Monolith* _game) : IGameState(_game),
 		}
 	});
 
-	m_hud->m_modelInfoContainer->CreateBtn("menuBtn", "save", Vec2(0.0f, 0.90f), Vec2(0.8f, 0.22f), [&]()
+	btn = &m_hud->m_modelInfoContainer->CreateScreenElement<Graphic::Button>("menuBtn", Graphic::PixelOffset(0), Vec2(0.183f, 0.1f),
+		G::TopLeft, G::ScreenOverlay::Anchor(G::TopRight, btn), "save",
+		[&]() 
 	{
 		m_ship->Save(Jo::Files::HDDFile("savegames/" + m_hud->m_nameEdit->GetText() + ".vmo", Jo::Files::HDDFile::OVERWRITE));
 	});
+
 
 	// TODO: view port for this camera in the upper right corner
 	m_modelCamera = new Input::Camera( FixVec3( Fix(0.0), Fix(0.0), Fix(0.0) ),

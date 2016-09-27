@@ -110,7 +110,8 @@ namespace Graphic {
 		/// \details param [in] informations needed for texture and Textrender
 		/// _lines The amount of lines the field has; 0 means automatic
 		/// _fontSize used fontsize for the text; 0 means automatic
-		EditField(Font* _font, ei::Vec2 _position, ei::Vec2 _size, int _lines = 1, float _fontSize = 1);
+		EditField(ei::Vec2 _position, ei::Vec2 _size, Font* _font = &Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT),
+			int _lines = 1, float _fontSize = 1);
 
 		void Register(Hud& _hud) override;
 

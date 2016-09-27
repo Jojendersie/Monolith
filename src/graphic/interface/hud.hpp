@@ -24,26 +24,12 @@ namespace Graphic {
 
 			return *ptr;
 		}
-
-		// functions intended do be used in game states to create a button with the specified params
-		void CreateBtn(std::string _texName, std::string _desc, ei::Vec2 _position, ei::Vec2 _size,
-			 std::function<void()> _OnMouseUp = []() {return; },
-			bool _autoX = true, bool _autoY = true,
-			Font* _font = &Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT));
-
 		/// \brief Creates an container in the current Hud and returns it as Hud* to fill it with elements 
 		Hud* CreateContainer(ei::Vec2 _pos=ei::Vec2(-1.f,-1.f) , ei::Vec2 _size=ei::Vec2(2.f,2.f));
 
 		/// \brief Creates an screenModel
 		/// ScreenModels require a camera to be set first per SetCamera()
 		void CreateComponent(Voxel::ComponentType _type, ei::Vec2 _pos, float _scale);
-
-		/// \brief Creates an EditField
-		/// \details returns a reference to the field
-		/// which is valid until the hud is destroyed
-		EditField& CreateEditField(ei::Vec2 _pos, ei::Vec2 _size, int _lines = 1, float _fontSize = 1);
-
-		ScreenTexture& CreateScreenTexture(const ei::Vec2& _pos, const ei::Vec2& _size, const std::string& _name);
 
 		TextRender& CreateLabel(const ei::Vec2& _pos, const std::string& _text, float _scale = 1.f, Font& _font = Resources::GetFont(Graphic::Fonts::DEFAULT));
 
