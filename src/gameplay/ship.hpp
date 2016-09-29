@@ -38,10 +38,12 @@ public:
 	/// \brief Player or AI can set the velocity. The drives automatically try
 	///		to reach it.
 	void SetTargetVelocity( const ei::Vec3& _targetVelocity )	{ m_targetVelocity = _targetVelocity; }
+	const ei::Vec3& GetTargetVelocity() const { return m_targetVelocity; }
 
 	/// \brief Player or AI can set the rotation. The drives automatically try
 	///		to reach it.
 	void SetTargetAngularVelocity( const ei::Vec3& _rotation )	{ m_targetAngularVelocity = _rotation; }
+	const ei::Vec3& GetTargetAngularVelocity() const { return m_targetAngularVelocity; }
 
 	/// \brief Get current ship rotation.
 	const ei::Quaternion& GetRotation() const { return Model::GetRotation(); }

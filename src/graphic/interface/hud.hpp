@@ -14,7 +14,7 @@ namespace Graphic {
 		///		The HUD class does not take the ownership.
 		Hud( Monolith* _game, Graphic::SingleComponentRenderer* _componentRenderer, ei::Vec2 _pos=ei::Vec2(-1.f,-1.f) , ei::Vec2 _size=ei::Vec2(2.f,2.f), int _cursor = 1, bool _showDbg = true);
 
-		template< typename _T, typename... _Args, typename = std::enable_if< std::is_base_of<ScreenOverlay, _T>::value >::type >//only ScreenOverlays should be made with this
+		template< typename _T, typename... _Args, typename = std::enable_if< std::is_base_of<ScreenPosition, _T>::value >::type >//only ScreenOverlays should be made with this
 		_T& CreateScreenElement(_Args&&... _args)
 		{
 			auto ptr = new _T(std::forward<_Args>(_args)...);
@@ -100,7 +100,7 @@ namespace Graphic {
 		// all elements of m_containers and m_screenModels are as well in m_screenOverlays
 
 		//ownership
-		std::vector<std::unique_ptr< ScreenOverlay >> m_screenElements;
+		std::vector<std::unique_ptr< ScreenPosition >> m_screenElements;
 		std::vector<std::unique_ptr < ScreenComponent > > m_screenComponents;
 		std::vector<std::unique_ptr < TextRender > > m_labels; ///< The container of TextRenders that are not part of another element
 		//no ownership

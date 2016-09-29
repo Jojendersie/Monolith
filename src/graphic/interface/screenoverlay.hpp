@@ -20,16 +20,10 @@ namespace Graphic{
 		BotRight
 	};
 
-	/// \brief a basic class for 2d screen elements
-	/// \details a storage for size information and capable of interaction with the mouse and keys when managed by a hud
-	/// _position is the upper left corner of the Overlay in screenspace [-1,1]x[-1,1] starting from the lower left corner
-	/// _size is the size in screen space
-	/// both are relative to the owning parent(Hud), thus a size of 2.f will make that the Overlay has the size of the Hud 
+	class ScreenOverlay;
 
-	//todo: rework rendering of hud elements
-	// add virtual void Draw()
-	// check current shader/ texture and set only if necessary
-	class ScreenOverlay
+	// a position on the screen that can be described relative to a ScreenOverlay
+	class ScreenPosition
 	{
 	public:
 		struct Anchor
@@ -41,20 +35,51 @@ namespace Graphic{
 			ScreenOverlay* parent;
 		};
 
+		ScreenPosition(ei::Vec2 _position = ei::Vec2(), Anchor _anchor = Anchor());
+		virtual ~ScreenPosition(){};
+
+		/// \ Functions to alter the rectangle in lifetime
+		virtual void SetPosition(ei::Vec2 _pos);
+
+		/// \brief Called once by the hud to add it and its child.
+		/// \details The hud should take full ownership of all elements.
+		virtual void Register(class Hud& _hud) {};
+
+		const Anchor& GetAnchor() const { return m_anchor; }
+	protected:
+		void UpdateParams();
+
+		ei::Vec2 m_position;///< position in screen coordsystem
+	private:
+		ei::Vec2 m_positionDef; ///< position as given without the offset from the def point
+		Anchor m_anchor;
+
+		friend class Hud; //todo remove this
+	};
+
+	/// \brief a basic class for 2d screen elements
+	/// \details a storage for size information and capable of interaction with the mouse and keys when managed by a hud
+	/// _position is the upper left corner of the Overlay in screenspace [-1,1]x[-1,1] starting from the lower left corner
+	/// _size is the size in screen space
+	/// both are relative to the owning parent(Hud), thus a size of 2.f will make that the Overlay has the size of the Hud 
+
+	//todo: rework rendering of hud elements
+	// add virtual void Draw()
+	// check current shader/ texture and set only if necessary
+	class ScreenOverlay : public ScreenPosition
+	{
+	public:
 		ScreenOverlay(ei::Vec2 _pos, 
 			ei::Vec2 _size, 
 			DefinitionPoint _def = DefinitionPoint::TopLeft,
-			Anchor _anchor = Anchor(),
+			ScreenPosition::Anchor _anchor = ScreenPosition::Anchor(),
 			std::function<void()> _OnMouseUp = []() {return; });
 
 		virtual ~ScreenOverlay() {}
 
-		/// \brief Called once by the hud to add it and its child.
-		/// \details The hud should take full ownership of all elements.
-		virtual void Register(class Hud& _hud);
+		virtual void Register(class Hud& _hud) override;
 
-		/// \ Functions to alter the rectangle in lifetime
-		virtual void SetPosition(ei::Vec2 _pos);
+		void SetPosition(ei::Vec2 _pos) override;
 		/// \brief Sets the base size. Scale will still be applied to this value.
 		virtual void SetSize(ei::Vec2 _size);
 		/// \brief Returns the actual size after scale has been applied to it.
@@ -73,7 +98,6 @@ namespace Graphic{
 
 		bool GetState() const { return m_active; };
 		bool GetVisibility() const { return m_visible; };
-		const Anchor& GetAnchor() const { return m_anchor; }
 
 		//Only the overlay in front receives this events
 
@@ -103,16 +127,13 @@ namespace Graphic{
 		std::function<void()> OnMouseDown;
 		std::function<void()> OnMouseUp;
 
-		ei::Vec2 m_position;///< position in screen coordsystem
 		ei::Vec2 m_size;///< actual size in screen coordsystem after scaling
 		ei::Vec2 m_scale; ///< size is multiplied with this
 
 		std::vector<ScreenOverlay*> m_childs;
 	private:
 		ei::Vec2 m_sizeBase; ///< the actual size before scaling
-		ei::Vec2 m_positionDef; ///< position as given without the offset from the def point
 		DefinitionPoint m_definitionPoint;
-		Anchor m_anchor;
 
 		friend class BasicHud;
 		friend class Hud;

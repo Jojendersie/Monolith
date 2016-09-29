@@ -25,7 +25,7 @@ namespace Graphic
 	//		m_screenTextures[i] = nullptr;
 		if (m_showDbg)
 		{
-			m_dbgLabel = new TextRender(&Graphic::Resources::GetFont(Graphic::Fonts::DEFAULT));//DEFAULT
+			m_dbgLabel = new TextRender();//DEFAULT
 			m_dbgLabel->SetPosition(Vec2(0.5f, 0.8f));
 			AddTextRender(m_dbgLabel);
 		}
@@ -67,7 +67,7 @@ namespace Graphic
 	// ************************************************************************* //
 	TextRender& Hud::CreateLabel(const Vec2& _pos, const std::string& _text, float _scale, Font& _font)
 	{
-		TextRender* label = new TextRender(&_font);
+		TextRender* label = new TextRender(Vec2(0.f), Anchor(), &_font);
 
 		m_labels.emplace_back(label);
 		

@@ -2,8 +2,8 @@
 
 #include "font.hpp"
 #include "game.hpp"
-#include "graphic/content.hpp"
 #include "screenoverlay.hpp"
+#include "graphic/content.hpp"
 
 #include <memory>
 

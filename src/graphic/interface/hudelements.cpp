@@ -70,7 +70,7 @@ namespace Graphic
 		m_btnDefault(_name+"Default", _position, _size, _def, _anchor),
 		m_btnOver(_name + "Over", _position, _size, _def, _anchor),
 		m_btnDown(_name + "Down", _position, _size, _def, _anchor),
-		m_caption(_font),
+		m_caption(Vec2(0.f), Anchor(), _font),
 		m_autoCenter(true)
 	{
 		SetVisibility(false); 
@@ -80,6 +80,7 @@ namespace Graphic
 		m_btnOver.SetVisibility(false);
 		m_btnDown.SetVisibility(false);
 
+		m_caption.SetDefaultSize(2.f);
 		SetCaption(_caption);
 	}
 
@@ -165,7 +166,7 @@ namespace Graphic
 
 		// center in both directions
 		m_caption.SetPosition(m_position+Vec2(!m_autoCenter[0] ? 0.f : ((m_size[0] - captionDim[0] * charCountMax * m_caption.GetDefaultSize()) / 2.f),
-							!m_autoCenter[1] ? 0.f : (- m_size[1] / (float)lineCount * 0.5f	- captionDim[1] * m_caption.GetMaxSize() * 0.45f )));//0.5f
+			!m_autoCenter[1] ? 0.f : (-m_size[1] / (float)lineCount * 0.5f)));//- captionDim[1] * m_caption.GetMaxSize() * 0.45f
 
 	}
 
@@ -254,7 +255,7 @@ namespace Graphic
 		m_linesMax(_lines),
 		m_font(_font),
 		m_fontSize(_fontSize),
-		m_textRender(m_font),
+		m_textRender(Vec2(0.f), Anchor(), m_font),
 		m_content(""),//init with cursor indicator
 		m_cursor(0)
 	{
@@ -273,7 +274,7 @@ namespace Graphic
 		}
 		m_textRender.SetExpanse(_size);
 		//offset of an half char in x direction ;center in y direction
-		m_textRender.SetPosition(m_position + Vec2(m_fontSize * m_textRender.GetDim()[0] * 0.5f, -m_size[1] * (1.f + textToBoxSize) * 0.5f/* * 0.5f /*- m_textRender.GetExpanse()[1] * 0.5f*/));
+		m_textRender.SetPosition(m_position + Vec2(m_fontSize * m_textRender.GetDim()[0] * 0.5f, -m_size[1] * (textToBoxSize) * 0.5f/* * 0.5f /*- m_textRender.GetExpanse()[1] * 0.5f*/));
 	}
 
 	void EditField::Register(Hud& _hud)

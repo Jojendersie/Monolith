@@ -1,6 +1,5 @@
 #include "gsplayhud.hpp"
-
-
+#include "graphic/interface/pixelcoords.hpp"
 using namespace ei;
 
 namespace Graphic
@@ -8,7 +7,10 @@ namespace Graphic
 	HudGsPlay::HudGsPlay(Monolith* _game) :
 		Hud(_game, nullptr)
 	{
-		m_velocityLabel = &CreateLabel(Vec2(0.25f, -0.1f), "");
+		m_velocityLabel = &CreateScreenElement<TextRender>(PixelOffset(80, -20), Anchor(MidMid, this));
+		m_targetVelocityLabel = &CreateScreenElement<TextRender>(PixelOffset(80, 20), Anchor(MidMid, this));
+	//	m_velocityLabel = &CreateLabel(Vec2(0.25f, -0.1f), "");
+	//	m_targetVelocityLabel = &CreateLabel(Vec2(0.25f, 0.f), "");
 
 		m_mainMessageBox = &CreateMessageBox(Vec2(-0.2f, 0.8f), Vec2(0.4f, 0.2f));
 	}

@@ -4,7 +4,8 @@ using namespace ei;
 
 MessageBox::MessageBox(Vec2 _position, Vec2 _size) :
 ScreenTexture("simpleWindow", _position, _size),
-m_textRender(&Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT))
+m_textRender(Vec2(0.f), Anchor(),
+&Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT))
 {
 	ei::Vec2 captionDim = m_textRender.GetDim();
 	m_textRender.SetDefaultSize(1.f);

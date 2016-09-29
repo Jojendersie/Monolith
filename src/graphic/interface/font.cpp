@@ -1,5 +1,6 @@
 #include "font.hpp"
 #include "../content.hpp"
+#include "hud.hpp"
 
 using namespace ei;
 
@@ -35,15 +36,15 @@ namespace Graphic
 		}
 	}
 
-	TextRender::TextRender(Font* _font) :
-		m_font(_font),
+	TextRender::TextRender(ei::Vec2 _position, ScreenOverlay::Anchor _anchor, Font* _font) :
+		ScreenPosition(_position, _anchor),
+		m_font(_font ? _font : &Resources::GetFont(Fonts::DEFAULT)),
 		m_characters( VertexArrayBuffer::PrimitiveType::POINT, {
 				{Graphic::VertexAttribute::VEC2, 11}, {Graphic::VertexAttribute::VEC2, 12},
 				{Graphic::VertexAttribute::VEC2, 13}, {Graphic::VertexAttribute::COLOR, 3},
 				{Graphic::VertexAttribute::FLOAT, 14}, {Graphic::VertexAttribute::FLOAT, 15}
 		} ),//222c11
-		m_position( 0.0f ),
-		m_sizeD(2.f),
+		m_sizeD(1.f),
 		m_colorD((uint8)255,(uint8)255,(uint8)255,(uint8)255),
 		m_thicknessD(0.7f),
 		m_active(true),
@@ -128,6 +129,7 @@ namespace Graphic
 
 	}
 
+	// ***************************************************** //
 	void TextRender::Draw()
 	{
 		if(m_characters.GetNumVertices())
@@ -138,6 +140,13 @@ namespace Graphic
 		}
 	}
 
+	// ***************************************************** //
+	void TextRender::Register(Hud& _hud)
+	{
+		_hud.AddTextRender(this);
+	}
+
+	// ***************************************************** //
 	int TextRender::CntrlChr(int _i)
 	{
 		int jmpCount = 0;
@@ -183,6 +192,8 @@ namespace Graphic
 		m_color = m_colorD;
 		m_size = m_sizeD;
 		Vec2 currentPos = m_position;
+		//y position is one line down so that m_position represents the upper left corner
+		currentPos.y -= m_charSize[1] * m_sizeMax; 
 
 		float maxExpanseX = currentPos[0];
 

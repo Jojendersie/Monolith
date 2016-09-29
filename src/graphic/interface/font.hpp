@@ -3,13 +3,13 @@
 #include <string>
 #include "utilities/assert.hpp"
 #include <cstdint>
+#include <jofilelib.hpp>
 #include "graphic/core/vertexbuffer.hpp"
 #include "graphic/core/effect.hpp"
 #include "graphic/core/texture.hpp"
 #include "graphic/core/device.hpp"
-#include <jofilelib.hpp>
 #include "utilities/color.hpp"
-
+#include "screenoverlay.hpp"
 
 namespace Graphic {
 
@@ -38,11 +38,15 @@ namespace Graphic {
 	};
 
 	/// \brief A buffer with a formated string to draw.
-	class TextRender
+	class TextRender : public ScreenPosition
 	{
 	public:
 		/// \brief Create a text of a specific font.
-		TextRender( Font* _font );
+		TextRender( ei::Vec2 _position = ei::Vec2(0.f), 
+			ScreenOverlay::Anchor _anchor = ScreenOverlay::Anchor(),
+			Font* _font = nullptr);
+
+		void Register(class Hud& _hud) override;
 
 		/// \brief Draw all buffered texts.
 		void Draw();
@@ -91,8 +95,6 @@ namespace Graphic {
 		int CntrlChr(int _i);
 		Font* m_font;	///< Reference to the used font.
 		std::string m_text;
-		ei::Vec2 m_position;
-
 
 		VertexArrayBuffer m_characters;
 		Utils::Color8U m_color, m_colorD;
