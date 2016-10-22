@@ -279,5 +279,74 @@ namespace Math {
 		}
 	};
 
+	/// Uses a bit mask to store binary function values for certain directions.
+	/// This can be used for directional occlusion masks.
+	class SphBitMask
+	{
+	private:
+		// 27 bits for all neighbours and the voxel itself (-> 5-6 unused bits).
+		uint32 m_mask;
+
+		int indexOf(const ei::IVec3& _pos)
+		{
+			return _pos.x + _pos.y * 3 + _pos.z * 9;
+		}
+	public:
+		/// \brief Return the 26 different positions in which a sample is stored.
+		ei::Vec3 getBasisDir(int _index)
+		{
+			int x = (_index % 3) - 1;
+			int y = ((_index / 3) % 3) - 1;
+			int z = ((_index / 9) % 3) - 1;
+			return ei::Vec3((float)x, (float)y, (float)z);
+		}
+
+		/// \param [in] _index The index in [0,25] of the basis direction.
+		void setBit(int _index, bool _value)
+		{
+			if(_value)
+				m_mask |= 1 << _index;
+			else
+				m_mask &= ~(1 << _index);
+		}
+		bool getBit(int _index)
+		{
+			return (m_mask & (1 << _index)) != 0;
+		}
+
+		/// \brief Get an interpolated value in [0,1] for an arbitrary direction.
+		float value(const ei::Vec3& _direction)
+		{
+			// Follows the cube map sampler
+			// Find the principal direction
+			ei::Vec3 absDir = abs(_direction);
+			int pdir = 0, udir = 1, vdir = 2;
+			if( absDir[1] >= absDir[0] && absDir[1] >= absDir[2] )		{ pdir = 1; udir = 0; }
+			else if( absDir[2] >= absDir[0] && absDir[2] >= absDir[1] )	{ pdir = 2; vdir = 0; }
+
+			// Get 3D outer cube position
+			// Project ray to the cube faces.
+			ei::Vec3 projDir = _direction / absDir[pdir];
+			// Transform [-1,1] to [0, 2]
+			projDir += 1.0f;
+			// Get Integer coordinate [0,2]
+			ei::IVec3 voxel = ei::IVec3(projDir);
+
+			// Get 4 point samples and interpolate 
+			ei::IVec3 samplePos = voxel;
+			float s00 = (m_mask & (1 << indexOf(samplePos))) ? 1.0f : 0.0f;
+			++samplePos[udir];
+			float s10 = (m_mask & (1 << indexOf(samplePos))) ? 1.0f : 0.0f;
+			++samplePos[vdir];
+			float s11 = (m_mask & (1 << indexOf(samplePos))) ? 1.0f : 0.0f;
+			--samplePos[udir];
+			float s01 = (m_mask & (1 << indexOf(samplePos))) ? 1.0f : 0.0f;
+
+			float fu = projDir[udir]-voxel[udir];
+			float fv = projDir[vdir]-voxel[vdir];
+			return ei::lerp(ei::lerp(s00, s10, fu), ei::lerp(s01, s11, fu), fv);
+		}
+	};
+
 
 } // namespace Math
