@@ -82,19 +82,15 @@ namespace Mechanics {
 				// some speed in thrust direction.
 				Vec3 basicVelocity = - m_ship.GetRotationMatrix() * (_provided.thrust);
 				Vec3 rotationAcceleration = m_ship.GetRotationMatrix() * (_provided.torque);
-				for(size_t i = 0; i < m_relativeThrusterPositions.size(); ++i)
+				for(size_t i = 0; i < m_thrusters.size(); ++i)
 				{
-					Vec3 thrusterPos = m_ship.GetRotationMatrix() * m_relativeThrusterPositions[i];
+					Vec3 thrusterPos = m_ship.GetRotationMatrix() * m_thrusters[i].relativePosition;
 					Vec3 rotationVelocity = -cross(rotationAcceleration, thrusterPos);
 					Vec3 thrustDir = normalize(basicVelocity + rotationVelocity);
 
 					// Check if the drive can have thrust in the direction at all
-					Voxel::Model::ModelData::HitResult hit; // Dummy
-					Ray ray(m_relativeThrusterPositions[i] + m_ship.GetCenter(), m_ship.GetInverseRotationMatrix() * thrustDir);
-					ray.origin += ray.direction * 1.414213562f;
-					float distance = 100000.0f;
-					if(!m_ship.GetVoxelTree().RayCast( ray, 0, hit, distance ))
-					for(int j = 0; j < numParticlesPerDrive; ++j)
+					int numEffectiveParticles = int(numParticlesPerDrive * m_thrusters[i].freeField.value(m_ship.GetInverseRotationMatrix() * thrustDir));
+					for(int j = 0; j < numEffectiveParticles; ++j)
 					{
 						Vec3 inThrusterPos(m_rng.Normal(0.02f), m_rng.Normal(0.02f), m_rng.Normal(0.02f));
 						Vec3 localPos = thrusterPos + inThrusterPos;
@@ -123,11 +119,13 @@ namespace Mechanics {
 		auto endit = directionGenerator.end();
 		Vec3 center = _position + Vec3(0.5f);
 		Vec3 centerDir = center - m_ship.GetCenter();
-		m_relativeThrusterPositions.push_back(centerDir);
 		float centerDistance = len(centerDir);
+		Thruster newThruster;
+		newThruster.relativePosition = centerDir;
 		// Count number of samples per direction to normalize.
 		int thrustCount[26] = {0};
 		int torqueCount[26] = {0};
+		byte freeThrustCount[26] = {0};
 		Voxel::Model::ModelData::HitResult hit; // Dummy
 		for(auto it = directionGenerator.begin(); it != endit; ++it)
 		{
@@ -138,15 +136,18 @@ namespace Mechanics {
 			ray.origin += ray.direction * 1.414213562f;
 			
 			float force = thrust;
+			int idx = newThrust.getSplatIndex( direction );
+
 			// Only if nothing is visible the drive can fire into this direction.
 			// In occluded directions there is thrust=0. Because this results in bad
 			// game play use 10% instead.
 			if(m_ship.GetVoxelTree().RayCast( ray, 0, hit, distance ))
 				force *= 0.1f;
+			else
+				++freeThrustCount[idx];
 
 			// Divide the force into a rotation and a forward thrust.
 			Vec3 axis = normalize(cross(centerDir, direction));	//// EI-CHECK normalize here could be wrong
-			int idx = newThrust.getSplatIndex( direction );
 			newThrust[idx][0] += force;
 			newThrust[idx][1] += axis[0] * force;
 			newThrust[idx][2] += axis[1] * force;
@@ -169,18 +170,23 @@ namespace Mechanics {
 			newTorque[idx][3] += force * axis[2];
 			++torqueCount[idx];
 		}
+		// The bitmask and the cube-maps have different indices.
+		// The map connects them both such that the results can be reused for the mask.
+		static byte REMAP[26] = {25, 16, 8, 22, 13, 5, 19, 11, 2, 23, 14, 6, 20, 12, 3, 17, 9, 0, 24, 15, 7, 18, 10, 1, 21, 4};
 		for(int i=0; i<26; ++i)
 		{
 			m_maxThrust[i] += newThrust[i] / max((float)thrustCount[i], 1e-6f);
 			m_maxTorque[i] += newTorque[i] / max((float)torqueCount[i], 1e-6f);
+			newThruster.freeField.setBit(REMAP[i], freeThrustCount[i] / float(thrustCount[i]) >= 0.5f);
 		}
+		m_thrusters.push_back(newThruster);
 	}
 
 	void DriveSystem::ClearSystem()
 	{
 		m_maxTorque = Math::SphericalFunction();
 		m_maxThrust = Math::SphericalFunction();
-		m_relativeThrusterPositions.clear();
+		m_thrusters.clear();
 	}
 
 }

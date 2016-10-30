@@ -289,16 +289,18 @@ namespace Math {
 
 		int indexOf(const ei::IVec3& _pos)
 		{
-			return _pos.x + _pos.y * 3 + _pos.z * 9;
+			int idx = _pos.x + _pos.y * 3 + _pos.z * 9;
+			return idx >= 14 ? idx - 1 : idx;
 		}
 	public:
 		/// \brief Return the 26 different positions in which a sample is stored.
 		ei::Vec3 getBasisDir(int _index)
 		{
+			if(_index >= 13) ++_index;
 			int x = (_index % 3) - 1;
 			int y = ((_index / 3) % 3) - 1;
 			int z = ((_index / 9) % 3) - 1;
-			return ei::Vec3((float)x, (float)y, (float)z);
+			return normalize(ei::Vec3((float)x, (float)y, (float)z));
 		}
 
 		/// \param [in] _index The index in [0,25] of the basis direction.

@@ -140,7 +140,7 @@ void Ship::ComputeParameters()
 		{
 			if( !_node->Children() )
 			{
-				// This is a component add it if it is a functional unit
+				// This is a component. Add it, if it is a functional unit.
 				if(Voxel::TypeInfo::IsComputer(_node->Data().type)
 					|| Voxel::TypeInfo::IsStorage(_node->Data().type)
 					|| Voxel::TypeInfo::IsReactor(_node->Data().type)
