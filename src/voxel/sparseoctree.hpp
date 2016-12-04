@@ -29,6 +29,9 @@ namespace Voxel {
 		///		set back.
 		SparseVoxelOctree( Listener* _listener );
 
+		/// \brief Takes the data from another tree. 
+		void operator=(SparseVoxelOctree&& _oth);
+
 		/// \brief Set a voxel in the octree and call update of the listener.
 		/// \details This method overwrites all covered voxels.
 		/// \param [in] _position Position inside the given level.
@@ -283,6 +286,15 @@ namespace Voxel {
 		m_rootSize(-1),
 		m_rootPosition(0)
 	{
+	}
+
+	// ********************************************************************* //
+	template<typename T, typename Listener>
+	void SparseVoxelOctree<T, Listener>::operator=(SparseVoxelOctree<T, Listener>&& _oth)
+	{
+//		m_rootPosition = _oth.m_rootPosition;
+//		m_rootSize = _oth.m_rootSize;
+
 	}
 
 	// ********************************************************************* //

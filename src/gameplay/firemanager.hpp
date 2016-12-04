@@ -3,13 +3,13 @@
 
 struct FireRayInfo
 {
-	FireRayInfo(const Math::WorldRay& _ray, float _dam) :
+	FireRayInfo(const Math::WorldRay& _ray, int _damage) :
 		ray(_ray),
-		damage(_dam)
+		damage(_damage)
 	{}
 	Math::WorldRay ray;
 
-	float damage;
+	int damage;
 };
 
 class FireManager

@@ -60,7 +60,7 @@ namespace Mechanics {
 					wRay.origin.y += Math::Fix(ray.origin.y);
 					wRay.origin.z += Math::Fix(ray.origin.z);
 					wRay.direction = ray.direction;
-					float d = g_fireManager->FireRay(FireRayInfo(wRay, 10.f));
+					float d = g_fireManager->FireRay(FireRayInfo(wRay, weapon.damage));
 
 					m_particles.AddParticle(basePos, //position
 						ray.direction * c_projVel,// velocity
@@ -91,13 +91,13 @@ namespace Mechanics {
 	{
 		WeaponInformation weapon;
 		weapon.position = _position + 0.5f - m_ship.GetCenter();
-		weapon.position.z += 1.f; // begin of the firing is outside of the voxel
+		weapon.position.z += 1.f; // begin firing outside of the voxel
 
 		weapon.cooldown = 0.f;
 		weapon.cooldownBase = 2.f;
 
 		//100% efficiency
-		weapon.damage = 10;
+		weapon.damage = 200;
 		weapon.cost = 10.f;
 
 		m_weapons.push_back(weapon);

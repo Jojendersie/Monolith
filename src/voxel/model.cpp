@@ -126,7 +126,18 @@ namespace Voxel {
 		return ComponentType::UNDEFINED;
 	}
 
+	// ********************************************************************* //
+	void Model::Damage(const ei::IVec3& _position, uint32_t _damage)
+	{
+		Voxel& voxel = m_voxelTree.Get(_position, 0)->Data();
 
+		if (_damage >= voxel.health)
+		{
+			Set(_position, ComponentType::UNDEFINED);
+			m_hasTakenDamage = true;
+		}
+		voxel.health -= _damage;
+	}
 
 	// ********************************************************************* //
 	Mat4x4& Model::GetModelMatrix( Mat4x4& _out, const Math::Transformation& _reference ) const
@@ -537,5 +548,189 @@ namespace Voxel {
 		m_voxelTree.TraverseEx(proc);
 		m_objectBBmin = proc.bbmin;
 		m_objectBBmax = proc.bbmax;
+	}
+
+	// ********************************************************************* //
+	struct ComputeFlatArray : public Model::ModelData::SVOProcessor
+	{
+		struct VoxelMark
+		{
+			bool exists;
+			bool mark;
+			const Voxel* voxel;
+		};
+
+		ComputeFlatArray()
+		{
+		}
+
+		inline int calculateIndex(IVec3 _pos)
+		{
+			_pos += offset;
+			return _pos.x + _pos.y * size + _pos.z * sizeSqr;
+		}
+
+		void flattenTree(const Model::ModelData& _tree)
+		{
+			size = 2 << _tree.GetRootSize();
+			sizeSqr = size * size;
+
+			//rootPosition = _tree.GetRootPosition();
+			offset.x = size / 2;
+			offset.y = size / 2;
+			offset.z = size / 2;
+			IVec3 root = _tree.GetRootPosition() << _tree.GetRootSize();
+			offset -= root;
+
+			m_voxelMarks.resize(sizeSqr * size);
+
+			memset(&m_voxelMarks[0], 0, m_voxelMarks.size() * sizeof(VoxelMark));
+
+			voxelCount = 0;
+			_tree.Traverse(*this);
+		}
+
+		bool extractModel(std::function<void(const IVec3& _pos, VoxelMark& _mark)> _action)
+		{
+			// try to begin with the main computer in case of a ship
+			// because the first model found remains
+			int begin = calculateIndex(IVec3(2012,2012,2012));
+			// computer is gone or this is not a ship
+			if (begin >= (int)m_voxelMarks.size() || !m_voxelMarks[begin].exists)
+			{
+				begin = -1;
+				for (int i = 0; i < (int)m_voxelMarks.size(); ++i)
+					if (m_voxelMarks[i].exists)
+					{
+						begin = i;
+						break;
+					}
+			}
+			//whole model is gone
+			if (begin == -1) return false; 
+
+			voxelCount = 0;
+			std::vector<int> stack;
+			stack.push_back(begin);
+
+			do{
+				int vox = stack.back(); 
+				stack.pop_back();
+				//check whether the voxel is within the boundaries
+				//todo: try bigger array instead
+				if (vox < 0 || vox >= m_voxelMarks.size() || !m_voxelMarks[vox].exists) continue;
+
+				//push neighbors
+				stack.push_back(vox + 1);
+				stack.push_back(vox - 1);
+				stack.push_back(vox + size);
+				stack.push_back(vox - size);
+				stack.push_back(vox + sizeSqr);
+				stack.push_back(vox - sizeSqr);
+
+				IVec3 pos; int ind = vox;
+				pos.x = ind % size; ind /= size;
+				pos.y = ind % size; ind /= size;
+				pos.z = ind % size;
+
+				++voxelCount;
+				_action(pos, m_voxelMarks[vox]);
+			//	model->Set(pos, *m_voxelMarks[vox].voxel);
+				m_voxelMarks[vox].exists = false;
+			} while (stack.size());
+
+			return true;
+		}
+
+		bool PreTraversal(const ei::IVec4& _position, const Model::ModelData::SVON* _node)	
+		{
+			if (!_position[3])
+			{
+				// transform to local system
+				IVec3 pos(_position);
+				int ind = calculateIndex(pos);
+				m_voxelMarks[ind].exists = true;
+				m_voxelMarks[ind].voxel = &_node->Data();
+
+				return false;
+			}
+			return true;
+		}
+
+		int size; // size in every direction
+		int sizeSqr;
+
+		int voxelCount;
+		IVec3 offset;
+		std::vector<VoxelMark> m_voxelMarks;
+
+	};
+
+	// ********************************************************************* //
+	std::vector<Model*> Model::UpdateCohesion()
+	{
+		static ComputeFlatArray flatVoxels;
+		std::vector<Model*> models;
+
+		if (!m_hasTakenDamage) return models;
+		m_hasTakenDamage = false;
+
+		Vec3 center = m_center;
+		flatVoxels.flattenTree(m_voxelTree);
+		// main part
+		flatVoxels.extractModel([&](const IVec3& _pos, ComputeFlatArray::VoxelMark& _mark)
+		{
+		});
+
+		//the model is still fully connected
+		if (flatVoxels.voxelCount >= m_numVoxels) return models;
+
+		Model* model;
+		//extract other parts
+		while(true){
+			model = new Model();
+
+			bool ret = flatVoxels.extractModel([&](const IVec3& _pos, ComputeFlatArray::VoxelMark& _mark)
+			{
+				model->Set(_pos - flatVoxels.offset, *_mark.voxel);
+				this->Set(_pos - flatVoxels.offset, ComponentType::UNDEFINED);
+			});
+
+			if (!ret)
+			{
+				delete model;
+				break;
+			}
+			models.push_back(model);
+		}
+
+		//the main model needs a physics update aswell
+		models.push_back(this);
+		for (auto mod : models)
+		{
+			// the center of mass changes but position in the world should not
+			Vec3 shift = mod->m_center - center;
+			mod->SetPosition(m_position);
+			mod->Translate(m_rotationMatrix * shift);
+			mod->SetRotation(m_rotation);
+			// calculate movement of the pieces
+			AddVelocity(cross(GetAngularVelocity(), shift));
+			//simulate some explosion in the center of mass
+			AddVelocity(m_rotationMatrix * shift * 0.3f);
+			// this is not correct
+			mod->m_angularVelocity = Vec3(0.f);
+		}
+		models.pop_back();
+
+	/*	if (model)
+		{
+			ModelData::SVON& svon = *m_voxelTree.Get(m_voxelTree.GetRootPosition(), m_voxelTree.GetRootSize());
+			const ModelData::SVON& svonOth = *model->GetVoxelTree().Get(model->GetVoxelTree().GetRootPosition(), model->GetVoxelTree().GetRootSize());
+			svon = svonOth;
+
+			delete model;
+		}*/
+
+		return std::move(models);
 	}
 };

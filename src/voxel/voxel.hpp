@@ -295,6 +295,7 @@ namespace Voxel {
 		/// \brief Construct a component with a defined type and undefined material
 		Voxel(ComponentType _type) :
 			material( TypeInfo::GetMaterial(_type) ),
+			health(64),
 			type( _type ),
 			dirty( 1 ),
 			inner( TypeInfo::IsInner(_type) ? 1 : 0 ),

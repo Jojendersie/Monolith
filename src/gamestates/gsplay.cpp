@@ -92,7 +92,7 @@ void GSPlay::OnBegin()
 		collTest01->Rotate(0.f, 0.5f*PI, 0.0f*PI);
 		collTest01->AddVelocity(Vec3(0.f, 2.f, 0.f));
 		collTest02->Load(Jo::Files::HDDFile("savegames/collision01.vmo"));
-	//	collTest02->Rotate(0.25f*PI, 0.0f*PI, 1.0f*PI);
+		collTest02->Rotate(0.25f*PI, 0.0f*PI, 1.0f*PI);
 		
 		//test case 2: rotation into rotation
 	/*	collTest01->Load(Jo::Files::HDDFile("savegames/collision02.vmo"));
@@ -216,8 +216,8 @@ void GSPlay::Render( double _deltaTime )
 	
 	//update hud information
 	m_hud->m_dbgLabel->SetText("<s 024>" + std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(RenderStat::g_numVoxels) + "\n#Chunks: " + std::to_string(RenderStat::g_numChunks)+"</s>");
-	m_hud->m_velocityLabel->SetText(StringUtils::ToFixPoint(len(m_player->GetShip()->GetVelocity()), 1) + "m/s");
-	m_hud->m_targetVelocityLabel->SetText(StringUtils::ToFixPoint(len(m_player->GetShip()->GetTargetVelocity()), 1) + "m/s");
+//	m_hud->m_velocityLabel->SetText(StringUtils::ToFixPoint(len(m_player->GetShip()->GetVelocity()), 1) + "m/s");
+//	m_hud->m_targetVelocityLabel->SetText(StringUtils::ToFixPoint(len(m_player->GetShip()->GetTargetVelocity()), 1) + "m/s");
 	m_hud->Draw( _deltaTime );
 }
 

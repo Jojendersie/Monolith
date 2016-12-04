@@ -48,6 +48,9 @@ namespace Voxel {
 		///		approximating LOD (majority) of the children.
 		ComponentType Get( const ei::IVec3& _position ) const;
 
+		/// \brief Damages the voxel at the specified position.
+		void Damage(const ei::IVec3& _position, uint32_t _damage);
+
 		int GetNumVoxels() const { return m_numVoxels; }
 
 		/// \brief Get the position of the center in world space
@@ -89,6 +92,8 @@ namespace Voxel {
 		///		0 denotes the highest detail 2^0.
 		///	\param [in] _oldType The type of the voxel which was before.
 		void Update( const ei::IVec4& _position, const Voxel& _oldType, const Voxel& _newType );
+
+		std::vector<Model*> UpdateCohesion();
 
 		/// Recompute the bounding box in world space (O(1)).
 		virtual void UpdateBoundingBox() override;
@@ -145,7 +150,8 @@ namespace Voxel {
 		void ComputeBoundingBox();		///< Recompute the bounding box of the model in object space
 
 		ModelData m_voxelTree;
-		
+		bool m_hasTakenDamage;			///< Has taken damage since the last model check was done.
+
 		/// \brief  Decide for one voxel if it has the correct detail level and
 		///		is visible (culling).
 		/// \details If the voxel is drawn the traversal is stopped and a chunk

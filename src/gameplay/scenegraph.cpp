@@ -144,8 +144,12 @@ void SceneGraph::Simulate(float _deltaTime)
 		for (int j = i + 1; j < xReadAccess.size(); ++j)
 			collisionCheck.Run(*(static_cast<Voxel::Model*>(&xReadAccess[i])), *(static_cast<Voxel::Model*>(&xReadAccess[j])));
 
-	for(int i = 0; i < xReadAccess.size(); ++i)
+	for (int i = 0; i < xReadAccess.size(); ++i){
 		xReadAccess[i]->Simulate(_deltaTime);
+		auto models = static_cast<Voxel::Model*>(&xReadAccess[i])->UpdateCohesion();
+		for (auto& model : models)
+			AddObject(model);
+	}
 }
 
 // ************************************************************************* //
