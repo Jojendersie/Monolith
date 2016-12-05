@@ -6,6 +6,10 @@
 #include "graphic/content.hpp"
 #include "exceptions.hpp"
 
+//test
+//#include "../timer.hpp"
+//#include <iostream>
+
 using namespace ei;
 using namespace Math;
 
@@ -555,8 +559,7 @@ namespace Voxel {
 	{
 		struct VoxelMark
 		{
-			bool exists;
-			bool mark;
+			IVec3 position;
 			const Voxel* voxel;
 		};
 
@@ -564,79 +567,55 @@ namespace Voxel {
 		{
 		}
 
-		inline int calculateIndex(IVec3 _pos)
-		{
-			_pos += offset;
-			return _pos.x + _pos.y * size + _pos.z * sizeSqr;
-		}
-
-		void flattenTree(const Model::ModelData& _tree)
+		void flattenTree(const Model::ModelData& _tree, int _voxelCount)
 		{
 			size = 2 << _tree.GetRootSize();
 			sizeSqr = size * size;
 
-			//rootPosition = _tree.GetRootPosition();
-			offset.x = size / 2;
-			offset.y = size / 2;
-			offset.z = size / 2;
-			IVec3 root = _tree.GetRootPosition() << _tree.GetRootSize();
-			offset -= root;
-
-			m_voxelMarks.resize(sizeSqr * size);
-
-			memset(&m_voxelMarks[0], 0, m_voxelMarks.size() * sizeof(VoxelMark));
+			m_voxelMarks.reserve(_voxelCount);
 
 			voxelCount = 0;
 			_tree.Traverse(*this);
 		}
 
-		bool extractModel(std::function<void(const IVec3& _pos, VoxelMark& _mark)> _action)
+		bool extractModel(std::function<void(VoxelMark& _mark)> _action)
 		{
 			// try to begin with the main computer in case of a ship
 			// because the first model found remains
-			int begin = calculateIndex(IVec3(2012,2012,2012));
+			auto it = m_voxelMarks.find(IVec3(2012, 2012, 2012));
 			// computer is gone or this is not a ship
-			if (begin >= (int)m_voxelMarks.size() || !m_voxelMarks[begin].exists)
+			if (it == m_voxelMarks.end())
 			{
-				begin = -1;
-				for (int i = 0; i < (int)m_voxelMarks.size(); ++i)
-					if (m_voxelMarks[i].exists)
-					{
-						begin = i;
-						break;
-					}
+				it = m_voxelMarks.begin();
 			}
 			//whole model is gone
-			if (begin == -1) return false; 
+			if (it == m_voxelMarks.end()) return false; 
 
 			voxelCount = 0;
-			std::vector<int> stack;
-			stack.push_back(begin);
+			std::vector<VoxelMark> stack;
+			stack.reserve(100);
+			stack.push_back(it->second);
 
 			do{
-				int vox = stack.back(); 
+				auto vox = stack.back(); 
 				stack.pop_back();
-				//check whether the voxel is within the boundaries
-				//todo: try bigger array instead
-				if (vox < 0 || vox >= m_voxelMarks.size() || !m_voxelMarks[vox].exists) continue;
-
+				
 				//push neighbors
-				stack.push_back(vox + 1);
-				stack.push_back(vox - 1);
-				stack.push_back(vox + size);
-				stack.push_back(vox - size);
-				stack.push_back(vox + sizeSqr);
-				stack.push_back(vox - sizeSqr);
-
-				IVec3 pos; int ind = vox;
-				pos.x = ind % size; ind /= size;
-				pos.y = ind % size; ind /= size;
-				pos.z = ind % size;
+				it = m_voxelMarks.find(vox.position + IVec3(1, 0, 0));
+				if (it != m_voxelMarks.end()){ stack.push_back(it->second); m_voxelMarks.erase(it); }
+				it = m_voxelMarks.find(vox.position + IVec3(-1, 0, 0));
+				if (it != m_voxelMarks.end()){ stack.push_back(it->second); m_voxelMarks.erase(it); }
+				it = m_voxelMarks.find(vox.position + IVec3(0, 1, 0));
+				if (it != m_voxelMarks.end()){ stack.push_back(it->second); m_voxelMarks.erase(it); }
+				it = m_voxelMarks.find(vox.position + IVec3(0, -1, 0));
+				if (it != m_voxelMarks.end()){ stack.push_back(it->second); m_voxelMarks.erase(it); }
+				it = m_voxelMarks.find(vox.position + IVec3(0, 0, 1));
+				if (it != m_voxelMarks.end()){ stack.push_back(it->second); m_voxelMarks.erase(it); }
+				it = m_voxelMarks.find(vox.position + IVec3(0, 0, -1));
+				if (it != m_voxelMarks.end()){ stack.push_back(it->second); m_voxelMarks.erase(it); }
 
 				++voxelCount;
-				_action(pos, m_voxelMarks[vox]);
-			//	model->Set(pos, *m_voxelMarks[vox].voxel);
-				m_voxelMarks[vox].exists = false;
+				_action(vox);
 			} while (stack.size());
 
 			return true;
@@ -648,11 +627,9 @@ namespace Voxel {
 			{
 				// transform to local system
 				IVec3 pos(_position);
-				int ind = calculateIndex(pos);
-				m_voxelMarks[ind].exists = true;
-				m_voxelMarks[ind].voxel = &_node->Data();
-
-				return false;
+		//		int ind = calculateIndex(pos);
+				m_voxelMarks[pos].position = pos;
+				m_voxelMarks[pos].voxel = &_node->Data();
 			}
 			return true;
 		}
@@ -662,7 +639,8 @@ namespace Voxel {
 
 		int voxelCount;
 		IVec3 offset;
-		std::vector<VoxelMark> m_voxelMarks;
+//		std::vector<VoxelMark> m_voxelMarks;
+		std::unordered_map<IVec3, VoxelMark> m_voxelMarks;
 
 	};
 
@@ -671,16 +649,19 @@ namespace Voxel {
 	{
 		static ComputeFlatArray flatVoxels;
 		std::vector<Model*> models;
+	//	TimeQuerySlot slot = 42;
 
 		if (!m_hasTakenDamage) return models;
 		m_hasTakenDamage = false;
-
+	//	TimeQuery(slot);
 		Vec3 center = m_center;
-		flatVoxels.flattenTree(m_voxelTree);
+		flatVoxels.flattenTree(m_voxelTree, m_numVoxels);
+
 		// main part
-		flatVoxels.extractModel([&](const IVec3& _pos, ComputeFlatArray::VoxelMark& _mark)
+		flatVoxels.extractModel([&](ComputeFlatArray::VoxelMark& _mark)
 		{
 		});
+	//	std::cout << "flatten + main: " << TimeQuery(slot) << std::endl;
 
 		//the model is still fully connected
 		if (flatVoxels.voxelCount >= m_numVoxels) return models;
@@ -690,10 +671,10 @@ namespace Voxel {
 		while(true){
 			model = new Model();
 
-			bool ret = flatVoxels.extractModel([&](const IVec3& _pos, ComputeFlatArray::VoxelMark& _mark)
+			bool ret = flatVoxels.extractModel([&](ComputeFlatArray::VoxelMark& _mark)
 			{
-				model->Set(_pos - flatVoxels.offset, *_mark.voxel);
-				this->Set(_pos - flatVoxels.offset, ComponentType::UNDEFINED);
+				model->Set(_mark.position, *_mark.voxel);
+				this->Set(_mark.position, ComponentType::UNDEFINED);
 			});
 
 			if (!ret)
@@ -704,7 +685,7 @@ namespace Voxel {
 			models.push_back(model);
 		}
 
-		//the main model needs a physics update aswell
+		//the main model needs a physics update as well
 		models.push_back(this);
 		for (auto mod : models)
 		{
@@ -721,7 +702,7 @@ namespace Voxel {
 			mod->m_angularVelocity = Vec3(0.f);
 		}
 		models.pop_back();
-
+	//	std::cout << "other + phys: " << TimeQuery(slot) << std::endl;
 	/*	if (model)
 		{
 			ModelData::SVON& svon = *m_voxelTree.Get(m_voxelTree.GetRootPosition(), m_voxelTree.GetRootSize());
