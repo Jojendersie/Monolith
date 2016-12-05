@@ -7,8 +7,8 @@
 #include "exceptions.hpp"
 
 //test
-//#include "../timer.hpp"
-//#include <iostream>
+#include "../timer.hpp"
+#include <iostream>
 
 using namespace ei;
 using namespace Math;
@@ -559,6 +559,8 @@ namespace Voxel {
 	{
 		struct VoxelMark
 		{
+			VoxelMark(const IVec3& _pos, const Voxel* _vox)
+				: position(_pos), voxel(_vox){}
 			IVec3 position;
 			const Voxel* voxel;
 		};
@@ -569,16 +571,15 @@ namespace Voxel {
 
 		void flattenTree(const Model::ModelData& _tree, int _voxelCount)
 		{
-			size = 2 << _tree.GetRootSize();
-			sizeSqr = size * size;
-
 			m_voxelMarks.reserve(_voxelCount);
 
 			voxelCount = 0;
 			_tree.Traverse(*this);
+
+			int loadfactor = m_voxelMarks.load_factor();
 		}
 
-		bool extractModel(std::function<void(VoxelMark& _mark)> _action)
+		bool extractModel(std::function<void(const VoxelMark& _mark)> _action)
 		{
 			// try to begin with the main computer in case of a ship
 			// because the first model found remains
@@ -594,7 +595,7 @@ namespace Voxel {
 			voxelCount = 0;
 			std::vector<VoxelMark> stack;
 			stack.reserve(100);
-			stack.push_back(it->second);
+			stack.emplace_back(it->first, it->second);
 
 			do{
 				auto vox = stack.back(); 
@@ -602,17 +603,17 @@ namespace Voxel {
 				
 				//push neighbors
 				it = m_voxelMarks.find(vox.position + IVec3(1, 0, 0));
-				if (it != m_voxelMarks.end()){ stack.push_back(it->second); m_voxelMarks.erase(it); }
+				if (it != m_voxelMarks.end()){ stack.emplace_back(it->first, it->second); m_voxelMarks.erase(it); }
 				it = m_voxelMarks.find(vox.position + IVec3(-1, 0, 0));
-				if (it != m_voxelMarks.end()){ stack.push_back(it->second); m_voxelMarks.erase(it); }
+				if (it != m_voxelMarks.end()){ stack.emplace_back(it->first, it->second); m_voxelMarks.erase(it); }
 				it = m_voxelMarks.find(vox.position + IVec3(0, 1, 0));
-				if (it != m_voxelMarks.end()){ stack.push_back(it->second); m_voxelMarks.erase(it); }
+				if (it != m_voxelMarks.end()){ stack.emplace_back(it->first, it->second); m_voxelMarks.erase(it); }
 				it = m_voxelMarks.find(vox.position + IVec3(0, -1, 0));
-				if (it != m_voxelMarks.end()){ stack.push_back(it->second); m_voxelMarks.erase(it); }
+				if (it != m_voxelMarks.end()){ stack.emplace_back(it->first, it->second); m_voxelMarks.erase(it); }
 				it = m_voxelMarks.find(vox.position + IVec3(0, 0, 1));
-				if (it != m_voxelMarks.end()){ stack.push_back(it->second); m_voxelMarks.erase(it); }
+				if (it != m_voxelMarks.end()){ stack.emplace_back(it->first, it->second); m_voxelMarks.erase(it); }
 				it = m_voxelMarks.find(vox.position + IVec3(0, 0, -1));
-				if (it != m_voxelMarks.end()){ stack.push_back(it->second); m_voxelMarks.erase(it); }
+				if (it != m_voxelMarks.end()){ stack.emplace_back(it->first, it->second); m_voxelMarks.erase(it); }
 
 				++voxelCount;
 				_action(vox);
@@ -625,22 +626,15 @@ namespace Voxel {
 		{
 			if (!_position[3])
 			{
-				// transform to local system
-				IVec3 pos(_position);
-		//		int ind = calculateIndex(pos);
-				m_voxelMarks[pos].position = pos;
-				m_voxelMarks[pos].voxel = &_node->Data();
+				m_voxelMarks.emplace(IVec3(_position), &_node->Data());
 			}
 			return true;
 		}
 
-		int size; // size in every direction
-		int sizeSqr;
-
 		int voxelCount;
 		IVec3 offset;
-//		std::vector<VoxelMark> m_voxelMarks;
-		std::unordered_map<IVec3, VoxelMark> m_voxelMarks;
+
+		std::unordered_map<IVec3, const Voxel*> m_voxelMarks;
 
 	};
 
@@ -649,16 +643,16 @@ namespace Voxel {
 	{
 		static ComputeFlatArray flatVoxels;
 		std::vector<Model*> models;
-	//	TimeQuerySlot slot = 42;
+		TimeQuerySlot slot = 42;
 
 		if (!m_hasTakenDamage) return models;
 		m_hasTakenDamage = false;
-	//	TimeQuery(slot);
+		TimeQuery(slot);
 		Vec3 center = m_center;
 		flatVoxels.flattenTree(m_voxelTree, m_numVoxels);
 
 		// main part
-		flatVoxels.extractModel([&](ComputeFlatArray::VoxelMark& _mark)
+		flatVoxels.extractModel([&](const ComputeFlatArray::VoxelMark& _mark)
 		{
 		});
 	//	std::cout << "flatten + main: " << TimeQuery(slot) << std::endl;
@@ -671,7 +665,7 @@ namespace Voxel {
 		while(true){
 			model = new Model();
 
-			bool ret = flatVoxels.extractModel([&](ComputeFlatArray::VoxelMark& _mark)
+			bool ret = flatVoxels.extractModel([&](const ComputeFlatArray::VoxelMark& _mark)
 			{
 				model->Set(_mark.position, *_mark.voxel);
 				this->Set(_mark.position, ComponentType::UNDEFINED);
