@@ -575,8 +575,6 @@ namespace Voxel {
 
 			voxelCount = 0;
 			_tree.Traverse(*this);
-
-			int loadfactor = m_voxelMarks.load_factor();
 		}
 
 		bool extractModel(std::function<void(const VoxelMark& _mark)> _action)
@@ -596,6 +594,7 @@ namespace Voxel {
 			std::vector<VoxelMark> stack;
 			stack.reserve(100);
 			stack.emplace_back(it->first, it->second);
+			m_voxelMarks.erase(it);
 
 			do{
 				auto vox = stack.back(); 
@@ -658,7 +657,7 @@ namespace Voxel {
 	//	std::cout << "flatten + main: " << TimeQuery(slot) << std::endl;
 
 		//the model is still fully connected
-		if (flatVoxels.voxelCount >= m_numVoxels) return models;
+		if (flatVoxels.voxelCount == m_numVoxels) return models;
 
 		Model* model;
 		//extract other parts
@@ -690,10 +689,14 @@ namespace Voxel {
 			mod->SetRotation(m_rotation);
 			// calculate movement of the pieces
 			AddVelocity(cross(GetAngularVelocity(), shift));
-			//simulate some explosion in the center of mass
+			//simulate some explosion in the center of mass, only to make some visible change
 			AddVelocity(m_rotationMatrix * shift * 0.3f);
-			// this is not correct
-			mod->m_angularVelocity = Vec3(0.f);
+			// this is probably not correct
+			// 
+			float angle = acos( ei::dot(m_angularVelocity, shift) / (len(m_angularVelocity) * len(shift)) );
+			angle /= PI * 0.5f;
+			angle = angle < 1.f ? 1.f - angle : (angle - floor(angle));
+			mod->m_angularVelocity = m_angularVelocity * angle;
 		}
 		models.pop_back();
 	//	std::cout << "other + phys: " << TimeQuery(slot) << std::endl;
