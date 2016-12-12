@@ -93,6 +93,8 @@ namespace Voxel {
 		///	\param [in] _oldType The type of the voxel which was before.
 		void Update( const ei::IVec4& _position, const Voxel& _oldType, const Voxel& _newType );
 
+		void UpdateInertialTensor();
+
 		std::vector<Model*> UpdateCohesion();
 
 		/// Recompute the bounding box in world space (O(1)).

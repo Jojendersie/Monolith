@@ -163,8 +163,8 @@ void GSPlay::OnEnd()
 void GSPlay::Simulate( double _deltaTime )
 {
 	m_scene.Simulate((float)_deltaTime);
-	m_scene.UpdateGraph();
 	m_fireManager.Process((float)_deltaTime);
+	m_scene.UpdateGraph();
 	m_player->Process( (float)_deltaTime );
 	aiTest01->Process((float)_deltaTime);
 
@@ -216,8 +216,8 @@ void GSPlay::Render( double _deltaTime )
 	
 	//update hud information
 	m_hud->m_dbgLabel->SetText("<s 024>" + std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(RenderStat::g_numVoxels) + "\n#Chunks: " + std::to_string(RenderStat::g_numChunks)+"</s>");
-//	m_hud->m_velocityLabel->SetText(StringUtils::ToFixPoint(len(m_player->GetShip()->GetVelocity()), 1) + "m/s");
-//	m_hud->m_targetVelocityLabel->SetText(StringUtils::ToFixPoint(len(m_player->GetShip()->GetTargetVelocity()), 1) + "m/s");
+	m_hud->m_velocityLabel->SetText(StringUtils::ToFixPoint(len(m_player->GetShip()->GetVelocity()), 1) + "m/s");
+	m_hud->m_targetVelocityLabel->SetText(StringUtils::ToFixPoint(len(m_player->GetShip()->GetTargetVelocity()), 1) + "m/s");
 	m_hud->Draw( _deltaTime );
 }
 

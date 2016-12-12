@@ -27,7 +27,8 @@ namespace Voxel {
 		m_boundingSphereRadius(0.0f),
 		m_voxelTree(this),
 		m_chunks(),
-		m_rotateVelocity(false)
+		m_rotateVelocity(false),
+		m_angularVelocity(0.f)
 	{
 		auto x = IVec3(3) * 0.5f;
 	}
@@ -181,6 +182,7 @@ namespace Voxel {
 			m_center = (m_center * m_mass - center * oldMass) / (m_mass - oldMass);
 			m_mass -= oldMass;
 			m_numVoxels -= volume;
+		//	Assert(m_numVoxels >= 0, "Yeah!");
 
 			// Update inertia helper variables
 			m_inertiaX_Y_Z += oldMass * center;
@@ -212,6 +214,14 @@ namespace Voxel {
 			m_inertiaXYR_XZR_YZR[2] += newMass * (centerSq[1] + centerSq[2] + voxelSurface);
 		}
 
+		// TEMP: approximate a sphere; TODO Grow and shrink a real bounding volume
+		// TODO remove Math::Vector if replaced by template
+		m_boundingSphereRadius = max(m_boundingSphereRadius, 0.7f + len(Vec3(m_center) - Vec3(_position)) );
+	}
+
+	// ********************************************************************* //
+	void Model::UpdateInertialTensor()
+	{
 		Vec3 xxm_yym_zzm = m_center * m_center * m_mass;
 		Vec3 xym_xzm_yzm(m_center[0] * m_center[1] * m_mass,
 			m_center[0] * m_center[2] * m_mass,
@@ -223,16 +233,12 @@ namespace Voxel {
 		float I22 = xxm_yym_zzm[0] + xxm_yym_zzm[2] + m_inertiaXYR_XZR_YZR[1];
 		float I33 = xxm_yym_zzm[0] + xxm_yym_zzm[1] + m_inertiaXYR_XZR_YZR[0];
 
-		float I12 = -xym_xzm_yzm[0] + m_center[0]*m_inertiaX_Y_Z[1] + m_center[1]*m_inertiaX_Y_Z[0] - m_inertiaXY_XZ_YZ[0];
-		float I13 = -xym_xzm_yzm[1] + m_center[0]*m_inertiaX_Y_Z[2] + m_center[2]*m_inertiaX_Y_Z[0] - m_inertiaXY_XZ_YZ[1];
-		float I23 = -xym_xzm_yzm[2] + m_center[1]*m_inertiaX_Y_Z[2] + m_center[2]*m_inertiaX_Y_Z[1] - m_inertiaXY_XZ_YZ[2];
+		float I12 = -xym_xzm_yzm[0] + m_center[0] * m_inertiaX_Y_Z[1] + m_center[1] * m_inertiaX_Y_Z[0] - m_inertiaXY_XZ_YZ[0];
+		float I13 = -xym_xzm_yzm[1] + m_center[0] * m_inertiaX_Y_Z[2] + m_center[2] * m_inertiaX_Y_Z[0] - m_inertiaXY_XZ_YZ[1];
+		float I23 = -xym_xzm_yzm[2] + m_center[1] * m_inertiaX_Y_Z[2] + m_center[2] * m_inertiaX_Y_Z[1] - m_inertiaXY_XZ_YZ[2];
 
-		m_inertiaTensor = Mat3x3(I11,I12,I13,I12,I22,I23,I13,I23,I33);
+		m_inertiaTensor = Mat3x3(I11, I12, I13, I12, I22, I23, I13, I23, I33);
 		m_inertiaTensorInverse = invert(m_inertiaTensor);
-
-		// TEMP: approximate a sphere; TODO Grow and shrink a real bounding volume
-		// TODO remove Math::Vector if replaced by template
-		m_boundingSphereRadius = max(m_boundingSphereRadius, 0.7f + len(Vec3(m_center) - Vec3(_position)) );
 	}
 
 	// ********************************************************************* //
@@ -417,6 +423,7 @@ namespace Voxel {
 			_file.Read( 1, &chunkType );
 		}
 
+		UpdateInertialTensor();
 		ComputeBoundingBox();
 	}
 	
@@ -588,11 +595,14 @@ namespace Voxel {
 				it = m_voxelMarks.begin();
 			}
 			//whole model is gone
-			if (it == m_voxelMarks.end()) return false; 
+			if (it != m_voxelMarks.end() && it->second->type == ComponentType::UNDEFINED)
+				int brk = 123;
+			if (it == m_voxelMarks.end() || it->second->type == ComponentType::UNDEFINED) return false;
 
 			voxelCount = 0;
-			std::vector<VoxelMark> stack;
+			static std::vector<VoxelMark> stack;
 			stack.reserve(100);
+
 			stack.emplace_back(it->first, it->second);
 			m_voxelMarks.erase(it);
 
@@ -643,21 +653,31 @@ namespace Voxel {
 		static ComputeFlatArray flatVoxels;
 		std::vector<Model*> models;
 		TimeQuerySlot slot = 42;
+		Vec3 center = m_center; // store old center before any changes happen
 
 		if (!m_hasTakenDamage) return models;
 		m_hasTakenDamage = false;
+
 		TimeQuery(slot);
-		Vec3 center = m_center;
+		if (m_numVoxels <= 0)
+		{
+			Delete();
+			return models;
+		}
+
 		flatVoxels.flattenTree(m_voxelTree, m_numVoxels);
 
 		// main part
-		flatVoxels.extractModel([&](const ComputeFlatArray::VoxelMark& _mark)
-		{
-		});
+		flatVoxels.extractModel([&](const ComputeFlatArray::VoxelMark& _mark){});
+
 	//	std::cout << "flatten + main: " << TimeQuery(slot) << std::endl;
 
 		//the model is still fully connected
-		if (flatVoxels.voxelCount == m_numVoxels) return models;
+		if (flatVoxels.voxelCount == m_numVoxels)
+		{
+			UpdateInertialTensor();
+			return models;
+		}
 
 		Model* model;
 		//extract other parts
@@ -678,10 +698,12 @@ namespace Voxel {
 			models.push_back(model);
 		}
 
+		float angularVelLen = len(m_angularVelocity);
 		//the main model needs a physics update as well
 		models.push_back(this);
 		for (auto mod : models)
 		{
+			mod->UpdateInertialTensor();
 			// the center of mass changes but position in the world should not
 			Vec3 shift = mod->m_center - center;
 			mod->SetPosition(m_position);
@@ -692,11 +714,16 @@ namespace Voxel {
 			//simulate some explosion in the center of mass, only to make some visible change
 			AddVelocity(m_rotationMatrix * shift * 0.3f);
 			// this is probably not correct
-			// 
-			float angle = acos( ei::dot(m_angularVelocity, shift) / (len(m_angularVelocity) * len(shift)) );
-			angle /= PI * 0.5f;
-			angle = angle < 1.f ? 1.f - angle : (angle - floor(angle));
-			mod->m_angularVelocity = m_angularVelocity * angle;
+			float l = len(shift);
+			if (angularVelLen * l != 0.f)
+			{
+				float angle = acos(ei::dot(m_angularVelocity, shift) / (angularVelLen * l));
+				angle /= PI * 0.5f;
+				angle = angle < 1.f ? 1.f - angle : (angle - floor(angle));
+				mod->m_angularVelocity = m_angularVelocity * angle;
+				Assert(angle >= 0.f, "What???");
+			}
+			else mod->m_angularVelocity = Vec3(0.f);
 		}
 		models.pop_back();
 	//	std::cout << "other + phys: " << TimeQuery(slot) << std::endl;

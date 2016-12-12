@@ -122,6 +122,13 @@ void SceneGraph::UpdateGraph()
 	Utils::ThreadSafeBuffer<SOHandle>::WriteGuard xListAccess;
 	m_xIntervalMax.GetWriteAccess(xListAccess);
 
+	for (int i = 0; i < xListAccess.buf().size(); i++)
+	{
+		auto models = static_cast<Voxel::Model*>(&xListAccess.buf()[i])->UpdateCohesion();
+		for (auto& model : models)
+			AddObject(model);
+	}
+
 	ManageObjects(xListAccess);
 
 	// Update objects them self (bounding volumes...)
@@ -146,9 +153,6 @@ void SceneGraph::Simulate(float _deltaTime)
 
 	for (int i = 0; i < xReadAccess.size(); ++i){
 		xReadAccess[i]->Simulate(_deltaTime);
-		auto models = static_cast<Voxel::Model*>(&xReadAccess[i])->UpdateCohesion();
-		for (auto& model : models)
-			AddObject(model);
 	}
 }
 
