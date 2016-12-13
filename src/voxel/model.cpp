@@ -24,6 +24,7 @@ namespace Voxel {
 		m_numVoxels(0),
 		m_mass(0.0f),
 		m_center(0.0f),
+		m_oldCenter(0.0f),
 		m_boundingSphereRadius(0.0f),
 		m_voxelTree(this),
 		m_chunks(),
@@ -236,7 +237,7 @@ namespace Voxel {
 		float I12 = -xym_xzm_yzm[0] + m_center[0] * m_inertiaX_Y_Z[1] + m_center[1] * m_inertiaX_Y_Z[0] - m_inertiaXY_XZ_YZ[0];
 		float I13 = -xym_xzm_yzm[1] + m_center[0] * m_inertiaX_Y_Z[2] + m_center[2] * m_inertiaX_Y_Z[0] - m_inertiaXY_XZ_YZ[1];
 		float I23 = -xym_xzm_yzm[2] + m_center[1] * m_inertiaX_Y_Z[2] + m_center[2] * m_inertiaX_Y_Z[1] - m_inertiaXY_XZ_YZ[2];
-
+	
 		m_inertiaTensor = Mat3x3(I11, I12, I13, I12, I22, I23, I13, I23, I33);
 		m_inertiaTensorInverse = invert(m_inertiaTensor);
 	}
@@ -424,6 +425,7 @@ namespace Voxel {
 		}
 
 		UpdateInertialTensor();
+		m_oldCenter = m_center;
 		ComputeBoundingBox();
 	}
 	
@@ -648,6 +650,13 @@ namespace Voxel {
 	};
 
 	// ********************************************************************* //
+	void Model::UpdateCenter(const ei::Vec3& _shift)
+	{
+		Translate(m_rotationMatrix * _shift);
+		m_oldCenter = m_center;
+	}
+
+	// ********************************************************************* //
 	std::vector<Model*> Model::UpdateCohesion()
 	{
 		static ComputeFlatArray flatVoxels;
@@ -672,12 +681,18 @@ namespace Voxel {
 
 	//	std::cout << "flatten + main: " << TimeQuery(slot) << std::endl;
 
+		UpdateCenter(m_center - m_oldCenter);
+		UpdateInertialTensor();
 		//the model is still fully connected
-		if (flatVoxels.voxelCount == m_numVoxels)
+		// sometimes an undefined voxel is counted too
+		if (flatVoxels.voxelCount >= m_numVoxels)
 		{
-			UpdateInertialTensor();
+			//still requires a physics update
+			
 			return models;
 		}
+		//always shift to update the changed center of mass
+		//UpdateCenter(m_center - m_oldCenter);
 
 		Model* model;
 		//extract other parts
@@ -703,16 +718,19 @@ namespace Voxel {
 		models.push_back(this);
 		for (auto mod : models)
 		{
-			mod->UpdateInertialTensor();
+			// update properties in this order
+			// UpdateInertialTensor() depends on UpdateCenter() depends on SetRotation()
+			mod->SetPosition(m_position);
+			mod->SetRotation(m_rotation);
 			// the center of mass changes but position in the world should not
 			Vec3 shift = mod->m_center - center;
-			mod->SetPosition(m_position);
-			mod->Translate(m_rotationMatrix * shift);
-			mod->SetRotation(m_rotation);
+			mod->UpdateCenter(shift);
+			mod->UpdateInertialTensor();
 			// calculate movement of the pieces
-			AddVelocity(cross(GetAngularVelocity(), shift));
+			mod->AddVelocity(cross(GetAngularVelocity(), shift));
 			//simulate some explosion in the center of mass, only to make some visible change
-			AddVelocity(m_rotationMatrix * shift * 0.3f);
+		//	mod->AddVelocity(Vec3(10.f, 0.f, 0.f));
+		//	AddVelocity(m_rotationMatrix * shift * 0.3f);
 			// this is probably not correct
 			float l = len(shift);
 			if (angularVelLen * l != 0.f)
@@ -725,16 +743,8 @@ namespace Voxel {
 			}
 			else mod->m_angularVelocity = Vec3(0.f);
 		}
-		models.pop_back();
+		models.pop_back(); // remove this again
 	//	std::cout << "other + phys: " << TimeQuery(slot) << std::endl;
-	/*	if (model)
-		{
-			ModelData::SVON& svon = *m_voxelTree.Get(m_voxelTree.GetRootPosition(), m_voxelTree.GetRootSize());
-			const ModelData::SVON& svonOth = *model->GetVoxelTree().Get(model->GetVoxelTree().GetRootPosition(), model->GetVoxelTree().GetRootSize());
-			svon = svonOth;
-
-			delete model;
-		}*/
 
 		return std::move(models);
 	}

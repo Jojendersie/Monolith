@@ -83,10 +83,11 @@ namespace Voxel {
 		ei::Mat4x4& GetModelMatrix( ei::Mat4x4& _out, const Math::Transformation& _reference ) const;
 		ei::Mat4x4& GetModelMatrix( ei::Mat4x4& _out, const Input::Camera& _reference ) const;
 
-		/// \brief Do an update of physical properties.
+		/// \brief Do an incremental update of physical properties.
 		/// \details If a voxel is deleted _newType is NONE. If a new voxel
 		///		is created _oldType is NONE. Overwrite operations define both
 		///		(deletion and creation).
+		///		Physical updates are only finished after an call to UpdateCohesion().
 		/// \param [in] _position Which voxel was exchanged? The fourth
 		///		component is the size with logarithmic scale of the voxel.
 		///		0 denotes the highest detail 2^0.
@@ -94,7 +95,10 @@ namespace Voxel {
 		void Update( const ei::IVec4& _position, const Voxel& _oldType, const Voxel& _newType );
 
 		void UpdateInertialTensor();
-
+		/// \brief Refreshes the world location after changes to the center of mass.
+		void UpdateCenter(const ei::Vec3& _shift);
+		/// \brief Checks whether an object still holds together and splits if necessary.
+		/// \details Updates the physical properties of all models.
 		std::vector<Model*> UpdateCohesion();
 
 		/// Recompute the bounding box in world space (O(1)).
@@ -128,6 +132,7 @@ namespace Voxel {
 		int m_numVoxels;				///< Count the number of voxels for statistical issues
 
 		ei::Vec3 m_center;				///< The center of gravity (relative to the model).
+		ei::Vec3 m_oldCenter;			///< The center of gravity from the last physics update.
 
 		ei::Vec3 m_angularVelocity;		///< Current change of rotation per second
 		ei::Vec3 m_velocity;			///< Velocity in m/s (vector length)
