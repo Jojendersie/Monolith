@@ -36,6 +36,7 @@ Controller* aiTest01;
 Ship* aiTestShip;
 Voxel::Model* collTest01;
 Voxel::Model* collTest02;
+Voxel::Model* splitTest;
 // ************************************************************************* //
 GSPlay::GSPlay(Monolith* _game) 
 	: IGameState(_game),
@@ -110,6 +111,11 @@ void GSPlay::OnBegin()
 		collTest02->SetPosition(FixVec3(Fix(14.0), Fix(20.0), Fix(0.0)));//7,40
 		m_scene.AddObject(collTest01);
 		m_scene.AddObject(collTest02);
+
+		splitTest = new Voxel::Model();
+		splitTest->Load(Jo::Files::HDDFile("savegames/collision02.vmo"));
+		splitTest->SetPosition(FixVec3(Fix(4.0), Fix(10.0), Fix(10.0)));
+		m_scene.AddObject(splitTest);
 
 		aiTestShip = new Ship();
 		aiTestShip->Load(Jo::Files::HDDFile("savegames/playership.vmo"));

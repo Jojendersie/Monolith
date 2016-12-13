@@ -223,7 +223,7 @@ namespace Voxel {
 	// ********************************************************************* //
 	void Model::UpdateInertialTensor()
 	{
-		Vec3 xxm_yym_zzm = m_center * m_center * m_mass;
+/*		Vec3 xxm_yym_zzm = m_center * m_center * m_mass;
 		Vec3 xym_xzm_yzm(m_center[0] * m_center[1] * m_mass,
 			m_center[0] * m_center[2] * m_mass,
 			m_center[2] * m_center[1] * m_mass);
@@ -239,7 +239,10 @@ namespace Voxel {
 		float I23 = -xym_xzm_yzm[2] + m_center[1] * m_inertiaX_Y_Z[2] + m_center[2] * m_inertiaX_Y_Z[1] - m_inertiaXY_XZ_YZ[2];
 	
 		m_inertiaTensor = Mat3x3(I11, I12, I13, I12, I22, I23, I13, I23, I33);
-		m_inertiaTensorInverse = invert(m_inertiaTensor);
+		m_inertiaTensorInverse = invert(m_inertiaTensor);*/
+
+		//incremental update does not work when changes are skipped
+		ComputeInertia();
 	}
 
 	// ********************************************************************* //
@@ -423,8 +426,8 @@ namespace Voxel {
 			}
 			_file.Read( 1, &chunkType );
 		}
-
-		UpdateInertialTensor();
+		ComputeInertia();
+	//	UpdateInertialTensor();
 		m_oldCenter = m_center;
 		ComputeBoundingBox();
 	}
@@ -681,6 +684,7 @@ namespace Voxel {
 
 	//	std::cout << "flatten + main: " << TimeQuery(slot) << std::endl;
 
+		//always shift to update the changed center of mass
 		UpdateCenter(m_center - m_oldCenter);
 		UpdateInertialTensor();
 		//the model is still fully connected
@@ -691,8 +695,6 @@ namespace Voxel {
 			
 			return models;
 		}
-		//always shift to update the changed center of mass
-		//UpdateCenter(m_center - m_oldCenter);
 
 		Model* model;
 		//extract other parts

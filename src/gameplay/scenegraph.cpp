@@ -284,7 +284,7 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 
 		Vec3 point = hitLocSlf + 0.5f*(hitLocOth - hitLocSlf);
 		Vec3 radiusSlf = hitLocSlf - m_posSlf; //point
-		Vec3 radiusOth = hitLocOth - m_posOth; //// EI-CHECK signs might be wrong
+		Vec3 radiusOth = hitLocOth - m_posOth;
 
 		Vec3 velocitySlf = m_modelSlf->GetVelocity() + cross(m_modelSlf->GetAngularVelocity(), radiusSlf);
 		Vec3 velocityOth = m_modelOth->GetVelocity() + cross(m_modelOth->GetAngularVelocity(), radiusOth);
@@ -303,8 +303,8 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 		m_modelSlf->AddVelocity(impulse / massSlf * normal);
 		m_modelOth->AddVelocity(-impulse / massOth * normal);
 
-		m_modelSlf->AddAngularVelocity(impulse*m_modelSlf->GetInertiaTensorInverse() * cross(radiusSlf, normal) * 1.f);
-		m_modelOth->AddAngularVelocity(impulse*m_modelOth->GetInertiaTensorInverse() * cross(radiusOth, normal) *-1.f);
+		m_modelSlf->AddAngularVelocity(m_modelSlf->GetInertiaTensorInverse() * cross(radiusSlf, normal) * 1.f * impulse);
+		m_modelOth->AddAngularVelocity(m_modelOth->GetInertiaTensorInverse() * cross(radiusOth, normal) *-1.f * impulse);
 
 		//trigger collision events
 		m_modelSlf->EvtCollision(*m_modelOth);
