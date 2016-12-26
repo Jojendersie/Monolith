@@ -191,6 +191,7 @@
     <ClInclude Include="dependencies\JoFileLib\include\plattform.hpp" />
     <ClInclude Include="dependencies\JoFileLib\include\poolallocator.hpp" />
     <ClInclude Include="dependencies\JoFileLib\include\streamreader.hpp" />
+    <ClInclude Include="src\algorithm\hashmap.hpp" />
     <ClInclude Include="src\algorithm\smallsort.hpp" />
     <ClInclude Include="src\exceptions.hpp" />
     <ClInclude Include="src\game.hpp" />

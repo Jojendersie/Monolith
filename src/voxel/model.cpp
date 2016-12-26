@@ -5,6 +5,7 @@
 #include "graphic/core/uniformbuffer.hpp"
 #include "graphic/content.hpp"
 #include "exceptions.hpp"
+#include "algorithm/hashmap.hpp"
 
 //test
 #include "../timer.hpp"
@@ -595,21 +596,21 @@ namespace Voxel {
 			// because the first model found remains
 			auto it = m_voxelMarks.find(IVec3(2012, 2012, 2012));
 			// computer is gone or this is not a ship
-			if (it == m_voxelMarks.end())
+			if (!it)
 			{
-				it = m_voxelMarks.begin();
+				it = m_voxelMarks.first();
 			}
 			//whole model is gone
-			if (it != m_voxelMarks.end() && it->second->type == ComponentType::UNDEFINED)
+		//	if (it != m_voxelMarks.end() && it->second->type == ComponentType::UNDEFINED)
 				int brk = 123;
-			if (it == m_voxelMarks.end() || it->second->type == ComponentType::UNDEFINED) return false;
+			if (!it || it.data()->type == ComponentType::UNDEFINED) return false;
 
 			voxelCount = 0;
 			static std::vector<VoxelMark> stack;
 			stack.reserve(100);
 
-			stack.emplace_back(it->first, it->second);
-			m_voxelMarks.erase(it);
+			stack.emplace_back(it.key(), it.data());
+			m_voxelMarks.remove(it);
 
 			do{
 				auto vox = stack.back(); 
@@ -617,17 +618,17 @@ namespace Voxel {
 				
 				//push neighbors
 				it = m_voxelMarks.find(vox.position + IVec3(1, 0, 0));
-				if (it != m_voxelMarks.end()){ stack.emplace_back(it->first, it->second); m_voxelMarks.erase(it); }
+				if (it){ stack.emplace_back(it.key(), it.data()); m_voxelMarks.remove(it); }
 				it = m_voxelMarks.find(vox.position + IVec3(-1, 0, 0));
-				if (it != m_voxelMarks.end()){ stack.emplace_back(it->first, it->second); m_voxelMarks.erase(it); }
+				if (it){ stack.emplace_back(it.key(), it.data()); m_voxelMarks.remove(it); }
 				it = m_voxelMarks.find(vox.position + IVec3(0, 1, 0));
-				if (it != m_voxelMarks.end()){ stack.emplace_back(it->first, it->second); m_voxelMarks.erase(it); }
+				if (it){ stack.emplace_back(it.key(), it.data()); m_voxelMarks.remove(it); }
 				it = m_voxelMarks.find(vox.position + IVec3(0, -1, 0));
-				if (it != m_voxelMarks.end()){ stack.emplace_back(it->first, it->second); m_voxelMarks.erase(it); }
+				if (it){ stack.emplace_back(it.key(), it.data()); m_voxelMarks.remove(it); }
 				it = m_voxelMarks.find(vox.position + IVec3(0, 0, 1));
-				if (it != m_voxelMarks.end()){ stack.emplace_back(it->first, it->second); m_voxelMarks.erase(it); }
+				if (it){ stack.emplace_back(it.key(), it.data()); m_voxelMarks.remove(it); }
 				it = m_voxelMarks.find(vox.position + IVec3(0, 0, -1));
-				if (it != m_voxelMarks.end()){ stack.emplace_back(it->first, it->second); m_voxelMarks.erase(it); }
+				if (it){ stack.emplace_back(it.key(), it.data()); m_voxelMarks.remove(it); }
 
 				++voxelCount;
 				_action(vox);
@@ -640,7 +641,8 @@ namespace Voxel {
 		{
 			if (!_position[3])
 			{
-				m_voxelMarks.emplace(IVec3(_position), &_node->Data());
+			//	m_voxelMarks.emplace(IVec3(_position), &_node->Data());
+				m_voxelMarks.add(IVec3(_position), &_node->Data());
 			}
 			return true;
 		}
@@ -648,7 +650,8 @@ namespace Voxel {
 		int voxelCount;
 		IVec3 offset;
 
-		std::unordered_map<IVec3, const Voxel*> m_voxelMarks;
+		HashMap<IVec3, const Voxel*> m_voxelMarks;
+	//	std::unordered_map<IVec3, const Voxel*> m_voxelMarks;
 
 	};
 
@@ -677,13 +680,15 @@ namespace Voxel {
 			return models;
 		}
 
+		TimeQuery(slot);
+		
 		flatVoxels.flattenTree(m_voxelTree, m_numVoxels);
 
-		// main part
+			// main part
 		flatVoxels.extractModel([&](const ComputeFlatArray::VoxelMark& _mark){});
-
-	//	std::cout << "flatten + main: " << TimeQuery(slot) << std::endl;
-
+		
+		double t = TimeQuery(slot);
+	//	std::cout << "hashmap: " << t << std::endl;
 		//always shift to update the changed center of mass
 		UpdateCenter(m_center - m_oldCenter);
 		UpdateInertialTensor();
@@ -695,18 +700,16 @@ namespace Voxel {
 			
 			return models;
 		}
-
+		
 		Model* model;
 		//extract other parts
 		while(true){
 			model = new Model();
-
 			bool ret = flatVoxels.extractModel([&](const ComputeFlatArray::VoxelMark& _mark)
 			{
 				model->Set(_mark.position, *_mark.voxel);
 				this->Set(_mark.position, ComponentType::UNDEFINED);
 			});
-
 			if (!ret)
 			{
 				delete model;
@@ -746,7 +749,6 @@ namespace Voxel {
 			else mod->m_angularVelocity = Vec3(0.f);
 		}
 		models.pop_back(); // remove this again
-	//	std::cout << "other + phys: " << TimeQuery(slot) << std::endl;
 
 		return std::move(models);
 	}

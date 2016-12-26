@@ -1,4 +1,8 @@
-type WeaponSystem {int dw}
+type WeaponSystem {
+	int dw0
+	int dw1
+	float energyDemand
+}
 
 void setFiring(WeaponSystem& _sys, int _fire) external
 

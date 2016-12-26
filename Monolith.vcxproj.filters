@@ -804,6 +804,9 @@
     <ClInclude Include="src\graphic\interface\screenoverlay.hpp">
       <Filter>Source Files\graphic\interface</Filter>
     </ClInclude>
+    <ClInclude Include="src\algorithm\hashmap.hpp">
+      <Filter>Source Files\algorithm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\voxel.ps">

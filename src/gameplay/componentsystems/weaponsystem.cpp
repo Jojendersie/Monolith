@@ -8,7 +8,7 @@ using namespace ei;
 
 namespace Mechanics {
 
-	const float c_projVel = 600.f;
+	const float c_projVel = 300.f;
 
 	WeaponSystem::WeaponSystem(Ship& _theShip, unsigned _id)
 		: ComponentSystem(_theShip, "Weapons", _id),
@@ -22,7 +22,8 @@ namespace Mechanics {
 	{
 		m_energyMaxOut = 0.f;
 
-		m_energyDemand = 0.01f;
+		//prevent division by zero
+		m_energyDemand = 0.0001f;
 		for (auto& weapon : m_weapons)
 			m_energyDemand += min(weapon.cooldown, _deltaTime / weapon.cooldownBase * weapon.cost);
 	}
@@ -62,11 +63,12 @@ namespace Mechanics {
 					wRay.direction = ray.direction;
 					float d = g_fireManager->FireRay(FireRayInfo(wRay, weapon.damage));
 
+					for (int i = 0; i < 10; ++i)
 					m_particles.AddParticle(basePos, //position
-						ray.direction * c_projVel,// velocity
+						ray.direction * c_projVel * i / 10.f,// velocity
 						d / c_projVel, //life time
 						Utils::Color8U(0.4f, 0.1f, 0.8f).RGBA(),
-						2.f);
+						1.f);
 
 					//temporary, hit feedback should be done by the model?
 					if (d != 100.f)
