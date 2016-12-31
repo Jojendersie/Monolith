@@ -24,7 +24,7 @@ void PlayerController::Possess(SOHandle _ship)
 
 	std::ofstream file("scripts/availablesystems.nrt", std::ofstream::out & std::ofstream::trunc);
 	file << "use shipfunctions" << std::endl << std::endl;
-	m_ship->GetPrimarySystem().exportSystems(file);
+	m_ship->GetPrimarySystem().ExportSystems(file);
 
 	//make sure that the module is loaded
 	NaReTi::Module* inputMod = g_scriptEngine.getModule("input");
@@ -32,7 +32,7 @@ void PlayerController::Possess(SOHandle _ship)
 	m_keyReleaseHndl = g_scriptEngine.getFuncHndl("keyRelease");
 
 	//restart systems
-	m_ship->GetPrimarySystem().flash();
+	m_ship->GetPrimarySystem().Flash();
 }
 
 void PlayerController::MouseMove(double _dx, double _dy)

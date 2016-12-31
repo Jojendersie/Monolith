@@ -13,5 +13,7 @@ namespace Graphic
 	//	m_targetVelocityLabel = &CreateLabel(Vec2(0.25f, 0.f), "");
 
 		m_mainMessageBox = &CreateMessageBox(Vec2(-0.2f, 0.8f), Vec2(0.4f, 0.2f));
+
+		m_batteryDisplay = &CreateScreenElement<FillBar>(PixelOffset(50, 100), PixelOffset(300, 30), DefinitionPoint::BotLeft, Anchor(BotLeft, this));
 	}
 }

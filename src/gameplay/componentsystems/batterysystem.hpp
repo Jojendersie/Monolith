@@ -13,7 +13,9 @@ namespace Mechanics {
 		virtual void Process(float _deltaTime, SystemRequierements& _provided) override;
 		virtual void OnAdd(const ei::IVec3& _position, Voxel::ComponentType _type, uint8 _assignment) override;
 		virtual void ClearSystem() override;
-	public:
+
+		float RelativeCharge() const { return m_charge / m_capacity; }
+	private:
 		float m_capacity;
 		float m_charge;
 		float m_maxEnergyDrain;

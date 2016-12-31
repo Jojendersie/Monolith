@@ -356,4 +356,22 @@ namespace Graphic
 	{
 		return true;
 	}
+
+	// ************************************************************************ //
+	FillBar::FillBar(ei::Vec2 _position, ei::Vec2 _size, DefinitionPoint _def,
+		Anchor _anchor) :
+		ScreenTexture("simpleWindow", _position, _size, _def, _anchor)
+	{
+
+	}
+
+	// ************************************************************************ //
+
+	void FillBar::SetFillLevel(float _level)
+	{
+		SetScale(Vec2(_level, 1.f));
+		//to update texture vertex
+		//todo: remove this
+		Scale(Vec2(1.f));
+	}
 };

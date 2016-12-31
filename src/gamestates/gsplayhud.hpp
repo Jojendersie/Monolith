@@ -13,6 +13,8 @@ namespace Graphic {
 		TextRender* m_targetVelocityLabel;
 
 		MessageBox* m_mainMessageBox;
+
+		FillBar* m_batteryDisplay; // todo: have these generated for existing systems
 	private:
 		
 	};

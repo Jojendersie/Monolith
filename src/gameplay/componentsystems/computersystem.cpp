@@ -1,5 +1,4 @@
 #include <fstream>
-#include <iostream>
 #include "computersystem.hpp"
 #include "gameplay/ship.hpp"
 #include "utilities/scriptengineinst.hpp"
@@ -54,15 +53,6 @@ namespace Mechanics {
 
 		float energyUsed = m_drives.m_energyIn + m_sensors.m_energyIn
 			+ m_shields.m_energyIn + m_weapons.m_energyIn;
-
-		static int count = 0;
-		++count;
-		if (count % 120 == 0)
-		{
-			std::cout << "generator: " << m_reactors.m_energyMaxOut << std::endl;
-			std::cout << "used: " << energyUsed << std::endl;
-			std::cout << m_batteries.m_charge << std::endl;
-		}
 
 		// the distribution given by the script can not be done
 		if (energyUsed > m_energyMaxOut + 0.01f)
@@ -132,13 +122,13 @@ namespace Mechanics {
 			sys.ClearSystem();
 	}
 
-	void ComputerSystem::flash()
+	void ComputerSystem::Flash()
 	{
 		NaReTi::Module* computerMod = g_scriptEngine.getModule("energydefault");
 		m_script = g_scriptEngine.getFuncHndl("distritbuteEnergy");
 	}
 
-	void ComputerSystem::exportSystems(std::ofstream& _file)
+	void ComputerSystem::ExportSystems(std::ofstream& _file)
 	{
 		using namespace std;
 

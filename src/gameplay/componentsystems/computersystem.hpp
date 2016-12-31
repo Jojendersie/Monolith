@@ -23,10 +23,11 @@ namespace Mechanics {
 		virtual void OnAdd(const ei::IVec3& _position, Voxel::ComponentType _type, uint8 _assignment) override;
 		virtual void ClearSystem() override;
 
+		float TempGetCharge() const { return m_batteries.RelativeCharge(); }
 		// compiles the given script and reboots the system
-		void flash();
+		void Flash();
 		// writes all owned component systems to a script file.
-		void exportSystems(std::ofstream& _file);
+		void ExportSystems(std::ofstream& _file);
 	private:
 
 		std::vector<ComputerSystem> m_subSystems;	///< May contain more computers

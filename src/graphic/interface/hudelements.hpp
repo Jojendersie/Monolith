@@ -41,7 +41,8 @@ namespace Graphic {
 	private:
 	};
 
-	/// \brief A pressable button with mouseover indication
+	// ************************************************************* //
+	/// \brief A press-able button with mouseover indication
 	class Button : public ScreenTexture
 	{
 	public:
@@ -102,6 +103,8 @@ namespace Graphic {
 		int m_sideFlags;
 	};
 
+
+	// ************************************************************* //
 	/// \brief A panel which allows text input
 	class EditField : public ScreenTexture
 	{
@@ -137,6 +140,18 @@ namespace Graphic {
 		virtual bool KeyDown(int _key, int _modifiers, ei::Vec2 _pos) override;
 		virtual bool KeyUp(int _key, int _modifiers, ei::Vec2 _pos) override;
 
+	};
+
+	// ************************************************************* //
+	class FillBar : public ScreenTexture
+	{
+	public:
+		FillBar(ei::Vec2 _position, ei::Vec2 _size, DefinitionPoint _def = DefinitionPoint::TopLeft,
+			Anchor _anchor = Anchor());
+	//	void Register(Hud& _hud) override;
+
+		/// \brief Sets the inner bar to _level * size
+		void SetFillLevel(float _level);
 	};
 
 };
