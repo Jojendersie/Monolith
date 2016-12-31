@@ -23,6 +23,8 @@ namespace Mechanics {
 		virtual void OnAdd(const ei::IVec3& _position, Voxel::ComponentType _type, uint8 _assignment) override;
 		virtual void ClearSystem() override;
 
+		// compiles the given script and reboots the system
+		void flash();
 		// writes all owned component systems to a script file.
 		void exportSystems(std::ofstream& _file);
 	private:
@@ -37,7 +39,7 @@ namespace Mechanics {
 		WeaponSystem m_weapons;						///< Handle all attached weapons (not these of the sub systems)
 		bool m_enabled;								///< The system is disabled if its computer voxel is destroyed. Repairing this ship reenables the system again.
 
-		//Script m_script; TODO
+		NaReTi::FunctionHandle m_script;
 		friend class Ship;
 	};
 

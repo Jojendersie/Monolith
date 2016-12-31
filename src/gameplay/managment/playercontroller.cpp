@@ -30,6 +30,9 @@ void PlayerController::Possess(SOHandle _ship)
 	NaReTi::Module* inputMod = g_scriptEngine.getModule("input");
 	m_keyDownHndl = g_scriptEngine.getFuncHndl("keyDown");
 	m_keyReleaseHndl = g_scriptEngine.getFuncHndl("keyRelease");
+
+	//restart systems
+	m_ship->GetPrimarySystem().flash();
 }
 
 void PlayerController::MouseMove(double _dx, double _dy)

@@ -58,7 +58,7 @@ namespace Mechanics {
 			// TODO: the current resulting Torque and thrust are not optimal. Iterative refinement might help!
 	
 			// How large is a percentage of how much energy must be used now
-			m_energyDemand = m_maxEnergyDrain * (relTh + relTo);
+			m_energyDemand = m_maxEnergyDrain * _deltaTime * (relTh + relTo);
 		} else {
 			m_currentThrust = m_currentTorque = Vec3(0.0f);
 			m_energyDemand = 0.0f;
@@ -72,10 +72,10 @@ namespace Mechanics {
 			// Scale to available energy
 			float e = m_energyIn / m_energyDemand;
 
-			_provided.thrust = m_currentThrust * e;
-			_provided.torque = m_currentTorque * e;
+			_provided.thrust = m_currentThrust * e * _deltaTime;
+			_provided.torque = m_currentTorque * e * _deltaTime;
 
-			int numParticlesPerDrive = int(m_energyIn / m_maxEnergyDrain * 150);
+			int numParticlesPerDrive = int(m_energyIn / (m_maxEnergyDrain * _deltaTime) * 150);
 			if(numParticlesPerDrive > 5)
 			{
 				// In general particles are spawned with the ships velocity plus

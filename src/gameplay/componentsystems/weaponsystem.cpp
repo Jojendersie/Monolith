@@ -25,7 +25,7 @@ namespace Mechanics {
 		//prevent division by zero
 		m_energyDemand = 0.0001f;
 		for (auto& weapon : m_weapons)
-			m_energyDemand += min(weapon.cooldown, _deltaTime / weapon.cooldownBase * weapon.cost);
+			m_energyDemand += min(weapon.cooldown, _deltaTime / weapon.cooldownBase) * weapon.cost;
 	}
 
 
@@ -36,7 +36,7 @@ namespace Mechanics {
 
 		//load weapons with the given energy
 		for (auto& weapon : m_weapons)
-			weapon.cooldown -= _deltaTime / weapon.cooldownBase * energyRatio * weapon.cost;
+			weapon.cooldown -= ei::min(weapon.cooldown, _deltaTime / weapon.cooldownBase * energyRatio);
 
 		//fire when commanded
 		if (!m_firing) return;
@@ -96,7 +96,7 @@ namespace Mechanics {
 		weapon.position.z += 1.f; // begin firing outside of the voxel
 
 		weapon.cooldown = 0.f;
-		weapon.cooldownBase = 2.f;
+		weapon.cooldownBase = 0.5f;
 
 		//100% efficiency
 		weapon.damage = 200;

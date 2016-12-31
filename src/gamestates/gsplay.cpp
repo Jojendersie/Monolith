@@ -121,8 +121,8 @@ void GSPlay::OnBegin()
 		aiTestShip->Load(Jo::Files::HDDFile("savegames/playership.vmo"));
 		aiTestShip->SetPosition(FixVec3(Fix(5.0), Fix(0.0), Fix(0.0)));
 		aiTestShip->SetRotation(Quaternion(0.f, 0.f, 0.f));
-		SOHandle hndl = m_scene.AddObject(aiTestShip);
-		aiTest01 = new Controller(hndl);
+	//	SOHandle hndl = m_scene.AddObject(aiTestShip);
+	//	aiTest01 = new Controller(hndl);
 	//	aiTest01->FlyToPosition(collTest02->GetPosition());
 
 	//	collTest02->AddVelocity(Vec3(0.f, 1.f, 0.f));
@@ -172,7 +172,7 @@ void GSPlay::Simulate( double _deltaTime )
 	m_fireManager.Process((float)_deltaTime);
 	m_scene.UpdateGraph();
 	m_player->Process( (float)_deltaTime );
-	aiTest01->Process((float)_deltaTime);
+//	aiTest01->Process((float)_deltaTime);
 
 	static int testTimer = 0;
 	static bool testSwitch = true;

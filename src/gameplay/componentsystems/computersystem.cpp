@@ -1,6 +1,8 @@
 #include <fstream>
+#include <iostream>
 #include "computersystem.hpp"
 #include "gameplay/ship.hpp"
+#include "utilities/scriptengineinst.hpp"
 
 using namespace ei;
 
@@ -15,7 +17,8 @@ namespace Mechanics {
 			m_shields(_theShip, m_id),
 			m_storage(_theShip, m_id),
 			m_weapons(_theShip, m_id)
-	{}
+	{
+	}
 
 	ComputerSystem::~ComputerSystem()
 	{
@@ -47,10 +50,43 @@ namespace Mechanics {
 
 	void ComputerSystem::Process(float _deltaTime, SystemRequierements& _provided)
 	{
-		// Dummy implementation
-		// later this is done by the script
-		m_drives.m_energyIn = min(100.0f, m_drives.m_energyDemand);
-		m_weapons.m_energyIn = min(100.0f, m_weapons.m_energyDemand);
+		if (m_script) g_scriptEngine.call<void, float>(m_script, m_energyMaxOut);
+
+		float energyUsed = m_drives.m_energyIn + m_sensors.m_energyIn
+			+ m_shields.m_energyIn + m_weapons.m_energyIn;
+
+		static int count = 0;
+		++count;
+		if (count % 120 == 0)
+		{
+			std::cout << "generator: " << m_reactors.m_energyMaxOut << std::endl;
+			std::cout << "used: " << energyUsed << std::endl;
+			std::cout << m_batteries.m_charge << std::endl;
+		}
+
+		// the distribution given by the script can not be done
+		if (energyUsed > m_energyMaxOut + 0.01f)
+		{
+			//todo: warn the user
+			m_batteries.m_energyIn = 0;
+			m_drives.m_energyIn = 0;
+			m_sensors.m_energyIn = 0;
+			m_shields.m_energyIn = 0;
+			m_weapons.m_energyIn = 0;
+		}
+		else
+		{
+			//energy generated and not used
+			float energyLeft = m_energyMaxOut - m_batteries.m_energyMaxOut - energyUsed;
+			if (energyLeft > 0.f){
+				m_batteries.m_energyLoss = 0.f;
+				m_batteries.m_energyIn = ei::min(m_batteries.m_energyDemand, energyLeft);
+			}
+			else {
+				m_batteries.m_energyIn = 0.f;
+				m_batteries.m_energyLoss = energyLeft;
+			}
+		}
 
 		m_batteries.Process(_deltaTime, _provided);
 		m_drives.Process(_deltaTime, _provided);
@@ -94,6 +130,12 @@ namespace Mechanics {
 		m_weapons.ClearSystem();
 		for(auto sys : m_subSystems)
 			sys.ClearSystem();
+	}
+
+	void ComputerSystem::flash()
+	{
+		NaReTi::Module* computerMod = g_scriptEngine.getModule("energydefault");
+		m_script = g_scriptEngine.getFuncHndl("distritbuteEnergy");
 	}
 
 	void ComputerSystem::exportSystems(std::ofstream& _file)

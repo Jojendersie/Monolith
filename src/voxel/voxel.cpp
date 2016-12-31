@@ -567,13 +567,12 @@ namespace Voxel {
 
 	bool TypeInfo::IsReactor( ComponentType _type )
 	{
-		return false;
-		//return GetEnergyOut(_type) > 0.0f && GetEnergyIn(_type) == 0.0f;
+		return GetEnergyOut(_type) > 0.0f && GetEnergyDrain(_type) == 0.0f;
 	}
 
 	bool TypeInfo::IsBattery( ComponentType _type )
 	{
-		return false;
+		return GetCapacity(_type) > 0.f;
 	}
 
 	bool TypeInfo::IsDrive( ComponentType _type )

@@ -98,6 +98,7 @@
     <ClCompile Include="src\exceptions.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\gameloop.cpp" />
+    <ClCompile Include="src\gameplay\componentsystems\batterysystem.cpp" />
     <ClCompile Include="src\gameplay\componentsystems\componentsystem.cpp" />
     <ClCompile Include="src\gameplay\componentsystems\computersystem.cpp" />
     <ClCompile Include="src\gameplay\componentsystems\drivesystem.cpp" />

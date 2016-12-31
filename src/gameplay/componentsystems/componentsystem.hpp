@@ -3,6 +3,7 @@
 #include <string>
 #include <ei/vector.hpp>
 #include "predeclarations.hpp"
+#include "enginetypes.hpp"
 
 namespace Mechanics {
 

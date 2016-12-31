@@ -308,6 +308,9 @@
     <ClCompile Include="src\graphic\interface\screenoverlay.cpp">
       <Filter>Source Files\graphic\interface</Filter>
     </ClCompile>
+    <ClCompile Include="src\gameplay\componentsystems\batterysystem.cpp">
+      <Filter>Source Files\gameplay\componentsystems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\game.cpp">

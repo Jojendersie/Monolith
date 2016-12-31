@@ -1,9 +1,17 @@
-type WeaponSystem {
+type WeaponSystem 
+{
 	int dw0
 	int dw1
 	float energyDemand
+	float energyIn
 }
 
 void setFiring(WeaponSystem& _sys, int _fire) external
 
-type DriveSystem {int dw}
+type DriveSystem 
+{
+	int dw0
+	int dw1
+	float energyDemand
+	float energyIn
+}

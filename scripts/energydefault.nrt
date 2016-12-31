@@ -1,0 +1,28 @@
+use availablesystems
+use shipfunctions
+
+//int trySatisfy(float& _target, float )
+
+void distritbuteEnergy(float available)
+{
+	if(available >= Drive.energyDemand)
+	{
+		Drive.energyIn = Drive.energyDemand
+		available = available - Drive.energyDemand
+	}
+	else
+	{
+		Drive.energyIn = available
+		return
+	}
+	if(available >= Weapons.energyDemand)
+	{
+		Weapons.energyIn = Weapons.energyDemand
+		available = available - Weapons.energyDemand
+	}
+	else
+	{
+		Weapons.energyIn = available
+		return
+	}
+}
