@@ -16,9 +16,11 @@ public:
 
 	//sets the state permanently
 	void setState(bool _state);
-	bool getState() {return m_state;};
+	bool getState() const {return m_state;};
 	//retrieves the previous state
 	void recoverState(){setState(m_statePre);};
+
+	void setHidden(bool _hidden);
 
 	//takes a YCbrCr value and sets the intern color
 	void setColor(unsigned int _code){m_color = yCbCrToRGB(_code); m_colorOrg = _code;};

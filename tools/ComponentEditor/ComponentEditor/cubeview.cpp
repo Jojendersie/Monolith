@@ -21,7 +21,15 @@ CubeView::CubeView(QComboBox* _colorBox, int _res, QWidget *parent)
 	m_object(nullptr),
 	m_colorBox(_colorBox),
 	m_selected(nullptr),
-	m_operationAxis(0)
+	m_operationAxis(0),
+	m_hideXL(0),
+	m_hideYL(0),
+	m_hideZL(0),
+	m_hideXR(_res-1),
+	m_hideYR(_res-1),
+	m_hideZR(_res-1),
+	m_showHidden(true),
+	m_mode(Mode::Set)
 {
 //	connect(_colorBox, SIGNAL(currentIndexChanged(QString &)),this, SLOT(colorChanged(QString &)));
 	//setup options
@@ -115,6 +123,7 @@ void CubeView::paintGL(QGLPainter *painter)
 	QArray<QVector3D> line; line.resize(2);
 	line[0] = m_axisOffset;
 
+	// axis
 	//x
 	painter->setColor(QColor(255,0,0));
 	line[1] = m_axisOffset + QVector3D(m_res*0.5f, 0.f, 0.f);
@@ -229,6 +238,11 @@ void CubeView::mousePressEvent( QMouseEvent* _e )
 	m_selected = getMouseFocus((_e->button() == Qt::LeftButton));
 }
 
+namespace{
+	template<typename T>
+	inline T sqr(T num) {return num * num;}
+}
+
 void CubeView::mouseReleaseEvent( QMouseEvent* _e )
 {
 	QGLView::mouseReleaseEvent(_e);
@@ -243,7 +257,10 @@ void CubeView::mouseReleaseEvent( QMouseEvent* _e )
 
 	std::function<void(Cube&)> processCube;
 
-	Cube* focus = getMouseFocus(_e->button() == Qt::LeftButton);
+	Cube* focus;
+	if(_e->button() == Qt::LeftButton || m_mode == Mode::Sphere)
+		focus = getMouseFocus(true);
+	else focus = getMouseFocus(false);
 
 	//when there are not two selected do nothing
 	if(!focus || !m_selected) return;
@@ -257,11 +274,41 @@ void CubeView::mouseReleaseEvent( QMouseEvent* _e )
 	}
 	else if(_e->button() == Qt::RightButton)
 	{
-		processCube = [&](Cube& _cube){
-			colorChanged(m_colorBox->currentText());
-			_cube.setColor(m_color);
-			_cube.setState(true);
-		};
+		colorChanged(m_colorBox->currentText());
+		switch(m_mode)
+		{
+		case Mode::Set:
+			processCube =  [&](Cube& _cube){
+				_cube.setColor(m_color);
+				_cube.setState(true);
+			};
+			break;
+		case Mode::Fill:
+			processCube =  [&](Cube& _cube){
+				if(_cube.getState()) return;
+				_cube.setColor(m_color);
+				_cube.setState(true);
+			};
+			break;
+		case Mode::Sphere:
+			float centerX = (m_selected->locX + focus->locX) / 2.f;
+			float centerY = (m_selected->locY + focus->locY) / 2.f;
+			float centerZ = (m_selected->locZ + focus->locZ) / 2.f;
+			float radX = abs((m_selected->locX - focus->locX) / 2.f);
+			radX = sqr(radX);
+			float radY = abs((m_selected->locY - focus->locY) / 2.f);
+			radY = sqr(radY);
+			float radZ = abs((m_selected->locZ - focus->locZ) / 2.f);
+			radZ = sqr(radZ);
+			processCube = [=](Cube& _cube){
+				if(sqr(_cube.locX-centerX)/radX  + sqr(_cube.locY-centerY)/radY + sqr(_cube.locZ-centerZ)/radZ <= 1.f )
+				{
+					_cube.setColor(m_color);
+					_cube.setState(true);
+				}
+			};
+			break;
+		}
 	}
 
 	//get directions for the iteration
@@ -296,7 +343,7 @@ void CubeView::mouseReleaseEvent( QMouseEvent* _e )
 
 void CubeView::keyPressEvent(QKeyEvent* e)
 {
-//	this->setTitle(QString::fromStdString(std::to_string(e->key())));
+	this->setTitle(QString::fromStdString(std::to_string(e->key())));
 	if(e->matches(QKeySequence::StandardKey::Undo))
 	{
 		//undo can only be down when some change happend
@@ -333,9 +380,21 @@ void CubeView::keyPressEvent(QKeyEvent* e)
 	{
 		shiftCubes( - int(m_operationAxis == 0), - int(m_operationAxis == 1), - int(m_operationAxis == 2) );
 	}
+	else if( e->key() == 16777234)//arrow left
+	{
+		hideCubesLeft( int(m_operationAxis == 0), int(m_operationAxis == 1), int(m_operationAxis == 2) );
+	}
+	else if( e->key() == 16777236)//arrow right
+	{
+		hideCubesRight(int(m_operationAxis == 0), int(m_operationAxis == 1), int(m_operationAxis == 2) );
+	}
 	else if( e->key() == 82)//r
 	{
 		rotateCubes(int(m_operationAxis == 0), int(m_operationAxis == 1), int(m_operationAxis == 2) );
+	}
+	else if( e->key() == 84 && e->modifiers() & Qt::KeyboardModifier::ControlModifier)
+	{
+		toggleHidden();
 	}
 	else if(e->key() == 78) //n
 	{
@@ -406,6 +465,15 @@ void CubeView::changeCubes(unsigned int _color, unsigned int _newColor, bool _st
 	}
 	//show changes
 	update();
+}
+
+// ***************************************************** //
+const std::string& CubeView::changeMode()
+{
+	m_mode = (Mode)((int)m_mode + 1);
+	if(m_mode == Mode::Count) m_mode = Mode::Set;
+
+	return ModeStrings[m_mode];
 }
 
 // ***************************************************** //
@@ -489,4 +557,68 @@ void CubeView::rotateCubes(int _x, int _y, int _z)
 	}
 
 	update();
+}
+
+// ********************************************** //
+void CubeView::hideCubesLeft(int _x, int _y, int _z)
+{
+	m_hideXL += _x;
+	m_hideYL += _y;
+	m_hideZL += _z;
+	
+	updateHidden();
+}
+
+void CubeView::hideCubesRight(int _x, int _y, int _z)
+{
+	m_hideXR -= _x;
+	m_hideYR -= _y;
+	m_hideZR -= _z;
+	
+	updateHidden();
+}
+
+void CubeView::updateHidden()
+{
+	FOREACH
+	{
+		int ind = INDEX(x,y,z);
+		if(x >= m_hideXL && y >= m_hideYL && z >= m_hideZL &&
+			x <= m_hideXR && y <= m_hideYR && z <= m_hideZR)
+			m_cubeData[ind].setHidden(!m_cubeData[ind].getState());
+		else m_cubeData[ind].setHidden(true);
+	}
+	update();
+}
+
+void CubeView::showHidden()
+{
+	m_hideXL = 0;
+	m_hideYL = 0;
+	m_hideZL = 0;
+	m_hideXR = m_res-1;
+	m_hideYR = m_res-1;
+	m_hideZR = m_res-1;
+	
+	showAll();
+}
+
+void CubeView::showAll()
+{
+	FOREACH
+	{
+		int ind = INDEX(x,y,z);
+		m_cubeData[ind].setHidden(!m_cubeData[ind].getState());
+	}
+	update();
+}
+
+void CubeView::toggleHidden()
+{
+	m_showHidden = !m_showHidden;
+
+	if(m_showHidden)
+		showAll();
+	else
+		updateHidden();
 }

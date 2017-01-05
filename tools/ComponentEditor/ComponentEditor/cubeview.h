@@ -6,6 +6,7 @@
 #include "cube.h"
 #include "attributetable.h" //actually only "voxel.h" is required
 #include <vector>
+#include <array>
 
 #include "SceneManager.h"
 
@@ -18,6 +19,22 @@ const int COMPSIZE = 3;
 using namespace std;
 
 #define INDEX(x,y,z) (z)+m_res*(y)+m_res*m_res*(x)
+
+enum Mode
+{
+	Set,
+	Fill, 
+	Sphere,
+	Count
+};
+
+const std::array<std::string, Count> ModeStrings = 
+{
+	std::string("set"),
+	std::string("fill"),
+	std::string("Ellipsoid")
+};
+
 
 class CubeView : public QGLView
 {
@@ -36,6 +53,12 @@ public:
 
 	//changes the state and color of all cubes with the color _color
 	void changeCubes(unsigned int _color, unsigned int _newColor = 0, bool _state = false);
+
+	const std::string& changeMode();
+	// makes all hidden cubes visible again
+	// _reset should 
+	void showHidden();
+	void toggleHidden();
 protected:
     void paintGL(QGLPainter *painter);
 	void mouseMoveEvent ( QMouseEvent * e );
@@ -57,6 +80,12 @@ private:
 	// rotates all cubes by the amount * 90 degree around the related axis
 	void rotateCubes(int _x, int _y, int _z);
 
+	// hides a cube layer in the specified direction
+	void hideCubesLeft(int _x, int _y, int _z);
+	void hideCubesRight(int _x, int _y, int _z);
+
+	void updateHidden();
+	void showAll();
 	//offset so that the center of the voxel is in the cam center
 	float m_offset;
 
@@ -84,6 +113,11 @@ private:
 	//tex resolution of the current voxel
 	int m_res, m_res_2, m_res_3;
 
+	//voxels hidden in each direction
+	int m_hideXL, m_hideYL, m_hideZL;
+	int m_hideXR, m_hideYR, m_hideZR;
+	bool m_showHidden;
+
 	//requiered to allow picking
 	SceneManager  m_pickScene;
     
@@ -93,6 +127,7 @@ private:
 
 	//axis selected for shifting or rotating operations
 	int m_operationAxis;
+	Mode m_mode;
 public slots:
 	void objectPicked();
 	void colorChanged(QString& _s);

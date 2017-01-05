@@ -19,6 +19,8 @@ ComponentEditor::ComponentEditor(QWidget *parent)
 	//connect menu items
 	connect(ui.actionOpen, SIGNAL(triggered()), this, SLOT(open()));
 	connect(ui.actionSave, SIGNAL(triggered()), this, SLOT(save()));
+	connect(ui.actionShow_all, SIGNAL(triggered()), this, SLOT(showAll()));
+	connect(ui.actionToggle_hidden, SIGNAL(triggered()), this, SLOT(toggleHidden()));
 	//connect comboBox
 	connect(ui.comboBox_2, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(voxelChosen(const QString&)));
 	//attr table
@@ -90,6 +92,7 @@ void ComponentEditor::on_pushButtonSwap_clicked()
 	m_view->update();
 }
 
+// ************************************************ //
 void ComponentEditor::on_pushButtonNew_clicked()
 {
 	if(ui.lineEdit_2->text() == "") return;
@@ -112,6 +115,7 @@ void ComponentEditor::on_pushButtonNew_clicked()
 	ui.lineEdit_2->setText("");
 }
 
+// ************************************************ //
 void ComponentEditor::on_pushButtonCopy_clicked()
 {
 	if(!m_voxel) return;
@@ -138,6 +142,7 @@ void ComponentEditor::on_pushButtonCopy_clicked()
 	ui.lineEdit_2->setText("");
 }
 
+// ************************************************ //
 void ComponentEditor::on_pushButtonRemove_clicked()
 {
 	//delete and fill place with the last voxel
@@ -151,9 +156,19 @@ void ComponentEditor::on_pushButtonRemove_clicked()
 	ui.comboBox_2->removeItem(ui.comboBox_2->currentIndex());
 }
 
+// ************************************************ //
+void ComponentEditor::on_pushButtonMode_clicked()
+{
+	ui.pushButtonMode->setText(QString::fromStdString(m_view->changeMode()));
+}
+
+// ************************************************ //
 //just copy and past from https://github.com/Jojendersie/Monolith/blob/master/src/voxel/voxel.cpp
 void ComponentEditor::open()
 {
+	std::string m_fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"",tr("Files (*.json)")).toStdString();
+	if(!m_fileName.size()) return;
+
 	//clean up the envoiment
 	if(m_voxelCount)
 	{
@@ -166,9 +181,6 @@ void ComponentEditor::open()
 	ui.comboBox_2->clear();
 	if(m_view) delete m_view;
 	m_view = nullptr;
-
-	std::string m_fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"",tr("Files (*.json)")).toStdString();
-	if(!m_fileName.size()) return;
 
 	Jo::Files::MetaFileWrapper infoFile( Jo::Files::HDDFile( m_fileName ), Jo::Files::Format::JSON );
 

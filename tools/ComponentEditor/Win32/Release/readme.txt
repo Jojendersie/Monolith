@@ -22,6 +22,16 @@ Attributes can be of 3 different types: float, string, bool.
 The values "true" and "false" (case sensitive) are evaluated as bool, anythink starting with a digit a number
 and everythink else as a string.
 
+MODES
+
+All modes use the currently selected color.
+
+set		Sets all cubes in the volume.
+
+fill		Sets only cubes that do not exist yet in the volume.	
+
+ellipsoid	Sets cubes that are within an ellipsoid spanning the volume.	
+
 ADDITIONAL COMMANDS
 
 cntrl + z 	Undo the latest change.
@@ -31,6 +41,12 @@ n		Create a 2x2x2 block in the center of the current component using the current
 arrow-up	Shifts every cube in direction of the current operation axis.
 
 arrow-down	Shifts every cube in oposite direction of the current operation axis.
+
+arrow-left	Hide a layer of cubes in direction of the current operation axis.
+
+arrow-right	Hide a layer of cubes in counter direction of the current operation axis.
+
+cntr + t	Toggle hiding on/off without changing the mask.
 
 r		Rotates every cube around the current operation axis.
 

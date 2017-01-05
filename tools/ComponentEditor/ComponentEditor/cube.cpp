@@ -20,6 +20,11 @@ void Cube::setState(bool _state)
 	m_node->setOption(QGLSceneNode::Option::HideNode, !_state);
 }
 
+void Cube::setHidden(bool _hidden)
+{
+	m_node->setOption(QGLSceneNode::Option::HideNode, _hidden);
+}
+
 QColor Cube::yCbCrToRGB(unsigned int _code)
 {
 	int y = _code & 255;

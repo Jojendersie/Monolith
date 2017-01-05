@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>238</width>
-    <height>523</height>
+    <height>516</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>110</y>
+      <y>130</y>
       <width>211</width>
       <height>81</height>
      </rect>
@@ -86,7 +86,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>190</y>
+      <y>210</y>
       <width>221</width>
       <height>281</height>
      </rect>
@@ -127,8 +127,8 @@
      <rect>
       <x>10</x>
       <y>20</y>
-      <width>211</width>
-      <height>91</height>
+      <width>221</width>
+      <height>111</height>
      </rect>
     </property>
     <property name="title">
@@ -137,9 +137,9 @@
     <widget class="QLineEdit" name="lineEdit_2">
      <property name="geometry">
       <rect>
-       <x>20</x>
+       <x>10</x>
        <y>30</y>
-       <width>81</width>
+       <width>121</width>
        <height>20</height>
       </rect>
      </property>
@@ -147,7 +147,7 @@
     <widget class="QPushButton" name="pushButtonNew">
      <property name="geometry">
       <rect>
-       <x>170</x>
+       <x>180</x>
        <y>30</y>
        <width>31</width>
        <height>21</height>
@@ -163,9 +163,9 @@
     <widget class="QComboBox" name="comboBox_2">
      <property name="geometry">
       <rect>
-       <x>20</x>
+       <x>10</x>
        <y>60</y>
-       <width>81</width>
+       <width>121</width>
        <height>22</height>
       </rect>
      </property>
@@ -173,7 +173,7 @@
     <widget class="QPushButton" name="pushButtonRemove">
      <property name="geometry">
       <rect>
-       <x>170</x>
+       <x>180</x>
        <y>60</y>
        <width>31</width>
        <height>23</height>
@@ -189,7 +189,7 @@
     <widget class="QLabel" name="label_14">
      <property name="geometry">
       <rect>
-       <x>120</x>
+       <x>130</x>
        <y>10</y>
        <width>41</width>
        <height>16</height>
@@ -202,7 +202,7 @@
     <widget class="QLineEdit" name="editTexres">
      <property name="geometry">
       <rect>
-       <x>120</x>
+       <x>140</x>
        <y>30</y>
        <width>31</width>
        <height>20</height>
@@ -218,7 +218,7 @@
     <widget class="QLabel" name="label_2">
      <property name="geometry">
       <rect>
-       <x>20</x>
+       <x>10</x>
        <y>10</y>
        <width>46</width>
        <height>13</height>
@@ -231,7 +231,7 @@
     <widget class="QPushButton" name="pushButtonCopy">
      <property name="geometry">
       <rect>
-       <x>120</x>
+       <x>140</x>
        <y>60</y>
        <width>31</width>
        <height>23</height>
@@ -244,6 +244,35 @@
       <string>c</string>
      </property>
     </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>90</y>
+       <width>46</width>
+       <height>13</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Mode:</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButtonMode">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>85</y>
+       <width>121</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>mode used to place voxels</string>
+     </property>
+     <property name="text">
+      <string>fill</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QPushButton" name="pushButtonSwap">
     <property name="geometry">
@@ -253,6 +282,9 @@
       <width>191</width>
       <height>23</height>
      </rect>
+    </property>
+    <property name="toolTip">
+     <string>swap</string>
     </property>
     <property name="text">
      <string>bordertexture</string>
@@ -281,8 +313,17 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>edit</string>
+    </property>
+    <addaction name="actionClear_colors"/>
+    <addaction name="actionShow_all"/>
+    <addaction name="actionToggle_hidden"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuInfo"/>
+   <addaction name="menuEdit"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -312,6 +353,33 @@
   <action name="actionAbout">
    <property name="text">
     <string>about</string>
+   </property>
+  </action>
+  <action name="actionClear_colors">
+   <property name="text">
+    <string>clear colors</string>
+   </property>
+  </action>
+  <action name="actionShow_all">
+   <property name="text">
+    <string>show all</string>
+   </property>
+   <property name="iconText">
+    <string>show all</string>
+   </property>
+   <property name="toolTip">
+    <string>show all hidden voxels and reset</string>
+   </property>
+  </action>
+  <action name="actionToggle_hidden">
+   <property name="text">
+    <string>toggle hidden</string>
+   </property>
+   <property name="toolTip">
+    <string>show / hide voxels without reseting</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
    </property>
   </action>
  </widget>

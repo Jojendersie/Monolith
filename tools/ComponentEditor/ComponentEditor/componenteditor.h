@@ -34,10 +34,17 @@ private slots:
 	void on_pushButtonCopy_clicked();
 	//
 	void on_pushButtonRemove_clicked();
+
+	void on_pushButtonMode_clicked();
 	//creates a filedialog, loads the chosen file and sets up the editor
 	void open();
 	//creates an filedialog and saves all voxel into the chosen file, erasing its previous content
 	void save();
+
+	//
+	void showAll(){m_view->showHidden();}
+	void toggleHidden() {m_view->toggleHidden();}
+
 	//triggered when a voxel is chosen in the combo box
 	void voxelChosen( const QString & _text );
 
