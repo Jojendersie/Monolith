@@ -55,7 +55,7 @@ namespace Mechanics {
 			+ m_shields.m_energyIn + m_weapons.m_energyIn;
 
 		// the distribution given by the script can not be done
-		if (energyUsed > m_energyMaxOut + 0.01f)
+		if (energyUsed > m_energyMaxOut + 0.05f)
 		{
 			//todo: warn the user
 			m_batteries.m_energyIn = 0;
@@ -77,6 +77,8 @@ namespace Mechanics {
 				m_batteries.m_energyLoss = energyLeft;
 			}
 		}
+
+		int off = (char*)&m_batteries.m_capacity - (char*)&m_batteries;
 
 		m_batteries.Process(_deltaTime, _provided);
 		m_drives.Process(_deltaTime, _provided);
@@ -107,6 +109,7 @@ namespace Mechanics {
 		}
 	}
 
+	// ************************************************************* //
 	void ComputerSystem::ClearSystem()
 	{
 		// Disable this system until its computer is found
@@ -122,12 +125,14 @@ namespace Mechanics {
 			sys.ClearSystem();
 	}
 
+	// ************************************************************* //
 	void ComputerSystem::Flash()
 	{
-		NaReTi::Module* computerMod = g_scriptEngine.getModule("energydefault");
+		m_scriptModule = g_scriptEngine.getModule("energydefault");
 		m_script = g_scriptEngine.getFuncHndl("distritbuteEnergy");
 	}
 
+	// ************************************************************* //
 	void ComputerSystem::ExportSystems(std::ofstream& _file)
 	{
 		using namespace std;
@@ -135,5 +140,19 @@ namespace Mechanics {
 	//	_file << "BatterySystem& " << m_batteries.GetName() << " = 0x" << &m_batteries;
 		_file << "DriveSystem& " << m_drives.GetName() << " := 0a" << &m_drives << endl;
 		_file << "WeaponSystem& " << m_weapons.GetName() << " := 0a" << &m_weapons << endl;
+		_file << "BatterySystem& " << m_batteries.GetName() << " := 0a" << &m_batteries << endl;
+	}
+
+	// ************************************************************* //
+	void ComputerSystem::GetDisplayVars(std::vector<Script::DisplayValue* const>& _target)
+	{
+		auto it = m_scriptModule->getExportVars();
+
+		while (it)
+		{
+			auto var = it.get();
+			_target.push_back((Script::DisplayValue*)var.ptr);
+			++it;
+		}
 	}
 }

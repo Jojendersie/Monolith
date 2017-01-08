@@ -8,10 +8,11 @@
 
 using namespace ei;
 
-PlayerController::PlayerController(SOHandle _ship, Input::Camera* _camera)
+PlayerController::PlayerController(Graphic::HudGsPlay& _hud, SOHandle _ship, Input::Camera* _camera)
 	: Controller(_ship),
 	m_mouseRotationEnabled(false),
-	m_camera(_camera)
+	m_camera(_camera),
+	m_hud(_hud)
 {
 }
 
@@ -33,6 +34,9 @@ void PlayerController::Possess(SOHandle _ship)
 
 	//restart systems
 	m_ship->GetPrimarySystem().Flash();
+	auto& hudVars = m_hud.GetScriptVars();
+	m_ship->GetPrimarySystem().GetDisplayVars(hudVars);
+	m_hud.BuildScriptVars();
 }
 
 void PlayerController::MouseMove(double _dx, double _dy)
@@ -107,6 +111,9 @@ void PlayerController::Process(float _deltaTime)
 		//angularVel += m_ship->GetInverseRotationMatrix().XAxis() * cursor[1];
 	}
 	m_ship->SetTargetAngularVelocity(angularVel);
+
+	// is this the right place?
+	m_hud.UpdateScriptVars();
 }
 
 

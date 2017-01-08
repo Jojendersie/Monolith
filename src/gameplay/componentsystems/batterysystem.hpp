@@ -15,7 +15,7 @@ namespace Mechanics {
 		virtual void ClearSystem() override;
 
 		float RelativeCharge() const { return m_charge / m_capacity; }
-	private:
+	public:
 		float m_capacity;
 		float m_charge;
 		float m_maxEnergyDrain;

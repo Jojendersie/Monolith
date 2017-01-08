@@ -38,6 +38,15 @@ namespace NaReTi{
 		void* ptr;
 	};
 
+	struct VariableHandle
+	{
+		const void* ptr;
+		const std::string& name;
+	private:
+		friend class Module;
+		VariableHandle(void* _ptr, const std::string& _name): ptr(_ptr), name(_name){};
+	};
+
 	/* Configuration options
 	*/
 

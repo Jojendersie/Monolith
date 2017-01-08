@@ -1,4 +1,7 @@
+#pragma once
+
 #include "graphic\interface\hud.hpp"
+#include "utilities/scriptengineinst.hpp"
 
 namespace Graphic {
 	
@@ -15,7 +18,12 @@ namespace Graphic {
 		MessageBox* m_mainMessageBox;
 
 		FillBar* m_batteryDisplay; // todo: have these generated for existing systems
+
+		Script::VarRefContainer& GetScriptVars() { return m_scriptVars; };
+		void BuildScriptVars();
+		void UpdateScriptVars();
 	private:
-		
+		Script::VarRefContainer m_scriptVars;
+		std::vector<FillBar*> m_scriptDisplays;
 	};
 };

@@ -1,5 +1,6 @@
 #include "gsplayhud.hpp"
 #include "graphic/interface/pixelcoords.hpp"
+#include "utilities/scriptengineinst.hpp"
 using namespace ei;
 
 namespace Graphic
@@ -14,6 +15,22 @@ namespace Graphic
 
 		m_mainMessageBox = &CreateMessageBox(Vec2(-0.2f, 0.8f), Vec2(0.4f, 0.2f));
 
-		m_batteryDisplay = &CreateScreenElement<FillBar>(PixelOffset(50, 100), PixelOffset(300, 30), DefinitionPoint::BotLeft, Anchor(BotLeft, this));
+	//	m_batteryDisplay = &CreateScreenElement<FillBar>(PixelOffset(50, 100), PixelOffset(300, 30), DefinitionPoint::BotLeft, Anchor(BotLeft, this));
+	}
+
+	void HudGsPlay::BuildScriptVars()
+	{
+		for (auto var : m_scriptVars)
+		{
+			m_scriptDisplays.push_back(&CreateScreenElement<FillBar>(PixelOffset(50, 100), PixelOffset(300, 30), DefinitionPoint::BotLeft, Anchor(BotLeft, this)));
+		}
+	}
+
+	void HudGsPlay::UpdateScriptVars()
+	{
+		for (int i = 0; i < (int)m_scriptVars.size(); ++i)
+		{
+			m_scriptDisplays[i]->SetFillLevel(m_scriptVars[i]->value);
+		}
 	}
 }

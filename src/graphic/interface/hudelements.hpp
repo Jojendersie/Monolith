@@ -35,9 +35,11 @@ namespace Graphic {
 		virtual void SetSize(ei::Vec2 _size) override;
 		virtual void Scale(ei::Vec2 _scale) override;
 
-		ei::Vec2 m_posDef;///< size as defined
-		ei::Vec2 m_sizeDef;///< size as defined
+		/// \brief scales the rectangle of the source texture that is used
+		/// \param _scale the new size relative to the initial size
+		void SetTextureRect(ei::Vec2 _scale);
 	protected:
+		ei::Vec2 m_textureSize; ///< base size of the texture rectangle
 	private:
 	};
 

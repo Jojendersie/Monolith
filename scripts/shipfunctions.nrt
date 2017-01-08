@@ -1,7 +1,7 @@
 type WeaponSystem 
 {
-	int dw0
-	int dw1
+	undefined dword0
+	undefined dword1
 	float energyDemand
 	float energyIn
 }
@@ -10,8 +10,36 @@ void setFiring(WeaponSystem& _sys, int _fire) external
 
 type DriveSystem 
 {
-	int dw0
-	int dw1
+	undefined dword0
+	undefined dword1
 	float energyDemand
 	float energyIn
+}
+
+type BatterySystem
+{
+	undefined dword0
+	undefined dword1
+	float energyDemand
+	float energyIn
+	undefined dword3
+	undefined dword4
+	undefined dword5
+	undefined dword6
+	undefined dword7
+	undefined dword8
+	
+	undefined dword9
+	undefined dword10
+	undefined dword11
+	undefined dword12
+	undefined dword13
+	undefined dword14
+	undefined dword15
+	undefined dword16
+	undefined dword17
+	undefined dword18
+	float capacity
+	float charge
+	
 }

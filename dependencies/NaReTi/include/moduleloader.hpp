@@ -9,7 +9,7 @@ namespace NaReTi{
 	public:
 		ModuleLoader(LoaderConfig& _config) : m_config(_config){}
 
-		std::string load(const std::string& _name);
+		std::string load(const std::string& _name) const;
 	private:
 		LoaderConfig& m_config;
 	};

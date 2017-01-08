@@ -1,11 +1,17 @@
 use availablesystems
 use shipfunctions
+use hud
 
 //int trySatisfy(float& _target, float )
 
+DisplayValue batteryCharge = DisplayValue(1.0, 1) export
+
+
 void distritbuteEnergy(float available)
 {
-	if(available >= Drive.energyDemand)
+	batteryCharge.value = Batteries.charge / Batteries.capacity
+	
+	if(available > Drive.energyDemand)
 	{
 		Drive.energyIn = Drive.energyDemand
 		available = available - Drive.energyDemand
@@ -13,9 +19,9 @@ void distritbuteEnergy(float available)
 	else
 	{
 		Drive.energyIn = available
-		return
+		return;
 	}
-	if(available >= Weapons.energyDemand)
+	if(available > Weapons.energyDemand)
 	{
 		Weapons.energyIn = Weapons.energyDemand
 		available = available - Weapons.energyDemand
@@ -23,6 +29,6 @@ void distritbuteEnergy(float available)
 	else
 	{
 		Weapons.energyIn = available
-		return
+		return;
 	}
 }

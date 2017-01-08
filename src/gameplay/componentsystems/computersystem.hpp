@@ -7,6 +7,7 @@
 #include "shieldsystem.hpp"
 #include "storagesystem.hpp"
 #include "weaponsystem.hpp"
+#include "utilities/scriptengineinst.hpp"
 #include <vector>
 
 namespace Mechanics {
@@ -23,11 +24,13 @@ namespace Mechanics {
 		virtual void OnAdd(const ei::IVec3& _position, Voxel::ComponentType _type, uint8 _assignment) override;
 		virtual void ClearSystem() override;
 
-		float TempGetCharge() const { return m_batteries.RelativeCharge(); }
+	//	float TempGetCharge() const { return m_batteries.RelativeCharge(); }
 		// compiles the given script and reboots the system
 		void Flash();
 		// writes all owned component systems to a script file.
 		void ExportSystems(std::ofstream& _file);
+
+		void GetDisplayVars(Script::VarRefContainer& _target);
 	private:
 
 		std::vector<ComputerSystem> m_subSystems;	///< May contain more computers
@@ -41,6 +44,7 @@ namespace Mechanics {
 		bool m_enabled;								///< The system is disabled if its computer voxel is destroyed. Repairing this ship reenables the system again.
 
 		NaReTi::FunctionHandle m_script;
+		NaReTi::Module* m_scriptModule;
 		friend class Ship;
 	};
 

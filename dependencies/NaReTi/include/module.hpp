@@ -3,6 +3,7 @@
 
 #include "parpredecs.hpp"
 #include "complexalloc.hpp"
+#include "enginetypes.hpp"
 
 #include <vector>
 #include <string>
@@ -52,13 +53,27 @@ namespace NaReTi{
 		// get a local var from this module
 		par::VarSymbol* getGlobalVar(const std::string& _name);
 
+		struct ExportVarIterator
+		{
+			ExportVarIterator(std::vector< par::VarSymbol* >& _variables);
+
+			ExportVarIterator& operator++();
+			VariableHandle get() const;
+			operator bool() { return m_iterator != m_variables.end(); };
+		private:
+			std::vector< par::VarSymbol* >::iterator m_iterator;
+			std::vector< par::VarSymbol* >& m_variables;
+		};
+		ExportVarIterator getExportVars();
+
 		utils::DetorAlloc& getAllocator() { return m_allocator; }
 
 		//links an as external declared func symbol in this module to the given ptr.
 		bool linkExternal(const std::string& _name, void* _funcPtr);
 
+		// flag that shows whether this module had any breaking changes since the last compile
 		void setChanged(bool _b){ m_hasChanged = _b; }
-		bool hasChanged() { return m_hasChanged; }
+		bool hasChanged() const { return m_hasChanged; }
 
 		//their lifetime equals the module's
 		//use a stack allocator for all related buffers if possible

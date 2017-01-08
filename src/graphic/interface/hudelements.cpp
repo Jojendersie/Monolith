@@ -14,13 +14,13 @@ namespace Graphic
 	ScreenTexture::ScreenTexture(const std::string& _name, Vec2 _position, Vec2 _size,
 		DefinitionPoint _def, Anchor _anchor,
 		std::function<void()> _OnMouseUp) :
-		ScreenOverlay(_position, _size, _def, _anchor,_OnMouseUp),
-		m_posDef(_position)
+		ScreenOverlay(_position, _size, _def, _anchor,_OnMouseUp)
 	{
 		Jo::Files::MetaFileWrapper& posMap = Resources::GetTextureMap();
 		m_vertex.position = m_position;
 		m_vertex.texCoord = Vec2(posMap.RootNode[_name][std::string("positionX")],posMap.RootNode[_name][std::string("positionY")]);
 		m_vertex.size = Vec2(posMap.RootNode[_name][std::string("sizeX")],posMap.RootNode[_name][std::string("sizeY")]);
+		m_textureSize = m_vertex.size;
 		if (all(Vec2(0.f) == _size))
 		{
 			Vec2 screenSize(posMap.RootNode[std::string("width")].Get(132), posMap.RootNode[std::string("height")].Get(132));
@@ -59,6 +59,12 @@ namespace Graphic
 		ScreenOverlay::Scale(_scale);
 		m_vertex.screenSize = m_size;
 		m_vertex.position = m_position;
+	}
+
+	// ************************************************************************ //
+	void ScreenTexture::SetTextureRect(ei::Vec2 _scale)
+	{
+		m_vertex.size = m_textureSize * _scale;
 	}
 
 	// ************************************************************************ //
@@ -362,14 +368,16 @@ namespace Graphic
 		Anchor _anchor) :
 		ScreenTexture("simpleWindow", _position, _size, _def, _anchor)
 	{
-
+		
 	}
 
 	// ************************************************************************ //
 
 	void FillBar::SetFillLevel(float _level)
 	{
-		SetScale(Vec2(_level, 1.f));
+		Vec2 vec(_level, 1.f);
+		SetScale(vec);
+		SetTextureRect(vec);
 		//to update texture vertex
 		//todo: remove this
 		Scale(Vec2(1.f));

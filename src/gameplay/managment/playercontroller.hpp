@@ -1,11 +1,12 @@
 #include "controller.hpp"
 #include "input\camera.hpp"
 #include "enginetypes.hpp"
+#include "gamestates/gsplayhud.hpp"
 
 class PlayerController : public Controller
 {
 public:
-	PlayerController(SOHandle _ship = nullptr, Input::Camera* _camera = nullptr);
+	PlayerController(Graphic::HudGsPlay& _hud, SOHandle _ship = nullptr, Input::Camera* _camera = nullptr);
 
 	void Possess(SOHandle _ship) override;
 
@@ -30,4 +31,5 @@ private:
 
 	NaReTi::FunctionHandle m_keyDownHndl;
 	NaReTi::FunctionHandle m_keyReleaseHndl;
+	Graphic::HudGsPlay& m_hud;
 };

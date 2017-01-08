@@ -57,7 +57,7 @@ GSPlay::GSPlay(Monolith* _game)
 
 	m_galaxy = new Galaxy(1000, 20000.f, 10000);
 
-	m_player = std::make_unique<PlayerController>(nullptr, m_camera);
+	m_player = std::make_unique<PlayerController>(*m_hud, nullptr, m_camera);
 
 	LOG_LVL2("Created game state Play");
 }
@@ -225,8 +225,8 @@ void GSPlay::Render( double _deltaTime )
 	m_hud->m_dbgLabel->SetText("<s 024>" + std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(RenderStat::g_numVoxels) + "\n#Chunks: " + std::to_string(RenderStat::g_numChunks)+"</s>");
 	m_hud->m_velocityLabel->SetText(StringUtils::ToFixPoint(len(m_player->GetShip()->GetVelocity()), 1) + "m/s");
 	m_hud->m_targetVelocityLabel->SetText(StringUtils::ToFixPoint(len(m_player->GetShip()->GetTargetVelocity()), 1) + "m/s");
-	float res = m_player->GetShip()->GetPrimarySystem().TempGetCharge();
-	m_hud->m_batteryDisplay->SetFillLevel(m_player->GetShip()->GetPrimarySystem().TempGetCharge());
+//	float res = m_player->GetShip()->GetPrimarySystem().TempGetCharge();
+//	m_hud->m_batteryDisplay->SetFillLevel(m_player->GetShip()->GetPrimarySystem().TempGetCharge());
 	m_hud->Draw( _deltaTime );
 }
 
