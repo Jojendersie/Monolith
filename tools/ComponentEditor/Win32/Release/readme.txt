@@ -30,7 +30,9 @@ set		Sets all cubes in the volume.
 
 fill		Sets only cubes that do not exist yet in the volume.	
 
-ellipsoid	Sets cubes that are within an ellipsoid spanning the volume.	
+ellipsoid	Sets cubes that are within an ellipsoid spanning the volume.
+
+recolor		Sets all existing cubes in the volume.	
 
 ADDITIONAL COMMANDS
 

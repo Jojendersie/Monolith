@@ -20,6 +20,7 @@ ComponentEditor::ComponentEditor(QWidget *parent)
 	connect(ui.actionOpen, SIGNAL(triggered()), this, SLOT(open()));
 	connect(ui.actionSave, SIGNAL(triggered()), this, SLOT(save()));
 	connect(ui.actionShow_all, SIGNAL(triggered()), this, SLOT(showAll()));
+	connect(ui.actionClear_colors, SIGNAL(triggered()), this, SLOT(clearColors()));
 	connect(ui.actionToggle_hidden, SIGNAL(triggered()), this, SLOT(toggleHidden()));
 	//connect comboBox
 	connect(ui.comboBox_2, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(voxelChosen(const QString&)));
@@ -169,6 +170,7 @@ void ComponentEditor::open()
 	std::string m_fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"",tr("Files (*.json)")).toStdString();
 	if(!m_fileName.size()) return;
 
+	activateUi();
 	//clean up the envoiment
 	if(m_voxelCount)
 	{
@@ -255,6 +257,7 @@ void ComponentEditor::open()
 	}
 }
 
+// ******************************************* //
 void ComponentEditor::save()
 {
 	//show dialog now so that if it is canceled nothing happens
@@ -343,6 +346,34 @@ void ComponentEditor::save()
 	infoFile.Write( hddFile, Jo::Files::Format::JSON );
 }
 
+// ******************************************* //
+void ComponentEditor::activateUi()
+{
+	ui.groupBox->setEnabled(true);
+	ui.generalInfos->setEnabled(true);
+	ui.groupBox_2->setEnabled(true);
+	ui.pushButtonSwap->setEnabled(true);
+}
+
+// ******************************************* //
+void ComponentEditor::clearColors()
+{
+	//start at the end so that iterators stay consistent
+	auto it = m_voxel->colors.end();
+	do{
+		--it;
+		unsigned int col = *it;
+		if(!m_view->changeCubes(col, col, true))
+		{
+			it = m_voxel->colors.erase(it);
+		}
+	}while(it != m_voxel->colors.begin()+1); //skip the first element wich is "0"
+
+	//remove colors from the combo box
+	updateColorSelection(*m_voxel);
+}
+
+// ******************************************* //
 void ComponentEditor::voxelChosen(const QString & _text)
 {
 	//save changes to current voxel made in the editor/ mask
@@ -379,12 +410,7 @@ void ComponentEditor::voxelChosen(const QString & _text)
 			ui.checkBoxSolid->setChecked(m_voxels[i]->isSolid);*/
 			
 			//add colors to the comboBox
-			for(int v = 0; v < m_voxels[i]->colors.size(); v++)
-			{
-				QPixmap pixmap(8,8);
-				pixmap.fill(Cube::yCbCrToRGB(m_voxels[i]->colors[v]));
-				ui.comboBox->addItem(QIcon(pixmap), QString::number(m_voxels[i]->colors[v], 16));
-			}
+			updateColorSelection(*m_voxels[i]);
 			
 			//number of iterations for cube fo len textureResolution
 			/*int it = m_voxels[i]->textureResolution*m_voxels[i]->textureResolution*m_voxels[i]->textureResolution;//number of iterations for cube fo len textureResolution
@@ -516,4 +542,16 @@ void ComponentEditor::updateAttributes()
 		else attributes.emplace_back(name,value.toStdString());
 	}
 
+}
+
+// *************************************************** //
+void ComponentEditor::updateColorSelection(const Voxel& _voxel)
+{
+	ui.comboBox->clear();
+	for(int v = 0; v < _voxel.colors.size(); v++)
+			{
+				QPixmap pixmap(8,8);
+				pixmap.fill(Cube::yCbCrToRGB(_voxel.colors[v]));
+				ui.comboBox->addItem(QIcon(pixmap), QString::number(_voxel.colors[v], 16));
+			}
 }

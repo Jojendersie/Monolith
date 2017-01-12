@@ -41,7 +41,10 @@ private slots:
 	//creates an filedialog and saves all voxel into the chosen file, erasing its previous content
 	void save();
 
-	//
+	void activateUi();
+	
+	void clearColors();
+
 	void showAll(){m_view->showHidden();}
 	void toggleHidden() {m_view->toggleHidden();}
 
@@ -64,6 +67,7 @@ private:
 	void updateTable();
 	//table -> attributes
 	void updateAttributes();
+	void updateColorSelection(const Voxel& _voxel);
 
 	void closeEvent(QCloseEvent *event);
 

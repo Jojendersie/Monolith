@@ -15,6 +15,9 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QGroupBox" name="groupBox">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -83,6 +86,9 @@
     </widget>
    </widget>
    <widget class="QGroupBox" name="generalInfos">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -123,6 +129,9 @@
     </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_2">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -270,11 +279,14 @@
       <string>mode used to place voxels</string>
      </property>
      <property name="text">
-      <string>fill</string>
+      <string>set</string>
      </property>
     </widget>
    </widget>
    <widget class="QPushButton" name="pushButtonSwap">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -324,14 +336,6 @@
    <addaction name="menuFile"/>
    <addaction name="menuInfo"/>
    <addaction name="menuEdit"/>
-  </widget>
-  <widget class="QToolBar" name="mainToolBar">
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen">

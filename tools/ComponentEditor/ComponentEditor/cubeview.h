@@ -25,6 +25,7 @@ enum Mode
 	Set,
 	Fill, 
 	Sphere,
+	Recolor,
 	Count
 };
 
@@ -32,7 +33,8 @@ const std::array<std::string, Count> ModeStrings =
 {
 	std::string("set"),
 	std::string("fill"),
-	std::string("Ellipsoid")
+	std::string("Ellipsoid"),
+	std::string("recolor")
 };
 
 
@@ -52,7 +54,8 @@ public:
 	bool getState(int _x, int _y, int _z) {return m_cubeData[INDEX(_x, _y, _z)].getState();};
 
 	//changes the state and color of all cubes with the color _color
-	void changeCubes(unsigned int _color, unsigned int _newColor = 0, bool _state = false);
+	// returns true when any cubes where fonud
+	bool changeCubes(unsigned int _color, unsigned int _newColor = 0, bool _state = false);
 
 	const std::string& changeMode();
 	// makes all hidden cubes visible again

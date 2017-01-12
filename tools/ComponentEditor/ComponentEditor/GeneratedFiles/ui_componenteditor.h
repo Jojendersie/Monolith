@@ -24,7 +24,6 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTableWidget>
-#include <QtWidgets/QToolBar>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -62,7 +61,6 @@ public:
     QMenu *menuFile;
     QMenu *menuInfo;
     QMenu *menuEdit;
-    QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
     void setupUi(QMainWindow *ComponentEditorClass)
@@ -86,6 +84,7 @@ public:
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         groupBox = new QGroupBox(centralWidget);
         groupBox->setObjectName(QStringLiteral("groupBox"));
+        groupBox->setEnabled(false);
         groupBox->setGeometry(QRect(10, 130, 211, 81));
         lineEdit = new QLineEdit(groupBox);
         lineEdit->setObjectName(QStringLiteral("lineEdit"));
@@ -101,6 +100,7 @@ public:
         BtnColorRemove->setGeometry(QRect(170, 50, 31, 23));
         generalInfos = new QGroupBox(centralWidget);
         generalInfos->setObjectName(QStringLiteral("generalInfos"));
+        generalInfos->setEnabled(false);
         generalInfos->setGeometry(QRect(10, 210, 221, 281));
         attributeTable = new QTableWidget(generalInfos);
         if (attributeTable->columnCount() < 2)
@@ -114,6 +114,7 @@ public:
         attributeTable->setColumnCount(2);
         groupBox_2 = new QGroupBox(centralWidget);
         groupBox_2->setObjectName(QStringLiteral("groupBox_2"));
+        groupBox_2->setEnabled(false);
         groupBox_2->setGeometry(QRect(10, 20, 221, 111));
         lineEdit_2 = new QLineEdit(groupBox_2);
         lineEdit_2->setObjectName(QStringLiteral("lineEdit_2"));
@@ -148,6 +149,7 @@ public:
         pushButtonMode->setGeometry(QRect(50, 85, 121, 20));
         pushButtonSwap = new QPushButton(centralWidget);
         pushButtonSwap->setObjectName(QStringLiteral("pushButtonSwap"));
+        pushButtonSwap->setEnabled(false);
         pushButtonSwap->setGeometry(QRect(20, 0, 191, 23));
         ComponentEditorClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(ComponentEditorClass);
@@ -160,9 +162,6 @@ public:
         menuEdit = new QMenu(menuBar);
         menuEdit->setObjectName(QStringLiteral("menuEdit"));
         ComponentEditorClass->setMenuBar(menuBar);
-        mainToolBar = new QToolBar(ComponentEditorClass);
-        mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
-        ComponentEditorClass->addToolBar(Qt::TopToolBarArea, mainToolBar);
         statusBar = new QStatusBar(ComponentEditorClass);
         statusBar->setObjectName(QStringLiteral("statusBar"));
         ComponentEditorClass->setStatusBar(statusBar);
@@ -234,7 +233,7 @@ public:
 #ifndef QT_NO_TOOLTIP
         pushButtonMode->setToolTip(QApplication::translate("ComponentEditorClass", "mode used to place voxels", 0));
 #endif // QT_NO_TOOLTIP
-        pushButtonMode->setText(QApplication::translate("ComponentEditorClass", "fill", 0));
+        pushButtonMode->setText(QApplication::translate("ComponentEditorClass", "set", 0));
 #ifndef QT_NO_TOOLTIP
         pushButtonSwap->setToolTip(QApplication::translate("ComponentEditorClass", "swap", 0));
 #endif // QT_NO_TOOLTIP

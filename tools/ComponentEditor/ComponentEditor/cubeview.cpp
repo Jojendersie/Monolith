@@ -258,7 +258,7 @@ void CubeView::mouseReleaseEvent( QMouseEvent* _e )
 	std::function<void(Cube&)> processCube;
 
 	Cube* focus;
-	if(_e->button() == Qt::LeftButton || m_mode == Mode::Sphere)
+	if(_e->button() == Qt::LeftButton || m_mode == Mode::Sphere || m_mode == Mode::Recolor)
 		focus = getMouseFocus(true);
 	else focus = getMouseFocus(false);
 
@@ -270,7 +270,7 @@ void CubeView::mouseReleaseEvent( QMouseEvent* _e )
 
 	if(_e->button() == Qt::LeftButton)
 	{
-		processCube = [](Cube& _cube){_cube.setState(false);};
+		processCube = [](Cube& _cube){_cube.setState(false); _cube.setColor(0);};
 	}
 	else if(_e->button() == Qt::RightButton)
 	{
@@ -291,6 +291,7 @@ void CubeView::mouseReleaseEvent( QMouseEvent* _e )
 			};
 			break;
 		case Mode::Sphere:
+			{
 			float centerX = (m_selected->locX + focus->locX) / 2.f;
 			float centerY = (m_selected->locY + focus->locY) / 2.f;
 			float centerZ = (m_selected->locZ + focus->locZ) / 2.f;
@@ -306,6 +307,13 @@ void CubeView::mouseReleaseEvent( QMouseEvent* _e )
 					_cube.setColor(m_color);
 					_cube.setState(true);
 				}
+			};
+			break;
+			}
+		case Mode::Recolor:
+			processCube =  [&](Cube& _cube){
+				if(_cube.getState())
+				_cube.setColor(m_color);
 			};
 			break;
 		}
@@ -450,21 +458,24 @@ void CubeView::colorChanged(QString& _s)
 
 // ***************************************************** //
 
-void CubeView::changeCubes(unsigned int _color, unsigned int _newColor, bool _state)
+bool CubeView::changeCubes(unsigned int _color, unsigned int _newColor, bool _state)
 {
 	size_t index = 0;
+	bool found = false;
 	FOREACH
 	{
 		if(m_cubeData[index].m_colorOrg == _color)
 		{
 			m_cubeData[index].setColor(_newColor);
 			m_cubeData[index].setState(_state);
+			found = true;
 		}
 
 		index++;
 	}
 	//show changes
 	update();
+	return found;
 }
 
 // ***************************************************** //
