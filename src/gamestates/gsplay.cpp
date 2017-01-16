@@ -138,7 +138,7 @@ void GSPlay::OnBegin()
 	//	playerModel->SetRotation(aiTestShip->GetRotation());
 
 		m_hud->m_mainMessageBox->DisplayMsg("Welcome to the Monolith \ntest-universe. ", 3.f);
-		/*for( int i = 0; i < 25; ++i )
+		for( int i = 0; i < 25; ++i )
 		{
 			Generators::Random rnd(i*4+1);
 			auto model = new Generators::Asteroid( rnd.Uniform(10, 30), rnd.Uniform(10, 30), rnd.Uniform(10, 30), i );
@@ -147,7 +147,7 @@ void GSPlay::OnBegin()
 			model->Rotate(rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI));
 			m_scene.AddObject(model);
 		//	if(i==0) m_camera->ZoomAt( *model, Input::Camera::FOLLOW_AND_ROTATE );
-		}*/
+		}
 		/*Generators::Random rnd(484);
 		auto model = new Generators::Asteroid( 200, 200, 200, 846 );
 		model->SetPosition( FixVec3(Vec3(0.0f)) );
@@ -225,7 +225,6 @@ void GSPlay::Render( double _deltaTime )
 	m_hud->m_dbgLabel->SetText("<s 024>" + std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(RenderStat::g_numVoxels) + "\n#Chunks: " + std::to_string(RenderStat::g_numChunks)+"</s>");
 	m_hud->m_velocityLabel->SetText(StringUtils::ToFixPoint(len(m_player->GetShip()->GetVelocity()), 1) + "m/s");
 	m_hud->m_targetVelocityLabel->SetText(StringUtils::ToFixPoint(len(m_player->GetShip()->GetTargetVelocity()), 1) + "m/s");
-//	float res = m_player->GetShip()->GetPrimarySystem().TempGetCharge();
 //	m_hud->m_batteryDisplay->SetFillLevel(m_player->GetShip()->GetPrimarySystem().TempGetCharge());
 	m_hud->Draw( _deltaTime );
 }

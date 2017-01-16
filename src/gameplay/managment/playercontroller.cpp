@@ -60,7 +60,7 @@ void PlayerController::KeyRelease(int _key)
 
 	if (_key == GLFW_KEY_V)
 	{
-		m_camera->SetRelativePosition(m_ship->GetNextView() - Vec3(0.f,0.f,5.0f)); // no idea why the z offset has to be that high...
+		m_camera->SetRelativePosition(m_ship->GetNextView() - Vec3(0.f,0.f,0.8f)); // z offset seems to correspond with the near plane
 	}
 }
 

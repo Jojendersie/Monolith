@@ -21,6 +21,10 @@ namespace RenderStat {
 
 namespace Voxel {
 
+	// how strongly velocity follows rotation
+	// physically correct would be 0
+	const float ROTATE_VELOCITY_COUPLING = 0.7f;
+
 	Model::Model() :
 		m_numVoxels(0),
 		m_mass(0.0f),
@@ -274,7 +278,13 @@ namespace Voxel {
 		Rotate( deltaRot );
 		// Also rotate the velocity, while this is not physical plausible it increases
 		// the playability extreme.
-		if(m_rotateVelocity) m_velocity = transform(m_velocity, deltaRot);
+		
+		if (m_rotateVelocity)
+		{
+			
+			deltaRot *= ROTATE_VELOCITY_COUPLING;
+			m_velocity = transform(m_velocity, deltaRot);
+		}
 	}
 
 	// ********************************************************************* //

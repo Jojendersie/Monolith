@@ -14,7 +14,7 @@ namespace Script{
 		DisplayMode mode;
 	};
 
-	typedef std::vector<struct Script::DisplayValue* const> VarRefContainer;
+	typedef std::vector<Script::DisplayValue* const> VarRefContainer;
 }
 
 extern NaReTi::ScriptEngine g_scriptEngine;

@@ -67,7 +67,7 @@ namespace Mechanics {
 
 	void DriveSystem::Process(float _deltaTime, SystemRequierements& _provided)
 	{
-		if(m_energyDemand)
+		if (m_energyDemand)
 		{
 			// Scale to available energy
 			float e = m_energyIn / m_energyDemand;

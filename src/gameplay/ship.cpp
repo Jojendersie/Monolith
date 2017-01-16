@@ -10,6 +10,9 @@ Ship::Ship() :
 	m_centralComputerPosition(2012, 2012, 2012)
 {
 	Model::Set(m_centralComputerPosition, Voxel::ComponentType::COMPUTER);
+	
+	//default view that allows scrolling
+	m_views.push_back(Vec3(0.f));
 
 	m_rotateVelocity = true;
 }
@@ -118,7 +121,7 @@ void Ship::ReleaseSystemID( unsigned _id )
 
 Vec3 Ship::GetNextView()
 {
-	return m_views[++m_currentView % m_views.size()] + 0.5f - GetCenter();
+	return m_views[++m_currentView % m_views.size()];
 }
 
 // ********************************************************************* //

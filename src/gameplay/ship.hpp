@@ -67,12 +67,12 @@ public:
 	/// \brief Compute complex informations if the underlying model changed
 	void ComputeParameters();
 protected:
-	void AddView(const ei::IVec3& _pos) { m_views.push_back(_pos); }
+	void AddView(const ei::IVec3& _pos) { m_views.push_back(_pos + ei::Vec3(0.5f,0.6f,0.56f) - GetCenter()); }
 
 	std::vector<bool> m_computerSystemAllocation;	///< One ship can have up to 256 computer systems. The primary system is 0. true means the system id is used.
 	Mechanics::ComputerSystem m_primarySystem;
 	ei::IVec3 m_centralComputerPosition;
-	std::vector<ei::IVec3> m_views; ///< Cameras or cockpits of this ship.
+	std::vector<ei::Vec3> m_views; ///< Cameras or cockpits of this ship.
 	int m_currentView; 
 	/*int m_ticks;		///< Simulation counter which reduces the number of specific simulation steps. Is reset to 0 when it reaches WEAPON_TICKS * THRUSTER_TICKS * ....
 	// individual systems every n ticks. This list defines the number of frames

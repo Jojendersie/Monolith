@@ -17,7 +17,7 @@ namespace Input {
 		m_attachMode( REFERENCE_ONLY ),
 		m_phi(0.0f),
 		m_theta(0.0f),
-		m_nearPlane(5.0f),
+		m_nearPlane(0.1f),
 		m_farPlane(50000.0f)
 	{
 		UpdateMatrices();

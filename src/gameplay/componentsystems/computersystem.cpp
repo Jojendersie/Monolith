@@ -53,7 +53,7 @@ namespace Mechanics {
 
 		float energyUsed = m_drives.m_energyIn + m_sensors.m_energyIn
 			+ m_shields.m_energyIn + m_weapons.m_energyIn;
-
+		//std::cout << /*(char*)&m_batteries.m_capacity - (char*)&m_batteries << std::endl;//*/&BatterySystem::m_capacity << std::endl;
 		// the distribution given by the script can not be done
 		if (energyUsed > m_energyMaxOut + 0.05f)
 		{
@@ -144,7 +144,7 @@ namespace Mechanics {
 	}
 
 	// ************************************************************* //
-	void ComputerSystem::GetDisplayVars(std::vector<Script::DisplayValue* const>& _target)
+	void ComputerSystem::GetDisplayVars(Script::VarRefContainer& _target)
 	{
 		auto it = m_scriptModule->getExportVars();
 
