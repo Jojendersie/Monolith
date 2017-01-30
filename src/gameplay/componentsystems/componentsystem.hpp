@@ -12,6 +12,7 @@ namespace Mechanics {
 	{
 		ei::Vec3 thrust;	///< Required force to accelerate the ship
 		ei::Vec3 torque;	///< Required torque to rotate the ship
+		ei::Vec3 cursorDirection; ///< Direction of a ray begining from
 	};
 
 	/// \brief Base class for all different acting component types / groups.

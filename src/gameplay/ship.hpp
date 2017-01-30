@@ -45,6 +45,9 @@ public:
 	void SetTargetAngularVelocity( const ei::Vec3& _rotation )	{ m_targetAngularVelocity = _rotation; }
 	const ei::Vec3& GetTargetAngularVelocity() const { return m_targetAngularVelocity; }
 
+	void SetPointingDirection(const ei::Vec3& _direction) { m_pointingDirection = _direction; }
+	const ei::Vec3& GetPointingDirection(const ei::Vec3& _direction) const { return m_pointingDirection; }
+
 	/// \brief Get current ship rotation.
 	const ei::Quaternion& GetRotation() const { return Model::GetRotation(); }
 	const ei::IVec3& GetCentralComputerPosition() const { return m_centralComputerPosition; }
@@ -84,4 +87,5 @@ protected:
 	// Controllable state
 	ei::Vec3 m_targetAngularVelocity;		///< Model space angular velocity
 	ei::Vec3 m_targetVelocity;			///< Model space velocity
+	ei::Vec3 m_pointingDirection;			///< world space pointing direction
 };

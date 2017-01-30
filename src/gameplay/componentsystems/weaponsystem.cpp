@@ -27,7 +27,7 @@ namespace Mechanics {
 		for (auto& weapon : m_weapons)
 			m_energyDemand += min(weapon.cooldown, _deltaTime / weapon.cooldownBase) * weapon.cost;
 	}
-
+	// 333 12 00
 
 	void WeaponSystem::Process(float _deltaTime, SystemRequierements& _provided)
 	{
@@ -43,10 +43,13 @@ namespace Mechanics {
 
 		for (auto& weapon : m_weapons)
 		{
-			if (weapon.cooldown <= 0.f)
+			Vec3 dir = m_ship.GetRotationMatrix() * Vec3(0.f, 0.f, 1.f);
+			float angle = dot(dir, _provided.cursorDirection);
+			//equivalent to acos(angle) < 0.25pi
+			if (weapon.cooldown <= 0.f && angle > cos(0.25f * PI))
 			{
 				weapon.cooldown = weapon.cooldownBase;
-				Ray ray(weapon.position, m_ship.GetRotationMatrix() * Vec3(0.f, 0.f, 1.f)/*zaxis(m_ship.GetRotation())*/);
+				Ray ray(weapon.position, _provided.cursorDirection/*m_ship.GetRotationMatrix() * Vec3(0.f, 0.f, 1.f)*//*zaxis(m_ship.GetRotation())*/);
 
 				ray.origin = m_ship.GetRotationMatrix() * ray.origin;
 				//when the player ship is not in the way

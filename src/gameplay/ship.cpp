@@ -89,6 +89,7 @@ void Ship::Simulate(float _deltaTime)
 	// Estimate the required forces to reach the target velocities
 	requirements.torque = m_inertiaTensor * (deltaAngularVelMod / _deltaTime);
 	requirements.thrust = (m_mass / _deltaTime) * deltaVelMod;
+	requirements.cursorDirection = m_pointingDirection;
 
 	// Do energy management
 	m_primarySystem.Estimate(_deltaTime, requirements);

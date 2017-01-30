@@ -112,6 +112,9 @@ void PlayerController::Process(float _deltaTime)
 	}
 	m_ship->SetTargetAngularVelocity(angularVel);
 
+	Math::WorldRay ray = m_camera->GetRay(Input::Manager::GetCursorPosScreenSpace());
+	m_ship->SetPointingDirection(ray.direction);
+
 	// is this the right place?
 	m_hud.UpdateScriptVars();
 }

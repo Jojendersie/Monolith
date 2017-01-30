@@ -32,7 +32,7 @@ namespace Mechanics {
 
 		virtual void OnAdd(const ei::IVec3& _position, Voxel::ComponentType _type, uint8 _assignment) override;
 
-		void SetTarget(ei::Vec3& _target) { m_target = _target; };
+		void SetTarget(const ei::Vec3& _target) { m_target = _target; };
 
 		void SetFiring(bool _firing) { m_firing = _firing; };
 
