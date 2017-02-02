@@ -68,9 +68,16 @@ namespace Graphic {
 			break;
 		case Effects::BLOB_PARTICLE:
 			s_effects[(int)_effect] = new Effect("shader/particle/blob.vs", "shader/particle/blob.ps", "shader/particle/blob.gs");
-			s_effects[(int)_effect]->SetBlendState(BlendState(Graphic::BlendState::BLEND_OPERATION::ADD, Graphic::BlendState::BLEND::ONE, Graphic::BlendState::BLEND::ONE));
+			s_effects[(int)_effect]->SetBlendState(BlendState(Graphic::BlendState::BLEND_OPERATION::ADD, Graphic::BlendState::BLEND::SRC_ALPHA, Graphic::BlendState::BLEND::ONE));
 			s_effects[(int)_effect]->SetDepthStencilState( DepthStencilState(Graphic::DepthStencilState::COMPARISON_FUNC::LESS, false) );
 			s_effects[(int)_effect]->BindUniformBuffer( GetUBO(UniformBuffers::SIMPLE_OBJECT) );
+			s_effects[(int)_effect]->BindUniformBuffer(GetUBO(UniformBuffers::GLOBAL));
+			break;
+		case Effects::RAY_PARTICLE:
+			s_effects[(int)_effect] = new Effect("shader/particle/ray.vs", "shader/particle/ray.ps", "shader/particle/ray.gs");
+			s_effects[(int)_effect]->SetBlendState(BlendState(BlendState::BLEND_OPERATION::ADD, BlendState::BLEND::SRC_ALPHA, BlendState::BLEND::ONE));
+			s_effects[(int)_effect]->SetDepthStencilState(DepthStencilState(Graphic::DepthStencilState::COMPARISON_FUNC::LESS, false));
+			s_effects[(int)_effect]->BindUniformBuffer(GetUBO(UniformBuffers::SIMPLE_OBJECT));
 			s_effects[(int)_effect]->BindUniformBuffer(GetUBO(UniformBuffers::GLOBAL));
 			break;
 		}

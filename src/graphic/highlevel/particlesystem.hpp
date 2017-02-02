@@ -33,6 +33,7 @@ namespace Graphic {
 				GRAVITATION = 0x8,	///< Add a single center of gravitation which draws all particles to it or pushes them away.
 				COLOR = 0x10,		///< Add one color per particle. If this is not set the system wide color is enabled instead.
 				SIZE = 0x20,		///< Add a size per particle. If this is not set the system wide size is enabled instead.
+				DIRECTION = 0x40
 			};
 		};
 
@@ -161,6 +162,16 @@ namespace Graphic {
 			static void Add(const T&) {}
 		};
 
+		/// \brief Direction components for all particles. Only useful for rays.
+		struct DirectionComponents
+		{
+			DirectionComponents();
+			std::shared_ptr< DataBuffer > m_directions;
+			void Add(const ei::Vec3& _dir);
+			void Remove(size_t _idx);
+			void AttachTo(VertexArrayBuffer& _vertexArray);
+		};
+
 		/// \brief Helper class for component system meta programming.
 		template<typename Base>
 		struct FuncNOP
@@ -228,7 +239,8 @@ namespace Graphic {
 			public inherit_conditional<(PFlags & Component::LIFETIME) != 0, LifetimeComponents, NoComponent>,
 			public inherit_conditional<(PFlags & Component::GRAVITATION) != 0, GravitationComponent, NoComponent>,
 			public inherit_conditional<(PFlags & Component::COLOR) != 0, ColorComponents, PSColorComponent>,
-			public inherit_conditional<(PFlags & Component::SIZE) != 0, SizeComponents, PSSizeComponent>
+			public inherit_conditional<(PFlags & Component::SIZE) != 0, SizeComponents, PSSizeComponent>,
+			public inherit_conditional<(PFlags & Component::DIRECTION) != 0, DirectionComponents, NoComponent>
 		{
 			#define PFlagsWOGlobal  (PFlags & ~(Component::GRAVITATION))
 			// Compiletime while loop which finds the next flag set in PFlags
@@ -259,6 +271,7 @@ namespace Graphic {
 				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & Component::LIFETIME) != 0, LifetimeComponents, NoComponent>::Add(_param0);
 				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & Component::COLOR) != 0, ColorComponents, PSColorComponent>::Add(_param0);
 				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & Component::SIZE) != 0, SizeComponents, PSSizeComponent>::Add(_param0);
+				inherit_conditional<(TheFlag & PFlags) != 0 && (TheFlag & Component::DIRECTION) != 0, DirectionComponents, NoComponent>::Add(_param0);
 				AddParticle<NextFlag<TheFlag, false>::Get, RemainingFlags ^ TheFlag>(_params...);
 			}
 
@@ -269,6 +282,7 @@ namespace Graphic {
 				inherit_conditional<(PFlags & Component::LIFETIME) != 0, LifetimeComponents, NoComponent>::Remove(_idx);
 				inherit_conditional<(PFlags & Component::COLOR) != 0, ColorComponents, PSColorComponent>::Remove(_idx);
 				inherit_conditional<(PFlags & Component::SIZE) != 0, SizeComponents, PSSizeComponent>::Remove(_idx);
+				inherit_conditional<(PFlags & Component::DIRECTION) != 0, DirectionComponents, NoComponent>::Remove(_idx);
 				m_numParticles--;
 			}
 			#undef PFlagsWOGlobal
@@ -310,6 +324,8 @@ namespace Graphic {
 		public:
 			System(RenderType _renderer)
 			{
+				Assert(!(PFlags & Component::DIRECTION) || _renderer == RenderType::RAY,
+					"Direction is required if and only if RenderType is RAY.");
 				m_renderer = _renderer;
 				// Register the system where the runtime can see it.
 				Manager::Register(this);
@@ -318,6 +334,7 @@ namespace Graphic {
 				inherit_conditional<(PFlags & Component::POSITION) != 0, PositionComponents, NoComponent>::AttachTo(m_particleVertices);
 				inherit_conditional<(PFlags & Component::COLOR) != 0, ColorComponents, PSColorComponent>::AttachTo(m_particleVertices);
 				inherit_conditional<(PFlags & Component::SIZE) != 0, SizeComponents, PSSizeComponent>::AttachTo(m_particleVertices);
+				inherit_conditional<(PFlags & Component::DIRECTION) != 0, DirectionComponents, NoComponent>::AttachTo(m_particleVertices);
 			}
 			~System()
 			{

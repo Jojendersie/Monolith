@@ -19,6 +19,7 @@ namespace Graphic {
 		ALPHA_FRONT = 5,	///< Draw a mesh's front faces with ab. enabled. Bound UBOs: {SIMPLE_OBJECT}
 		BACKGROUNDSTAR = 6, ///< Draw stars with and without translation to the camera. Bound UBOs: {CAMERA, GLOBAL}
 		BLOB_PARTICLE = 7,	///< Draw round particles with increasing transparents to the borders. Bound UBOs: {SIMPLE_OBJECT, GLOBAL}
+		RAY_PARTICLE = 8,	///< Draw ray particles.
 		COUNT				///< Number of effects - this must be the last enumeration member
 	};
 

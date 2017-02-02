@@ -12,7 +12,8 @@ namespace Mechanics {
 
 	WeaponSystem::WeaponSystem(Ship& _theShip, unsigned _id)
 		: ComponentSystem(_theShip, "Weapons", _id),
-		m_particles(Graphic::ParticleSystems::RenderType::BLOB) //RAY
+		m_particles(Graphic::ParticleSystems::RenderType::RAY),
+		m_muzzleFlash(Graphic::ParticleSystems::RenderType::BLOB)
 	{
 		m_firing = false;
 	}
@@ -66,24 +67,43 @@ namespace Mechanics {
 					wRay.direction = ray.direction;
 					float d = g_fireManager->FireRay(FireRayInfo(wRay, weapon.damage));
 
+					// the ray
+					m_particles.AddParticle(basePos, //position
+						m_ship.GetVelocity(),//ray.direction * c_projVel * i / 10.f,// velocity
+						0.15f, //life time
+						Utils::Color8U(0.4f, 0.1f, 0.8f).RGBA(),
+						0.3f,
+						ray.direction * d);
+
+					static Generators::Random rn(351298);
+
+					//muzzleflash
 					for (int i = 0; i < 10; ++i)
+						m_muzzleFlash.AddParticle(basePos, //position
+						ray.direction * 0.8f + rn.Direction() * 0.7f, //velocity
+						0.1f + rn.Normal(0.1f), //life time
+						Utils::Color8U(0.2f, 0.4f, 0.9f, 0.5f).RGBA(),
+						0.2f);
+
+				/*	for (int i = 0; i < 10; ++i)
 					m_particles.AddParticle(basePos, //position
 						ray.direction * c_projVel * i / 10.f,// velocity
 						d / c_projVel, //life time
 						Utils::Color8U(0.4f, 0.1f, 0.8f).RGBA(),
-						1.f);
+						1.f,
+						ray.direction);*/
 
 					//temporary, hit feedback should be done by the model?
 					if (d != 100.f)
 					{
-						static Generators::Random rng(351298);
+						static Generators::Random rng(103423);
 						Vec3 hitPos(basePos + ray.direction * d);
 
-						for (int i = 0; i < 50; ++i)
-							m_particles.AddParticle(hitPos, //position
+						for (int i = 0; i < 30; ++i)
+							m_muzzleFlash.AddParticle(hitPos, //position
 								Vec3(rng.Uniform(0.1f, 3.0f), rng.Uniform(0.1f,3.0f), rng.Uniform(0.1f, 3.0f)),// velocity
 								rng.Uniform(0.2f, 1.f), //life time
-								Utils::Color8U(0.15f, 0.2f, 0.2f).RGBA(),
+								Utils::Color8U(0.15f, 0.2f, 0.2f, 0.5f).RGBA(),
 								0.5f);
 					}
 				}

@@ -45,7 +45,14 @@ namespace Mechanics {
 
 		std::vector < WeaponInformation > m_weapons;
 
-		Graphic::ParticleSystems::System<Graphic::PSComponent::POSITION | Graphic::PSComponent::VELOCITY | Graphic::PSComponent::LIFETIME | Graphic::PSComponent::COLOR | Graphic::PSComponent::SIZE> m_particles;
+		Graphic::ParticleSystems::System<Graphic::PSComponent::POSITION 
+			| Graphic::PSComponent::VELOCITY | Graphic::PSComponent::LIFETIME 
+			| Graphic::PSComponent::COLOR | Graphic::PSComponent::SIZE 
+			| Graphic::PSComponent::DIRECTION> m_particles;
+
+		Graphic::ParticleSystems::System<Graphic::PSComponent::POSITION
+			| Graphic::PSComponent::VELOCITY | Graphic::PSComponent::LIFETIME
+			| Graphic::PSComponent::COLOR | Graphic::PSComponent::SIZE> m_muzzleFlash;
 	};
 
 }

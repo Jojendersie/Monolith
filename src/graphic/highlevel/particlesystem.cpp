@@ -76,6 +76,7 @@ void ParticleSystems::SystemActions::Draw( const Input::Camera& _camera )
 	Mat4x4 modelViewProj = m_systemTransformation.GetTransformation(_camera.Transformation());
 	modelViewProj = _camera.GetProjection() * modelViewProj;
 	Resources::GetUBO(UniformBuffers::SIMPLE_OBJECT)["WorldViewProjection"] = modelViewProj;
+	Resources::GetUBO(UniformBuffers::GLOBAL)["Time"] = rand(); // real game time is not easily available
 
 	// Set renderer and do draw call. The set has no effect if the renderer is
 	// currently active.
@@ -83,6 +84,10 @@ void ParticleSystems::SystemActions::Draw( const Input::Camera& _camera )
 	{
 	case RenderType::BLOB:
 		Device::SetEffect(	Resources::GetEffect(Effects::BLOB_PARTICLE) );
+		break;
+	case RenderType::RAY:
+		Device::SetEffect(Resources::GetEffect(Effects::RAY_PARTICLE));
+		break;
 	}
 	m_particleVertices.Bind();
 	Graphic::Device::DrawVertices( m_particleVertices, 0, GetNumParticles() );
@@ -201,6 +206,29 @@ void PSSizeComponent::AttachTo(VertexArrayBuffer& _vertexArray)
 	_vertexArray.AttachBuffer(m_systemSize);
 }
 
+// ************************************************************************* //
+// direction components
+DirectionComponents::DirectionComponents()
+{
+	m_directions = std::make_shared<DataBuffer>(std::initializer_list<VertexAttribute>({ { VertexAttribute::VEC3, 4 } }), false);
+}
+
+void DirectionComponents::Add(const ei::Vec3& _pos)
+{
+	m_directions->Add(_pos);
+	m_directions->Touch();
+}
+
+void DirectionComponents::Remove(size_t _idx)
+{
+	m_directions->Remove<ei::Vec3>((int)_idx);
+	m_directions->Touch();
+}
+
+void DirectionComponents::AttachTo(VertexArrayBuffer& _vertexArray)
+{
+	_vertexArray.AttachBuffer(m_directions);
+}
 
 } // namespace ParticleSystem
 } // namespace Graphic
