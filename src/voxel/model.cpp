@@ -742,6 +742,7 @@ namespace Voxel {
 			mod->UpdateCenter(shift);
 			mod->UpdateInertialTensor();
 			// calculate movement of the pieces
+			mod->AddVelocity(m_velocity - mod->GetVelocity());
 			mod->AddVelocity(cross(GetAngularVelocity(), shift));
 			//simulate some explosion in the center of mass, only to make some visible change
 		//	mod->AddVelocity(Vec3(10.f, 0.f, 0.f));

@@ -3,12 +3,13 @@
 
 struct FireRayInfo
 {
-	FireRayInfo(const Math::WorldRay& _ray, int _damage) :
+	FireRayInfo(const Math::WorldRay& _ray, int _damage, float _range) :
 		ray(_ray),
-		damage(_damage)
+		damage(_damage),
+		range(_range)
 	{}
 	Math::WorldRay ray;
-
+	float range;
 	int damage;
 };
 

@@ -121,7 +121,7 @@ void GSPlay::OnBegin()
 		aiTestShip->Load(Jo::Files::HDDFile("savegames/playership.vmo"));
 		aiTestShip->SetPosition(FixVec3(Fix(5.0), Fix(0.0), Fix(0.0)));
 		aiTestShip->SetRotation(Quaternion(0.f, 0.f, 0.f));
-	//	SOHandle hndl = m_scene.AddObject(aiTestShip);
+		SOHandle hndl = m_scene.AddObject(aiTestShip);
 	//	aiTest01 = new Controller(hndl);
 	//	aiTest01->FlyToPosition(collTest02->GetPosition());
 
@@ -138,7 +138,7 @@ void GSPlay::OnBegin()
 	//	playerModel->SetRotation(aiTestShip->GetRotation());
 
 		m_hud->m_mainMessageBox->DisplayMsg("Welcome to the Monolith \ntest-universe. ", 3.f);
-		for( int i = 0; i < 25; ++i )
+	/*	for( int i = 0; i < 25; ++i )
 		{
 			Generators::Random rnd(i*4+1);
 			auto model = new Generators::Asteroid( rnd.Uniform(10, 30), rnd.Uniform(10, 30), rnd.Uniform(10, 30), i );
@@ -147,8 +147,8 @@ void GSPlay::OnBegin()
 			model->Rotate(rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI));
 			m_scene.AddObject(model);
 		//	if(i==0) m_camera->ZoomAt( *model, Input::Camera::FOLLOW_AND_ROTATE );
-		}
-		/*Generators::Random rnd(484);
+		}*/
+	/*	Generators::Random rnd(484);
 		auto model = new Generators::Asteroid( 200, 200, 200, 846 );
 		model->SetPosition( FixVec3(Vec3(0.0f)) );
 		model->Rotate(rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI), rnd.Uniform(-PI, PI));

@@ -25,9 +25,9 @@ namespace Graphic
 	//		m_screenTextures[i] = nullptr;
 		if (m_showDbg)
 		{
-			m_dbgLabel = new TextRender();//DEFAULT
+			m_dbgLabel = std::make_unique<TextRender>();//DEFAULT
 			m_dbgLabel->SetPosition(Vec2(0.5f, 0.8f));
-			AddTextRender(m_dbgLabel);
+			AddTextRender(m_dbgLabel.get());
 		}
 
 		m_texContainerMap = &Graphic::Resources::GetTextureMap();//new Jo::Files::MetaFileWrapper( file, Jo::Files::Format::SRAW );
@@ -45,7 +45,7 @@ namespace Graphic
 	// ************************************************************************* //
 	Hud::~Hud()
 	{
-		delete m_dbgLabel;
+	//	delete m_dbgLabel;
 	}
 
 	// ************************************************************************* //

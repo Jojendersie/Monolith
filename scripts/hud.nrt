@@ -1,0 +1,18 @@
+type DisplayValue
+{
+	float value
+	int mode
+}
+
+DisplayValue DisplayValue(float _val, int _mode)
+{
+	DisplayValue dp
+	dp.value = _val
+	dp.mode = _mode
+	
+	return dp
+}
+
+//const
+int DISPLAYMODE_ONLYTEXT = 0
+int DISPLAYMODE_ONLYBAR = 1

@@ -76,7 +76,7 @@ namespace Graphic {
 
 		~Hud();
 
-		TextRender* m_dbgLabel;
+		std::unique_ptr<TextRender> m_dbgLabel;
 
 	private:
 

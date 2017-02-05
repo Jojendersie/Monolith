@@ -6,7 +6,7 @@ out vec4 ps_FragColor;
 
 #include "../globalubo.glsl"
 
-float poltergeist(vec2 coordinate, in float seed)
+float noise(vec2 coordinate, in float seed)
 {
     return fract(sin(dot(coordinate*seed, vec2(12.9898, 78.233)))*43758.5453);
 }
@@ -16,8 +16,8 @@ void main()
 	// Fading along the line direction only close to the ends
 	float fadeLong = max(0, abs(gs_TexCoord.x) * 0.5f - 0.01f);
 	fadeLong = max(0, 1 - fadeLong * fadeLong);
-	// Maximal smooth fading about beem width
 	float distY = gs_TexCoord.y * gs_TexCoord.y;
-	float fadeShort = distY < 0.2*0.2 ? clamp(poltergeist(gs_TexCoord, c_fTime), 0.7,1) : max(0, 0.9 - (distY /** (sin(c_fTime + gs_TexCoord.x * 32.f)*1.5 + 2.5)*/));
+	// inner beam with constant transperancy, fading to 9 outside
+	float fadeShort = distY < 0.2*0.2 ? clamp(noise(gs_TexCoord, c_fTime), 0.7,1) : max(0, 0.9 - (distY /** (sin(c_fTime + gs_TexCoord.x * 32.f)*1.5 + 2.5)*/));
 	ps_FragColor = gs_Color * fadeShort;
 }

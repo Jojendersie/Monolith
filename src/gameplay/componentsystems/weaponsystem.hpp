@@ -17,6 +17,7 @@ namespace Mechanics {
 		int damage; ///< damage that one shot deals
 
 		float cost; ///< energy requirement for one shot
+		float range;
 
 		ei::Vec3 position; ///< relative position
 	};
