@@ -165,7 +165,7 @@ namespace Voxel {
 		{
 			if( !_node->Data().IsDirty() ) return;
 
-			int selfInner = _node->Data().inner;
+			int selfInner = _position.w == 0 ? _node->Data().inner : 0;
 			_node->Data().surface =
 				   ((_left == nullptr)   || !(_left->Data().inner || selfInner))
 				| (((_right == nullptr)  || !(_right->Data().inner || selfInner))  << 1)
