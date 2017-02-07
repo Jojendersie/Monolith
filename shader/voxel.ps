@@ -3,6 +3,7 @@
 flat in vec3 gs_objectPosition;
 // Contains voxel-code, material-code and mip-map level
 flat in ivec3 gs_voxel_material_mipmap;
+flat in vec3 gs_objectNormal;
 in vec3 gs_texCoord;
 out vec4 fragColor;
 uniform isampler2DArray u_componentTex;
@@ -118,12 +119,16 @@ void main()
 	
 	// Estimate normal from the plane we intersected
 	vec3 normalModification = d;
-	d = abs(d - projLength);
-	vec3 normal;
-	if(d.x < 0.0001) normal = (toggleSignX ? dirSign.x : -dirSign.x) * vec3(c_mWorldView[0][rx], c_mWorldView[1][rx], c_mWorldView[2][rx]);
-	if(d.y < 0.0001) normal = (toggleSignY ? dirSign.y : -dirSign.y) * vec3(c_mWorldView[0][ry], c_mWorldView[1][ry], c_mWorldView[2][ry]);
-	if(d.z < 0.0001) normal = (toggleSignZ ? dirSign.z : -dirSign.z) * vec3(c_mWorldView[0][rz], c_mWorldView[1][rz], c_mWorldView[2][rz]);
-	normal = normalize(normal);
+	vec3 normal = vec3(0.0, 0.0, 1.0);
+	if(texSize <= 1) {
+		normal = normalize(gs_objectNormal * mat3(c_mWorldView));
+	} else {
+		d = abs(d - projLength);
+		if(d.x < 0.0001) normal = (toggleSignX ? dirSign.x : -dirSign.x) * vec3(c_mWorldView[0][rx], c_mWorldView[1][rx], c_mWorldView[2][rx]);
+		if(d.y < 0.0001) normal = (toggleSignY ? dirSign.y : -dirSign.y) * vec3(c_mWorldView[0][ry], c_mWorldView[1][ry], c_mWorldView[2][ry]);
+		if(d.z < 0.0001) normal = (toggleSignZ ? dirSign.z : -dirSign.z) * vec3(c_mWorldView[0][rz], c_mWorldView[1][rz], c_mWorldView[2][rz]);
+		normal = normalize(normal);
+	}
 	normalModification = (0.05 - normalModification / projLength * 0.1) * dirSign;
 	vec3 normalTmp;
 	normalTmp[rx] = toggleSignX ? -normalModification.x : normalModification.x;

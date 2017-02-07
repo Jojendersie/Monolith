@@ -6,6 +6,7 @@ in uint vs_out_VoxelCode[1];
 in uint vs_out_MaterialCode[1];
 flat out vec3 gs_objectPosition;
 flat out ivec3 gs_voxel_material_mipmap;
+flat out vec3 gs_objectNormal;
 out vec3 gs_texCoord;
 //flat out float gs_sideLength;
 
@@ -56,7 +57,7 @@ void main(void)
 	gs_objectPosition = vec3(x, y, z);
 	gs_voxel_material_mipmap.y = int(vs_out_MaterialCode[0]);
 	gs_voxel_material_mipmap.x = int(vs_out_VoxelCode[0]);
-	gs_voxel_material_mipmap.z = clamp(int(log2(vPos.z * c_vInverseProjection.y / 16)), 0, 3);
+	gs_voxel_material_mipmap.z = clamp(int(log2(vPos.z * c_vInverseProjection.y / 16)), 0, 4);
 	
 	// To determine the culling the projective position is inverse transformed
 	// back to view space (which is a single mad operation). This direction to
@@ -70,6 +71,7 @@ void main(void)
 	if( dot((c_vCorner000.xyz+c_vCorner110.xyz)*c_vInverseProjection.xyz, vZDir) < 0 ) {
 		if( (vs_out_VoxelCode[0] & uint(0x10)) != uint(0) )
 		{
+			gs_objectNormal = vec3(0,0,-1);
 			gl_Position = c_vCorner000 + vPos;
 			gs_texCoord = vec3(0,0,0);
 			EmitVertex();
@@ -87,6 +89,7 @@ void main(void)
 	} else {
 		if( (vs_out_VoxelCode[0] & uint(0x20)) != uint(0) )
 		{
+			gs_objectNormal = vec3(0,0,1);
 			gl_Position = c_vCorner011 + vPos;
 			gs_texCoord = vec3(0,1,1);
 			EmitVertex();
@@ -106,6 +109,7 @@ void main(void)
 	if( dot((c_vCorner010.xyz+c_vCorner111.xyz)*c_vInverseProjection.xyz, vZDir) < 0 ) {
 		if( (vs_out_VoxelCode[0] & uint(0x08)) != uint(0) )
 		{
+			gs_objectNormal = vec3(0,1,0);
 			gl_Position = c_vCorner010 + vPos;
 			gs_texCoord = vec3(0,1,0);
 			EmitVertex();
@@ -123,6 +127,7 @@ void main(void)
 	} else {
 		if( (vs_out_VoxelCode[0] & uint(0x04)) != uint(0) )
 		{
+			gs_objectNormal = vec3(0,-1,0);
 			gl_Position = c_vCorner100 + vPos;
 			gs_texCoord = vec3(1,0,0);
 			EmitVertex();
@@ -142,6 +147,7 @@ void main(void)
 	if( dot((c_vCorner000.xyz+c_vCorner011.xyz)*c_vInverseProjection.xyz, vZDir) < 0 ) {
 		if( (vs_out_VoxelCode[0] & uint(0x01)) != uint(0) )
 		{
+			gs_objectNormal = vec3(-1,0,0);
 			gl_Position = c_vCorner000 + vPos;
 			gs_texCoord = vec3(0,0,0);
 			EmitVertex();
@@ -159,6 +165,7 @@ void main(void)
 	} else {
 		if( (vs_out_VoxelCode[0] & uint(0x02)) != uint(0) )
 		{
+			gs_objectNormal = vec3(1,0,0);
 			gl_Position = c_vCorner110 + vPos;
 			gs_texCoord = vec3(1,1,0);
 			EmitVertex();
