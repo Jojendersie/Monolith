@@ -180,8 +180,9 @@ namespace Voxel {
 				Material materials[8];	int num = 0;
 				for( int i = 0; i < 8; ++i )
 				{
-					if( _node->Children()[i].Data().surface ) {
-					//	Assert( _node->Children()[i].Data().material != Material::UNDEFINED );
+					if( _node->Children()[i].Data().surface 
+						&& _node->Children()[i].Data().material != Material::UNDEFINED ) {
+						//Assert( _node->Children()[i].Data().material != Material::UNDEFINED, "Undefined child material in use." );
 						materials[num++] = _node->Children()[i].Data().material;
 					}
 				}
@@ -191,6 +192,7 @@ namespace Voxel {
 					// If all children are non-surface this one is non-surface too.
 					// The estimation from solidity was wrong.
 					_node->Data().surface = 0;
+				Assert(_node->Data().material != Material::UNDEFINED, "The voxel has an undefined material and will appear green.");
 			}
 
 			_node->Data().dirty = 0;

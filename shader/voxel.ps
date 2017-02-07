@@ -90,31 +90,35 @@ void main()
 	if(dirSign.z == 1) d.z = 1-d.z;
 	d *= projLength;
 	
-	if( textureIndex != 0 && texSize > 1 )
+	if( textureIndex != 0 )
 	{
-		// Ray march until a voxel is set in the current configuration
-		codes = texelFetch(u_componentTex, ivec3(rayPos.x + rayPos.y * texSize, rayPos.z, textureIndex), gs_voxel_material_mipmap.z).xy;
-		while((codes.y & voxelMask) == 0)
+		if( texSize > 1 )
 		{
-			if(d.x < d.y || d.z < d.y) {
-				if(d.x < d.z) {
-					rayPos.x += dirSign.x;
-					d.yz -= d.x;
-					d.x = projLength.x;
-				} else {
-					rayPos.z += dirSign.z;
-					d.xy -= d.z;
-					d.z = projLength.z;
-				}
-			} else {
-				rayPos.y += dirSign.y;
-				d.xz -= d.y;
-				d.y = projLength.y;
-			}
-			if(any(greaterThanEqual(rayPos, ivec3(texSize,texSize,texSize))) || any(lessThan(rayPos, ivec3(0,0,0))))
-				discard;
+			// Ray march until a voxel is set in the current configuration
 			codes = texelFetch(u_componentTex, ivec3(rayPos.x + rayPos.y * texSize, rayPos.z, textureIndex), gs_voxel_material_mipmap.z).xy;
-		}
+			while((codes.y & voxelMask) == 0)
+			{
+				if(d.x < d.y || d.z < d.y) {
+					if(d.x < d.z) {
+						rayPos.x += dirSign.x;
+						d.yz -= d.x;
+						d.x = projLength.x;
+					} else {
+						rayPos.z += dirSign.z;
+						d.xy -= d.z;
+						d.z = projLength.z;
+					}
+				} else {
+					rayPos.y += dirSign.y;
+					d.xz -= d.y;
+					d.y = projLength.y;
+				}
+				if(any(greaterThanEqual(rayPos, ivec3(texSize,texSize,texSize))) || any(lessThan(rayPos, ivec3(0,0,0))))
+					discard;
+				codes = texelFetch(u_componentTex, ivec3(rayPos.x + rayPos.y * texSize, rayPos.z, textureIndex), gs_voxel_material_mipmap.z).xy;
+			}
+		} else
+			codes.x = texelFetch(u_componentTex, ivec3(0, 0, textureIndex), gs_voxel_material_mipmap.z).x;
 	}
 	
 	// Estimate normal from the plane we intersected

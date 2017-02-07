@@ -246,7 +246,7 @@ Texture::Texture( unsigned int _width, unsigned int _height, unsigned int _depth
 		GL_CALL(glTexImage3D, m_bindingPoint, level, _format.internalFormat, width, height, _layers,
 							  0, _format.format, _format.type, nullptr);
 		++level;
-	} while (width * height > 1);
+	} while (height > 1);
 
 	m_numMipLevels = GetMaxPossibleMipMapLevels();
 	SetDefaultTextureParameter();

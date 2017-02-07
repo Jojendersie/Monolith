@@ -185,14 +185,16 @@ namespace Voxel {
 	{
 		// Compute level access values
 		int maxLevel = GetMaxLevel(_type);
-		// 0   1   2   3 <- level
-		// 585 73  9   1 <- l ^ 3 * 8 / 7
-		// 584 576 512 0 <- offsets
+		// 0   1   2   3        <- level
+		// 0   r³ r³+(r/2)³ ... <- offsets
+		// 0   1 1+1/8 ...      <- offsets without max resolution factored out
 		if( _level >= maxLevel ) {
-			_edge = (1 << maxLevel);
-			_offset = 0;
+			_edge = 1;
+			int m = 1 << maxLevel;
+			_offset = (m*m*m * 8) / 7 - 1;
 			_position /= 1 << (_level-maxLevel);
 		} else {
+			_level = maxLevel - _level;
 			_edge = (1 << _level);
 			int m = 1 << maxLevel, n = 1 << _level;
 			_offset = (m*m*m * 8) / 7 - (n*n*n * 8) / 7;
@@ -205,7 +207,7 @@ namespace Voxel {
 	Material TypeInfo::GetMaterial( ComponentType _type )
 	{
 		int e, off;
-		int index = SamplePos(_type, ei::IVec3(0), 0, e, off);
+		int index = SamplePos(_type, ei::IVec3(0), GetMaxLevel(_type), e, off);
 		ComponentTypeInfo& currentVoxel = g_InfoManager->m_voxels[(int)_type];
 
 		return currentVoxel.texture[index].material;
@@ -218,7 +220,7 @@ namespace Voxel {
 			LOG_LVL1("The searched voxel type is not defined.");
 			return 0;
 		} else
-			return g_InfoManager->m_voxels[(int)_type].numMipMaps;
+			return g_InfoManager->m_voxels[(int)_type].numMipMaps - 1;
 	}
 
 	// ********************************************************************* //
@@ -468,7 +470,7 @@ namespace Voxel {
 	// ********************************************************************* //
 	int TypeInfo::GenerateMipMap( MatSample* _texture, int _e )
 	{
-		int numLevels = 0;
+		int numLevels = 1;
 		int off = _e*_e*_e;	// Offset of current level
 		int prevoff = 0;	// Offset of previous level
 		while( (_e /= 2) > 0 )
@@ -499,7 +501,7 @@ namespace Voxel {
 						if( _texture[prevoff + parentIndex].material != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex].material );
 						parentIndex = 2 * x + 1 + 2 * _e * (2 * y + 1 + 2 * _e * (2 * z + 1));
 						if( _texture[prevoff + parentIndex].material != Material::UNDEFINED ) buffer.PushBack( _texture[prevoff + parentIndex].material );
-						if( buffer.Size() > 3 )
+						if( buffer.Size() > 0 )
 							_texture[off + index].material = Material(&buffer.First(), buffer.Size());
 						else _texture[off + index].material = Material::UNDEFINED;
 					}
@@ -624,7 +626,7 @@ namespace Voxel {
 						for( pos[0] = 0; pos[0] < res; ++pos[0] ) {
 							ei::IVec3 modPos = pos;
 							int e, off;
-							int index = SamplePos(ComponentType(i), modPos, maxMipMapLevels - l, e, off);
+							int index = SamplePos(ComponentType(i), modPos, l, e, off);
 							// Generate a single material code and a mask for which neighborhood
 							// this sample is visible.
 							// A bit in borderSample.surface is set if the neighbor creates

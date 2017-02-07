@@ -77,8 +77,8 @@ namespace Voxel {
 			// equal the target draw. Thereby targetLOD is the level of the
 			// required root node level. The resulting chunk will be up to 5
 			// levels more tessellated
-			//float detailResolution = 0.31f * log( lensq(boundingSphere.center) );
-			float detailResolution = 0.031f * sq(log( lensq(boundingSphere.center) ));
+			float detailResolution = 0.45f * log( lensq(boundingSphere.center) );
+			//float detailResolution = 0.030f * sq(log( lensq(boundingSphere.center) ));
 			//float detailResolution = 0.045f * pow(log( lengthSq(boundingSphere.m_center) ), 1.65f);
 			int targetLOD = max(LOG_CHUNK_SIZE, (int)ceil(detailResolution));
 			if( _position[3] <= targetLOD )
