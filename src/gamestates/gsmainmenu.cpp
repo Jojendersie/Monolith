@@ -30,17 +30,17 @@ GSMainMenu::GSMainMenu(Monolith* _game) : IGameState(_game)
 	btn0.Scale(Vec2(0.65f));
 
 
-	auto& btn1 = m_hud->CreateScreenElement<Graphic::Button>("menuBtn", Vec2(0.f, -0.02), Vec2(0.f),
+	auto& btn1 = m_hud->CreateScreenElement<Graphic::Button>("menuBtn", Vec2(0.f, -0.02f), Vec2(0.f),
 		G::TopLeft, G::ScreenOverlay::Anchor(G::BotLeft, &btn0), Resources::GetText("editor"),
 		[&]() { m_game->PushState(m_game->GetEditorState());});
 	btn1.Scale(Vec2(0.65f));
 
-	auto& btn2 = m_hud->CreateScreenElement<Graphic::Button>("menuBtn", Vec2(0.f, -0.02), Vec2(0.f),
+	auto& btn2 = m_hud->CreateScreenElement<Graphic::Button>("menuBtn", Vec2(0.f, -0.02f), Vec2(0.f),
 		G::TopLeft, G::ScreenOverlay::Anchor(G::BotLeft, &btn1), Resources::GetText("options"),
 		[&]() { m_finished = true; });
 	btn2.Scale(Vec2(0.65f));
 
-	auto& btn3 = m_hud->CreateScreenElement<Graphic::Button>("menuBtn", Vec2(0.f, -0.02), Vec2(0.f),
+	auto& btn3 = m_hud->CreateScreenElement<Graphic::Button>("menuBtn", Vec2(0.f, -0.02f), Vec2(0.f),
 		G::TopLeft, G::ScreenOverlay::Anchor(G::BotLeft, &btn2), Resources::GetText("end"),
 		[&]() { m_finished = true; });
 	btn3.Scale(Vec2(0.65f));

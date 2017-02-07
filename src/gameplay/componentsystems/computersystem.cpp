@@ -78,7 +78,7 @@ namespace Mechanics {
 			}
 		}
 
-		int off = (char*)&m_batteries.m_capacity - (char*)&m_batteries;
+		//int off = (char*)&m_batteries.m_capacity - (char*)&m_batteries;
 
 		m_batteries.Process(_deltaTime, _provided);
 		m_drives.Process(_deltaTime, _provided);
