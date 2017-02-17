@@ -77,7 +77,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			texQuads[i].sizeY = images[i]->Height();
 			texQuads[i].texCoordX = 1; 
 			texQuads[i].texCoordY = borderY;//+texQuads[i].sizeY;
-			int borderTmp = texQuads[i].sizeX;
+			int borderTmp = texQuads[i].sizeX + 1;
 			int borderMax = borderY + texQuads[i].sizeY;
 			//search a smaller one that can be placed right from the previous one
 			for(int c = i-1; c>=0; c--)
