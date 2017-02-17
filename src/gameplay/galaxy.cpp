@@ -69,7 +69,7 @@ Galaxy::Galaxy(int _stars, float _size, int _ambientStars) :
 		m_starSystems.emplace_back(
 			Math::FixVec3(pos),
 			rnd.Uniform(2000, 40000),
-			rnd.Uniform(1.0f, 2.0f)
+			rnd.Uniform(1.0f, 2.3f)
 			);
 	}
 
@@ -78,6 +78,7 @@ Galaxy::Galaxy(int _stars, float _size, int _ambientStars) :
 	{
 		StarVertex star;
 		star.color = StarSystem::TemperatureToRGB(rnd.Uniform(2000, 40000)).RGBA();
+		star.color -= (rnd.Uniform(-32, 32) + 115) << 24; // background stars have less brightness
 		star.position = rnd.Direction() * 10.0f;
 		star.size = rnd.Uniform(1.0f, 2.0f);
 
