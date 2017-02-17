@@ -27,6 +27,16 @@ float FireManager::FireRay(const FireRayInfo& _info)
 	return 100.f; // max length
 }
 
+void FireManager::FireProjectile(const FireRayInfo& _info)
+{
+	Voxel::Model* proj = new Voxel::Model();
+	proj->Set(ei::IVec3(2012), Voxel::ComponentType::STONE);
+	proj->AddVelocity(_info.ray.direction * 15.f);
+	proj->SetPosition(_info.ray.origin);
+
+	m_sceneGraph.AddObject(proj);
+}
+
 void FireManager::Process(float _deltaTime)
 {
 }

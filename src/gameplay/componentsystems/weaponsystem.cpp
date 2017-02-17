@@ -65,16 +65,39 @@ namespace Mechanics {
 					wRay.origin.y += Math::Fix(ray.origin.y);
 					wRay.origin.z += Math::Fix(ray.origin.z);
 					wRay.direction = ray.direction;
-					float d = g_fireManager->FireRay(FireRayInfo(wRay, weapon.damage, weapon.range));
 
-					// the ray
-					m_particles.AddParticle(basePos, //position
-						m_ship.GetVelocity(),//ray.direction * c_projVel * i / 10.f,// velocity
-						0.05f, //life time
-						Utils::Color8U(0.9f, 0.1f, 0.8f, 0.5f).RGBA(),
-						0.3f,
-						ray.direction * d);
+					// is a ray
+					if (weapon.speed == 0.f)
+					{
+						float d = g_fireManager->FireRay(FireRayInfo(wRay, weapon.damage, weapon.range));
 
+						// the ray
+						m_particles.AddParticle(basePos, //position
+							m_ship.GetVelocity(),//ray.direction * c_projVel * i / 10.f,// velocity
+							0.05f, //life time
+							Utils::Color8U(0.9f, 0.1f, 0.8f, 0.5f).RGBA(),
+							0.3f,
+							ray.direction * d);
+
+						//temporary, hit feedback should be done by the model?
+						if (d != 100.f)
+						{
+							static Generators::Random rng(103423);
+							Vec3 hitPos(basePos + ray.direction * d);
+
+							for (int i = 0; i < 15; ++i)
+								m_muzzleFlash.AddParticle(hitPos, //position
+								Vec3(rng.Uniform(0.1f, 3.0f), rng.Uniform(0.1f, 3.0f), rng.Uniform(0.1f, 3.0f)),// velocity
+								rng.Uniform(0.2f, 1.f), //life time
+								Utils::Color8U(0.15f, 0.2f, 0.2f, 0.3f).RGBA(),
+								0.5f);
+						}
+					}
+					else //projectile
+					{
+						g_fireManager->FireProjectile(FireRayInfo(wRay, weapon.damage, weapon.range));
+					}
+					
 					static Generators::Random rn(351298);
 
 					//muzzle flash
@@ -92,20 +115,6 @@ namespace Mechanics {
 						Utils::Color8U(0.4f, 0.1f, 0.8f).RGBA(),
 						1.f,
 						ray.direction);*/
-
-					//temporary, hit feedback should be done by the model?
-					if (d != 100.f)
-					{
-						static Generators::Random rng(103423);
-						Vec3 hitPos(basePos + ray.direction * d);
-
-						for (int i = 0; i < 15; ++i)
-							m_muzzleFlash.AddParticle(hitPos, //position
-								Vec3(rng.Uniform(0.1f, 3.0f), rng.Uniform(0.1f,3.0f), rng.Uniform(0.1f, 3.0f)),// velocity
-								rng.Uniform(0.2f, 1.f), //life time
-								Utils::Color8U(0.15f, 0.2f, 0.2f, 0.3f).RGBA(),
-								0.5f);
-					}
 				}
 			}
 		}
@@ -119,12 +128,13 @@ namespace Mechanics {
 		weapon.position.z += 1.f; // begin firing outside of the voxel
 
 		weapon.cooldown = 0.f;
-		weapon.cooldownBase = 0.1f;
-
+		weapon.cooldownBase = 0.5f;
+		
 		//100% efficiency
 		weapon.damage = Voxel::TypeInfo::GetDamage(_type);
 		weapon.cost = 10.f;
 		weapon.range = Voxel::TypeInfo::GetRange(_type);
+		weapon.speed = Voxel::TypeInfo::GetProjectileSpeed(_type);
 
 		m_weapons.push_back(weapon);
 	}

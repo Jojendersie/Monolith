@@ -90,7 +90,7 @@ namespace Voxel {
 			voxelInfo.damage = voxelNode[string("Damage")].Get(0.0f);
 			voxelInfo.cooldown = voxelNode[string("Cooldown")].Get(0.0f);
 			voxelInfo.range = voxelNode[string("Range")].Get(0.0f);
-			voxelInfo.projectileSpeed = voxelNode[string("ProjectileSpeed")].Get(0.0f);
+			voxelInfo.projectileSpeed = voxelNode[string("Projectile Speed")].Get(0.0f);
 			voxelInfo.thrust = voxelNode[string("Thrust")].Get(0.0f);
 			voxelInfo.shieldRegeneration = voxelNode[string("ShieldRegeneration")].Get(0.0f);
 			voxelInfo.shieldComponentType = voxelNode[string("ShieldComponentType")].Get(0);

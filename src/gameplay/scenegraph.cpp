@@ -201,6 +201,8 @@ void SceneGraph::ManageObjects(Utils::ThreadSafeBuffer<SOHandle>::WriteGuard& _x
 }
 
 // ************************************************************************* //
+const float IMPULSE_DAMAGE = 0.2f; //totally arbitrary factor
+
 void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model1)
 {
 	//use already computed bounding box for the first try
@@ -221,7 +223,9 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 
 	float dist = lensq(m_posOth - m_posSlf);
 
-	if (dist < r0 + r1)
+	// a previous collision resolve may have destroyed one of the models
+	// todo: remove this with introduction of a general model physics update step
+	if (dist < r0 + r1 && _model0.GetNumVoxels() && _model1.GetNumVoxels())
 	{
 		const Voxel::Model::ModelData& tree0 = _model0.GetVoxelTree();
 		const Voxel::Model::ModelData& tree1 = _model1.GetVoxelTree();
@@ -299,6 +303,7 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 		float impulse = -(1 + epsilon) * dot((velocitySlf - velocityOth), normal);
 		impulse /= (1 / massSlf + 1 / massOth) + dot(normal, cross(m_modelSlf->GetInertiaTensorInverse()* cross(radiusSlf, normal), radiusSlf)
 			+ cross(m_modelOth->GetInertiaTensorInverse()* cross(radiusOth, normal), radiusOth));
+		if (impulse  != impulse) _CrtDbgBreak();
 
 		m_modelSlf->AddVelocity(impulse / massSlf * normal);
 		m_modelOth->AddVelocity(-impulse / massOth * normal);
@@ -310,12 +315,20 @@ void SceneGraph::CollisionCheck::Run(Voxel::Model& _model0, Voxel::Model& _model
 		m_modelSlf->EvtCollision(*m_modelOth);
 		m_modelOth->EvtCollision(*m_modelSlf);
 
-/*		for (auto& hit : m_hits)
+		// energy transfered in j?
+		// this should be converted to damage (/500) 
+		// and reduced further to account for that most energy is converted to velocity
+		float fac = 0.5f * impulse * impulse * IMPULSE_DAMAGE;
+		float damageSlf = fac / ((float)m_hits.size() * massOth);
+		float damageOth = fac / ((float)m_hits.size() * massSlf);
+		for (auto& hit : m_hits)
 		{
 			//	m_modelSlf->Get(IVec3(hit.gridPosSlf));
-			m_modelSlf->Set(IVec3(hit.gridPosSlf), Voxel::ComponentType::UNDEFINED);
+			m_modelSlf->Damage(hit.gridPosSlf, damageSlf);
+			m_modelOth->Damage(hit.gridPosOth, damageOth);
+	//		m_modelSlf->Set(IVec3(hit.gridPosSlf), Voxel::ComponentType::UNDEFINED);
 		}
-	*/
+	
 	}
 }
 

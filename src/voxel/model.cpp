@@ -140,7 +140,10 @@ namespace Voxel {
 	// ********************************************************************* //
 	void Model::Damage(const ei::IVec3& _position, uint32_t _damage)
 	{
-		Voxel& voxel = m_voxelTree.Get(_position, 0)->Data();
+		//temporary; todo: only register damage and perform step later
+		auto node = m_voxelTree.Get(_position, 0);
+		if (!node) return;
+		Voxel& voxel = node->Data();
 
 		if (_damage >= voxel.health)
 		{

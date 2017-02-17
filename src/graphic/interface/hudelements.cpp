@@ -23,7 +23,7 @@ namespace Graphic
 		m_textureSize = m_vertex.size;
 		if (all(Vec2(0.f) == _size))
 		{
-			Vec2 screenSize(posMap.RootNode[std::string("width")].Get(132.0f), posMap.RootNode[std::string("height")].Get(132.0f));
+			Vec2 screenSize(posMap.RootNode[std::string("width")].Get(132), posMap.RootNode[std::string("height")].Get(132));
 			screenSize *= m_vertex.size; //pixel size of this texture
 			m_vertex.screenSize = PixelOffset(screenSize);
 

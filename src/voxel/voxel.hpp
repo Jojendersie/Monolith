@@ -31,6 +31,7 @@ namespace Voxel {
 		BATTERY_M2,
 		GATLING,
 		CAMERA,
+		GENERATOR
 	};
 
 	enum struct ComponentClass {

@@ -18,6 +18,7 @@ namespace Mechanics {
 
 		float cost; ///< energy requirement for one shot
 		float range;
+		float speed;
 
 		ei::Vec3 position; ///< relative position
 	};

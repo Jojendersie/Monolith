@@ -22,6 +22,9 @@ public:
 	/// \return distance of the hit
 	float FireRay(const FireRayInfo& _info);
 
+	/// \brief Spawns a projectile in the world
+	void FireProjectile(const FireRayInfo& _info);
+
 	void Process(float _deltaTime);
 private:
 	SceneGraph& m_sceneGraph;
