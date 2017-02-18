@@ -31,5 +31,7 @@ namespace Mechanics{
 	{
 		m_capacity = 0;
 		m_charge = 0;
+		m_maxEnergyDrain = 0;
+		m_maxEnergyOutput = 0;
 	}
 }

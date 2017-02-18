@@ -61,7 +61,7 @@ public:
 	Mechanics::ComputerSystem& GetPrimarySystem() { return m_primarySystem; }
 
 	/// \brief Returns the local offset of the next available view.
-	ei::Vec3 GetNextView();
+	const ei::Vec3& GetNextView();
 
 	const Math::SphericalFunction& DebugGet() const {
 		return m_primarySystem.m_drives.m_maxThrust;

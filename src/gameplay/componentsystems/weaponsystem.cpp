@@ -138,4 +138,10 @@ namespace Mechanics {
 
 		m_weapons.push_back(weapon);
 	}
+
+	void WeaponSystem::ClearSystem()
+	{
+		m_weapons.clear();
+		m_firing = false;
+	}
 }

@@ -29,10 +29,9 @@ namespace Mechanics {
 		WeaponSystem(class Ship& _theShip, unsigned _id);
 
 		virtual void Estimate(float _deltaTime, SystemRequierements& _requirements) override;
-
 		virtual void Process(float _deltaTime, SystemRequierements& _provided) override;
-
 		virtual void OnAdd(const ei::IVec3& _position, Voxel::ComponentType _type, uint8 _assignment) override;
+		virtual void ClearSystem() override;
 
 		void SetTarget(const ei::Vec3& _target) { m_target = _target; };
 

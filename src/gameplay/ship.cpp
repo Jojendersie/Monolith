@@ -120,7 +120,7 @@ void Ship::ReleaseSystemID( unsigned _id )
 	m_computerSystemAllocation[_id] = false;
 }
 
-Vec3 Ship::GetNextView()
+const Vec3& Ship::GetNextView()
 {
 	return m_views[++m_currentView % m_views.size()];
 }
@@ -131,6 +131,8 @@ void Ship::ComputeParameters()
 	ComputeInertia();
 	// Delete the old state.
 	m_primarySystem.ClearSystem();
+	m_views.resize(1); // keep only the default centered view
+	m_currentView = 0;
 	// Iterate over the tree, compute values for each element and reassign to systems.
 	struct UpdateProcessor: public Model::ModelData::SVOProcessor
 	{
