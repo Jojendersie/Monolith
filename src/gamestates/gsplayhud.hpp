@@ -23,6 +23,7 @@ namespace Graphic {
 	private:
 		Script::VarRefContainer m_scriptVars;
 		std::vector<FillBar*> m_scriptDisplays;
+		std::vector<TextRender*> m_scriptTexts;
 		std::vector<TextRender*> m_textRenders;
 	};
 };

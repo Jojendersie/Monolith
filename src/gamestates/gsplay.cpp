@@ -222,7 +222,7 @@ void GSPlay::Render( double _deltaTime )
 	
 	//update hud information
 	//todo: move this to gsplayhud if possible?
-	m_hud->m_dbgLabel->SetText("<s 024>" + std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(RenderStat::g_numVoxels) + "\n#Chunks: " + std::to_string(RenderStat::g_numChunks)+"</s>");
+	m_hud->GetDebugLabel().SetText("<s 024>" + std::to_string(_deltaTime * 1000.0) + " ms\n#Vox: " + std::to_string(RenderStat::g_numVoxels) + "\n#Chunks: " + std::to_string(RenderStat::g_numChunks)+"</s>");
 	m_hud->m_velocityLabel->SetText(StringUtils::ToFixPoint(len(m_player->GetShip()->GetVelocity()), 1) + "m/s");
 	m_hud->m_targetVelocityLabel->SetText(StringUtils::ToFixPoint(len(m_player->GetShip()->GetTargetVelocity()), 1) + "m/s");
 //	m_hud->m_batteryDisplay->SetFillLevel(m_player->GetShip()->GetPrimarySystem().TempGetCharge());
@@ -255,8 +255,8 @@ void GSPlay::KeyDown( int _key, int _modifiers )
 	m_player->KeyDown(_key, _modifiers);
 
 	if (_key == GLFW_KEY_SPACE) {
-		bool flyingMode = (1 == (m_hud->CursorVisible() - 1));
-		m_hud->ShowCursor(flyingMode ? 1 : 2 );
+		bool flyingMode = (1 == (m_hud->IsCursorVisible() - 1));
+		m_hud->ShowCursor(flyingMode ? Hud::CursorType::Pointer : Hud::CursorType::Crosshair );
 		m_player->SetMouseRotation(!flyingMode);
 	}
 	if( _key == GLFW_KEY_ESCAPE )

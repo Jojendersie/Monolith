@@ -7,10 +7,10 @@ ScreenTexture("simpleWindow", _position, _size),
 m_textRender(Vec2(0.f), Anchor(),
 &Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT))
 {
-	ei::Vec2 captionDim = m_textRender.GetDim();
+	ei::Vec2 captionDim = m_textRender.GetCharSize();
 	m_textRender.SetDefaultSize(1.f);
 
-	m_textRender.SetPosition(m_position + Vec2(0.02f, -m_textRender.GetDim()[1]));
+	m_textRender.SetPosition(m_position + Vec2(0.02f, -m_textRender.GetCharSize()[1]));
 
 	m_sizeTextArea = m_size - Vec2(0.04f, 0.02f);
 }
@@ -58,7 +58,7 @@ void MessageBox::UpdateMsg()
 
 		m_timeToChange = newMsg.second;
 		m_textRender.SetText(newMsg.first);
-		m_textRender.SetExpanse(m_sizeTextArea, true);
+		m_textRender.SetRectangle(m_sizeTextArea, true);
 	}
 	else
 	{

@@ -76,7 +76,7 @@ void ParticleSystems::SystemActions::Draw( const Input::Camera& _camera )
 	Mat4x4 modelViewProj = m_systemTransformation.GetTransformation(_camera.Transformation());
 	modelViewProj = _camera.GetProjection() * modelViewProj;
 	Resources::GetUBO(UniformBuffers::SIMPLE_OBJECT)["WorldViewProjection"] = modelViewProj;
-	Resources::GetUBO(UniformBuffers::GLOBAL)["Time"] = rand(); // real game time is not easily available
+	Resources::GetUBO(UniformBuffers::GLOBAL)["Time"] = (float)rand(); // real game time is not easily available
 
 	// Set renderer and do draw call. The set has no effect if the renderer is
 	// currently active.

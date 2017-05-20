@@ -58,7 +58,7 @@ namespace Graphic{
 
 	void ScreenOverlay::Register(Hud& _hud)
 	{
-		_hud.AddScreenOverlay(this);
+		_hud.RegisterElement(*this);
 	}
 
 	// ************************************************* //

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "scriptengine.hpp"
+#include "ei/vector.hpp"
 
 namespace Script{
 	enum DisplayMode{
@@ -10,8 +11,10 @@ namespace Script{
 
 	struct DisplayValue
 	{
-		float value;
 		DisplayMode mode;
+	//	ei::Vec2 position;
+		float value;
+		char* string;
 	};
 
 	typedef std::vector<Script::DisplayValue* const> VarRefContainer;

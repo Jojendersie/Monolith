@@ -75,20 +75,20 @@ namespace Graphic {
 		~Texture();
 		
 		/// \brief Return width of the loaded texture.
-		unsigned int Width()		{ return m_width; }
+		unsigned int Width() const	{ return m_width; }
 
 		/// \brief Return width of the loaded texture.
-		unsigned int Height()		{ return m_height; }
+		unsigned int Height() const	{ return m_height; }
 
 		/// \brief Return depth/layers of a volume texture or texture array.
 		/// \details For standard 2D textures the return value is 1.
-		unsigned int Depth()		{ return m_depth; }
+		unsigned int Depth() const	{ return m_depth; }
 
 		/// \brief Returns number of available mipLevels.
-		unsigned int MipLevels()	{ return m_numMipLevels; }
+		unsigned int MipLevels() const { return m_numMipLevels; }
 
 		/// \brief Returns the 2d size of the texture as Vector2
-		ei::IVec2 Size2D() { return ei::IVec2(m_width, m_height); }
+		ei::IVec2 Size2D() const	{ return ei::IVec2(m_width, m_height); }
 
 		/// \brief Fill a texture with data.
 		/// \details This calls glTexSubImage3D with the width and height for the

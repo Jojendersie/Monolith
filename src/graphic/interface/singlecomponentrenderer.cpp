@@ -36,7 +36,7 @@ m_voxels( Graphic::VertexArrayBuffer::PrimitiveType::POINT, {{VertexAttribute::U
 	m_voxels.GetBuffer(0)->SetData((void*&)vertexData, bufferSize);
 }
 
-void SingleComponentRenderer::Draw( const Voxel::Voxel& _component, int _sideFlags, const ei::Mat4x4& _worldView, const ei::Mat4x4& _projection )
+void SingleComponentRenderer::Draw( const Voxel::Voxel& _component, int _sideFlags, const ei::Mat4x4& _worldView, const ei::Mat4x4& _projection ) const
 {
 	Graphic::UniformBuffer& objectConstants = Graphic::Resources::GetUBO(Graphic::UniformBuffers::OBJECT_VOXEL);
 	objectConstants["WorldView"] = _worldView;

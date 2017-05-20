@@ -26,8 +26,6 @@ namespace Graphic {
 			ei::Vec2 _position, ei::Vec2 _size = ei::Vec2(0.f), DefinitionPoint _def = DefinitionPoint::TopLeft,
 			Anchor _anchor = Anchor(),
 			std::function<void()> _OnMouseUp = [] () {return;});
-		
-		TextureVertex m_vertex;
 
 		void Register(Hud& _hud) override;
 		//override to apply vertex changes 
@@ -41,6 +39,8 @@ namespace Graphic {
 	protected:
 		ei::Vec2 m_textureSize; ///< base size of the texture rectangle
 	private:
+		TextureVertex m_vertex;
+		friend class Hud;
 	};
 
 	// ************************************************************* //
@@ -54,11 +54,6 @@ namespace Graphic {
 			Anchor _anchor = Anchor(), const std::string& _caption = "",
 			std::function<void()> _OnMouseUp = [] () {return;}, 
 			Font* _font = &Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT));
-
-		ScreenTexture m_btnDefault;
-		ScreenTexture m_btnOver;
-		ScreenTexture m_btnDown;
-		TextRender m_caption;
 
 		void SetCaption(const std::string& _caption);
 
@@ -77,9 +72,22 @@ namespace Graphic {
 		virtual bool KeyDown(int _key, int _modifiers, ei::Vec2 _pos) override;
 		virtual bool KeyUp(int _key, int _modifiers, ei::Vec2 _pos) override;
 
+		enum struct State
+		{
+			Base,
+			MouseOver,
+			Pressed
+		};
+		State GetButtonState() const { return m_btnState; }
+
 	private:
+		ScreenTexture m_btnDefault;
+		ScreenTexture m_btnOver;
+		ScreenTexture m_btnDown;
+		TextRender m_caption;
+
 		ei::Vec<bool,2> m_autoCenter;
-		int m_btnState; // 0 - default; 1 - mouseover; 2 - down
+		State m_btnState; // 0 - default; 1 - mouseover; 2 - down
 	};
 
 	/// \brief A component rendered as overlay on the camera level
@@ -121,9 +129,9 @@ namespace Graphic {
 		void Register(Hud& _hud) override;
 
 		/// \brief Returns the current text the field contains.
-		const std::string& GetText() { return m_content; };
+		const std::string& GetText() const { return m_content; };
 
-		/// \brief Returns the textRender to diretly manipulate the text.
+		/// \brief Returns the textRender to directly manipulate the text.
 		TextRender* getTextRender() { return &m_textRender; };
 	private:
 

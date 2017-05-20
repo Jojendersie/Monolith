@@ -38,7 +38,7 @@ namespace Graphic{
 		ScreenPosition(ei::Vec2 _position = ei::Vec2(), Anchor _anchor = Anchor());
 		virtual ~ScreenPosition(){};
 
-		/// \ Functions to alter the rectangle in lifetime
+		/// \brief Functions to alter the rectangle in its lifetime
 		virtual void SetPosition(ei::Vec2 _pos);
 
 		/// \brief Called once by the hud to add it and its child.
@@ -54,7 +54,7 @@ namespace Graphic{
 		ei::Vec2 m_positionDef; ///< position as given without the offset from the def point
 		Anchor m_anchor;
 
-		friend class Hud; //todo remove this
+		friend class Hud;
 	};
 
 	/// \brief a basic class for 2d screen elements
@@ -93,24 +93,24 @@ namespace Graphic{
 		virtual void Scale(ei::Vec2 _scale);
 
 		/// \brief An inactive screen overlay does not receive player input.
-		void SetState(bool _state) { m_active = _state; };
-		void SetVisibility(bool _visibility){ m_visible = _visibility; };
+		void SetActive(bool _state) { m_active = _state; };
+		void SetVisible(bool _visibility){ m_visible = _visibility; };
 
-		bool GetState() const { return m_active; };
-		bool GetVisibility() const { return m_visible; };
+		bool IsActive() const { return m_active; };
+		bool IsVisible() const { return m_visible; };
 
 		//Only the overlay in front receives this events
 
 		virtual void MouseMove(double _dx, double _dy){ return; };
 		/// \brief Triggered when the mouse entered the tex this frame
-		virtual void MouseEnter(){ if (OnMouseEnter != NULL) OnMouseEnter(); };
+		virtual void MouseEnter(){ if (OnMouseEnter != nullptr) OnMouseEnter(); };
 		/// \brief Triggered when the mouse leaved the tex this frame
-		virtual	void MouseLeave(){ if (OnMouseLeave != NULL) OnMouseLeave(); };
+		virtual	void MouseLeave(){ if (OnMouseLeave != nullptr) OnMouseLeave(); };
 		/// \brief Called when left mouse buttons goes down inside the rectangle; @param _pos Pos of Mouse relative to the button
 		///returns true when input gets captured
-		virtual bool KeyDown(int _key, int _modifiers, ei::Vec2 _pos = ei::Vec2(0.f, 0.f)){ if (OnMouseDown != NULL) OnMouseDown(); return true; };
+		virtual bool KeyDown(int _key, int _modifiers, ei::Vec2 _pos = ei::Vec2(0.f, 0.f)){ if (OnMouseDown != nullptr) OnMouseDown(); return true; };
 		/// \brief Called when left mouse buttons goes up inside the rectangle; @param _pos Pos of Mouse relative to the button
-		virtual bool KeyUp(int _key, int _modifiers, ei::Vec2 _pos = ei::Vec2(0.f, 0.f)){ if (OnMouseUp != NULL) OnMouseUp(); return true; };
+		virtual bool KeyUp(int _key, int _modifiers, ei::Vec2 _pos = ei::Vec2(0.f, 0.f)){ if (OnMouseUp != nullptr) OnMouseUp(); return true; };
 
 		/// \brief Only triggered for the overlay the mouse is in; Does nothing by default 
 		virtual bool Scroll(double _dx, double _dy){ return false; };

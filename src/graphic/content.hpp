@@ -13,13 +13,14 @@ namespace Graphic {
 	{
 		VOXEL_RENDER = 0,	///< Draw lots of cubes. Bound UBOs: {OBJECT_VOXEL, CAMERA, GLOBAL}
 		TEXTURE_2DQUAD = 1,	///< Draw a screen space quad. Bound UBOs: {}
-		WIRE = 2,			///< Draw a set of lines. Bound UBOs: {OBJECT_WIRE}
-		BEAM = 3,			///< Draw beams for a set of lines Bound: {OBJECT_WIRE}
-		ALPHA_BACK = 4,		///< Draw a mesh's back faces with ab. enabled. Bound UBOs: {SIMPLE_OBJECT}
-		ALPHA_FRONT = 5,	///< Draw a mesh's front faces with ab. enabled. Bound UBOs: {SIMPLE_OBJECT}
-		BACKGROUNDSTAR = 6, ///< Draw stars with and without translation to the camera. Bound UBOs: {CAMERA, GLOBAL}
-		BLOB_PARTICLE = 7,	///< Draw round particles with increasing transparents to the borders. Bound UBOs: {SIMPLE_OBJECT, GLOBAL}
-		RAY_PARTICLE = 8,	///< Draw ray particles.
+		TEXT = 2,			///< Draw a text composed of letters. 
+		WIRE = 3,			///< Draw a set of lines. Bound UBOs: {OBJECT_WIRE}
+		BEAM = 4,			///< Draw beams for a set of lines Bound: {OBJECT_WIRE}
+		ALPHA_BACK = 5,		///< Draw a mesh's back faces with ab. enabled. Bound UBOs: {SIMPLE_OBJECT}
+		ALPHA_FRONT = 6,	///< Draw a mesh's front faces with ab. enabled. Bound UBOs: {SIMPLE_OBJECT}
+		BACKGROUNDSTAR = 7, ///< Draw stars with and without translation to the camera. Bound UBOs: {CAMERA, GLOBAL}
+		BLOB_PARTICLE = 8,	///< Draw round particles with increasing transparents to the borders. Bound UBOs: {SIMPLE_OBJECT, GLOBAL}
+		RAY_PARTICLE = 9,	///< Draw ray particles.
 		COUNT				///< Number of effects - this must be the last enumeration member
 	};
 

@@ -35,7 +35,7 @@ namespace Graphic
 
 	void ScreenTexture::Register(Hud& _hud)
 	{
-		ScreenOverlay::Register(_hud);
+		_hud.RegisterElement(*this);
 	}
 
 	void ScreenTexture::SetPosition(Vec2 _pos)
@@ -79,12 +79,12 @@ namespace Graphic
 		m_caption(Vec2(0.f), Anchor(), _font),
 		m_autoCenter(true)
 	{
-		SetVisibility(false); 
-		SetState(true);
+		SetVisible(false); 
+		SetActive(true);
 		
-		m_btnDefault.SetVisibility(true);
-		m_btnOver.SetVisibility(false);
-		m_btnDown.SetVisibility(false);
+		m_btnDefault.SetVisible(true);
+		m_btnOver.SetVisible(false);
+		m_btnDown.SetVisible(false);
 
 		m_caption.SetDefaultSize(2.f);
 		SetCaption(_caption);
@@ -92,7 +92,7 @@ namespace Graphic
 
 	void Button::Register(Hud& _hud)
 	{
-		_hud.AddTextRender(&(m_caption));
+		_hud.RegisterElement(m_caption);
 		m_btnDefault.Register(_hud);
 		m_btnOver.Register(_hud);
 		m_btnDown.Register(_hud);
@@ -157,7 +157,7 @@ namespace Graphic
 		//if the text contains no linebreaks
 		if(!charCountMax) charCountMax = charCount;
 
-		Vec2 captionDim = m_caption.GetDim();
+		Vec2 captionDim = m_caption.GetCharSize();
 
 		// in case that the text is to large in any direction scale it down
 		float ySize = captionDim[1] * lineCount + captionDim[1] * 0.2f;
@@ -179,26 +179,30 @@ namespace Graphic
 	void Button::MouseEnter()
 	{
 		ScreenOverlay::MouseEnter();
-		m_btnDefault.SetVisibility(false);
-		m_btnOver.SetVisibility(true);
+		m_btnDefault.SetVisible(false);
+		m_btnOver.SetVisible(true);
 
+		m_btnState = State::MouseOver;
 		m_caption.SetDefaultColor(Utils::Color8U((uint8_t)210, 210, 210));
 	}
 	void Button::MouseLeave()
 	{
 		ScreenOverlay::MouseLeave();
-		m_btnDefault.SetVisibility(true);
-		m_btnOver.SetVisibility(false);
-		m_btnDown.SetVisibility(false);
+		m_btnDefault.SetVisible(true);
+		m_btnOver.SetVisible(false);
+		m_btnDown.SetVisible(false);
 
+		m_btnState = State::Base;
 		m_caption.SetDefaultColor(Utils::Color8U((uint8_t)255, 255, 255));
 	}
 	bool Button::KeyDown(int _key, int _modifiers, Vec2 _pos)
 	{
 		ScreenOverlay::KeyDown(_key, _modifiers, _pos);
-		m_btnDefault.SetVisibility(false);
-		m_btnOver.SetVisibility(false);
-		m_btnDown.SetVisibility(true);
+		m_btnDefault.SetVisible(false);
+		m_btnOver.SetVisible(false);
+		m_btnDown.SetVisible(true);
+
+		m_btnState = State::Pressed;
 		//since an object(this) is hit, the return value is always true
 		return true;
 	}
@@ -206,9 +210,11 @@ namespace Graphic
 	bool Button::KeyUp(int _key, int _modifiers, Vec2 _pos)
 	{
 		ScreenOverlay::KeyUp(_key, _modifiers, _pos);
-		m_btnDefault.SetVisibility(true);
-		m_btnOver.SetVisibility(false);
-		m_btnDown.SetVisibility(false);
+		m_btnDefault.SetVisible(true);
+		m_btnOver.SetVisible(false);
+		m_btnDown.SetVisible(false);
+		m_btnState = State::MouseOver;
+
 		return true;
 	}
 	
@@ -266,10 +272,10 @@ namespace Graphic
 		m_cursor(0)
 	{
 	//	m_lines.emplace_back(new TextRender(_font));
-	//	SetVisibility(false);
-	//	SetState(true);
+	//	SetVisible(false);
+	//	SetActive(true);
 		m_textRender.SetText("");
-		Vec2 dim = m_textRender.GetDim();
+		Vec2 dim = m_textRender.GetCharSize();
 
 		const float textToBoxSize = 0.75f;
 		//automatic rezising of the text to fit the field
@@ -278,15 +284,15 @@ namespace Graphic
 			m_fontSize = m_size[1] * textToBoxSize / dim[1];
 			m_textRender.SetDefaultSize( m_fontSize );
 		}
-		m_textRender.SetExpanse(_size);
+		m_textRender.SetRectangle(_size);
 		//offset of an half char in x direction ;center in y direction
-		m_textRender.SetPosition(m_position + Vec2(m_fontSize * m_textRender.GetDim()[0] * 0.5f, -m_size[1] * (textToBoxSize) * 0.5f/* * 0.5f /*- m_textRender.GetExpanse()[1] * 0.5f*/));
+		m_textRender.SetPosition(m_position + Vec2(m_fontSize * m_textRender.GetCharSize()[0] * 0.5f, -m_size[1] * (textToBoxSize) * 0.5f/* * 0.5f /*- m_textRender.GetRectangle()[1] * 0.5f*/));
 	}
 
 	void EditField::Register(Hud& _hud)
 	{
 		ScreenTexture::Register(_hud);
-		_hud.AddTextRender(&m_textRender);
+		_hud.RegisterElement(m_textRender);
 	}
 
 	// ************************************************************** //
@@ -336,7 +342,7 @@ namespace Graphic
 		}
 		//printable chars
 		//check whether an added char would overflow the rectangle; 1.5 to take into account the start offset
-		else if (_key >= 32 && _key <= 162 && m_textRender.GetExpanse()[0] + m_textRender.GetDim()[0] * m_fontSize * 1.5f < m_size[0])
+		else if (_key >= 32 && _key <= 162 && m_textRender.GetRectangle()[0] + m_textRender.GetCharSize()[0] * m_fontSize * 1.5f < m_size[0])
 		{
 			//letter A - Z without shift -> lower case
 			if (_key >= 65 && _key <= 90 && !(_modifiers & GLFW_MOD_SHIFT))

@@ -12,7 +12,7 @@ namespace Graphic{
 
 		static PixelCoord FromScreenPos(const ei::Vec2& _pos) {}
 
-		operator ei::Vec2(){ return *this * 2.f / Device::GetBackbufferSize() - ei::Vec2(1.f,1.f); }
+		operator ei::Vec2() const { return *this * 2.f / Device::GetBackbufferSize() - ei::Vec2(1.f,1.f); }
 	};
 
 	//use this for pixel offsets and sizes
@@ -22,7 +22,7 @@ namespace Graphic{
 		PixelOffset(_Args&&... _args) :
 			ei::IVec2(std::forward< _Args >(_args)...){}
 
-		operator ei::Vec2(){ return *this * 2.f / Device::GetBackbufferSize(); }
+		operator ei::Vec2() const { return *this * 2.f / Device::GetBackbufferSize(); }
 	};
 
 }	

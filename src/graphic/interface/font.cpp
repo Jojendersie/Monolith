@@ -9,7 +9,7 @@ using namespace ei;
 
 namespace Graphic
 {
-	Font::Font(std::string _fontName) :
+	Font::Font(const std::string& _fontName) :
 		m_texture("texture/"+_fontName+".png"),
 		m_effect( "shader/font.vs", "shader/font.ps", "shader/font.gs")
 	{
@@ -36,15 +36,17 @@ namespace Graphic
 		}
 	}
 
-	TextRender::TextRender(ei::Vec2 _position, ScreenOverlay::Anchor _anchor, Font* _font) :
+	TextRender::TextRender(ei::Vec2 _position, ScreenOverlay::Anchor _anchor, Font* _font,
+		const std::string& _text, float _scale) :
 		ScreenPosition(_position, _anchor),
-		m_font(_font ? _font : &Resources::GetFont(Fonts::DEFAULT)),
+		m_font(_font ? *_font : Resources::GetFont(Fonts::DEFAULT)),
+		m_text(_text),
 		m_characters( VertexArrayBuffer::PrimitiveType::POINT, {
 				{Graphic::VertexAttribute::VEC2, 11}, {Graphic::VertexAttribute::VEC2, 12},
 				{Graphic::VertexAttribute::VEC2, 13}, {Graphic::VertexAttribute::COLOR, 3},
 				{Graphic::VertexAttribute::FLOAT, 14}, {Graphic::VertexAttribute::FLOAT, 15}
-		} ),//222c11
-		m_sizeD(1.f),
+		} ),
+		m_sizeD(_scale),
 		m_colorD((uint8)255,(uint8)255,(uint8)255,(uint8)255),
 		m_thicknessD(0.7f),
 		m_active(true),
@@ -55,7 +57,7 @@ namespace Graphic
 		m_thickness = m_thicknessD;
 
 		//calculates the screen ratio
-		GetDim();
+		GetCharSize();
 	}
 
 
@@ -83,21 +85,21 @@ namespace Graphic
 		RenewBuffer();
 	}
 
-	Vec2 TextRender::GetDim()
+	Vec2 TextRender::GetCharSize()
 	{
-		m_charSize = Vec2(m_font->m_sizeTable[0][0],
-								   m_font->m_sizeTable[0][1] * (m_font->m_texture.Height()
-								   / (float)m_font->m_texture.Width()) * Device::GetAspectRatio());
+		m_charSize = Vec2(m_font.m_sizeTable[0][0],
+						m_font.m_sizeTable[0][1] * (m_font.m_texture.Height()
+						/ (float)m_font.m_texture.Width()) * Device::GetAspectRatio());
 		return m_charSize;
 	}
 
 
-	Vec2 TextRender::GetExpanse()
+	Vec2 TextRender::GetRectangle() const
 	{
-		return m_expanse;
+		return m_rectangle;
 	}
 
-	void TextRender::SetExpanse(const Vec2& _expanse, bool _onlyScaleDown)
+	void TextRender::SetRectangle(const Vec2& _rectangle, bool _onlyScaleDown)
 	{
 		int len = (int)m_text.length();
 		int lineCount = 1;
@@ -118,24 +120,24 @@ namespace Graphic
 		//if the text contains no linebreaks
 		if (!charCountMax) charCountMax = charCount;
 
-		Vec2 captionDim = GetDim();
+		Vec2 captionDim = GetCharSize();
 
 		// in case that the text is to large in any direction scale it down
-		if (!_onlyScaleDown || (captionDim[0] * charCountMax * GetDefaultSize() >= _expanse[0] || captionDim[1] * lineCount >= _expanse[1]))
+		if (!_onlyScaleDown || (captionDim[0] * charCountMax * GetDefaultSize() >= _rectangle[0] || captionDim[1] * lineCount >= _rectangle[1]))
 		{
-			SetDefaultSize(min((float)(_expanse[0] / (captionDim[0] * charCountMax)),
-				(float)(_expanse[1] / (captionDim[1] * lineCount))));
+			SetDefaultSize(min((float)(_rectangle[0] / (captionDim[0] * charCountMax)),
+				(float)(_rectangle[1] / (captionDim[1] * lineCount))));
 		}
 
 	}
 
 	// ***************************************************** //
-	void TextRender::Draw()
+	void TextRender::Draw() const
 	{
 		if(m_characters.GetNumVertices())
 		{
-			Graphic::Device::SetEffect( m_font->m_effect );
-			Graphic::Device::SetTexture( m_font->m_texture, 7 );
+			Graphic::Device::SetEffect( m_font.m_effect );
+			Graphic::Device::SetTexture( m_font.m_texture, 7 );
 			Graphic::Device::DrawVertices( m_characters, 0, m_characters.GetNumVertices() );
 		}
 	}
@@ -143,7 +145,7 @@ namespace Graphic
 	// ***************************************************** //
 	void TextRender::Register(Hud& _hud)
 	{
-		_hud.AddTextRender(this);
+		_hud.RegisterElement(*this);
 	}
 
 	// ***************************************************** //
@@ -201,8 +203,8 @@ namespace Graphic
 		{
 			CharacterVertex CV;
 			CV.scale = m_size; 
-			CV.size = m_font->m_sizeTable[(unsigned char)m_text[i]];
-			CV.texCoord = m_font->m_coordTable[(unsigned char)m_text[i]];
+			CV.size = m_font.m_sizeTable[(unsigned char)m_text[i]];
+			CV.texCoord = m_font.m_coordTable[(unsigned char)m_text[i]];
 			CV.position = currentPos;
 			CV.thickness = m_thickness;
 			CV.color = m_color.RGBA();
@@ -216,7 +218,7 @@ namespace Graphic
 				currentPos[1] -= m_charSize[1] * m_sizeMax;//offset to lower line space
 			}
 			else if(m_text[i] == '<') { i += CntrlChr((int)i)-1; continue;} 
-			else currentPos[0] += m_font->m_sizeTable[(unsigned char)m_text[i]][0]*m_size;  
+			else currentPos[0] += m_font.m_sizeTable[(unsigned char)m_text[i]][0]*m_size;  
 
  			vbGuard->Add(CV);
 
@@ -228,6 +230,6 @@ namespace Graphic
 		//when no line break happened
 		if (currentPos[0] > maxExpanseX) maxExpanseX = currentPos[0];
 		//calculate size using the start and end point; the points are always the lower left of the char
-		m_expanse = abs((m_position + Vec2(-maxExpanseX, m_charSize[1] * m_sizeMax * GetDim()[1] - currentPos[1])));
+		m_rectangle = abs((m_position + Vec2(-maxExpanseX, m_charSize[1] * m_sizeMax * GetCharSize()[1] - currentPos[1])));
 	}
 }; 

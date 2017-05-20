@@ -21,15 +21,37 @@ namespace Graphic
 	{
 		for (auto var : m_scriptVars)
 		{
-			m_scriptDisplays.push_back(&CreateScreenElement<FillBar>(PixelOffset(50, 100), PixelOffset(300, 30), DefinitionPoint::BotLeft, Anchor(BotLeft, this)));
+			switch (var->mode)
+			{
+			case Script::DisplayMode::Bar:
+				m_scriptDisplays.push_back(&CreateScreenElement<FillBar>(PixelOffset(50, 100), PixelOffset(300, 30), DefinitionPoint::BotLeft, Anchor(BotLeft, this)));
+				break;
+			case Script::DisplayMode::PlainText:
+				m_scriptTexts.push_back(&CreateScreenElement<TextRender>(PixelOffset(80, 20), Anchor(MidMid, this)));
+				break;
+			}
 		}
 	}
 
 	void HudGsPlay::UpdateScriptVars()
 	{
-		for (int i = 0; i < (int)m_scriptVars.size(); ++i)
+		if (!m_scriptDisplays.size() && !m_scriptTexts.size()) return;
+		// the screen elements should still be in the same order they where added
+		int barCount = 0;
+		int textCount = 0;
+		for (auto var : m_scriptVars)
 		{
-			m_scriptDisplays[i]->SetFillLevel(m_scriptVars[i]->value);
+			switch (var->mode)
+			{
+			case Script::DisplayMode::Bar:
+				m_scriptDisplays[barCount]->SetFillLevel(var->value);
+				++barCount;
+				break;
+			case Script::DisplayMode::PlainText:
+				m_scriptTexts[textCount]->SetText(var->string);
+				++textCount;
+				break;
+			}
 		}
 	}
 }

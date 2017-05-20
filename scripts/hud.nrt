@@ -1,7 +1,7 @@
 type DisplayValue
 {
-	float value
 	int mode
+	float value
 }
 
 DisplayValue DisplayValue(float _val, int _mode)

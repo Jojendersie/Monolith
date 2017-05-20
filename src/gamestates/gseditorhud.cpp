@@ -25,14 +25,14 @@ namespace Graphic
 		m_modelInfoContainer->CreateScreenElement<ScreenTexture>("simpleWindow", Vec2(0.f), Vec2(0.4f, 0.6f), TopLeft, Anchor(TopLeft, m_modelInfoContainer));
 
 
-		m_modelInfoContainer->CreateLabel(Vec2(-0.86f, 0.4f), "mass(kg):", 0.7f, Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT));
-		m_mass = &m_modelInfoContainer->CreateLabel(Vec2(0.32f, 0.4f), "", 0.7f, Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT));
+		m_modelInfoContainer->CreateScreenElement<TextRender>(Vec2(-0.86f, 0.4f), ScreenPosition::Anchor(), &Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT), "mass(kg):", 0.7f);
+		m_mass = &m_modelInfoContainer->CreateScreenElement<TextRender>(Vec2(0.32f, 0.4f), ScreenPosition::Anchor(), &Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT), "", 0.7f);
 
-		m_modelInfoContainer->CreateLabel(Vec2(-0.86f, 0.24f), "acceleration(m/s):", 0.7f, Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT));
+		m_modelInfoContainer->CreateScreenElement<TextRender>(Vec2(-0.86f, 0.24f), ScreenPosition::Anchor(), &Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT), "acceleration(m/s):", 0.7f);
 		for (int i = 0; i < 6; ++i)
 		{
-			m_modelInfoContainer->CreateLabel(Vec2(-0.86f, 0.08f - i * 0.16f), char(i + 0xCC) + std::string(":"), 0.7f, Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT));
-			m_resourceCosts[i] = &m_modelInfoContainer->CreateLabel(Vec2(0.32f, 0.08f - i * 0.16f), "00000000", 0.7f, Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT));
+			m_modelInfoContainer->CreateScreenElement<TextRender>(Vec2(-0.86f, 0.08f - i * 0.16f), ScreenPosition::Anchor(), &Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT), char(i + 0xCC) + std::string(":"), 0.7f);
+			m_resourceCosts[i] = &m_modelInfoContainer->CreateScreenElement<TextRender>(Vec2(0.32f, 0.08f - i * 0.16f), ScreenPosition::Anchor(), &Graphic::Resources::GetFont(Graphic::Fonts::GAME_FONT), "00000000", 0.7f);
 		}
 	}
 }

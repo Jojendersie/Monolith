@@ -94,7 +94,7 @@ void GSMainMenu::Render( double _deltaTime )
 	galaxyCam.Set( Graphic::Resources::GetUBO(Graphic::UniformBuffers::CAMERA) );
 	m_galaxy->Draw(galaxyCam);
 	
-	m_hud->m_dbgLabel->SetText("<t 026> <s 024>" + std::to_string(_deltaTime * 1000.0) + " ms</s></t>");
+	m_hud->GetDebugLabel().SetText("<t 026> <s 024>" + std::to_string(_deltaTime * 1000.0) + " ms</s></t>");
 	m_hud->Draw( _deltaTime );
 }
 

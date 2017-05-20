@@ -15,7 +15,7 @@ namespace Graphic {
 
 		/// \brief Draw a single voxel with manually set transformation.
 		/// \details This draw call expects the effect Effects::VOXEL_RENDER to be set
-		void Draw( const Voxel::Voxel& _component, int _sideFlags, const ei::Mat4x4& _worldView, const ei::Mat4x4& _projection );
+		void Draw( const Voxel::Voxel& _component, int _sideFlags, const ei::Mat4x4& _worldView, const ei::Mat4x4& _projection ) const;
 	private:
 		Graphic::VertexArrayBuffer m_voxels;
 
