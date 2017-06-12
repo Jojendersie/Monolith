@@ -36,7 +36,7 @@ namespace Graphic
 		m_cursors.back().texture.SetActive(false);
 
 		//cursor occupies adress [0]
-		RegisterElement(m_cursors[0].texture);
+		RegisterElement(*static_cast<ScreenOverlay*>(&m_cursors[0].texture));
 
 		ShowCursor(_cursor);
 	}
@@ -129,16 +129,18 @@ namespace Graphic
 		m_characters.Clear();
 		if (!m_screenTextures.size()) return;
 		auto vbGuard = m_characters.GetBuffer(0);
-	
+
 	//	for( size_t i = m_screenOverlays.size(); i-- > 0; )
-		for (size_t i = 1; i < m_screenTextures.size(); i++)
+		for (size_t i = 0; i < m_screenTextures.size(); i++)
 		{
 			ScreenTexture& screenTex = *m_screenTextures[i];
 			if(screenTex.IsVisible()) 
 				vbGuard->Add(screenTex.m_vertex);
 		}
+		
 		//cursor
-		ScreenTexture* screenTex = m_screenTextures[0];
+		ScreenTexture* screenTex = static_cast<ScreenTexture*>(m_screenOverlays[0]);
+
 		if (screenTex->IsVisible())
 			vbGuard->Add(screenTex->m_vertex);
 	}

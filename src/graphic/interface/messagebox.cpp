@@ -66,6 +66,9 @@ void MessageBox::UpdateMsg()
 
 		//hide
 		if (!m_showPermanent)
+		{
 			m_active = false;
+			m_visible = false;
+		}
 	}
 }
