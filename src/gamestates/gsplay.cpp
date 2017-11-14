@@ -255,7 +255,7 @@ void GSPlay::KeyDown( int _key, int _modifiers )
 	m_player->KeyDown(_key, _modifiers);
 
 	if (_key == GLFW_KEY_SPACE) {
-		bool flyingMode = (1 == (m_hud->IsCursorVisible() - 1));
+		bool flyingMode = m_hud->GetCurrentCursor() == Hud::CursorType::Crosshair;
 		m_hud->ShowCursor(flyingMode ? Hud::CursorType::Pointer : Hud::CursorType::Crosshair );
 		m_player->SetMouseRotation(!flyingMode);
 	}

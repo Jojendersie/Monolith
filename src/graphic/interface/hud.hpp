@@ -66,6 +66,7 @@ namespace Graphic {
 		void SetScrollable(bool _scrollable) {m_scrollable = _scrollable;};
 
 		void ShowCursor(CursorType _cursor);
+		CursorType GetCurrentCursor() const { return m_showCursor; }
 		bool IsCursorVisible() const { return m_showCursor == CursorType::None; };
 
 		TextRender& GetDebugLabel() { return *m_dbgLabel; }
